@@ -14,26 +14,26 @@ use BalanceOfPower::Friendship;
 
 has nations => (
     is => 'rw',
-    default => []
+    default => sub { [] }
 );
 has traderoutes => (
     is => 'rw',
-    default => []
+    default => sub { [] }
 );
 has diplomatic_relations => (
     is => 'rw',
-    default => []
+    default => sub { [] }
 );
 has statistics => (
     is => 'rw',
-    default => {}
+    default => sub { {} }
 );
 has events => (
     is => 'rw',
-    default => {}
+    default => sub { {} }
 );
 
-
+#Initial values, randomly generated
 sub init_random
 {
     my $self = shift;
@@ -77,6 +77,74 @@ sub init_random
         }
     }
 }
+
+#Just set current year for nations and set wealth to zero
+sub start_turn
+{
+    my $self = shift;
+    my $turn = shift;
+    foreach my $n (@{$self->nations})
+    {
+        $n->current_year($turn);
+        $n->wealth(0);
+    }
+
+}
+
+#Say the value of starting production used to calculate production for a turn.
+#Usually is just the value of production the turn before, but if rebels won a civil war it has to be undef to allow a totally random generation of production.
+sub get_base_production
+{
+    my $self = shift;
+    my $nation = $self->get_nation(shift);
+    my $statistics_production = $self->get_statistics_value(prev_year($nation->current_year), $nation->name, 'production'); 
+    if($statistics_production)
+    {
+        my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_year($nation->current_year));
+        if(@newgov > 0)
+        {
+            return undef;
+        }
+        else
+        {
+            return $statistics_production;
+        }
+    }
+    else
+    {
+        return undef;
+    }
+}
+
+#Production has to be configured at the start of every turn
+sub set_production
+{
+    my $self = shift;
+    my $nation = $self->get_nation(shift);
+    my $value = shift;
+    $nation->production($value);
+    $self->set_statistics_value($nation, 'production', $value);
+    $self->set_statistics_value($nation, 'debt', $nation->debt);
+}
+
+sub decisions
+{
+    my $self = shift;
+    my @decisions = ();
+    foreach my $nation (@{$self->nations})
+    {
+        my $decision = $nation->decision();
+        if($decision)
+        {
+            say $decision;
+            push @decisions, $decision;
+        }
+    }
+    return @decisions;
+}
+
+
+
 sub generate_traderoute
 {
     my $self = shift;
@@ -102,3 +170,29 @@ sub generate_traderoute
                
 }
 
+sub get_statistics_value
+{
+    my $self;
+    my $turn;
+    my $nation;
+    my $value;
+    if(exists $self->statistics->{$turn})
+    {
+        return $self->statistics->{$turn}->{$nation}->{$value};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub set_statistics_value
+{
+    my $self;
+    my $nation;
+    my $value_name;
+    my $value;
+    $self->statistics->{$nation->current_year}->{$nation->name}->{$value_name} = $value;
+}
+
+
+1;

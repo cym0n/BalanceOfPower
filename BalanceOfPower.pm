@@ -7,6 +7,7 @@ use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
+use BalanceOfPower::World;
 use BalanceOfPower::Nation;
 use BalanceOfPower::TradeRoute;
 use BalanceOfPower::Friendship;
@@ -21,18 +22,15 @@ my $last_year = 1995;
 
 #Persistent objects
 my $current_year;
-my @nations;
-my @trade_routes;
-my @diplomatic_relations;
-my %statistics;
-my %events;
 
 #Support objects
-my %routes_counter;
 my @decisions;
 
+#Init
+my $world = BalanceOfPower::World->new();
+$world->init_random(@nation_names);
 
-init_random();
+#History generation
 for($first_year..$last_year)
 {
     my $y = $_;
@@ -47,91 +45,26 @@ for($first_year..$last_year)
         wars();
     }
 }
+
+#Interface
 say "=======\n\n\n";
 interface();
 
 
 
-sub init_random
-{
-    foreach my $n (@nation_names)
-    {
-        say "Working on $n";
-        my $export_quote = random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE);
-        say "  export quote: $export_quote";
-        my $government_strength = random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH);
-        push @nations, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
-        #$routes_counter{$n} = 0 if(! exists $routes_counter{$n});
-        #my $how_many_routes = random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES);
-        #say "  routes to generate: $how_many_routes [" . $routes_counter{$n} . "]";
-        #my @my_names = @nation_names;
-        #@my_names = grep { $_ ne $n } @my_names;
-        #while($routes_counter{$n} < $how_many_routes)
-        #{
-        #    my $second_node = $my_names[rand @my_names];
-        #    if($second_node ne $n && ! route_exists($n, $second_node))
-        #    {
-        #        say "  creating trade route to $second_node";
-        #        @my_names = grep { $_ ne $second_node } @my_names;
-        #        generate_route($n, $second_node, 0);
-        #        $routes_counter{$n}++;
-        #        $routes_counter{$second_node} = 0 if(! exists $routes_counter{$second_node});
-        #        $routes_counter{$second_node}++;
-        #    }
-        #}
-        #foreach my $n2 (@nation_names)
-        #{
-        #    if($n ne $n2)
-        #    {
-        #        my $rel = new BalanceOfPower::Friendship( node1 => $n,
-        #                                                  node2 => $n2,
-        #                                                  factor => random(0,100));
-        #        push @diplomatic_relations, $rel;
-        #    }
-        #}
-    }
-}
-
 sub init_year
 {
     my $year = $current_year;
-    @decisions = ();
     say "-------";
     say $current_year;
     say "-------";
+
+    $world->start_turn($current_year);
     foreach my $n (@nation_names)
     {
-        my $nation = get_nation($n);
-        my $production;
-        if( exists ($statistics{prev_year($year)}))
-        {
-            my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_year($year));
-            if(@newgov > 0)
-            {
-                $production = calculate_production(undef);
-            }
-            else
-            {
-                $production = calculate_production($statistics{prev_year($year)}->{$n}->{'production'});
-            }
-        }
-        else
-        {
-            $production = calculate_production(undef);
-        }
-        $nation->current_year($year);
-        $nation->production($production);
-        $nation->wealth(0);
-        $statistics{$year}->{$n}->{'debt'} = $nation->debt;
-        $statistics{$year}->{$n}->{'production'} = $nation->production;
-
-        my $decision = $nation->decision();
-        if($decision)
-        {
-            say $decision;
-            push @decisions, $decision;
-        }
+        $world->set_production($n, calculate_production($world->get_base_production($n)));
     }
+    @decisions = $world->decisions();
 }
 
 sub execute_decisions
@@ -157,7 +90,6 @@ sub execute_decisions
            my $n = get_nation($1);
            $n->build_troops();
         }
-
     }
     manage_route_adding(@route_adders);
 }
