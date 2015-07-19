@@ -39,8 +39,7 @@ for($first_year..$last_year)
         $current_year = $t;
         init_year();
         execute_decisions();
-        domestic_economy();
-        foreign_economy();
+        $world->economy();
         internal_conflict();
         wars();
     }
@@ -74,7 +73,7 @@ sub execute_decisions
     {
         if($d =~ /^(.*): DELETE TRADEROUTE (.*)->(.*)$/)
         {
-            delete_route($2, $3);
+            $world->delete_route($2, $3);
         }
         elsif($d =~ /^(.*): ADD ROUTE$/)
         {
@@ -82,13 +81,11 @@ sub execute_decisions
         }
         elsif($d =~ /^(.*): LOWER DISORDER$/)
         {
-           my $n = get_nation($1);
-           $n->lower_disorder();
+           $world->lower_disorder($1);
         }
         elsif($d =~ /^(.*): BUILD TROOPS$/)
         {
-           my $n = get_nation($1);
-           $n->build_troops();
+           $world->build_troops($1);
         }
     }
     manage_route_adding(@route_adders);
@@ -104,12 +101,11 @@ sub manage_route_adding
        while(! $done)
        {
             my $node1 = shift @route_adders;
-            my $n1 = get_nation($node1);
-            if($n1->production >= ADDING_TRADEROUTE_COST)
+            if($world->suitable_route_creator($node1))
             {
                 if(@route_adders == 0)
                 {
-                    $n1->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS");
+                    $world->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     $done = 1;
                 } 
                 else
@@ -117,67 +113,29 @@ sub manage_route_adding
                     my $complete = 0;
                     foreach my $second (@route_adders)
                     {
-                        if(! route_exists($node1, $second))
+                        if($world->suitable_new_route($node1, $second))
                         {
-                            if(diplomacy_status($node1, $second) ne 'HATE')
-                            {
-                                my $n2 = get_nation($second);
-                                if($n2->production_for_export >= ADDING_TRADEROUTE_COST)
-                                {
-                                    @route_adders = grep { $_ ne $second } @route_adders;
-                                    generate_route($node1, $second, 1);
-                                    $complete = 1;
-                                }
-                                else
-                                {
-                                }
-                            }
-                            else
-                            {
-                                register_event("$node1 AND $second REFUSED TO OPEN A TRADEROUTE");
-                            }
+                            @route_adders = grep { $_ ne $second } @route_adders;
+                            $world->generate_route($node1, $second, 1);
+                            $complete = 1;
                         }
-                        else
-                        {
-                        }
-                        last if($complete);
-                    }
+                        last if $complete;
+                    }     
                     if($complete == 0)
                     {
-                        $n1->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS");
+                        $world->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     }
                 }
             }
             else
             {
-                $n1->register_event("TRADEROUTE CREATION FAILED FOR LACK OF RESOURCES");
+                $world->register_event("TRADEROUTE CREATION NOT POSSIBLE", $node1);
             }
             $done = 1 if(@route_adders == 0);
        }
-    
     }
 }
 
-sub domestic_economy
-{
-   foreach my $n (@nation_names)
-   {
-        my $nation = get_nation($n);
-        $nation->calculate_internal_wealth();
-   }
-}
-
-
-sub foreign_economy
-{
-   foreach my $n (@nation_names)
-   {
-        my $nation = get_nation($n);
-        $nation->calculate_trading(routes_for_node($n), diplomacy_for_node($n));
-        $nation->convert_remains();
-        $statistics{$current_year}->{$n}->{'wealth'} = $nation->wealth;
-    }
-}
 
 sub internal_conflict
 {
@@ -286,114 +244,8 @@ sub interface
     }
 }
 
-sub generate_route
-{
-    my $node1 = shift;
-    my $node2 = shift;
-    my $added = shift;
-    my $factor1 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
-    my $factor2 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
-    push @trade_routes, BalanceOfPower::TradeRoute->new( node1 => $node1, node2 => $node2,
-                                         factor1 => $factor1, factor2 => $factor2); 
-    if($added)
-    {
-        my $n1 = get_nation($node1);
-        my $n2 = get_nation($node2);
-        $n1->subtract_production('export', ADDING_TRADEROUTE_COST);
-        $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
-        change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
-        my $event = "TRADEROUTE ADDED: $node1<->$node2";
-        register_event($event);
-        $n1->register_event($event);
-        $n2->register_event($event);
-    }
-               
-}
 
-sub route_exists
-{
-    my $node1 = shift;
-    my $node2 = shift;
-    foreach my $r (@trade_routes)
-    {
-        return 1 if($r->is_between($node1, $node2));
-    }
-    return 0;
-}
-sub routes_for_node
-{
-    my $node = shift;
-    my @routes;
-    foreach my $r (@trade_routes)
-    {
-        if($r->has_node($node))
-        {
-             push @routes, $r;
-        }
-    }
-    return \@routes;
-}
-sub delete_route
-{
-    my $node1 = shift;;
-    my $node2 = shift;
-    my $n1 = get_nation($node1);
-    my $n2 = get_nation($node2);
-    
-    @trade_routes = grep { ! $_->is_between($node1, $node2) } @trade_routes;
-    my $event = "TRADEROUTE DELETED: $node1<->$node2";
-    register_event($event);
-    $n1->register_event($event);
-    $n2->register_event($event);
-    change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
-}
 
-sub diplomacy_for_node
-{
-    my $node = shift;
-    my %relations;
-    foreach my $r (@diplomatic_relations)
-    {
-        if($r->has_node($node))
-        {
-             $relations{$r->destination($node)} = $r->factor;
-        }
-    }
-    return \%relations;;
-}
-sub change_diplomacy
-{
-    my $node1 = shift;
-    my $node2 = shift;
-    my $dipl = shift;
-    foreach my $r (@diplomatic_relations)
-    {
-        if($r->is_between($node1, $node2))
-        {
-            my $present_status = $r->status;
-            $r->factor($r->factor + $dipl);
-            $r->factor(0) if $r->factor < 0;
-            $r->factor(100) if $r->factor > 100;
-            my $actual_status = $r->status;
-            if($present_status ne $actual_status)
-            {
-                register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status");
-            }
-        }
-    }
-}
-sub diplomacy_status
-{
-    my $n1 = shift;
-    my $n2 = shift;
-    foreach my $r (@diplomatic_relations)
-    {
-        if($r->is_between($n1, $n2))
-        {
-            return $r->status;
-        }
-    }
-}
 sub print_diplomacy
 {
     my $n = shift;
@@ -539,14 +391,6 @@ sub medium_statistics
     return ($medium_production, $medium_wealth, $medium_disorder);
 }
 
-sub register_event
-{
-    my $event = shift;
-    if(! exists $events{$current_year})
-    {
-        $events{$current_year} = ();
-    }
-    push @{$events{$current_year}}, $event;
-}
+
 
 

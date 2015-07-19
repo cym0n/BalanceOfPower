@@ -90,8 +90,9 @@ sub calculate_internal_wealth
 sub calculate_trading
 {
     my $self = shift;
-    my @routes = @{shift @_};
-    my %diplomacy = %{shift @_};
+    my $world = shift;
+    my @routes = $world->routes_for_node($self->name);
+    my %diplomacy = $world->diplomacy_for_node($self->name);
     @routes = sort { $b->factor_for_node($self->name) * 1000 + $diplomacy{$b->destination($self->name)}
                      <=>
                      $a->factor_for_node($self->name) * 1000 + $diplomacy{$a->destination($self->name)}
