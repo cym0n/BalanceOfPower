@@ -41,7 +41,7 @@ for($first_year..$last_year)
         execute_decisions();
         $world->economy();
         internal_conflict();
-        wars();
+        $world->wars();
     }
 }
 
@@ -139,35 +139,19 @@ sub manage_route_adding
 
 sub internal_conflict
 {
-   foreach my $n (@nation_names)
+    foreach my $n (@nation_names)
    {
-        my $nation = get_nation($n);
-        if($nation->internal_disorder > INTERNAL_DISORDER_TERRORISM_LIMIT && $nation->internal_disorder < INTERNAL_DISORDER_CIVIL_WAR_LIMIT)
+        my $result = $world->manage_internal_disorder($n, 
+                                                      random(MIN_ADDED_DISORDER, MAX_ADDED_DISORDER),
+                                                      random(0, 100), random(0, 100));
+        if($result eq "REVOLUTION")
         {
-            $nation->add_internal_disorder(random(MIN_ADDED_DISORDER, MAX_ADDED_DISORDER));
-        }
-        elsif($nation->internal_disorder_status eq 'Civil war')
-        {
-            my $winner = $nation->fight_civil_war(random(0, 100), random(0, 100));
-            if($winner eq 'rebels')
-            {
-                $nation->new_government({ government_strength => random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH) });
-            }
-            
-        }
-        $nation->calculate_disorder();
-        $statistics{$current_year}->{$n}->{'internal disorder'} = $nation->internal_disorder;
+            $world->new_government($n);
+        }        
     }
 }
 
-sub wars
-{
-    foreach my $n (@nation_names)
-    {
-        my $nation = get_nation($n);
-        $statistics{$current_year}->{$n}->{'army'} = $nation->army;
-    }    
-}
+
 
 sub interface
 {
@@ -180,7 +164,7 @@ sub interface
         if($query eq "quit") { $continue = 0 }
         elsif($query eq "overall")
         {
-            print_overall_statistics();
+            say $world->print_overall_statistics();
         }
         elsif($query eq "nations")
         {
@@ -201,7 +185,7 @@ sub interface
             { 
                 say $good_nation[0] . " - HISTORY";
                 say "=====\n";
-                print_nation_statistics($good_nation[0]);
+                say $world->print_nation_statistics($good_nation[0], $first_year, $last_year);
             }
         }
         elsif($query =~ m/status:(.*)/)
@@ -211,8 +195,7 @@ sub interface
             { 
                 say $good_nation[0] . " - STATUS";
                 say "=====\n";
-                my $nation = get_nation($good_nation[0]);
-                $nation->print;
+                say $world->print_nation($good_nation[0]);
             }
         }
         elsif($query =~ m/diplomacy:(.*)/)
@@ -220,54 +203,27 @@ sub interface
             my @good_nation = grep { $_ eq $1 } @nation_names; 
             if(@good_nation > 0)
             { 
-                print_diplomacy($good_nation[0]);
+                say $world->print_diplomacy($good_nation[0]);
             }
         }
-
-
         else
         {
             my @good_nation = grep { $_ eq $query } @nation_names; 
             my @good_year = grep { $_ eq $query } ($first_year..$last_year);
             if(@good_nation > 0)
             { 
-                my $nation = get_nation($query);
                 say "\n=====\n";
-                $nation->print;
-                print_nation_statistics($query);
+                say $world->print_nation($query);
+                say $world->print_nation_statistics($query);
             }
             elsif(@good_year > 0)
             {
-                print_year_statistics($query);
+                say $world->print_year_statistics($query);
             }
         }
     }
 }
 
-
-
-sub print_diplomacy
-{
-    my $n = shift;
-    foreach my $f (sort {$a->factor <=> $b->factor} @diplomatic_relations)
-    {
-        if($f->has_node($n))
-        {
-            $f->print($n);
-        }
-    }
-}
-
-
-
-sub get_nation
-{
-    my $name = shift;
-    foreach my $n (@nations)
-    {
-        return $n if($n->name eq $name);
-    }
-}
 sub calculate_production
 {
     my $production = shift;
@@ -286,111 +242,4 @@ sub calculate_production
     }
     return $next;
 }
-sub print_nation_statistics
-{
-    my $nation = shift;
-    my @good = grep { $_ eq $nation } @nation_names; 
-    if(@good == 0)
-    {
-      say "Bad nation";
-      return;
-    }   
-    print "\n";
-    print_nation_statistics_header();
-    foreach my $y ($first_year..$last_year)
-    {
-        foreach my $t (get_year_turns($y))
-        {
-            print_nation_statistics_line($nation, $t);
-        }
-    }
-}
-sub print_nation_statistics_header
-{
-    say "Year\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
-}
-sub print_nation_statistics_line
-{
-    my $nation = shift;
-    my $y = shift;
-    print "$y\t";
-    print $statistics{$y}->{$nation}->{'production'} . "\t";
-    print $statistics{$y}->{$nation}->{'wealth'} . "\t";
-    if($statistics{$y}->{$nation}->{'production'} <= 0)
-    {
-        print "X\t";
-    }
-    else
-    {
-        print int(($statistics{$y}->{$nation}->{'wealth'} / $statistics{$y}->{$nation}->{'production'}) * 100) / 100 . "\t";
-    }
-    print $statistics{$y}->{$nation}->{'wealth'} - $statistics{$y}->{$nation}->{'production'} . "\t";
-    print $statistics{$y}->{$nation}->{'debt'} ."\t";
-    print $statistics{$y}->{$nation}->{'internal disorder'} . "\t";
-    print $statistics{$y}->{$nation}->{'army'} . "\t";
-    print "\n";
-}
-sub print_year_statistics
-{
-    my $y = shift;
-    say "Year\tProd.\tWealth\tInt.Dis";
-    foreach my $t (get_year_turns($y))
-    {
-        my ($prod, $wealth, $disorder) = medium_statistics($t);
-        say "$t\t$prod\t$wealth\t$disorder";
-    }
-    print "\n";
-    foreach my $n (@nation_names)
-    {
-        say "$n:";
-        print_nation_statistics_header();
-        foreach my $t (get_year_turns($y))
-        {
-            print_nation_statistics_line($n, $t);
-        }
-        print "\n";
-    }
-    say "Events of the year:";
-    foreach my $t (get_year_turns($y))
-    {
-        say " - $t";
-        foreach my $e (@{$events{$t}})
-        {
-            say " " . $e;
-        }
-    }
-}
-sub print_overall_statistics
-{
-    say "Overall medium values";
-    say "Year\tProd.\tWealth\tInt.Dis";
-    foreach my $y ($first_year..$last_year)
-    {
-        my ($prod, $wealth, $disorder) = medium_statistics($y);
-        say "$y\t$prod\t$wealth\t$disorder";
-    }
-}
-sub medium_statistics
-{
-    my $year = shift;
-    my $total_production;
-    my $total_wealth;
-    my $total_disorder;
-    foreach my $t (get_year_turns($year))
-    {
-        foreach my $n (@nation_names)
-        {
-            $total_production += $statistics{$t}->{$n}->{production};
-            $total_wealth += $statistics{$t}->{$n}->{wealth};
-            $total_disorder += $statistics{$t}->{$n}->{'internal disorder'};
-        }
-    }
-    my $medium_production = int(($total_production / @nations)*100)/100;
-    my $medium_wealth = int(($total_wealth / @nations)*100)/100;
-    my $medium_disorder = int(($total_disorder / @nations)*100)/100;
-    return ($medium_production, $medium_wealth, $medium_disorder);
-}
-
-
-
 

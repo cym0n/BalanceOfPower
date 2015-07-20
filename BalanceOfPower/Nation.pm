@@ -425,16 +425,17 @@ sub add_army
 sub print
 {
     my $self = shift;
-    say "Name: " . $self->name;
-    say "Export quote: " . $self->export_quote;
-    say "Government strength: " . $self->government_strength;
-    say "Events:";
+    my $out = "";
+    $out .= "Name: " . $self->name . "\n";
+    $out .= "Export quote: " . $self->export_quote . "\n";
+    $out .= "Government strength: " . $self->government_strength . "\n";
+    $out .= "Events:";
     foreach my $year (sort keys %{$self->events})
     {
-        say "  $year:";
+        $out .= "  $year:\n";
         foreach my $e (@{$self->events->{$year}})
         {
-            say "    " . $e;
+            $out .= "    " . $e ."\n";
         }
     }
 }

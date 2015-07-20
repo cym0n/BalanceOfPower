@@ -18,22 +18,31 @@ has nations => (
     is => 'rw',
     default => sub { [] }
 );
-has traderoutes => (
-    is => 'rw',
-    default => sub { [] }
-);
+
 has diplomatic_relations => (
     is => 'rw',
     default => sub { [] }
 );
-has statistics => (
-    is => 'rw',
-    default => sub { {} }
-);
-has events => (
-    is => 'rw',
-    default => sub { {} }
-);
+
+with 'BalanceOfPower::Role::Historian';
+with 'BalanceOfPower::Role::Merchant';
+
+
+sub get_nation
+{
+    my $self = shift;
+    my $n = shift;
+    my @nations = grep { $_->name eq $n } @{$self->nations};
+    if(@nations > 0)
+    {
+        return $nations[0];
+    }
+    else
+    {
+        return undef;
+    }
+}
+
 
 #Initial values, randomly generated
 sub init_random
@@ -57,7 +66,7 @@ sub init_random
         while($routes_counter{$n} < $how_many_routes)
         {
             my $second_node = $my_names[rand @my_names];
-            if($second_node ne $n && ! route_exists($n, $second_node))
+            if($second_node ne $n && ! $self->route_exists($n, $second_node))
             {
                 say "  creating trade route to $second_node";
                 @my_names = grep { $_ ne $second_node } @my_names;
@@ -85,7 +94,7 @@ sub start_turn
 {
     my $self = shift;
     my $turn = shift;
-    $self->current_year = $turn;
+    $self->current_year($turn);
     foreach my $n (@{$self->nations})
     {
         $n->current_year($turn);
@@ -165,43 +174,7 @@ sub calculate_remains_conversion
     foreach my $n (@{$self->nations})
     {
         $n->convert_remains();
-    }
-}
-
-
-
-sub decisions
-{
-    my $self = shift;
-    my @decisions = ();
-    foreach my $nation (@{$self->nations})
-    {
-        my $decision = $nation->decision();
-        if($decision)
-        {
-            say $decision;
-            push @decisions, $decision;
-        }
-    }
-    return @decisions;
-}
-
-sub lower_disorder
-{
-    my $self = shift;
-    my $n = get_nation( shift );
-    $n->lower_disorder();
-}
-sub build_troops
-{
-    my $self = shift;
-    my $n = get_nation( shift );
-    $n->build_troops();
-}
-
-
-
-sub generate_traderoute
+    }sub generate_traderoute
 {
     my $self = shift;
     my $node1 = shift;
@@ -209,12 +182,12 @@ sub generate_traderoute
     my $added = shift;
     my $factor1 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
     my $factor2 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
-    push @{$self->traderoutes}, BalanceOfPower::TradeRoute->new( node1 => $node1, node2 => $node2,
+    push @{$self->trade_routes}, BalanceOfPower::TradeRoute->new( node1 => $node1, node2 => $node2,
                                          factor1 => $factor1, factor2 => $factor2); 
     if($added)
     {
-        my $n1 = get_nation($node1);
-        my $n2 = get_nation($node2);
+        my $n1 = $self->get_nation($node1);
+        my $n2 = $self->get_nation($node2);
         $n1->subtract_production('export', ADDING_TRADEROUTE_COST);
         $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
         change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
@@ -230,8 +203,8 @@ sub delete_route
     my $self = shift;
     my $node1 = shift;;
     my $node2 = shift;
-    my $n1 = get_nation($node1);
-    my $n2 = get_nation($node2);
+    my $n1 = $self->get_nation($node1);
+    my $n2 = $self->get_nation($node2);
     
     @{$self->trade_routes} = grep { ! $_->is_between($node1, $node2) } @{$self->trade_routes};
     my $event = "TRADEROUTE DELETED: $node1<->$node2";
@@ -243,7 +216,7 @@ sub delete_route
 sub suitable_route_creator
 {
     my $self = shift;
-    my $nation = get_nation( shift );
+    my $nation = $self->get_nation( shift );
     return 0 if($nation->production < ADDING_TRADEROUTE_COST);
     return 0 if($nation->internal_disorder_status eq 'Civil war');
 
@@ -252,8 +225,8 @@ sub suitable_route_creator
 sub suitable_new_route
 {
     my $self = shift;
-    my $node1 = get_nation( shift );
-    my $node2 = get_nation( shift );
+    my $node1 = $self->get_nation( shift );
+    my $node2 = $self->get_nation( shift );
     return 0 if($self->route_exists($node1->name, $node2->name));
     if($self->diplomacy_status($node1->name, $node2->name) ne 'HATE')
     {
@@ -293,6 +266,79 @@ sub routes_for_node
     }
     return @routes;
 }
+
+
+}
+
+
+
+sub decisions
+{
+    my $self = shift;
+    my @decisions = ();
+    foreach my $nation (@{$self->nations})
+    {
+        my $decision = $nation->decision();
+        if($decision)
+        {
+            say $decision;
+            push @decisions, $decision;
+        }
+    }
+    return @decisions;
+}
+
+sub lower_disorder
+{
+    my $self = shift;
+    my $n = $self->get_nation( shift );
+    $n->lower_disorder();
+}
+sub build_troops
+{
+    my $self = shift;
+    my $n = $self->get_nation( shift );
+    $n->build_troops();
+}
+sub manage_internal_disorder
+{
+    my $self = shift;
+    my $nation = $self->get_nation( shift );
+    my $delta_disorder = shift;
+    my $government_fight = shift;
+    my $rebels_fight = shift;
+    if($nation->internal_disorder > INTERNAL_DISORDER_TERRORISM_LIMIT && $nation->internal_disorder < INTERNAL_DISORDER_CIVIL_WAR_LIMIT)
+    {
+        $nation->add_internal_disorder($delta_disorder);
+        $nation->calculate_disorder();
+        $self->set_statistics_value($nation, 'internal disorder', $nation->internal_disorder);
+    }
+    elsif($nation->internal_disorder_status eq 'Civil war')
+    {
+        my $winner = $nation->fight_civil_war($government_fight, $rebels_fight);
+        $self->set_statistics_value($nation, 'internal disorder', $nation->internal_disorder);
+        if($winner eq 'rebels')
+        {
+            return "REVOLUTION";
+        }
+    }
+    return undef;
+}
+sub new_government
+{
+    my $self = shift;
+    my $nation = $self->get_nation( shift );
+    $nation->new_government({ government_strength => random(0, 100), random(0, 100)});
+}
+sub wars
+{
+    my $self = shift;
+    foreach my $n (@{$self->nations})
+    {
+        $self->set_statistics_value($n, 'army', $n->army);    
+    }    
+}
+
 
 
 sub change_diplomacy
@@ -344,51 +390,21 @@ sub diplomacy_for_node
     }
     return %relations;;
 }
-
-
-sub register_event
+sub print_diplomacy
 {
     my $self = shift;
-    my $event = shift;
-    my $n1 = shift;
-    if($n1)
+    my $n = shift;
+    my $out;
+    foreach my $f (sort {$a->factor <=> $b->factor} @{$self->diplomatic_relations})
     {
-        my $nation = $self->get_nation($n1);
-        $nation->register_event($event);
-    }
-    else
-    {
-        if(! exists $self->events->{$self->current_year})
+        if($f->has_node($n))
         {
-            $self->events->{$self->current_year} = ();
+            $out .= $f->print($n) . "\n";
         }
-        push @{$self->events->{$self->current_year}}, $event;
     }
+    return $out;
+}
 
-}
-sub get_statistics_value
-{
-    my $self;
-    my $turn;
-    my $nation;
-    my $value;
-    if(exists $self->statistics->{$turn})
-    {
-        return $self->statistics->{$turn}->{$nation}->{$value};
-    }
-    else
-    {
-        return undef;
-    }
-}
-sub set_statistics_value
-{
-    my $self;
-    my $nation;
-    my $value_name;
-    my $value;
-    $self->statistics->{$nation->current_year}->{$nation->name}->{$value_name} = $value;
-}
 
 
 1;
