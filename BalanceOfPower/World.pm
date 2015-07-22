@@ -20,12 +20,10 @@ has nations => (
     default => sub { [] }
 );
 
-has diplomatic_relations => (
-    is => 'rw',
-    default => sub { [] }
-);
+
 
 with 'BalanceOfPower::Role::Historian';
+with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
 
 
@@ -89,6 +87,11 @@ sub init_random
         }
     }
 }
+
+# Configure current year
+# Give production to countries. Countries split it between export and domestic and, if allowed, raise the debt in case of necessity
+# Wealth reset
+# Production and debt recorded
 sub init_year
 {
     my $self = shift;
@@ -98,9 +101,14 @@ sub init_year
     {
         $n->current_year($turn);
         $n->wealth(0);
-        $self->set_production($n, $self->calculate_production($n));
+        my $prod = $self->calculate_production($n);
+        $n->production($prod);
+        $self->set_statistics_value($n, 'production', $prod);
+        $self->set_statistics_value($n, 'debt', $n->debt);
     }
 }
+
+# PRODUCTION MANAGEMENT ###############################
 
 #Say the value of starting production used to calculate production for a turn.
 #Usually is just the value of production the turn before, but if rebels won a civil war it has to be undef to allow a totally random generation of production.
@@ -126,18 +134,6 @@ sub get_base_production
         return undef;
     }
 }
-
-#Production has to be configured at the start of every turn
-sub set_production
-{
-    my $self = shift;
-    my $nation = shift;
-    my $value = shift;
-    $nation->production($value);
-    $self->set_statistics_value($nation, 'production', $value);
-    $self->set_statistics_value($nation, 'debt', $nation->debt);
-}
-
 sub calculate_production
 {
     my $self = shift;
@@ -158,65 +154,16 @@ sub calculate_production
     }
     return $next;
 }
-sub economy
-{
-    my $self = shift;
-    $self->calculate_internal_wealth();
-    $self->calculate_wealth_from_export();
-    $self->calculate_remains_conversion();
-    foreach my $n (@{$self->nations})
-    {
-        $self->set_statistics_value($n, 'wealth', $n->wealth);
-    }
-}
-sub calculate_internal_wealth
-{
-    my $self = shift;
-    foreach my $n (@{$self->nations})
-    {
-        $n->calculate_internal_wealth();
-    }
-}
-sub calculate_wealth_from_export
-{
-    my $self = shift;
-    foreach my $n (@{$self->nations})
-    {
-        $n->calculate_trading($self);
-        $n->convert_remains();
-    }
-}
-sub calculate_remains_conversion
-{
-    my $self = shift;
-    foreach my $n (@{$self->nations})
-    {
-        $n->convert_remains();
-    }
-}
 
+# PRODUCTION MANAGEMENT END ###############################################
 
+# DECISIONS ###############################################################
 
-
-sub decisions
-{
-    my $self = shift;
-    my @decisions = ();
-    foreach my $nation (@{$self->nations})
-    {
-        my $decision = $nation->decision();
-        if($decision)
-        {
-            say $decision;
-            push @decisions, $decision;
-        }
-    }
-    return @decisions;
-}
+# Decisions are collected and executed
 sub execute_decisions
 {   
     my $self = shift;
-    my @decisions = $self->decisions;
+    my @decisions = $self->decisions();
     my @route_adders = ();
     foreach my $d (@decisions)
     {
@@ -230,11 +177,13 @@ sub execute_decisions
         }
         elsif($d =~ /^(.*): LOWER DISORDER$/)
         {
-           $self->lower_disorder($1);
+           my $nation = $self->get_nation($1);
+           $nation->lower_disorder();
         }
         elsif($d =~ /^(.*): BUILD TROOPS$/)
         {
-           $self->build_troops($1);
+           my $nation = $self->get_nation($1);
+           $nation->build_troops();
         }
     }
     $self->manage_route_adding(@route_adders);
@@ -266,7 +215,7 @@ sub manage_route_adding
                         if($self->suitable_new_route($node1, $second))
                         {
                             @route_adders = grep { $_ ne $second } @route_adders;
-                            $self->generate_route($node1, $second, 1);
+                            $self->generate_traderoute($node1, $second, 1);
                             $complete = 1;
                         }
                         last if $complete;
@@ -285,61 +234,79 @@ sub manage_route_adding
        }
     }
 }
+sub decisions
+{
+    my $self = shift;
+    my @decisions = ();
+    foreach my $nation (@{$self->nations})
+    {
+        my $decision = $nation->decision();
+        if($decision)
+        {
+            say $decision;
+            push @decisions, $decision;
+        }
+    }
+    return @decisions;
+}
 
+# DECISIONS END ###########################################################
+
+# ECONOMY #################################################################
+
+# Calculate internal wealth converting domestic production to wealth
+# Active trade routes one by one trying to generate wealth from each of them
+# Convert remain as generating internal wealth
+sub economy
+{
+    my $self = shift;
+    foreach my $n (@{$self->nations})
+    {
+        $n->calculate_internal_wealth();
+        $n->calculate_trading($self);
+        $n->convert_remains();
+        $self->set_statistics_value($n, 'wealth', $n->wealth);
+    }
+}
+
+# ECONOMY END #############################################################
+
+# INTERNAL DISORDER #######################################################
+
+# If Peace internal disorder variation is only based on wealth
+# If Terrorism or Insurgence internal disorder variation is base on wealth and a random factor
+# If Civil war internal disorder IS NOT calculated. Civil war is fought.
 sub internal_conflict
 {
     my $self = shift;
     foreach my $n (@{$self->nations})
     {
-        my $result = $self->manage_internal_disorder($n, 
-                                                      random(MIN_ADDED_DISORDER, MAX_ADDED_DISORDER),
-                                                      random(0, 100), random(0, 100));
-        if($result && $result eq "REVOLUTION")
+        if($n->internal_disorder_status eq 'Peace')
         {
-            $n->new_government({ government_strength => random(0, 100), random(0, 100)});
-        }        
+            $n->calculate_disorder();
+        }
+        elsif($n->internal_disorder_status eq 'Terrorism' || $n->internal_disorder_status eq 'Insurgence' )
+        {
+            $n->add_internal_disorder(random(-1 * INTERNAL_DISORDER_VARIATION_FACTOR, INTERNAL_DISORDER_VARIATION_FACTOR));
+            $n->calculate_disorder();
+        }
+        elsif($n->internal_disorder_status eq 'Civil war')
+        {
+            my $winner = $n->fight_civil_war(random(0, 100), random(0, 100));
+            if($winner && $winner eq 'rebels')
+            {
+                $n->new_government({ government_strength => random(0, 100), random(0, 100)});
+            }
+        }
+        $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
 }
 
-sub lower_disorder
-{
-    my $self = shift;
-    my $n = $self->get_nation( shift );
-    $n->lower_disorder();
-}
-sub build_troops
-{
-    my $self = shift;
-    my $n = $self->get_nation( shift );
-    $n->build_troops();
-}
-sub manage_internal_disorder
-{
-    my $self = shift;
-    my $nation = shift;
-    my $delta_disorder = shift;
-    my $government_fight = shift;
-    my $rebels_fight = shift;
-    my $winner = undef;
-    if($nation->internal_disorder > INTERNAL_DISORDER_TERRORISM_LIMIT && $nation->internal_disorder < INTERNAL_DISORDER_CIVIL_WAR_LIMIT)
-    {
-        $nation->add_internal_disorder($delta_disorder);
-        $nation->calculate_disorder();
-    }
-    elsif($nation->internal_disorder_status eq 'Civil war')
-    {
-        my $winner = $nation->fight_civil_war($government_fight, $rebels_fight);
-    }
-    $self->set_statistics_value($nation, 'internal disorder', $nation->internal_disorder);
-    if($winner && $winner eq "rebels")
-    {
-        return "REVOLUTION";
-    }
-    else
-    {
-        return undef;
-    }
-}
+# INTERNAL DISORDER END ######################################################
+
+# WAR ######################################################################
+# TODO
+
 sub wars
 {
     my $self = shift;
@@ -349,71 +316,7 @@ sub wars
     }    
 }
 
-
-
-sub change_diplomacy
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    my $dipl = shift;
-    foreach my $r (@{$self->diplomatic_relations})
-    {
-        if($r->is_between($node1, $node2))
-        {
-            my $present_status = $r->status;
-            $r->factor($r->factor + $dipl);
-            $r->factor(0) if $r->factor < 0;
-            $r->factor(100) if $r->factor > 100;
-            my $actual_status = $r->status;
-            if($present_status ne $actual_status)
-            {
-                $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status");
-            }
-        }
-    }
-}
-sub diplomacy_status
-{
-    my $self = shift;
-    my $n1 = shift;
-    my $n2 = shift;
-    foreach my $r (@{$self->diplomatic_relations})
-    {
-        if($r->is_between($n1, $n2))
-        {
-            return $r->status;
-        }
-    }
-}
-sub diplomacy_for_node
-{
-    my $self = shift;
-    my $node = shift;
-    my %relations;
-    foreach my $r (@{$self->diplomatic_relations})
-    {
-        if($r->has_node($node))
-        {
-             $relations{$r->destination($node)} = $r->factor;
-        }
-    }
-    return %relations;;
-}
-sub print_diplomacy
-{
-    my $self = shift;
-    my $n = shift;
-    my $out;
-    foreach my $f (sort {$a->factor <=> $b->factor} @{$self->diplomatic_relations})
-    {
-        if($f->has_node($n))
-        {
-            $out .= $f->print($n) . "\n";
-        }
-    }
-    return $out;
-}
+# WAR END ##################################################################
 
 
 

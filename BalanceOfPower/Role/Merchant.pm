@@ -32,11 +32,11 @@ sub generate_traderoute
         my $n2 = $self->get_nation($node2);
         $n1->subtract_production('export', ADDING_TRADEROUTE_COST);
         $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
-        change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
+        $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
         my $event = "TRADEROUTE ADDED: $node1<->$node2";
         $self->register_event($event);
-        $n1->register_event($event);
-        $n2->register_event($event);
+        $self->register_event($event, $node1);
+        $self->register_event($event, $node2);
     }
                
 }
@@ -51,8 +51,8 @@ sub delete_route
     @{$self->trade_routes} = grep { ! $_->is_between($node1, $node2) } @{$self->trade_routes};
     my $event = "TRADEROUTE DELETED: $node1<->$node2";
     $self->register_event($event);
-    $n1->register_event($event);
-    $n2->register_event($event);
+    $self->register_event($event, $node1);
+    $self->register_event($event, $node2);
     $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
 }
 sub suitable_route_creator
@@ -61,8 +61,7 @@ sub suitable_route_creator
     my $nation = $self->get_nation( shift );
     return 0 if($nation->production < ADDING_TRADEROUTE_COST);
     return 0 if($nation->internal_disorder_status eq 'Civil war');
-
-
+    return 1;
 }
 sub suitable_new_route
 {
