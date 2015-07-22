@@ -295,7 +295,7 @@ sub internal_conflict
             my $winner = $n->fight_civil_war(random(0, 100), random(0, 100));
             if($winner && $winner eq 'rebels')
             {
-                $n->new_government({ government_strength => random(0, 100), random(0, 100)});
+                $n->new_government({ government_strength => random(0, 100)});
             }
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);

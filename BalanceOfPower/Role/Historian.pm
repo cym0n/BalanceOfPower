@@ -2,10 +2,10 @@ package BalanceOfPower::Role::Historian;
 
 use strict;
 use Moo::Role;
+use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 
-requires 'nations';
 requires 'get_nation';
 
 has statistics => (
@@ -23,6 +23,7 @@ sub print_nation
     my $n = $self->get_nation( shift );
     return $n->print;
 }
+
 
 sub register_event
 {
@@ -70,13 +71,9 @@ sub set_statistics_value
 sub print_nation_statistics
 {
     my $self = shift;
+    my $nation = shift;
     my $first_year = shift;
     my $last_year = shift;
-    my $nation = $self->get_nation( shift );
-    if(! $nation)
-    {
-      return "Bad nation";
-    }   
     my $out;
     $out .= $self->print_nation_statistics_header() . "\n";
     foreach my $y ($first_year..$last_year)
@@ -119,21 +116,24 @@ sub print_year_statistics
 {
     my $self = shift;
     my $y = shift;
-    my $out = "Year\tProd.\tWealth\tInt.Dis";
+    my @nations = @_;
+    my $out = "Medium values:\n";
+    $out .= "Year\tProd.\tWealth\tInt.Dis\n";
     foreach my $t (get_year_turns($y))
     {
-        my ($prod, $wealth, $disorder) = $self->medium_statistics($t);
-        $out .= "$t\t$prod\t$wealth\t$disorder";
+        my ($prod, $wealth, $disorder) = $self->medium_statistics($t, @nations);
+        $out .= "$t\t$prod\t$wealth\t$disorder\n";
     }
     $out .= "\n";
-    foreach my $n (@{$self->nations})
+    foreach my $n (@nations)
     {
-        $out .=  "$n->name:\n";
-        $out .= $self->print_nation_statistics_header();
+        $out .=  $n . ":\n";
+        $out .= $self->print_nation_statistics_header() . "\n";
         foreach my $t (get_year_turns($y))
         {
-            $out .= print_nation_statistics_line($n->name, $t) . "\n";
+            $out .= $self->print_nation_statistics_line($n, $t) . "\n";
         }
+        $out .= "\n";
     }
     $out .= "\nEvents of the year:\n";
     foreach my $t (get_year_turns($y))
@@ -151,33 +151,38 @@ sub print_overall_statistics
     my $self =shift;
     my $first_year = shift;
     my $last_year = shift;
+    my @nations = @_;
     my $out = "Overall medium values\n";
     $out .= "Year\tProd.\tWealth\tInt.Dis\n";
     foreach my $y ($first_year..$last_year)
     {
-        my ($prod, $wealth, $disorder) = $self->medium_statistics($y);
-        $out .= "$y\t$prod\t$wealth\t$disorder\n";
+        foreach my $t (get_year_turns($y))
+        {
+            my ($prod, $wealth, $disorder) = $self->medium_statistics($t, @nations);
+            $out .= "$y\t$prod\t$wealth\t$disorder\n";
+        }
     }
 }
 sub medium_statistics
 {
     my $self = shift;
     my $year = shift;
+    my @nations = @_;
     my $total_production = 0;
     my $total_wealth = 0;
     my $total_disorder = 0;
     foreach my $t (get_year_turns($year))
     {
-        foreach my $n (@{$self->nations})
+        foreach my $n (@nations)
         {
-            $total_production += $self->get_statistics_value($t, $n->name, 'production');
-            $total_wealth += $self->get_statistics_value($t, $n->name, 'wealth');
-            $total_disorder += $self->get_statistics_value($t, $n->name, 'internal disorder');
+            $total_production += $self->get_statistics_value($t, $n, 'production');
+            $total_wealth += $self->get_statistics_value($t, $n, 'wealth');
+            $total_disorder += $self->get_statistics_value($t, $n, 'internal disorder');
         }
     }
-    my $medium_production = int(($total_production / @{$self->nations})*100)/100;
-    my $medium_wealth = int(($total_wealth / @{$self->nations})*100)/100;
-    my $medium_disorder = int(($total_disorder / @{$self->nations})*100)/100;
+    my $medium_production = int(($total_production / @nations)*100)/100;
+    my $medium_wealth = int(($total_wealth / @nations)*100)/100;
+    my $medium_disorder = int(($total_disorder / @nations)*100)/100;
     return ($medium_production, $medium_wealth, $medium_disorder);
 }
 

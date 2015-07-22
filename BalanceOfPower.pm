@@ -12,7 +12,7 @@ use strict;
 my @nation_names = ("Italy", "France", "United Kingdom", "Russia", "Germany", "Spain", "Greece",
                     "Switzerland", "Finland", "Sweden", "Norway", "Netherlands", "Belgium"); 
 my $first_year = 1970;
-my $last_year = 1995;
+my $last_year = 1975;
 
 #Init
 my $world = BalanceOfPower::World->new();
@@ -36,8 +36,9 @@ interface();
 
 sub interface
 {
+    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name],\n    [year], overall,\n    commands, quit";
     say "Retrieve informations about history";
-    say "Commands are: overall, nations, year, history:[nation name], status:[nation name], [year], commands, quit";
+    say $commands;
     my $continue = 1;
     while($continue)
     {
@@ -45,7 +46,7 @@ sub interface
         if($query eq "quit") { $continue = 0 }
         elsif($query eq "overall")
         {
-            say $world->print_overall_statistics();
+            say $world->print_overall_statistics(@nation_names);
         }
         elsif($query eq "nations")
         {
@@ -57,7 +58,7 @@ sub interface
         }
         elsif($query eq "commands")
         {
-            say "Commands are: overall, nations, [nation name], [year], commands, quit";
+            say $commands;
         }
         elsif($query =~ m/history:(.*)/)
         {
@@ -95,11 +96,11 @@ sub interface
             { 
                 say "\n=====\n";
                 say $world->print_nation($query);
-                say $world->print_nation_statistics($query);
+                say $world->print_nation_statistics($query, $first_year, $last_year);
             }
             elsif(@good_year > 0)
             {
-                say $world->print_year_statistics($query);
+                say $world->print_year_statistics($query, @nation_names);
             }
         }
     }
