@@ -35,8 +35,8 @@ sub generate_traderoute
         $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
         my $event = "TRADEROUTE ADDED: $node1<->$node2";
         $self->register_event($event);
-        $self->register_event($event, $node1);
-        $self->register_event($event, $node2);
+        $self->register_event($event, $n1);
+        $self->register_event($event, $n2);
     }
                
 }
@@ -45,14 +45,15 @@ sub delete_route
     my $self = shift;
     my $node1 = shift;;
     my $node2 = shift;
+    return if ! $self->route_exists($node1, $node2);
     my $n1 = $self->get_nation($node1);
     my $n2 = $self->get_nation($node2);
     
     @{$self->trade_routes} = grep { ! $_->is_between($node1, $node2) } @{$self->trade_routes};
     my $event = "TRADEROUTE DELETED: $node1<->$node2";
     $self->register_event($event);
-    $self->register_event($event, $node1);
-    $self->register_event($event, $node2);
+    $self->register_event($event, $n1);
+    $self->register_event($event, $n2);
     $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
 }
 sub suitable_route_creator

@@ -429,7 +429,7 @@ sub print
     $out .= "Name: " . $self->name . "\n";
     $out .= "Export quote: " . $self->export_quote . "\n";
     $out .= "Government strength: " . $self->government_strength . "\n";
-    $out .= "Events:";
+    $out .= "Events:\n";
     foreach my $year (sort keys %{$self->events})
     {
         $out .= "  $year:\n";
@@ -438,6 +438,7 @@ sub print
             $out .= "    " . $e ."\n";
         }
     }
+    return $out;
 }
 
 sub register_event

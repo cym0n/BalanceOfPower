@@ -6,8 +6,6 @@ use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 
-requires 'get_nation';
-
 has statistics => (
     is => 'rw',
     default => sub { {} }
@@ -17,12 +15,6 @@ has events => (
     default => sub { {} }
 );
 
-sub print_nation
-{
-    my $self = shift;
-    my $n = $self->get_nation( shift );
-    return $n->print;
-}
 
 
 sub register_event
@@ -32,8 +24,7 @@ sub register_event
     my $n1 = shift;
     if($n1)
     {
-        my $nation = $self->get_nation($n1);
-        $nation->register_event($event);
+        $n1->register_event($event);
     }
     else
     {
