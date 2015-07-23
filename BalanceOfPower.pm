@@ -36,7 +36,7 @@ interface();
 
 sub interface
 {
-    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name],\n    [year], overall,\n    commands, quit";
+    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name], borders:[nation name]\n    [year], overall,\n    commands, quit";
     say "Retrieve informations about history";
     say $commands;
     my $continue = 1;
@@ -86,6 +86,14 @@ sub interface
             if(@good_nation > 0)
             { 
                 say $world->print_diplomacy($good_nation[0]);
+            }
+        }
+        elsif($query =~ m/borders:(.*)/)
+        {
+            my @good_nation = grep { $_ eq $1 } @nation_names; 
+            if(@good_nation > 0)
+            { 
+                say $world->print_borders($good_nation[0]);
             }
         }
         else

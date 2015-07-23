@@ -49,24 +49,31 @@ sub print
 {
     my $self = shift;
     my $from = shift;
-    if($from eq $self->node1)
+    if($from && $from eq $self->node1)
     {
-        say $from . " -> " . $self->node2;
+        return $from . " -> " . $self->node2;
     }
-    elsif($from eq $self->node2 )
+    elsif($from && $from eq $self->node2 )
     {
         if($self->bidirectional)
         {
-            say $from . " -> " . $self->node1;
+            return $self->node2 . " -> " . $self->node1;
         }
         else
         {
-            say $from . " -> " . $self->node2;
+            return $self->node1 . " -> " . $self->node2;
         }
     }
     else
     {
-        say $from . " -> " . $self->node2;
+        if($self->bidirectional)
+        {
+            return $self->node1 . " <-> " . $self->node2;
+        }
+        else
+        {
+            return $self->node1 . " -> " . $self->node2;
+        }
     }
 }
 1;

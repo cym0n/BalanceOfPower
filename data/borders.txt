@@ -1,0 +1,19 @@
+Italy,Switzerland
+Italy,France
+France,Spain
+France,Belgium
+France,Germany
+France,Switzerland
+United Kingdon,Belgium
+United Kingdon,France
+United Kingdom,Netherlands
+Russia,Finland
+Russia,Norway
+Germany,Netherlands
+Germany,Belgium
+Germany,Switzerland
+Finland,Norway
+Finland,Sweden
+Sweden,Norway
+Greece,Italy
+

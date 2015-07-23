@@ -25,6 +25,7 @@ has nations => (
 with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
+with 'BalanceOfPower::Role::Mapmaker';
 
 
 sub get_nation
@@ -56,6 +57,8 @@ sub init_random
 {
     my $self = shift;
     my @nations = @_;
+
+    $self->load_borders();
 
     my %routes_counter;
     foreach my $n (@nations)
