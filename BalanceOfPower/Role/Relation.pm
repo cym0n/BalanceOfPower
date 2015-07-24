@@ -23,8 +23,9 @@ sub has_node
 sub is_between
 {
     my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
+    my $node1 = shift || "";
+    my $node2 = shift || "";
+
     return ($self->node1 eq $node1 && $self->node2 eq $node2) ||
            ($self->node1 eq $node2 && $self->node2 eq $node1 && $self->bidirectional);
 }

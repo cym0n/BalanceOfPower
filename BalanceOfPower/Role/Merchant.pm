@@ -34,9 +34,7 @@ sub generate_traderoute
         $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
         $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
         my $event = "TRADEROUTE ADDED: $node1<->$node2";
-        $self->register_event($event);
-        $self->register_event($event, $n1);
-        $self->register_event($event, $n2);
+        $self->register_event($event, $node1, $node2);
     }
                
 }
@@ -51,9 +49,7 @@ sub delete_route
     
     @{$self->trade_routes} = grep { ! $_->is_between($node1, $node2) } @{$self->trade_routes};
     my $event = "TRADEROUTE DELETED: $node1<->$node2";
-    $self->register_event($event);
-    $self->register_event($event, $n1);
-    $self->register_event($event, $n2);
+    $self->register_event($event, $node1, $node2);
     $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
 }
 sub suitable_route_creator
@@ -79,7 +75,7 @@ sub suitable_new_route
     }
     else
     {
-        $self->register_event($node1->name . " AND " . $node2->name . " REFUSED TO OPEN A TRADEROUTE");
+        $self->register_event($node1->name . " AND " . $node2->name . " REFUSED TO OPEN A TRADEROUTE", $node1->name, $node2->name);
         return 0;
     }
 }

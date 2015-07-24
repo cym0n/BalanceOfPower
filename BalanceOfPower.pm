@@ -12,7 +12,7 @@ use strict;
 my @nation_names = ("Italy", "France", "United Kingdom", "Russia", "Germany", "Spain", "Greece",
                     "Switzerland", "Finland", "Sweden", "Norway", "Netherlands", "Belgium"); 
 my $first_year = 1970;
-my $last_year = 1975;
+my $last_year = 1995;
 
 #Init
 my $world = BalanceOfPower::World->new();
@@ -25,6 +25,7 @@ for($first_year..$last_year)
     foreach my $t (get_year_turns($y))
     {
         $world->init_year($t);
+        $world->crisis_generator();
         $world->execute_decisions();
         $world->economy();
         $world->internal_conflict();
@@ -94,6 +95,24 @@ sub interface
             if(@good_nation > 0)
             { 
                 say $world->print_borders($good_nation[0]);
+            }
+        }
+        elsif($query =~ m/crises:(.*)/)
+        {
+            if($1 eq 'ALL')
+            {
+                foreach my $n (@nation_names)
+                {
+                    say $world->print_crises($n);
+                }
+            }
+            else
+            {
+                my @good_nation = grep { $_ eq $1 } @nation_names; 
+                if(@good_nation > 0)
+                { 
+                    say $world->print_crises($good_nation[0]);
+                }
             }
         }
         else

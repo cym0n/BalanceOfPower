@@ -42,4 +42,15 @@ sub print
         return $from . " <-" . $self->factor . "-> " . $self->node1 . " [" . $self->status . "]";
     }
 }
+sub diplomacy_exists
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    foreach my $r (@{$self->diplomatic_relations})
+    {
+        return 1 if($r->is_between($node1, $node2));
+    }
+    return 0;
+}
 1;

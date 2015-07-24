@@ -15,26 +15,31 @@ has events => (
     default => sub { {} }
 );
 
+requires 'get_nation';
+
 
 
 sub register_event
 {
     my $self = shift;
     my $event = shift;
-    my $n1 = shift;
-    if($n1)
+    my $n1 = shift || "";
+    my $n2 = shift || "";
+    if(! exists $self->events->{$self->current_year})
     {
-        $n1->register_event($event);
+        $self->events->{$self->current_year} = ();
     }
-    else
+    push @{$self->events->{$self->current_year}}, $event;
+    if($n1 ne "")
     {
-        if(! exists $self->events->{$self->current_year})
-        {
-            $self->events->{$self->current_year} = ();
-        }
-        push @{$self->events->{$self->current_year}}, $event;
+        my $nation = $self->get_nation($n1);
+        $nation->register_event($event);
     }
-
+    if($n2 ne "")
+    {
+        my $nation = $self->get_nation($n2);
+        $nation->register_event($event);
+    }
 }
 sub get_statistics_value
 {

@@ -26,6 +26,7 @@ with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Mapmaker';
+with 'BalanceOfPower::Role::Warlord';
 
 
 sub get_nation
@@ -67,6 +68,7 @@ sub init_random
         my $export_quote = random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE);
         say "  export quote: $export_quote";
         my $government_strength = random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH);
+        say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
         $routes_counter{$n} = 0 if(! exists $routes_counter{$n});
         my $how_many_routes = random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES);
@@ -88,7 +90,7 @@ sub init_random
         }
         foreach my $n2 (@nations)
         {
-            if($n ne $n2)
+            if($n ne $n2 && ! $self->diplomacy_exists($n, $n2))
             {
                 my $rel = new BalanceOfPower::Friendship( node1 => $n,
                                                           node2 => $n2,
@@ -118,6 +120,8 @@ sub init_year
         $self->set_statistics_value($n, 'debt', $n->debt);
     }
 }
+
+
 
 # PRODUCTION MANAGEMENT ###############################
 
@@ -215,7 +219,7 @@ sub manage_route_adding
             {
                 if(@route_adders == 0)
                 {
-                    $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $self->get_nation($node1));
+                    $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     $done = 1;
                 } 
                 else
@@ -233,13 +237,13 @@ sub manage_route_adding
                     }     
                     if($complete == 0)
                     {
-                        $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $self->get_nation($node1));
+                        $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     }
                 }
             }
             else
             {
-                $self->register_event("TRADEROUTE CREATION NOT POSSIBLE", $self->get_nation($node1));
+                $self->register_event("TRADEROUTE CREATION NOT POSSIBLE", $node1);
             }
             $done = 1 if(@route_adders == 0);
        }
@@ -306,7 +310,7 @@ sub internal_conflict
             my $winner = $n->fight_civil_war(random(0, 100), random(0, 100));
             if($winner && $winner eq 'rebels')
             {
-                $n->new_government({ government_strength => random(0, 100)});
+                $n->new_government({ government_strength => random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH)});
             }
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);

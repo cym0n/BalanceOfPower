@@ -10,6 +10,13 @@ has diplomatic_relations => (
 
 requires 'register_event';
 
+sub get_hates
+{
+    my $self = shift;
+    my @out = grep { $_->status eq 'HATE' } @{$self->diplomatic_relations};
+
+}
+
 sub change_diplomacy
 {
     my $self = shift;
@@ -27,7 +34,7 @@ sub change_diplomacy
             my $actual_status = $r->status;
             if($present_status ne $actual_status)
             {
-                $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status");
+                $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
             }
         }
     }
@@ -72,6 +79,18 @@ sub print_diplomacy
         }
     }
     return $out;
+}
+
+sub diplomacy_exists
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    foreach my $r (@{$self->diplomatic_relations})
+    {
+        return 1 if($r->is_between($node1, $node2));
+    }
+    return 0;
 }
 
 1;
