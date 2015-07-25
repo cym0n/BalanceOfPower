@@ -47,7 +47,7 @@ sub interface
         if($query eq "quit") { $continue = 0 }
         elsif($query eq "overall")
         {
-            say $world->print_overall_statistics(@nation_names);
+            say $world->print_overall_statistics($first_year, $last_year, @nation_names);
         }
         elsif($query eq "nations")
         {
@@ -97,22 +97,11 @@ sub interface
                 say $world->print_borders($good_nation[0]);
             }
         }
-        elsif($query =~ m/crises:(.*)/)
+        elsif($query =~ m/crises/)
         {
-            if($1 eq 'ALL')
+            foreach my $y ($first_year..$last_year)
             {
-                foreach my $n (@nation_names)
-                {
-                    say $world->print_crises($n);
-                }
-            }
-            else
-            {
-                my @good_nation = grep { $_ eq $1 } @nation_names; 
-                if(@good_nation > 0)
-                { 
-                    say $world->print_crises($good_nation[0]);
-                }
+                print $world->print_crises($y);
             }
         }
         else

@@ -158,6 +158,7 @@ sub print_overall_statistics
             $out .= "$y\t$prod\t$wealth\t$disorder\n";
         }
     }
+    return $out;
 }
 sub medium_statistics
 {
@@ -180,6 +181,34 @@ sub medium_statistics
     my $medium_wealth = int(($total_wealth / @nations)*100)/100;
     my $medium_disorder = int(($total_disorder / @nations)*100)/100;
     return ($medium_production, $medium_wealth, $medium_disorder);
+}
+
+sub print_crises
+{
+    my $self = shift;
+    my $year = shift;
+    my $out = "";
+    foreach my $t (get_year_turns($year))
+    {
+        my $header = 0;
+        foreach my $e (@{$self->events->{$t}})
+        {
+            if($e =~ /^CRISIS/)
+            {
+                if(! $header)
+                {
+                    $header = 1;
+                    $out .= "$t\n";
+                }
+                $out .= " " . $e . "\n";
+            }
+        }
+        if($header)
+        {
+            $out .= "\n";
+        }
+    }
+    return $out;
 }
 
 1;

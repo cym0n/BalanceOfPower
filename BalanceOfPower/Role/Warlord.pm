@@ -123,6 +123,18 @@ sub crisis_exists
     return undef;
 }
 
+sub get_crises
+{
+    my $self = shift;
+    my $node = shift;
+    my @crises = ();
+    foreach my $r (@{$self->crises})
+    {
+        push @crises, $r if $r->has_node($node);
+    }
+    return @crises;
+}
+
 sub print_crises
 {
     my $self = shift;

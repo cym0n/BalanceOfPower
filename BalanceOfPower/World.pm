@@ -255,7 +255,7 @@ sub decisions
     my @decisions = ();
     foreach my $nation (@{$self->nations})
     {
-        my $decision = $nation->decision();
+        my $decision = $nation->decision($self);
         if($decision)
         {
             say $decision;

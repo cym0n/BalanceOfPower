@@ -53,6 +53,8 @@ use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 20;
 use constant ARMY_HELP_FOR_INTERNAL_DISORDER => 10;
 use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
 use constant CRISIS_MAX_FACTOR => 3;
+use constant MIN_ARMY_FOR_WAR => 50;
+use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -102,7 +104,9 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'ARMY_UNIT_FOR_INTERNAL_DISORDER',
                   'ARMY_HELP_FOR_INTERNAL_DISORDER',
                   'CRISIS_GENERATOR_NOACTION_TOKENS',
-                  'CRISIS_MAX_FACTOR'
+                  'CRISIS_MAX_FACTOR',
+                  'MIN_ARMY_FOR_WAR',
+                  'MIN_INFERIOR_ARMY_RATIO_FOR_WAR'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
