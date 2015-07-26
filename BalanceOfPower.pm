@@ -25,11 +25,12 @@ for($first_year..$last_year)
     foreach my $t (get_year_turns($y))
     {
         $world->init_year($t);
+        $world->war_debts();
         $world->crisis_generator();
         $world->execute_decisions();
         $world->economy();
+        $world->warfare();
         $world->internal_conflict();
-        $world->wars();
     }
 }
 say "=======\n\n\n";

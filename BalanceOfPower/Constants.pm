@@ -55,6 +55,11 @@ use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
 use constant CRISIS_MAX_FACTOR => 3;
 use constant MIN_ARMY_FOR_WAR => 50;
 use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
+use constant WAR_WEALTH_MALUS => 20;
+use constant ATTACK_FAILED_PRODUCTION_MALUS => 40;
+use constant AFTER_CONQUERED_INTERNAL_DISORDER => 30;
+use constant CONQUEROR_LOOT_BY_TYPE => 20;
+use constant CONQUEST_CLOCK_LIMIT => 5;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -106,36 +111,11 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'CRISIS_GENERATOR_NOACTION_TOKENS',
                   'CRISIS_MAX_FACTOR',
                   'MIN_ARMY_FOR_WAR',
-                  'MIN_INFERIOR_ARMY_RATIO_FOR_WAR'
+                  'MIN_INFERIOR_ARMY_RATIO_FOR_WAR',
+                  'WAR_WEALTH_MALUS',
+                  'ATTACK_FAILED_PRODUCTION_MALUS',
+                  'AFTER_CONQUERED_INTERNAL_DISORDER',
+                  'CONQUEROR_LOOT_BY_TYPE',
+                  'CONQUEST_CLOCK_LIMIT'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
-
-
-#[ 'MIN_EXPORT_QUOTE', 
-#                              'MAX_EXPORT_QUOTE',
-#                              'MIN_STARTING_TRADEROUTES',
-#                              'MAX_STARTING_TRADEROUTES',
-#                              'ADDING_TRADEROUTE_COST',
-#                              'MIN_TRADEROUTE_GAIN',
-#                              'MAX_TRADEROUTE_GAIN',
-#                              'MIN_DELTA_PRODUCTION',
-#                              'MAX_DELTA_PRODUCTION',
-#                              'MIN_STARTING_PRODUCTION',
-#                              'MAX_STARTING_PRODUCTION',
-#                              'INTERNAL_PRODUCTION_GAIN',
-#                              'TRADING_QUOTE',
-#                              'TRADINGROUTE_COST',
-#                              'POVERTY_LIMIT',
-#                              'RICHNESS_LIMIT',
-#                              'INTERNAL_DISORDER_VARIATION_FACTOR',
-#                              'INTERNAL_DISORDER_TERRORISM_LIMIT',
-#                              'INTERNAL_DISORDER_INSURGENCE_LIMIT',
-#                              'INTERNAL_DISORDER_CIVIL_WAR_LIMIT',
-#                              'MIN_ADDED_DISORDER',
-#                              'MAX_ADDED_DISORDER',
-#                              'WORRYING_LIMIT',
-#                              'DOMESTIC_BUDGET',
-#                              'RESOURCES_FOR_DISORDER',
-#                              'DISORDER_REDUCTION',
-#                            ] );
-

@@ -163,11 +163,40 @@ sub calculate_production
     {
         $next = random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION);
     }
+    my @retreats = $n->get_events("RETREAT FROM", prev_year($n->current_year));
+    if(@retreats > 0)
+    {
+        $next -= ATTACK_FAILED_PRODUCTION_MALUS;
+    }
+
     if($next < 0)
     {
         $next = 0;
     }
     return $next;
+}
+
+
+#Conquered nations give to the conqueror a quote of their production at start of the turn
+sub war_debts
+{
+    my $self = shift;
+    foreach my $n (@{$self->nations})
+    {
+        if($n->situation->{status} eq 'conquered')
+        {
+            my $receiver = $self->get_nation($n->situation->{by});
+            my $amount_domestic = $n->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $n->production_for_domestic;
+            my $amount_export = $n->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $n->production_for_export;
+            $n->subtract_production('domestic', $amount_domestic);
+            $n->subtract_production('export', $amount_export);
+            $n->register_event("LOOTED BY " . $receiver->name . ": $amount_domestic + $amount_export");
+            $receiver->subtract_production('domestic', -1 * $amount_domestic);
+            $receiver->subtract_production('export', -1 * $amount_export);
+            $receiver->register_event("LOOTED FROM " . $n->name . ": $amount_domestic + $amount_export");
+            $n->situation_clock();
+        }
+    }
 }
 
 # PRODUCTION MANAGEMENT END ###############################################
@@ -200,6 +229,21 @@ sub execute_decisions
            my $nation = $self->get_nation($1);
            $nation->build_troops();
         }
+        elsif($d =~ /^(.*): DECLARE WAR TO (.*)$/)
+        {
+            my $attacker = $self->get_nation($1);
+            my $defender = $self->get_nation($2);
+            if(! $attacker->at_war && ! $defender->at_war)
+            {
+                $attacker->at_war(1);
+                $defender->at_war(1); 
+                $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR"); 
+                $self->create_war($attacker->name, $defender->name);
+            }
+        }
+        
+
+
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -280,6 +324,7 @@ sub economy
         $n->calculate_internal_wealth();
         $n->calculate_trading($self);
         $n->convert_remains();
+        $n->war_cost();
         $self->set_statistics_value($n, 'wealth', $n->wealth);
     }
 }
@@ -320,11 +365,11 @@ sub internal_conflict
 # INTERNAL DISORDER END ######################################################
 
 # WAR ######################################################################
-# TODO
 
-sub wars
+sub warfare
 {
     my $self = shift;
+    $self->fight_wars();
     foreach my $n (@{$self->nations})
     {
         $self->set_statistics_value($n, 'army', $n->army);    

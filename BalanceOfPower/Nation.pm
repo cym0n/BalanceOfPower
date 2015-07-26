@@ -22,6 +22,10 @@ has government_strength => (
     default => 70
 );
 
+has situation => (
+    is => 'rw',
+    default => sub { { status => 'free' } }
+);
 has internal_disorder => (
     is => 'rw',
     default => 0
@@ -43,6 +47,10 @@ has debt => (
     default => 0
 );
 has civil_war => (
+    is => 'rw',
+    default => 0
+);
+has at_war => (
     is => 'rw',
     default => 0
 );
@@ -122,6 +130,15 @@ sub convert_remains
     $self->production_for_domestic(0);
     $self->production_for_export(0);
 }
+sub war_cost
+{
+    my $self = shift;
+    if($self->at_war)
+    {
+        $self->add_wealth(-1 * WAR_WEALTH_MALUS);
+        $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
+    }
+}
 
 
 sub trade
@@ -155,8 +172,16 @@ sub decision
     my $self = shift;
     my $world = shift;
     return undef if($self->internal_disorder_status eq 'Civil war');
-    my @advisors = ('domestic', 'economy', 'military');
-    shuffle @advisors;
+    my @advisors;
+    if($self->at_war)
+    {
+        @advisors = ('military');
+    }
+    else
+    {
+        @advisors = ('domestic', 'economy', 'military');
+        shuffle @advisors;
+    }
     foreach my $a (@advisors)
     {
         my $decision = undef;
@@ -181,7 +206,7 @@ sub military_advisor
 {
     my $self = shift;
     my $world = shift;
-    if($self->army >= MIN_ARMY_FOR_WAR)
+    if($self->army >= MIN_ARMY_FOR_WAR && ! $self->at_war)
     {
         my @crises = $world->get_crises($self->name);
         if(@crises > 0)
@@ -192,6 +217,7 @@ sub military_advisor
                 {
                     my $war_points = 0;
                     my $enemy = $world->get_nation($c->destination($self->name));
+                    next if($enemy->at_war);
 
                     #ARMY EVALUATION
                     my $army_ratio;
@@ -336,6 +362,7 @@ sub add_wealth
     my $self = shift;
     my $wealth = shift;
     $self->wealth($self->wealth + $wealth);
+    $self->wealth(0) if($self->wealth < 0);
 }
 sub lower_disorder
 {
@@ -486,6 +513,26 @@ sub add_army
     my $army = shift;
     $self->army($self->army + $army);
 }
+sub situation_clock
+{
+    my $self = shift;
+    my $situation = $self->situation;
+    if(exists $situation->{clock})
+    {
+        $situation->{clock} = $situation->{clock} + 1;
+    }
+    if($situation->{clock} == CONQUEST_CLOCK_LIMIT && $situation->{status} eq 'conquered')
+    {
+        $situation->{clock} = 0;
+        $situation->{status} = 'under control';
+        $self->register_event("UNDER CONTROL OF " . $situation->{'by'});
+    }
+    $self->situation($situation);
+}
+
+
+
+
 
 sub print
 {
