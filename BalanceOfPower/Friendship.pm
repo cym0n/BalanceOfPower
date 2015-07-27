@@ -9,6 +9,11 @@ use BalanceOfPower::Constants ':all';
 has factor => (
     is => 'rw'
 );
+has leader => (
+    is => 'rw',
+    default => sub { undef }
+);
+
 
 with 'BalanceOfPower::Role::Relation';
 
@@ -49,8 +54,20 @@ sub diplomacy_exists
     my $node2 = shift;
     foreach my $r (@{$self->diplomatic_relations})
     {
-        return 1 if($r->is_between($node1, $node2));
+        return $r if($r->is_between($node1, $node2));
     }
-    return 0;
+    return undef;
+}
+sub set_leader
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    my $leader = shift;
+    my $r = $self->diplomacy_exists($node1, $node2);
+    if($r)
+    {
+        $r->leader($leader);
+    }
 }
 1;

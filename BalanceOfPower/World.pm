@@ -356,7 +356,26 @@ sub internal_conflict
             if($winner && $winner eq 'rebels')
             {
                 $n->new_government({ government_strength => random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH)});
+                $self->free_nation($n);
             }
+        }
+        if($n->at_war() && $n->internal_disorder_status eq 'Civil war')
+        {
+            say "CIVIL WAR DURING WAR SITUATION!";
+            #This should happen only if status changed during this iteration
+            my $war = $self->get_war($n->name);
+            my $attacker = $self->get_nation( $war->node1 );
+            my $defender = $self->get_nation( $war->node2 );
+            my $winner = "";
+            if($attacker->name eq $n->name)
+            {
+                $winner = 'defender-civilwar';
+            }
+            elsif($defender->name eq $n->name)
+            {
+                $winner = 'attacker-civilwar';
+            }
+            $self->end_war($attacker, $defender, $winner);
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }

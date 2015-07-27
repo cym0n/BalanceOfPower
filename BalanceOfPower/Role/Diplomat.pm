@@ -27,14 +27,17 @@ sub change_diplomacy
     {
         if($r->is_between($node1, $node2))
         {
-            my $present_status = $r->status;
-            $r->factor($r->factor + $dipl);
-            $r->factor(0) if $r->factor < 0;
-            $r->factor(100) if $r->factor > 100;
-            my $actual_status = $r->status;
-            if($present_status ne $actual_status)
+            if(! $r->leader)
             {
-                $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
+                my $present_status = $r->status;
+                $r->factor($r->factor + $dipl);
+                $r->factor(0) if $r->factor < 0;
+                $r->factor(100) if $r->factor > 100;
+                my $actual_status = $r->status;
+                if($present_status ne $actual_status)
+                {
+                    $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
+                }
             }
         }
     }
@@ -48,7 +51,14 @@ sub diplomacy_status
     {
         if($r->is_between($n1, $n2))
         {
-            return $r->status;
+            if($r->leader)
+            {
+                return "LEADER " . $r->leader;
+            }
+            else
+            {
+                return $r->status;
+            }
         }
     }
 }
@@ -91,6 +101,24 @@ sub diplomacy_exists
         return 1 if($r->is_between($node1, $node2));
     }
     return 0;
+}
+
+sub free_nation
+{
+    my $self = shift;
+    my $nation = shift;
+    $nation->situation({ status => 'free' });
+    foreach my $f (@{$self->diplomatic_relations})
+    {
+        if($f->has_node($nation->name))
+        {
+            if($f->leader && $f->leader ne $nation->name)
+            {
+                $f->leader(undef);
+            }
+        }
+    }
+    $nation->register_event("NATION IS FREE!");
 }
 
 1;
