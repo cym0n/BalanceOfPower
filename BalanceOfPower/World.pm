@@ -61,7 +61,6 @@ sub init_random
 
     $self->load_borders();
 
-    my %routes_counter;
     foreach my $n (@nations)
     {
         say "Working on $n";
@@ -70,35 +69,9 @@ sub init_random
         my $government_strength = random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH);
         say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
-        $routes_counter{$n} = 0 if(! exists $routes_counter{$n});
-        my $how_many_routes = random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES);
-        say "  routes to generate: $how_many_routes [" . $routes_counter{$n} . "]";
-        my @my_names = @nations;
-        @my_names = grep { $_ ne $n } @my_names;
-        while($routes_counter{$n} < $how_many_routes)
-        {
-            my $second_node = $my_names[rand @my_names];
-            if($second_node ne $n && ! $self->route_exists($n, $second_node))
-            {
-                say "  creating trade route to $second_node";
-                @my_names = grep { $_ ne $second_node } @my_names;
-                $self->generate_traderoute($n, $second_node, 0);
-                $routes_counter{$n}++;
-                $routes_counter{$second_node} = 0 if(! exists $routes_counter{$second_node});
-                $routes_counter{$second_node}++;
-            }
-        }
-        foreach my $n2 (@nations)
-        {
-            if($n ne $n2 && ! $self->diplomacy_exists($n, $n2))
-            {
-                my $rel = new BalanceOfPower::Friendship( node1 => $n,
-                                                          node2 => $n2,
-                                                          factor => random(0,100));
-                push @{$self->diplomatic_relations}, $rel;
-            }
-        }
     }
+    $self->init_trades();
+    $self->init_diplomacy();
 }
 
 # Configure current year
@@ -181,21 +154,22 @@ sub calculate_production
 sub war_debts
 {
     my $self = shift;
-    foreach my $n (@{$self->nations})
+    foreach my $n (keys %{$self->situations})
     {
-        if($n->situation->{status} eq 'conquered')
+        my $nation = $self->get_nation($n);
+        if($self->situations->{$n} eq 'conquered')
         {
-            my $receiver = $self->get_nation($n->situation->{by});
-            my $amount_domestic = $n->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $n->production_for_domestic;
-            my $amount_export = $n->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $n->production_for_export;
-            $n->subtract_production('domestic', $amount_domestic);
-            $n->subtract_production('export', $amount_export);
-            $n->register_event("LOOTED BY " . $receiver->name . ": $amount_domestic + $amount_export");
+            my $receiver = $self->get_nation($self->situation->{$n}->{by});
+            my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
+            my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
+            $nation->subtract_production('domestic', $amount_domestic);
+            $nation->subtract_production('export', $amount_export);
+            $nation->register_event("LOOTED BY " . $receiver->name . ": $amount_domestic + $amount_export");
             $receiver->subtract_production('domestic', -1 * $amount_domestic);
             $receiver->subtract_production('export', -1 * $amount_export);
-            $receiver->register_event("LOOTED FROM " . $n->name . ": $amount_domestic + $amount_export");
-            $n->situation_clock();
+            $receiver->register_event("LOOTED FROM " . $nation->name . ": $amount_domestic + $amount_export");
         }
+        $self->situation_clock($nation);
     }
 }
 
@@ -361,7 +335,6 @@ sub internal_conflict
         }
         if($n->at_war() && $n->internal_disorder_status eq 'Civil war')
         {
-            say "CIVIL WAR DURING WAR SITUATION!";
             #This should happen only if status changed during this iteration
             my $war = $self->get_war($n->name);
             my $attacker = $self->get_nation( $war->node1 );
@@ -394,7 +367,6 @@ sub warfare
         $self->set_statistics_value($n, 'army', $n->army);    
     }    
 }
-
 # WAR END ##################################################################
 
 

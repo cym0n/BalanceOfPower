@@ -22,10 +22,6 @@ has government_strength => (
     default => 70
 );
 
-has situation => (
-    is => 'rw',
-    default => sub { { status => 'free' } }
-);
 has internal_disorder => (
     is => 'rw',
     default => 0
@@ -513,22 +509,7 @@ sub add_army
     my $army = shift;
     $self->army($self->army + $army);
 }
-sub situation_clock
-{
-    my $self = shift;
-    my $situation = $self->situation;
-    if(exists $situation->{clock})
-    {
-        $situation->{clock} = $situation->{clock} + 1;
-    }
-    if($situation->{clock} == CONQUEST_CLOCK_LIMIT && $situation->{status} eq 'conquered')
-    {
-        $situation->{clock} = 0;
-        $situation->{status} = 'under control';
-        $self->register_event("UNDER CONTROL OF " . $situation->{'by'});
-    }
-    $self->situation($situation);
-}
+
 
 
 

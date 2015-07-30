@@ -1,6 +1,7 @@
 package BalanceOfPower::Role::Merchant;
 
 use strict;
+use v5.10;
 use Moo::Role;
 
 use BalanceOfPower::Constants ':all';
@@ -16,6 +17,33 @@ has trade_routes => (
     default => sub { [] }
 );
 
+sub init_trades
+{
+    my $self = shift;
+    my @nations = @_;
+    my %routes_counter;
+    foreach my $n (@nations)
+    {
+        $routes_counter{$n->name} = 0 if(! exists $routes_counter{$n->name});
+        my $how_many_routes = random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES);
+        say "  routes to generate: $how_many_routes [" . $routes_counter{$n->name} . "]";
+        my @my_names = @nations;
+        @my_names = grep { $_->name ne $n->name } @my_names;
+        while($routes_counter{$n->name} < $how_many_routes)
+        {
+            my $second_node = $my_names[rand @my_names];
+            if($second_node->name ne $n->name && ! $self->route_exists($n->name, $second_node->name))
+            {
+                say "  creating trade route to " . $second_node->name;
+                @my_names = grep { $_->name ne $second_node->name } @my_names;
+                $self->generate_traderoute($n->name, $second_node->name, 0);
+                $routes_counter{$n->name}++;
+                $routes_counter{$second_node->name} = 0 if(! exists $routes_counter{$second_node->name});
+                $routes_counter{$second_node->name}++;
+            }
+        }
+    }
+}
 sub generate_traderoute
 {
     my $self = shift;

@@ -9,21 +9,11 @@ use BalanceOfPower::Constants ':all';
 has factor => (
     is => 'rw'
 );
-has leader => (
-    is => 'rw',
-    default => sub { undef }
-);
-
-
 with 'BalanceOfPower::Role::Relation';
 
 sub status
 {
     my $self = shift;
-    if($self->leader)
-    {
-        return "LEADER " . $self->leader;
-    }
     if($self->factor < HATE_LIMIT)
     {
         return 'HATE';
@@ -61,17 +51,5 @@ sub diplomacy_exists
         return $r if($r->is_between($node1, $node2));
     }
     return undef;
-}
-sub set_leader
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    my $leader = shift;
-    my $r = $self->diplomacy_exists($node1, $node2);
-    if($r)
-    {
-        $r->leader($leader);
-    }
 }
 1;

@@ -13,6 +13,7 @@ use BalanceOfPower::War;
 
 requires 'get_nation';
 requires 'get_hates';
+requires 'conquer';
 requires 'register_event';
 
 has crises => (
@@ -261,35 +262,29 @@ sub end_war
     if($winner eq 'defender') 
     {
         #Defender wins
-        $attacker->register_event("RETREAT FROM " . $defender->name . ". WAR IS LOST");
-        $defender->register_event("NATION DEFEATED " . $attacker->name . ". WAR IS WON");
+        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
+        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
     }
     elsif($winner eq 'attacker') 
     {
         #Attacker wins
-        $attacker->register_event("CONQUER " . $defender->name . ". WAR IS WON");
-        $defender->register_event("NATION CONQUERED BY " . $attacker->name . ". WAR IS LOST");
         $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-        $defender->situation( { status => 'conquered',
-                                by => $attacker->name,
-                                clock => 0 } );
+        $self->conquer($attacker, $defender); 
         $self->delete_crisis($attacker->name, $defender->name);
     }
     elsif($winner eq 'defender-civilwar')
     {
         #Attacker has civil war at home and can't go on fighting
-        $attacker->register_event("RETREAT FROM " . $defender->name . ". WAR IS LOST");
-        $defender->register_event("NATION DEFEATED " . $attacker->name . ". WAR IS WON");
+        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
+        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
     }
     elsif($winner eq 'attacker-civilwar')
     {
         #Civil war helps attacker to win
-        $attacker->register_event("GOVERNMENT OF " . $defender->name . " IS FALLEN. WAR IS WON");
-        $defender->register_event("GOVERNMENT IN CHAOS. WAR IS LOST");
+        $attacker->register_event("WAR WITH " . $defender->name . " WON.");
+        $defender->register_event("WAR WITH " .$attacker->name . " IS LOST. GOVERNMENT IN CHAOS");
+        $self->under_influence($attacker, $defender); 
         $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-        $defender->situation( { status => 'under influence',
-                                by => $attacker->name,
-                                clock => 0 } );
         $self->delete_crisis($attacker->name, $defender->name);
     }
     $attacker->at_war(0);
