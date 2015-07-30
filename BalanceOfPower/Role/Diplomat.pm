@@ -51,14 +51,7 @@ sub diplomacy_status
     {
         if($r->is_between($n1, $n2))
         {
-            if($r->leader)
-            {
-                return "LEADER " . $r->leader;
-            }
-            else
-            {
-                return $r->status;
-            }
+            return $r->status;
         }
     }
 }

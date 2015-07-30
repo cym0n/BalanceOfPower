@@ -20,6 +20,10 @@ with 'BalanceOfPower::Role::Relation';
 sub status
 {
     my $self = shift;
+    if($self->leader)
+    {
+        return "LEADER " . $self->leader;
+    }
     if($self->factor < HATE_LIMIT)
     {
         return 'HATE';

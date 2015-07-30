@@ -155,7 +155,7 @@ sub calculate_production
     my $n = shift;
     my $production = $self->get_base_production($n);
     my $next = 0;
-    if($production)
+    if(defined $production)
     {
         $next = $production + random10(MIN_DELTA_PRODUCTION, MAX_DELTA_PRODUCTION);
     }

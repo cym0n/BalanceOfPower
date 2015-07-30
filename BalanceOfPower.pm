@@ -9,8 +9,12 @@ use BalanceOfPower::World;
 use strict;
 
 #Initial status
-my @nation_names = ("Italy", "France", "United Kingdom", "Russia", "Germany", "Spain", "Greece",
-                    "Switzerland", "Finland", "Sweden", "Norway", "Netherlands", "Belgium"); 
+my @nation_names = ("Italy", "France", "United Kingdom", "Russia", 
+                    "Germany", "Spain", "Greece", "Switzerland", 
+                    "Finland", "Sweden", "Norway", "Netherlands", 
+                    "Belgium", "Portugal", "Denmark", "Austria",
+                    "Czech Republic", "Slovakia", "Slovenia", "Hungary",
+                    "Poland", "Turkey", "Bulgaria", "Albania" ); 
 my $first_year = 1970;
 my $last_year = 1995;
 
@@ -38,7 +42,7 @@ interface();
 
 sub interface
 {
-    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name], borders:[nation name]\n    [year], overall,\n    commands, quit";
+    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name], borders:[nation name]\n    crises,\n    [year], overall,\n    commands, quit";
     say "Retrieve informations about history";
     say $commands;
     my $continue = 1;
