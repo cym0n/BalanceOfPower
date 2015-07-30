@@ -187,12 +187,12 @@ sub situation_clock
     if(exists $situation->{clock})
     {
         $situation->{clock} = $situation->{clock} + 1;
-    }
-    if($situation->{clock} == CONQUEST_CLOCK_LIMIT && $situation->{status} eq 'conquered')
-    {
-        $situation->{clock} = 0;
-        $situation->{status} = 'under control';
-        $n->register_event("UNDER CONTROL OF " . $situation->{'by'});
+        if($situation->{clock} == CONQUEST_CLOCK_LIMIT && $situation->{status} eq 'conquered')
+        {
+            $situation->{clock} = 0;
+            $situation->{status} = 'under control';
+            $n->register_event("UNDER CONTROL OF " . $situation->{'by'});
+        }
     }
     $self->situations->{$n->name} = $situation;
 }

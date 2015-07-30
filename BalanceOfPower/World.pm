@@ -70,8 +70,8 @@ sub init_random
         say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
     }
-    $self->init_trades();
-    $self->init_diplomacy();
+    $self->init_trades(@{$self->nations});
+    $self->init_diplomacy(@{$self->nations});
 }
 
 # Configure current year
@@ -82,9 +82,11 @@ sub init_year
 {
     my $self = shift;
     my $turn = shift;
+    say $turn;
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
     {
+        print ".";
         $n->current_year($turn);
         $n->wealth(0);
         my $prod = $self->calculate_production($n);
@@ -92,6 +94,7 @@ sub init_year
         $self->set_statistics_value($n, 'production', $prod);
         $self->set_statistics_value($n, 'debt', $n->debt);
     }
+    print "\n";
 }
 
 
@@ -157,17 +160,17 @@ sub war_debts
     foreach my $n (keys %{$self->situations})
     {
         my $nation = $self->get_nation($n);
-        if($self->situations->{$n} eq 'conquered')
+        if($self->situations->{$n}->{'status'} eq 'conquered')
         {
             my $receiver = $self->get_nation($self->situation->{$n}->{by});
             my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
             my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
             $nation->subtract_production('domestic', $amount_domestic);
             $nation->subtract_production('export', $amount_export);
-            $nation->register_event("LOOTED BY " . $receiver->name . ": $amount_domestic + $amount_export");
+            $nation->register_event("PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export");
             $receiver->subtract_production('domestic', -1 * $amount_domestic);
             $receiver->subtract_production('export', -1 * $amount_export);
-            $receiver->register_event("LOOTED FROM " . $nation->name . ": $amount_domestic + $amount_export");
+            $receiver->register_event("ACQUIRE LOOT FROM " . $nation->name . ": $amount_domestic + $amount_export");
         }
         $self->situation_clock($nation);
     }
@@ -276,7 +279,6 @@ sub decisions
         my $decision = $nation->decision($self);
         if($decision)
         {
-            say $decision;
             push @decisions, $decision;
         }
     }
