@@ -210,12 +210,9 @@ sub execute_decisions
         {
             my $attacker = $self->get_nation($1);
             my $defender = $self->get_nation($2);
-            if(! $attacker->at_war && ! $defender->at_war)
+            if(! $self->at_war($attacker->name) && ! $self->at_war($defender->name))
             {
-                $attacker->at_war(1);
-                $defender->at_war(1); 
-                $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR"); 
-                $self->create_war($attacker->name, $defender->name);
+                $self->create_war($attacker, $defender);
             }
         }
         
@@ -300,7 +297,10 @@ sub economy
         $n->calculate_internal_wealth();
         $n->calculate_trading($self);
         $n->convert_remains();
-        $n->war_cost();
+        if($self->at_war($n->name))
+        {
+            $n->war_cost();
+        }
         $self->set_statistics_value($n, 'wealth', $n->wealth);
     }
 }
@@ -335,7 +335,7 @@ sub internal_conflict
                 $self->free_nation($n);
             }
         }
-        if($n->at_war() && $n->internal_disorder_status eq 'Civil war')
+        if($self->at_war($n->name) && $n->internal_disorder_status eq 'Civil war')
         {
             #This should happen only if status changed during this iteration
             my $war = $self->get_war($n->name);

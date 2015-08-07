@@ -197,6 +197,70 @@ sub situation_clock
     $self->situations->{$n->name} = $situation;
 }
 
+sub is_under_influence
+{
+    my $self = shift;
+    my $n = shift;
+    if($self->situations->{$n}->{status} eq 'under influence')
+    {  
+        return $self->situations->{$n}->{by};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub is_conquered
+{
+    my $self = shift;
+    my $n = shift;
+    if($self->situations->{$n}->{status} eq 'conquered')
+    {  
+        return $self->situations->{$n}->{by};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub is_dominated
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->is_under_influence($n)
+        if($self->is_under_influence($n)); 
+    return $self->is_conquered($n)
+        if($self->is_conquered($n)); 
+    return undef;
+}
+sub dominate
+{
+    my $self = shift;
+    my $n = shift;
+    if($self->situations->{$n}->{status} eq 'free')
+    {
+        my @under = ();
+        foreach my $oth_n (keys %{$self->situations})
+        {
+            if($oth_n ne $n)
+            {
+                push @under, $oth_n
+                    if($self->is_dominated($oth_n) eq $n);
+            }
+        }
+        return @under;
+    }
+    else
+    {
+        return ();
+    }
+
+}
+
+
+
+
+
 sub conquer
 {
     my $self = shift;

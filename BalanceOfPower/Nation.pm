@@ -46,10 +46,6 @@ has civil_war => (
     is => 'rw',
     default => 0
 );
-has at_war => (
-    is => 'rw',
-    default => 0
-);
 has current_year => (
     is => 'rw'
 );
@@ -129,11 +125,8 @@ sub convert_remains
 sub war_cost
 {
     my $self = shift;
-    if($self->at_war)
-    {
-        $self->add_wealth(-1 * WAR_WEALTH_MALUS);
-        $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
-    }
+    $self->add_wealth(-1 * WAR_WEALTH_MALUS);
+    $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
 }
 
 
@@ -169,14 +162,14 @@ sub decision
     my $world = shift;
     return undef if($self->internal_disorder_status eq 'Civil war');
     my @advisors;
-    if($self->at_war)
+    if($world->at_war($self->name))
     {
         @advisors = ('military');
     }
     else
     {
         @advisors = ('domestic', 'economy', 'military');
-        shuffle @advisors;
+        @advisors = shuffle @advisors;
     }
     foreach my $a (@advisors)
     {
@@ -202,7 +195,7 @@ sub military_advisor
 {
     my $self = shift;
     my $world = shift;
-    if($self->army >= MIN_ARMY_FOR_WAR && ! $self->at_war)
+    if($self->army >= MIN_ARMY_FOR_WAR && ! $world->at_war($self->name))
     {
         my @crises = $world->get_crises($self->name);
         if(@crises > 0)
@@ -213,7 +206,7 @@ sub military_advisor
                 {
                     my $war_points = 0;
                     my $enemy = $world->get_nation($c->destination($self->name));
-                    next if($enemy->at_war);
+                    next if($world->at_war($enemy->name));
 
                     #ARMY EVALUATION
                     my $army_ratio;

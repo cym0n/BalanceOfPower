@@ -168,18 +168,30 @@ sub print_crises
     }
     return $out;
 }
+sub at_war
+{
+    my $self = shift;
+    my $n = shift;
+    foreach my $r (@{$self->wars})
+    {
+        return $r if($r->has_node($n));
+    }
+    return undef;
+}
 
 
 
 sub create_war
 {
     my $self = shift;
-    my $node1 = shift || "";
-    my $node2 = shift || "";
-    if(! $self->war_exists($node1, $node2))
+    my $attacker = shift || "";
+    my $defender = shift || "";
+
+    if(! $self->war_exists($attacker->name, $defender->name))
     {
-        push @{$self->wars}, BalanceOfPower::War->new(node1 => $node1, node2 => $node2);
-        $self->register_event("WAR BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
+        $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
+        push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, node2 => $defender->name);
+        $self->register_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
     }
 }
 
@@ -287,8 +299,6 @@ sub end_war
         $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
         $self->delete_crisis($attacker->name, $defender->name);
     }
-    $attacker->at_war(0);
-    $defender->at_war(0);
         
     @{$self->wars} = grep { ! $_->is_between($attacker->name, $defender->name) } @{$self->wars};
     
