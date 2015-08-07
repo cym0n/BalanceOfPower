@@ -49,7 +49,14 @@ sub get_statistics_value
     my $value = shift;
     if(exists $self->statistics->{$turn})
     {
-        return $self->statistics->{$turn}->{$nation}->{$value};
+        if($nation)
+        {
+            return $self->statistics->{$turn}->{$nation}->{$value};
+        }
+        else
+        {
+            return $self->statistics->{$turn}->{$value};
+        }
     }
     else
     {
@@ -62,7 +69,14 @@ sub set_statistics_value
     my $nation = shift;
     my $value_name = shift;
     my $value = shift;
-    $self->statistics->{$nation->current_year}->{$nation->name}->{$value_name} = $value;
+    if($nation)
+    {
+        $self->statistics->{$nation->current_year}->{$nation->name}->{$value_name} = $value;
+    }
+    else
+    {
+        $self->statistics->{$self->current_year}->{$value_name} = $value;
+    }
 }
 sub print_nation_statistics
 {
@@ -209,6 +223,24 @@ sub print_crises
         }
     }
     return $out;
+}
+sub print_defcon_statistics
+{
+    my $self = shift;
+    my $first_year = shift;
+    my $last_year = shift;
+    my $out = "Year\tCrises\tWars\n";
+    foreach my $y ($first_year..$last_year)
+    {
+        foreach my $t (get_year_turns($y))
+        {
+            my $crises = $self->get_statistics_value($t, undef, 'crises');
+            my $wars = $self->get_statistics_value($t, undef, 'wars');
+            $out .= "$t\t$crises\t$wars\n";
+        }
+    }
+    return $out;
+       
 }
 
 1;

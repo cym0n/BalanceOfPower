@@ -35,6 +35,7 @@ for($first_year..$last_year)
         $world->economy();
         $world->warfare();
         $world->internal_conflict();
+        $world->register_global_data();
     }
 }
 say "=======\n\n\n";
@@ -108,6 +109,8 @@ sub interface
             {
                 print $world->print_crises($y);
             }
+            print "\n";
+            print $world->print_defcon_statistics($first_year, $last_year);
         }
         else
         {

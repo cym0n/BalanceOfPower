@@ -162,7 +162,7 @@ sub war_debts
         my $nation = $self->get_nation($n);
         if($self->situations->{$n}->{'status'} eq 'conquered')
         {
-            my $receiver = $self->get_nation($self->situation->{$n}->{by});
+            my $receiver = $self->get_nation($self->situations->{$n}->{by});
             my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
             my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
             $nation->subtract_production('domestic', $amount_domestic);
@@ -370,6 +370,15 @@ sub warfare
     }    
 }
 # WAR END ##################################################################
+
+sub register_global_data
+{
+    my $self = shift;
+    my $crises = @{$self->crises};
+    my $wars = @{$self->wars};
+    $self->set_statistics_value(undef, 'crises', $crises);
+    $self->set_statistics_value(undef, 'wars', $wars);
+}
 
 
 

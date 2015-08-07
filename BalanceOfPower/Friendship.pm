@@ -32,14 +32,22 @@ sub print
 {
     my $self = shift;
     my $from = shift;
-    if($from eq $self->node1)
+    if($from)
     {
-        return $from . " <-" . $self->factor . "-> " . $self->node2 . " [" . $self->status . "]";
+        if($from eq $self->node1)
+        {
+            return $from . " <-" . $self->factor . "-> " . $self->node2 . " [" . $self->status . "]";
+        }
+        elsif($from eq $self->node2)
+        {
+            return $from . " <-" . $self->factor . "-> " . $self->node1 . " [" . $self->status . "]";
+        }
     }
-    elsif($from eq $self->node2)
+    else
     {
-        return $from . " <-" . $self->factor . "-> " . $self->node1 . " [" . $self->status . "]";
+        return $self->node1 . " <-" . $self->factor . "-> " . $self->node2 . " [" . $self->status . "]";
     }
+
 }
 sub diplomacy_exists
 {

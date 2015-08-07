@@ -29,47 +29,111 @@ has wars => (
 sub crisis_generator
 {
     my $self = shift;
-    my $action = random(0, CRISIS_GENERATOR_NOACTION_TOKENS + 3);
-    if($action == 0) #NEW CRYSIS
+    my @used = ();
+    for(my $i = 0; $i < CRISIS_GENERATION_TRIES; $i++)
     {
-        my @hates = shuffle $self->get_hates();
-        if(! $self->war_exists($hates[0]->node1, $hates[0]->node2))
+        my $chosen = $self->crisis_generator_round(@used);
+        if($chosen)
         {
-            $self->create_or_escalate_crisis($hates[0]->node1, $hates[0]->node2);
+            push @used, $chosen;
+        }
+    }
+
+}
+
+sub crisis_generator_round
+{
+    my $self = shift;
+    my @blacklist = shift;
+    my @hates = grep {
+                        my $a = $_;
+                        my $exit = undef;
+                        $exit = 1 if(! @blacklist);
+                        if(! $exit)
+                        {
+                            for(@blacklist)
+                            {
+                                my $couple = $_;
+                                if($a->involve($couple->[0], $couple->[1]))
+                                {
+                                    $exit = 0;
+                                }
+                            }
+                        }
+                        $exit = 1 if(! $exit);
+                        $exit;
+                     } shuffle $self->get_hates();
+    my @crises = grep {
+                        my $a = $_;
+                        my $exit = undef;
+                        $exit = 1 if(! @blacklist);
+                        if(! $exit)
+                        {
+                            for(@blacklist)
+                            {
+                                my $couple = $_;
+                                if($a->involve($couple->[0], $couple->[1]))
+                                {
+                                    $exit = 0;
+                                }
+                            }
+                        }
+                        $exit = 1 if(! $exit);
+                        $exit;
+                     } shuffle @{$self->crises};
+                     
+    my $picked_hate = undef; 
+    my $picked_crisis = undef;
+    if(@hates)
+    {
+        $picked_hate = $hates[0];
+    }
+    if(@crises)
+    {
+        $picked_crisis = $crises[0];
+    }
+   
+
+    my $action = random(0, CRISIS_GENERATOR_NOACTION_TOKENS + 3);
+    if($action == 0) #NEW CRISIS
+    {
+        return undef if ! $picked_hate; 
+        if(! $self->war_exists($picked_hate->node1, $picked_hate->node2))
+        {
+            $self->create_or_escalate_crisis($picked_hate->node1, $picked_hate->node2);
+            return [$picked_hate->node1, $picked_hate->node2];
         }
     }
     elsif($action == 1) #ESCALATE
     {
-        my @crises = shuffle @{$self->crises};
-        if(@crises > 0)
+        return undef if ! $picked_crisis; 
+        if(! $self->war_exists($picked_crisis->node1, $picked_crisis->node2))
         {
-            if(! $self->war_exists($crises[0]->node1, $crises[0]->node2))
-            {
-                $self->create_or_escalate_crisis($crises[0]->node1, $crises[0]->node2);
-            }
+            $self->create_or_escalate_crisis($picked_crisis->node1, $picked_crisis->node2);
         }
+        return [$picked_crisis->node1, $picked_crisis->node2];
     }
     elsif($action == 2) #COOL DOWN
     {
-        my @crises = shuffle @{$self->crises};
-        if(@crises > 0)
+        return undef if ! $picked_crisis; 
+        if(! $self->war_exists($picked_crisis->node1, $picked_crisis->node2))
         {
-            if(! $self->war_exists($crises[0]->node1, $crises[0]->node2))
-            {
-                $self->cool_down($crises[0]->node1, $crises[0]->node2);
-            }
+            $self->cool_down($picked_crisis->node1, $picked_crisis->node2);
         }
+        return [$picked_crisis->node1, $picked_crisis->node2];
     }
     elsif($action == 3) #ELIMINATE
     {
-        my @crises = shuffle @{$self->crises};
-        if(@crises > 0)
+        return undef if ! $picked_crisis; 
+        if(! $self->war_exists($crises[0]->node1, $crises[0]->node2))
         {
-            if(! $self->war_exists($crises[0]->node1, $crises[0]->node2))
-            {
-                $self->delete_crisis($crises[0]->node1, $crises[0]->node2);
-            }
+            $self->delete_crisis($crises[0]->node1, $crises[0]->node2);
         }
+        return [$picked_crisis->node1, $picked_crisis->node2];
+    }
+    else
+    {
+        return undef;
     }
 }
 sub create_or_escalate_crisis
