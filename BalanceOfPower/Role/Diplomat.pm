@@ -245,7 +245,7 @@ sub dominate
             if($oth_n ne $n)
             {
                 push @under, $oth_n
-                    if($self->is_dominated($oth_n) eq $n);
+                    if($self->is_dominated($oth_n) && $self->is_dominated($oth_n) eq $n);
             }
         }
         return @under;
@@ -253,6 +253,20 @@ sub dominate
     else
     {
         return ();
+    }
+}
+sub coalition
+{
+    my $self = shift;
+    my $n = shift;
+    if(my $dominator = $self->is_dominated($n))
+    {
+        my @allies = $self->dominate($dominator);
+        return @allies;
+    }
+    else
+    {
+        return $self->dominate($n);
     }
 
 }

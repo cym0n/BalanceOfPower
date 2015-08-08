@@ -15,6 +15,8 @@ requires 'get_nation';
 requires 'get_hates';
 requires 'conquer';
 requires 'register_event';
+requires 'coalition';
+requires 'get_group_borders';
 
 has crises => (
     is => 'rw',
@@ -251,11 +253,112 @@ sub create_war
     my $attacker = shift || "";
     my $defender = shift || "";
 
+    #TODO avoid involving people if already in a war
+
     if(! $self->war_exists($attacker->name, $defender->name))
     {
         $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
+        my @attacker_coalition = $self->coalition($attacker->name);
+        my @defender_coalition = $self->coalition($defender->name);
+        my @attacker_targets = $self->get_group_borders(\@attacker_coalition, \@defender_coalition);
+        my @defender_targets = $self->get_group_borders(\@defender_coalition, \@attacker_coalition);
+        my @war_couples;
+        my %used;
+        for(@attacker_coalition, @defender_coalition)
+        {
+            $used{$_} = 0;
+        }
+        #push @war_couples, [$attacker->name, $defender->name];
+        $used{$attacker->name} = 1;
+        $used{$defender->name} = 1;
+        my $faction = 1;
+        my $done = 0;
+        my $faction0_done = 0;
+        my $faction1_done = 0;
+        while(! $done)
+        {
+            my @potential_attackers;
+            if($faction == 0)
+            {
+                @potential_attackers = grep { $used{$_} == 0 } @attacker_coalition;
+            }
+            elsif($faction == 1)
+            {
+                @potential_attackers = grep { $used{$_} == 0 } @defender_coalition;
+            }
+            if(@potential_attackers == 0)
+            {
+                if($faction0_done == 1 && $faction == 1 ||
+                   $faction1_done == 1 && $faction == 0)
+                {
+                    $done = 1;
+                    last;
+                } 
+                else
+                {
+                    if($faction == 0)
+                    {
+                        $faction0_done = 1;
+                        $faction = 1;
+                    }
+                    else
+                    {
+                        $faction1_done = 1;
+                        $faction = 0;
+                    }
+                    next;
+                }
+                
+            }
+            @potential_attackers = shuffle @potential_attackers;
+            my $attack_now = $potential_attackers[0];
+            my $defend_now;
+            my $free_level = 0;
+            my $searching = 1;
+            while($searching)
+            {
+                my @potential_defenders;
+                if($faction == 0)
+                {
+                    @potential_defenders = grep { $used{$_} <= $free_level } @defender_coalition;
+                }
+                elsif($faction == 1)
+                {
+                    @potential_defenders = grep { $used{$_} <= $free_level } @attacker_coalition;
+                }
+                if(@potential_defenders > 0)
+                {
+                    @potential_defenders = shuffle @potential_defenders;
+                    $defend_now = $potential_defenders[0];
+                    $searching = 0;
+                }
+                else
+                {
+                    $free_level++;
+                }
+            }
+            push @war_couples, [$attack_now, $defend_now];
+            $used{$attack_now} += 1;
+            $used{$defend_now} += 1;
+            if($faction == 0)
+            {
+                $faction = 1;
+            }
+            else
+            {
+                $faction = 0;
+            }
+        }
+
         push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, node2 => $defender->name);
         $self->register_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
+        print Dumper(\@war_couples);
+        print "\n";
+        foreach my $c (@war_couples)
+        {
+            push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], node2 => $c->[1]);
+            $self->register_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
+        }
     }
 }
 
@@ -291,8 +394,8 @@ sub fight_wars
         #As Risiko
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
-        my $attack = $attacker->army >= 30 ? 30 : $attacker->army;
-        my $defence = $defender->army >= 30 ? 30 : $defender->army;
+        my $attack = $attacker->army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $attacker->army;
+        my $defence = $defender->army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $defender->army;
         my $attacker_damage = 0;
         my $defender_damage = 0;
         my $counter = $attack < $defence ? $attack : $defence;

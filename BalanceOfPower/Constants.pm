@@ -13,6 +13,7 @@ use constant MIN_TRADEROUTE_GAIN => 2;
 use constant MAX_TRADEROUTE_GAIN => 4;
 use constant MIN_DELTA_PRODUCTION => -20;
 use constant MAX_DELTA_PRODUCTION => 20;
+use constant MAX_PRODUCTION => 180;
 use constant MIN_STARTING_PRODUCTION => 50;
 use constant MAX_STARTING_PRODUCTION => 100;
 use constant INTERNAL_PRODUCTION_GAIN => 1;
@@ -41,20 +42,21 @@ use constant AFTER_CIVIL_WAR_INTERNAL_DISORDER => 35;
 use constant TURNS_FOR_YEAR => 4;
 use constant HATE_LIMIT => 30;
 use constant LOVE_LIMIT => 70;
-use constant MINIMUM_ARMY_LIMIT => 50;
-use constant MEDIUM_ARMY_LIMIT => 100;
-use constant MAX_ARMY_LIMIT => 150;
+use constant MINIMUM_ARMY_LIMIT => 5;
+use constant MEDIUM_ARMY_LIMIT => 10;
+use constant MAX_ARMY_LIMIT => 15;
 use constant MEDIUM_ARMY_BUDGET => 40;
 use constant MAX_ARMY_BUDGET => 60;
 use constant ARMY_COST => 20;
-use constant ARMY_UNIT => 10;
+use constant ARMY_UNIT => 1;
+use constant ARMY_FOR_BATTLE => 3;
 use constant TRADEROUTE_DIPLOMACY_FACTOR => 10;
-use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 20;
+use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 2;
 use constant ARMY_HELP_FOR_INTERNAL_DISORDER => 10;
 use constant CRISIS_GENERATION_TRIES => 5;
 use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
 use constant CRISIS_MAX_FACTOR => 3;
-use constant MIN_ARMY_FOR_WAR => 50;
+use constant MIN_ARMY_FOR_WAR => 5;
 use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
 use constant WAR_WEALTH_MALUS => 20;
 use constant ATTACK_FAILED_PRODUCTION_MALUS => 40;
@@ -71,6 +73,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MAX_TRADEROUTE_GAIN',
                   'MIN_DELTA_PRODUCTION',
                   'MAX_DELTA_PRODUCTION',
+                  'MAX_PRODUCTION',
                   'MIN_STARTING_PRODUCTION',
                   'MAX_STARTING_PRODUCTION',
                   'INTERNAL_PRODUCTION_GAIN',
@@ -106,6 +109,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MAX_ARMY_BUDGET',
                   'ARMY_COST',
                   'ARMY_UNIT',
+                  'ARMY_FOR_BATTLE',
                   'TRADEROUTE_DIPLOMACY_FACTOR',
                   'ARMY_UNIT_FOR_INTERNAL_DISORDER',
                   'ARMY_HELP_FOR_INTERNAL_DISORDER',

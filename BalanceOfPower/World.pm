@@ -149,6 +149,10 @@ sub calculate_production
     {
         $next = 0;
     }
+    if($next > MAX_PRODUCTION)
+    {
+        $next = MAX_PRODUCTION;
+    }
     return $next;
 }
 

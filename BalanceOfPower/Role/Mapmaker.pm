@@ -37,6 +37,32 @@ sub border_exists
     }
     return 0;
 }
+sub get_group_borders
+{
+    my $self = shift;
+    my $group1 = shift;
+    my $group2 = shift;
+    my @from = @{ $group1 };
+    my @to = @{ $group2 };
+    my @out = ();
+    foreach my $to_n (@to)
+    {
+        foreach my $from_n (@from)
+        {
+            if($self->border_exists($from_n, $to_n))
+            {
+                push @out, $to_n;
+                last;
+            }
+        }
+    }
+    return @out;
+
+
+
+}
+
+
 sub print_borders
 {
     my $self = shift;

@@ -250,6 +250,12 @@ sub military_advisor
                     my $wealth = $world->get_statistics_value(prev_year($self->current_year), $self->name, 'wealth');
                     my $enemy_wealth = $world->get_statistics_value(prev_year($self->current_year), $enemy->name, 'wealth');
                     $war_points += 1 if($enemy_wealth > $wealth);
+                    
+                    #COALITION EVALUATION
+                    if($world->coalition($self->name) && $world->coalition($enemy->name) && $world->coalition($self->name) > $world->coalition($enemy->name))
+                    {
+                        $war_points += 1;
+                    }
 
                     if($war_points + $c->factor >= 4)
                     {
