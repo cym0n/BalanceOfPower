@@ -14,7 +14,7 @@ use BalanceOfPower::War;
 requires 'get_nation';
 requires 'get_hates';
 requires 'conquer';
-requires 'register_event';
+requires 'broadcast_event';
 requires 'coalition';
 requires 'get_group_borders';
 requires 'get_allies';
@@ -154,13 +154,13 @@ sub create_or_escalate_crisis
             {
                $event .= " TO MAX LEVEL"; 
             }
-            $self->register_event($event, $node1, $node2);
+            $self->broadcast_event($event, $node1, $node2);
         }
     }
     else
     {
         push @{$self->crises}, BalanceOfPower::Crisis->new(node1 => $node1, node2 => $node2);
-        $self->register_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
+        $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
     }
 }
 sub cool_down
@@ -177,7 +177,7 @@ sub cool_down
         else
         {
             $crisis->factor($crisis->factor - 1);
-            $self->register_event("CRISIS BETWEEN $node1 AND $node2 COOLED DOWN", $node1, $node2);
+            $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 COOLED DOWN", $node1, $node2);
         }
     }
 }
@@ -193,7 +193,7 @@ sub delete_crisis
     
     @{$self->crises} = grep { ! $_->is_between($node1, $node2) } @{$self->crises};
     my $event = "CRISIS BETWEEN $node1 AND $node2 ENDED";
-    $self->register_event($event, $node1, $node2);
+    $self->broadcast_event($event, $node1, $node2);
     
 }
 
@@ -256,7 +256,7 @@ sub create_war
 
     if(! $self->war_exists($attacker->name, $defender->name))
     {
-        $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
+        $self->broadcast_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
         my @attacker_coalition = $self->coalition($attacker->name);
         @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
         my @defender_coalition = $self->coalition($defender->name);
@@ -274,6 +274,7 @@ sub create_war
                 if(! grep { $_ eq $ally_name } @attacker_coalition)
                 {
                     push @attacker_coalition, $ally_name;
+                    $ally->register_event("JOIN WAR AS ALLY OF " . $attacker->name ." AGAINST " . $defender->name);
                 }
             }
         }
@@ -286,6 +287,7 @@ sub create_war
                 if(! grep { $_ eq $ally_name } @defender_coalition)
                 {
                     push @defender_coalition, $ally_name;
+                    $ally->register_event("JOIN WAR AS ALLY OF " . $defender->name ." AGAINST " . $attacker->name);
                 }
             }
         }
@@ -381,11 +383,11 @@ sub create_war
         }
 
         push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, node2 => $defender->name);
-        $self->register_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
+        $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
         foreach my $c (@war_couples)
         {
             push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], node2 => $c->[1]);
-            $self->register_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
+            $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
         }
     }
 }
@@ -465,7 +467,7 @@ sub end_war
     my $defender = shift;
     my $winner = shift;
     return if ! $self->war_exists($attacker->name, $defender->name);
-    $self->register_event("WAR BETWEEN " . $attacker->name . " AND ". $defender->name . " ENDS", $attacker->name, $defender->name);
+    $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND ". $defender->name . " ENDS", $attacker->name, $defender->name);
     if($winner eq 'defender') 
     {
         #Defender wins

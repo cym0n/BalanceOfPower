@@ -8,6 +8,8 @@ use BalanceOfPower::World;
 
 use strict;
 
+unlink "bop.log";
+
 #Initial status
 my @nation_names = ("Italy", "France", "United Kingdom", "Russia", 
                     "Germany", "Spain", "Greece", "Switzerland", 

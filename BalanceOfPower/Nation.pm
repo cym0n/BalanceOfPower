@@ -8,6 +8,9 @@ use BalanceOfPower::Utils qw( prev_year next_year );
 use BalanceOfPower::Constants ':all';
 use List::Util qw(shuffle);
 
+with 'BalanceOfPower::Role::Reporter';
+
+
 has name => (
     is => 'ro',
     default => 'Dummyland'
@@ -48,10 +51,6 @@ has civil_war => (
 );
 has current_year => (
     is => 'rw'
-);
-
-has events => (
-    is => 'rw',
 );
 
 has army => (
@@ -552,30 +551,6 @@ sub print
 }
 
 
-sub register_event
-{
-    my $self = shift;
-    my $event = shift;
-    my $time = $self->current_year ? $self->current_year : "START";
-
-    $self->events({}) if(! $self->events );
-    push @{$self->events->{$time}}, $event;
-}
-sub get_events
-{
-    my $self = shift;
-    my $label = shift;
-    my $year = shift;
-    if($self->events && exists $self->events->{$year})
-    {
-        my @events = grep { $_ =~ /^$label/ } @{$self->events->{$year}};
-        return @events;
-    }
-    else
-    {
-        return ();
-    }
-}
 
 
 1;

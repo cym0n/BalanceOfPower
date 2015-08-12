@@ -25,7 +25,7 @@ has situations => (
     default => sub { {} }
 );
 
-requires 'register_event';
+requires 'broadcast_event';
 
 sub init_diplomacy
 {
@@ -48,7 +48,7 @@ sub init_diplomacy
     for(my $i = 0; $i < STARTING_ALLIANCES; $i++)
     {
         @nations = shuffle @nations;
-        $self->create_alliance($nations[0], $nations[1]);
+        $self->create_alliance($nations[0]->name, $nations[1]->name);
     }
 
 }
@@ -141,7 +141,7 @@ sub change_diplomacy
             my $actual_status = $r->status;
             if($present_status ne $actual_status)
             {
-                $self->register_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
+                $self->broadcast_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
             }
         }
     }
@@ -335,7 +335,7 @@ sub create_alliance
     {
         push @{$self->alliances}, BalanceOfPower::Alliance->new(node1 => $n1, node2 => $n2);
     }
-    $self->register_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
+    $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
 }
 sub delete_alliance
 {
@@ -343,7 +343,7 @@ sub delete_alliance
     my $n1 = shift;
     my $n2 = shift;
     @{$self->alliances} = grep { ! $_->involve($n1, $n2) } @{$self->alliances};
-    $self->register_event("ALLIANCE BETWEEN $n1 AND $n2 ENDED", $n1, $n2);
+    $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 ENDED", $n1, $n2);
 }
 sub delete_all_alliances
 {

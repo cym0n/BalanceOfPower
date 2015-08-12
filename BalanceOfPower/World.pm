@@ -11,7 +11,10 @@ use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns)
 use BalanceOfPower::Nation;
 use BalanceOfPower::TradeRoute;
 
-
+has name => (
+    is => 'ro',
+    default => 'WORLD'
+);
 has current_year => (
     is => 'rw'
 );
@@ -241,7 +244,7 @@ sub manage_route_adding
             {
                 if(@route_adders == 0)
                 {
-                    $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                    $self->broadcast_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     $done = 1;
                 } 
                 else
@@ -259,13 +262,13 @@ sub manage_route_adding
                     }     
                     if($complete == 0)
                     {
-                        $self->register_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                        $self->broadcast_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     }
                 }
             }
             else
             {
-                $self->register_event("TRADEROUTE CREATION NOT POSSIBLE", $node1);
+                $self->broadcast_event("TRADEROUTE CREATION NOT POSSIBLE", $node1);
             }
             $done = 1 if(@route_adders == 0);
        }

@@ -6,11 +6,9 @@ use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 
+with 'BalanceOfPower::Role::Reporter';
+
 has statistics => (
-    is => 'rw',
-    default => sub { {} }
-);
-has events => (
     is => 'rw',
     default => sub { {} }
 );
@@ -19,25 +17,15 @@ requires 'get_nation';
 
 
 
-sub register_event
+sub broadcast_event
 {
     my $self = shift;
     my $event = shift;
-    my $n1 = shift || "";
-    my $n2 = shift || "";
-    if(! exists $self->events->{$self->current_year})
+    my @nations = @_;
+    $self->register_event($event);
+    for(@nations)
     {
-        $self->events->{$self->current_year} = ();
-    }
-    push @{$self->events->{$self->current_year}}, $event;
-    if($n1 ne "")
-    {
-        my $nation = $self->get_nation($n1);
-        $nation->register_event($event);
-    }
-    if($n2 ne "")
-    {
-        my $nation = $self->get_nation($n2);
+        my $nation = $self->get_nation($_);
         $nation->register_event($event);
     }
 }
