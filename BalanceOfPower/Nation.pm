@@ -241,6 +241,10 @@ sub good_prey
     {
         return 0;
     }
+    if($self->army == 0)
+    {
+        return 0;
+    }
     my $war_points = 0;
 
     #ARMY EVALUATION

@@ -281,11 +281,14 @@ sub coalition
     if(my $dominator = $self->is_dominated($n))
     {
         my @allies = $self->dominate($dominator);
+        push @allies, $dominator;
         return @allies;
     }
     else
     {
-        return $self->dominate($n);
+        my @allies = $self->dominate($n);
+        push @allies, $n;
+        return @allies;
     }
 
 }

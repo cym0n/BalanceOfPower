@@ -1,6 +1,8 @@
 package BalanceOfPower::Role::Warlord;
 
 use strict;
+use v5.10;
+
 use Moo::Role;
 
 use List::Util qw(shuffle);
