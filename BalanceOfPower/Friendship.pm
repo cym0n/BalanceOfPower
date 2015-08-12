@@ -14,6 +14,10 @@ with 'BalanceOfPower::Role::Relation';
 sub status
 {
     my $self = shift;
+    if($self->factor == ALLIANCE_FRIENDSHIP_FACTOR)
+    {
+        return 'ALLIANCE';
+    }
     if($self->factor < HATE_LIMIT)
     {
         return 'HATE';

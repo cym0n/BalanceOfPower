@@ -202,65 +202,11 @@ sub military_advisor
         {
             foreach my $c (@crises)
             {
-                if($world->border_exists($c->node1, $c->node2))
+                my $enemy = $world->get_nation($c->destination($self->name));
+                next if($world->at_war($enemy->name));
+                if($self->good_prey($enemy, $world, $c->factor, 1))
                 {
-                    my $war_points = 0;
-                    my $enemy = $world->get_nation($c->destination($self->name));
-                    next if($world->at_war($enemy->name));
-
-                    #ARMY EVALUATION
-                    my $army_ratio;
-                    if($enemy->army > 0)
-                    {
-                        $army_ratio = int($self->army / $enemy->army);
-                    }
-                    else
-                    {
-                        $army_ratio = 3;
-                    }
-                    if($army_ratio < 1)
-                    {
-                        my $reverse_army_ratio = $enemy->army / $self->army;
-                        if($reverse_army_ratio > MIN_INFERIOR_ARMY_RATIO_FOR_WAR)
-                        {
-                            last;
-                        }
-                        else
-                        {
-                            $army_ratio = -1;
-                        }
-                    }
-                    $war_points += $army_ratio;
-
-                    #INTERNAL EVALUATION
-                    if($self->internal_disorder_status eq 'Peace')
-                    {
-                        $war_points += 1;
-                    }
-                    elsif($self->internal_disorder_status eq 'Terrorism')
-                    {
-                        $war_points += 0;
-                    }
-                    elsif($self->internal_disorder_status eq 'Insurgence')
-                    {
-                        $war_points += -1;
-                    }
-
-                    #WEALTH EVALUATION
-                    my $wealth = $world->get_statistics_value(prev_year($self->current_year), $self->name, 'wealth');
-                    my $enemy_wealth = $world->get_statistics_value(prev_year($self->current_year), $enemy->name, 'wealth');
-                    $war_points += 1 if($enemy_wealth > $wealth);
-                    
-                    #COALITION EVALUATION
-                    if($world->coalition($self->name) && $world->coalition($enemy->name) && $world->coalition($self->name) > $world->coalition($enemy->name))
-                    {
-                        $war_points += 1;
-                    }
-
-                    if($war_points + $c->factor >= 4)
-                    {
-                        return $self->name . ": DECLARE WAR TO " . $enemy->name;
-                    }
+                    return $self->name . ": DECLARE WAR TO " . $enemy->name;
                 }
             }
         }
@@ -282,6 +228,78 @@ sub military_advisor
         {
             return $self->name . ": BUILD TROOPS";
         }
+    }
+}
+
+sub good_prey
+{
+    my $self = shift;
+    my $enemy = shift;
+    my $world = shift;
+    my $level = shift;
+    my $border_needed = shift;
+    if(! $world->border_exists($self->name, $enemy->name) && $border_needed )
+    {
+        return 0;
+    }
+    my $war_points = 0;
+
+    #ARMY EVALUATION
+    my $army_ratio;
+    if($enemy->army > 0)
+    {
+        $army_ratio = int($self->army / $enemy->army);
+    }
+    else
+    {
+        $army_ratio = 3;
+    }
+    if($army_ratio < 1)
+    {
+        my $reverse_army_ratio = $enemy->army / $self->army;
+        if($reverse_army_ratio > MIN_INFERIOR_ARMY_RATIO_FOR_WAR)
+        {
+            return 0;
+        }
+        else
+        {
+            $army_ratio = -1;
+        }
+    }
+    $war_points += $army_ratio;
+
+    #INTERNAL EVALUATION
+    if($self->internal_disorder_status eq 'Peace')
+    {
+        $war_points += 1;
+    }
+    elsif($self->internal_disorder_status eq 'Terrorism')
+    {
+        $war_points += 0;
+    }
+    elsif($self->internal_disorder_status eq 'Insurgence')
+    {
+        $war_points += -1;
+    }
+
+    #WEALTH EVALUATION
+    my $wealth = $world->get_statistics_value(prev_year($self->current_year), $self->name, 'wealth');
+    my $enemy_wealth = $world->get_statistics_value(prev_year($self->current_year), $enemy->name, 'wealth');
+    $war_points += 1 if($enemy_wealth > $wealth);
+                    
+    #COALITION EVALUATION
+    if($world->coalition($self->name) && $world->coalition($enemy->name) && $world->coalition($self->name) > $world->coalition($enemy->name))
+    {
+        $war_points += 1;
+    }
+
+    if($war_points + $level >= 4)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -538,8 +556,10 @@ sub register_event
 {
     my $self = shift;
     my $event = shift;
+    my $time = $self->current_year ? $self->current_year : "START";
+
     $self->events({}) if(! $self->events );
-    push @{$self->events->{$self->current_year}}, $event;
+    push @{$self->events->{$time}}, $event;
 }
 sub get_events
 {

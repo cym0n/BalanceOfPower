@@ -17,6 +17,7 @@ requires 'conquer';
 requires 'register_event';
 requires 'coalition';
 requires 'get_group_borders';
+requires 'get_allies';
 
 has crises => (
     is => 'rw',
@@ -253,13 +254,42 @@ sub create_war
     my $attacker = shift || "";
     my $defender = shift || "";
 
-    #TODO avoid involving people if already in a war
-
     if(! $self->war_exists($attacker->name, $defender->name))
     {
         $self->register_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
         my @attacker_coalition = $self->coalition($attacker->name);
+        @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
         my @defender_coalition = $self->coalition($defender->name);
+        @defender_coalition = grep { ! $self->at_war($_) } @defender_coalition;
+    
+        #Allies management
+        my @attacker_allies = $self->get_allies($attacker->name);
+        my @defender_allies = $self->get_allies($defender->name);
+        for(@attacker_allies)
+        {
+            my $ally_name = $_;
+            my $ally = $self->get_nation( $ally_name );
+            if($ally->good_prey($defender, $self, ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT, 0 ))
+            {
+                if(! grep { $_ eq $ally_name } @attacker_coalition)
+                {
+                    push @attacker_coalition, $ally_name;
+                }
+            }
+        }
+        for(@defender_allies)
+        {
+            my $ally_name = $_;
+            my $ally = $self->get_nation( $ally_name );
+            if($ally->good_prey($attacker, $self, ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT, 0 ))
+            {
+                if(! grep { $_ eq $ally_name } @defender_coalition)
+                {
+                    push @defender_coalition, $ally_name;
+                }
+            }
+        }
+
         my @attacker_targets = $self->get_group_borders(\@attacker_coalition, \@defender_coalition);
         my @defender_targets = $self->get_group_borders(\@defender_coalition, \@attacker_coalition);
         my @war_couples;
@@ -352,8 +382,6 @@ sub create_war
 
         push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, node2 => $defender->name);
         $self->register_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
-        print Dumper(\@war_couples);
-        print "\n";
         foreach my $c (@war_couples)
         {
             push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], node2 => $c->[1]);

@@ -2,11 +2,20 @@ package BalanceOfPower::Role::Diplomat;
 
 use strict;
 use Moo::Role;
+use List::Util qw(shuffle);
+
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
 
+use BalanceOfPower::Friendship;
+use BalanceOfPower::Alliance;
+
 has diplomatic_relations => (
+    is => 'rw',
+    default => sub { [] }
+);
+has alliances => (
     is => 'rw',
     default => sub { [] }
 );
@@ -36,6 +45,12 @@ sub init_diplomacy
             }
         }
     }
+    for(my $i = 0; $i < STARTING_ALLIANCES; $i++)
+    {
+        @nations = shuffle @nations;
+        $self->create_alliance($nations[0], $nations[1]);
+    }
+
 }
 sub diplomacy_exists
 {
@@ -83,6 +98,10 @@ sub get_diplomacy_relation
     if($real_node1 eq $real_node2) 
     {
         $factor = 100;
+    }
+    elsif($self->exists_alliance($real_node1, $real_node2))
+    {
+        $factor = ALLIANCE_FRIENDSHIP_FACTOR;
     }
     else
     {
@@ -271,10 +290,6 @@ sub coalition
 
 }
 
-
-
-
-
 sub conquer
 {
     my $self = shift;
@@ -297,5 +312,66 @@ sub under_influence
     $n1->register_event("INFLUENCE ON " . $n2->name);
     $n2->register_event("UNDER INFLUENCE OF " . $n1->name);
 }
+
+sub exists_alliance
+{
+   my $self = shift;
+   my $n1 = shift;
+   my $n2 = shift;
+   foreach my $a (@{$self->alliances})
+   {
+        return $a
+            if $a->involve($n1, $n2);
+   }
+   return undef;
+}
+
+sub create_alliance
+{
+    my $self = shift;
+    my $n1 = shift;
+    my $n2 = shift;
+    if(! $self->exists_alliance($n1, $n2))
+    {
+        push @{$self->alliances}, BalanceOfPower::Alliance->new(node1 => $n1, node2 => $n2);
+    }
+    $self->register_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
+}
+sub delete_alliance
+{
+    my $self = shift;
+    my $n1 = shift;
+    my $n2 = shift;
+    @{$self->alliances} = grep { ! $_->involve($n1, $n2) } @{$self->alliances};
+    $self->register_event("ALLIANCE BETWEEN $n1 AND $n2 ENDED", $n1, $n2);
+}
+sub delete_all_alliances
+{
+    my $self = shift;
+    my $n1 = shift;
+    foreach my $a (@{$self->alliances})
+    {
+        if($a->has_node($n1))
+        {
+            $self->delete_aliance($a->node1, $a->node2);
+        }
+    }
+}
+sub get_allies
+{
+    my $self  = shift;
+    my $n1 = shift;
+    my @allies = ();
+    foreach my $a (@{$self->alliances})
+    {
+        if($a->has_node($n1))
+        {
+            push @allies, $a->destination($n1);
+        }
+    }
+    return @allies;
+}
+
+
 
 1;
