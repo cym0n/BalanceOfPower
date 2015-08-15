@@ -147,6 +147,7 @@ sub calculate_production
     if(@retreats > 0)
     {
         $next -= ATTACK_FAILED_PRODUCTION_MALUS;
+        $self->send_event("COST FOR DEFEAT ON PRODUCTION: " . ATTACK_FAILED_PRODUCTION_MALUS);
     }
 
     if($next < 0)

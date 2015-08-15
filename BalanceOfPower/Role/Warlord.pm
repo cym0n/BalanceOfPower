@@ -17,6 +17,7 @@ requires 'get_nation';
 requires 'get_hates';
 requires 'occupy';
 requires 'broadcast_event';
+requires 'send_event';
 requires 'coalition';
 requires 'get_group_borders';
 requires 'get_allies';
@@ -518,7 +519,6 @@ sub lose_war
     my $conquerors_leader = "";
     foreach my $w (@wars)
     {
-        print $w->print ."\n";
         my $other;
         my $winner_role;
         if($w->node1 eq $loser)
@@ -527,6 +527,7 @@ sub lose_war
             $retreat_penality = 1;
             $other = $w->node2;
             $winner_role = "[DEFENDER]";
+            $self->send_event("RETREAT FROM " . $other, $loser);
         }
         elsif($w->node2 eq $loser)
         {

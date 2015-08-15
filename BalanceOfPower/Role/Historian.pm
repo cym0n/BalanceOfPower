@@ -29,6 +29,18 @@ sub broadcast_event
         $nation->register_event($event);
     }
 }
+sub send_event
+{
+    my $self = shift;
+    my $event = shift;
+    my @nations = @_;
+    for(@nations)
+    {
+        my $nation = $self->get_nation($_);
+        $nation->register_event($event);
+    }
+
+}
 sub get_statistics_value
 {
     my $self = shift;
