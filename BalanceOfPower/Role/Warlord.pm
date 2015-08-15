@@ -199,6 +199,7 @@ sub delete_crisis
     
 }
 
+
 sub crisis_exists
 {
     my $self = shift;
@@ -414,11 +415,14 @@ sub get_wars
     my $self = shift;
     my $node1 = shift;
     my @wars = ();
-    foreach my $r (@{$self->wars})
+    if($node1)
     {
-        push @wars, $r;
+        return grep { $_->has_node($node1) } @{$self->wars};
     }
-    return @wars;
+    else
+    {
+        return @{$self->wars};
+    }
 }
 
 
@@ -432,6 +436,14 @@ sub war_exists
         return $r if($r->involve($node1, $node2));
     }
     return undef;
+}
+sub delete_war
+{
+    my $self = shift;
+    my $node1 = shift;;
+    my $node2 = shift;
+    return if ! $self->war_exists($node1, $node2);
+    @{$self->wars} = grep { ! $_->involve($node1, $node2) } @{$self->wars};
 }
 
 sub get_attackers
@@ -482,11 +494,11 @@ sub fight_wars
         $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
         if($attacker->army == 0)
         {
-            $losers{$attacker} = 1;
+            $losers{$attacker->name} = 1;
         }
         elsif($defender->army == 0)
         {
-            $losers{$defender} = 1;
+            $losers{$defender->name} = 1;
         }
     }
     for(keys %losers)
@@ -500,27 +512,33 @@ sub lose_war
     my $self = shift;
     my $loser = shift;
     my $internal_disorder ||= 0;
-    my @wars = $self->get_wars($loser->name);
+    my @wars = $self->get_wars($loser);
     my $retreat_penality = 0;
     my @conquerors = ();
     my $conquerors_leader = "";
     foreach my $w (@wars)
     {
+        print $w->print ."\n";
         my $other;
+        my $winner_role;
         if($w->node1 eq $loser)
         {
+            #Loser is the attacker
             $retreat_penality = 1;
-            $other = $self->get_nation( $w->node2 );
+            $other = $w->node2;
+            $winner_role = "[DEFENDER]";
         }
         elsif($w->node2 eq $loser)
         {
-            $other = $self->get_nation( $w->node1 );
+            #Loser is the defender
+            $other = $w->node1;
             push @conquerors, $w->node1;
-            $self->delete_crisis($loser->name, $other->name);
+            $self->delete_crisis($loser, $other);
             $conquerors_leader = $w->attack_leader;
+            $winner_role = "[ATTACKER]";
         }
-        $loser->register_event("WAR WITH " . $other->name . " LOST.");
-        $other->register_event("WAR WITH " . $loser->name . " WON.");
+        $self->broadcast_event("WAR BETWEEN $other AND $loser WON BY $other $winner_role", $other, $loser);
+        $self->delete_war($other, $loser);
     }
     if(@conquerors > 0)
     {

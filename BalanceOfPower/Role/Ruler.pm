@@ -108,6 +108,7 @@ sub situation_clock
             }
         }
     }
+    $self->influences_garbage_collector();
 }
 
 1;

@@ -30,6 +30,9 @@ for($first_year..$last_year)
     my $y = $_;
     foreach my $t (get_year_turns($y))
     {
+        open(my $log, ">>", "bop.log");
+        print $log "--- $t ---\n";
+        close($log);
         $world->init_year($t);
         $world->war_debts();
         $world->crisis_generator();

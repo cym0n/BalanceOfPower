@@ -351,13 +351,13 @@ sub internal_conflict
             if($winner && $winner eq 'rebels')
             {
                 $n->new_government({ government_strength => random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH)});
-                $self->free_nation($n);
+                $self->free_nation($n->name);
             }
         }
         if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')
         {
             #This should happen only if status changed during this iteration
-            $self->lose_war($n, 1);
+            $self->lose_war($n->name, 1);
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
