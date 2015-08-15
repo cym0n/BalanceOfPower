@@ -21,10 +21,11 @@ $world->init_year("0/0");
 my $italy = $world->get_nation("Italy");
 my $denmark = $world->get_nation("Denmark");
 
-$world->under_influence($italy, $world->get_nation("France"));
-$world->under_influence($italy, $world->get_nation("Spain"));
-$world->under_influence($denmark, $world->get_nation("Germany"));
-$world->under_influence($denmark, $world->get_nation("Greece"));
+#TODO: Rewrite
+#$world->under_influence($italy, $world->get_nation("France"));
+#$world->under_influence($italy, $world->get_nation("Spain"));
+#$world->under_influence($denmark, $world->get_nation("Germany"));
+#$world->under_influence($denmark, $world->get_nation("Greece"));
 $world->create_war($italy, $denmark);
 
 

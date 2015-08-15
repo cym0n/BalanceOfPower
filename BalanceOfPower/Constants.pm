@@ -61,8 +61,11 @@ use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
 use constant WAR_WEALTH_MALUS => 20;
 use constant ATTACK_FAILED_PRODUCTION_MALUS => 40;
 use constant AFTER_CONQUERED_INTERNAL_DISORDER => 30;
-use constant CONQUEROR_LOOT_BY_TYPE => 20;
-use constant CONQUEST_CLOCK_LIMIT => 5;
+use constant OCCUPATION_LOOT_BY_TYPE => 20;
+use constant DOMINATION_LOOT_BY_TYPE => 20;
+use constant CONTROL_LOOT_BY_TYPE => 0;
+use constant DOMINATION_CLOCK_LIMIT => 5;
+use constant OCCUPATION_CLOCK_LIMIT => 1;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
 use constant ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT => 2;
 use constant STARTING_ALLIANCES => 7;
@@ -124,8 +127,11 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'WAR_WEALTH_MALUS',
                   'ATTACK_FAILED_PRODUCTION_MALUS',
                   'AFTER_CONQUERED_INTERNAL_DISORDER',
-                  'CONQUEROR_LOOT_BY_TYPE',
-                  'CONQUEST_CLOCK_LIMIT',
+                  'OCCUPATION_LOOT_BY_TYPE',
+                  'DOMINATION_LOOT_BY_TYPE',
+                  'CONTROL_LOOT_BY_TYPE',
+                  'OCCUPATION_CLOCK_LIMIT',
+                  'DOMINATION_CLOCK_LIMIT',
                   'ALLIANCE_FRIENDSHIP_FACTOR',
                   'ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT',
                   'STARTING_ALLIANCES'

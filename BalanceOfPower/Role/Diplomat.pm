@@ -20,11 +20,6 @@ has alliances => (
     default => sub { [] }
 );
 
-has situations => (
-    is => 'rw',
-    default => sub { {} }
-);
-
 requires 'broadcast_event';
 
 sub init_diplomacy
@@ -33,7 +28,6 @@ sub init_diplomacy
     my @nations = @_;
     foreach my $n1 (@nations)
     {
-        $self->situations->{$n1->name} = { status => 'free' };
         foreach my $n2 (@nations)
         {
             if($n1->name ne $n2->name && ! $self->diplomacy_exists($n1->name, $n2->name))
@@ -67,25 +61,8 @@ sub get_real_node
 {
     my $self = shift;
     my $node = shift;
-    if($self->situations->{$node}->{status} eq 'free')
-    {
-         return $node;
-    }
-    else
-    {
-        if($self->situations->{$node}->{status} eq 'conquered')
-        {
-            return $self->situations->{$node}->{by};
-        }
-        elsif($self->situations->{$node}->{status} eq 'under control')
-        {
-            return $self->situations->{$node}->{by};
-        }
-        else
-        {
-            return $node;
-        }
-    }
+    my $leader = $self->is_under_influence($node);
+    return $leader ? $leader : $node;
 }
 sub get_diplomacy_relation
 {
@@ -191,150 +168,23 @@ sub print_diplomacy
     }
     return $out;
 }
-sub free_nation
-{
-    my $self = shift;
-    my $nation = shift;
-    $self->situations->{$nation->name} = { status => 'free' };
-    $nation->register_event("FREE!");
-}
-sub situation_clock
-{
-    my $self = shift;
-    my $n = shift;
-    my $situation = $self->situations->{$n->name};
-    if(exists $situation->{clock})
-    {
-        if($situation->{status} eq 'conquered')
-        {
-            $situation->{clock} = $situation->{clock} + 1;
-            if($situation->{clock} == CONQUEST_CLOCK_LIMIT)
-            {
-                $situation->{clock} = 0;
-                $situation->{status} = 'under influence';
-            }
-        }
-    }
-    $self->situations->{$n->name} = $situation;
-}
-
-sub is_under_influence
-{
-    my $self = shift;
-    my $n = shift;
-    if($self->situations->{$n}->{status} eq 'under influence')
-    {  
-        return $self->situations->{$n}->{by};
-    }
-    else
-    {
-        return undef;
-    }
-}
-sub is_conquered
-{
-    my $self = shift;
-    my $n = shift;
-    if($self->situations->{$n}->{status} eq 'conquered')
-    {  
-        return $self->situations->{$n}->{by};
-    }
-    else
-    {
-        return undef;
-    }
-}
-sub is_dominated
-{
-    my $self = shift;
-    my $n = shift;
-    return $self->is_under_influence($n)
-        if($self->is_under_influence($n)); 
-    return $self->is_conquered($n)
-        if($self->is_conquered($n)); 
-    return undef;
-}
-sub dominate
-{
-    my $self = shift;
-    my $n = shift;
-    if($self->situations->{$n}->{status} eq 'free')
-    {
-        my @under = ();
-        foreach my $oth_n (keys %{$self->situations})
-        {
-            if($oth_n ne $n)
-            {
-                push @under, $oth_n
-                    if($self->is_dominated($oth_n) && $self->is_dominated($oth_n) eq $n);
-            }
-        }
-        return @under;
-    }
-    else
-    {
-        return ();
-    }
-}
 sub coalition
 {
     my $self = shift;
     my $n = shift;
-    if(my $dominator = $self->is_dominated($n))
+    if(my $dominator = $self->is_under_influence($n))
     {
-        my @allies = $self->dominate($dominator);
+        my @allies = $self->has_influence($dominator);
         push @allies, $dominator;
         return @allies;
     }
     else
     {
-        my @allies = $self->dominate($n);
+        my @allies = $self->has_influence($n);
         push @allies, $n;
         return @allies;
     }
-
 }
-
-sub conquer
-{
-    my $self = shift;
-    my $n1 = shift;
-    my $n2 = shift;
-    $self->situations->{$n2->name} = { status => 'conquered',
-                                       by => $n1->name,
-                                       clock => 0 };
-    $n1->register_event("CONQUERED " . $n2->name);
-    $n2->register_event("CONQUERED BY " . $n1->name);
-}
-sub occupy
-{
-    my $self = shift;
-    my $n = shift;
-    my $occupier_leader = shift;
-    my $occupiers = shift;
-    my $next;
-    $self->situations->{$n->name} = { status => 'occupied',
-                                      by => $occupier_leader,
-                                      occupiers => $occupiers,
-                                      next => $next,
-                                      clock => 0 };
-    $self->register_event("OCCUPIED");
-}
-
-
-
-sub under_influence
-{
-    my $self = shift;
-    my $n1 = shift;
-    my $n2 = shift;
-    $self->situations->{$n2->name} = { status => 'under influence',
-                                       by => $n1->name,
-                                       clock => 0 };
-    $n1->register_event("INFLUENCE ON " . $n2->name);
-    $n2->register_event("UNDER INFLUENCE OF " . $n1->name);
-}
-
 sub exists_alliance
 {
    my $self = shift;

@@ -26,6 +26,7 @@ has nations => (
 
 
 with 'BalanceOfPower::Role::Historian';
+with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Mapmaker';
@@ -164,31 +165,25 @@ sub calculate_production
 sub war_debts
 {
     my $self = shift;
-    foreach my $n (keys %{$self->situations})
+    for(@{$self->influences})
     {
-        my $nation = $self->get_nation($n);
-        if($self->situations->{$n}->{'status'} eq 'conquered')
-        {
-            $self->loot($nation, $self->situations->{$n}->{'by'});
-        }
-        elsif($self->situations->{$n}->{'status'} eq 'occupied')
-        {
-            foreach my $conq (@{$self->situations->{$n}->{'occupiers'}})
-            {
-                $self->loot($nation, $conq);
-            }
-        }
-        $self->situation_clock($nation);
+        $self->loot($_);
     }
+    $self->situation_clock();
 }
 
 sub loot
 {
     my $self = shift;
-    my $nation = shift;
-    my $receiver = shift;
-    my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
-    my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
+    my $influence = shift;
+    my $n2 = $influence->node2;
+    my $n1 = $influence->node1;
+    my $quote = $influence->get_loot_quote();
+    return if(! $quote || $quote == 0);
+    my $nation = $self->get_nation($n2);
+    my $receiver = $self->get_nation($n1);
+    my $amount_domestic = $nation->production_for_domestic >= $quote ? $quote : $nation->production_for_domestic;
+    my $amount_export = $nation->production_for_export >= $quote ? $quote : $nation->production_for_export;
     $nation->subtract_production('domestic', $amount_domestic);
     $nation->subtract_production('export', $amount_export);
     $nation->register_event("PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export");

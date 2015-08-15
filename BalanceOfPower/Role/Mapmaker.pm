@@ -57,9 +57,6 @@ sub get_group_borders
         }
     }
     return @out;
-
-
-
 }
 
 

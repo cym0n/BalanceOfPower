@@ -524,52 +524,7 @@ sub lose_war
     }
     if(@conquerors > 0)
     {
-        my $next = $internal_disorder ? "under influence" : "conquered";
-        $self->occupy($loser, $conquerors_leader, \@conquerors, $next);  
+        $self->occupy($loser, \@conquerors, $conquerors_leader, $internal_disorder);  
     }
 }
-
-
-
-
-#sub end_war
-#{
-#    my $self = shift;
-#    my $attacker = shift;;
-#    my $defender = shift;
-#    my $winner = shift;
-#    return if ! $self->war_exists($attacker->name, $defender->name);
-#    $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND ". $defender->name . " ENDS", $attacker->name, $defender->name);
-#    if($winner eq 'defender') 
-#    {
-#        #Defender wins
-#        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
-#        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
-#    }
-#    elsif($winner eq 'attacker') 
-#    {
-#        #Attacker wins
-#        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-#        $self->conquer($attacker, $defender); 
-#        $self->delete_crisis($attacker->name, $defender->name);
-#    }
-#    elsif($winner eq 'defender-civilwar')
-#    {
-#        #Attacker has civil war at home and can't go on fighting
-#        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
-#        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
-#    }
-#    elsif($winner eq 'attacker-civilwar')
-#    {
-#        #Civil war helps attacker to win
-#        $attacker->register_event("WAR WITH " . $defender->name . " WON.");
-#        $defender->register_event("WAR WITH " .$attacker->name . " IS LOST. GOVERNMENT IN CHAOS");
-#        $self->under_influence($attacker, $defender); 
-#        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-#        $self->delete_crisis($attacker->name, $defender->name);
-#    }
-#        
-#    @{$self->wars} = grep { ! $_->is_between($attacker->name, $defender->name) } @{$self->wars};
-#    
-#}
 1;
