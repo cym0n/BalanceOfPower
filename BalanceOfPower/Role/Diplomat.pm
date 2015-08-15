@@ -205,12 +205,14 @@ sub situation_clock
     my $situation = $self->situations->{$n->name};
     if(exists $situation->{clock})
     {
-        $situation->{clock} = $situation->{clock} + 1;
-        if($situation->{clock} == CONQUEST_CLOCK_LIMIT && $situation->{status} eq 'conquered')
+        if($situation->{status} eq 'conquered')
         {
-            $situation->{clock} = 0;
-            $situation->{status} = 'under control';
-            $n->register_event("UNDER CONTROL OF " . $situation->{'by'});
+            $situation->{clock} = $situation->{clock} + 1;
+            if($situation->{clock} == CONQUEST_CLOCK_LIMIT)
+            {
+                $situation->{clock} = 0;
+                $situation->{status} = 'under influence';
+            }
         }
     }
     $self->situations->{$n->name} = $situation;
@@ -304,6 +306,23 @@ sub conquer
     $n1->register_event("CONQUERED " . $n2->name);
     $n2->register_event("CONQUERED BY " . $n1->name);
 }
+sub occupy
+{
+    my $self = shift;
+    my $n = shift;
+    my $occupier_leader = shift;
+    my $occupiers = shift;
+    my $next;
+    $self->situations->{$n->name} = { status => 'occupied',
+                                      by => $occupier_leader,
+                                      occupiers => $occupiers,
+                                      next => $next,
+                                      clock => 0 };
+    $self->register_event("OCCUPIED");
+}
+
+
+
 sub under_influence
 {
     my $self = shift;

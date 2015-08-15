@@ -15,7 +15,7 @@ use BalanceOfPower::War;
 
 requires 'get_nation';
 requires 'get_hates';
-requires 'conquer';
+requires 'occupy';
 requires 'broadcast_event';
 requires 'coalition';
 requires 'get_group_borders';
@@ -383,26 +383,42 @@ sub create_war
                 $faction = 0;
             }
         }
-
-        push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, node2 => $defender->name);
+        my %attacker_leaders;
+        push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, 
+                                                      node2 => $defender->name,
+                                                      attack_leader => $attacker->name);
+        $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
         foreach my $c (@war_couples)
         {
-            push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], node2 => $c->[1]);
+            my $leader;
+            if(exists $attacker_leaders{$c->[1]})
+            {
+                $leader = $attacker_leaders{$c->[1]}
+            }
+            else
+            {
+                $leader = $c->[0];
+                $attacker_leaders{$c->[1]} = $c->[0];
+            }
+            push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], 
+                                                          node2 => $c->[1],
+                                                          attack_leader => $leader);
             $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
         }
     }
 }
 
-sub get_war
+sub get_wars
 {
     my $self = shift;
     my $node1 = shift;
+    my @wars = ();
     foreach my $r (@{$self->wars})
     {
-        return $r if($r->has_node($node1));
+        push @wars, $r;
     }
-    return undef;
+    return @wars;
 }
 
 
@@ -418,9 +434,25 @@ sub war_exists
     return undef;
 }
 
+sub get_attackers
+{
+    my $self = shift;
+    my $n1 = shift;
+    my @attacks = ();
+    foreach my $r (@{$self->wars})
+    {
+        if($r->node2 eq $n1)
+        {
+            push @attacks, $r->node1;
+        }
+    }
+    return @attacks;
+}
+
 sub fight_wars
 {
     my $self = shift;
+    my %losers;
     foreach my $w (@{$self->wars})
     {
         #As Risiko
@@ -446,60 +478,98 @@ sub fight_wars
         }
         $attacker->add_army(-1 * $attacker_damage);
         $defender->add_army(-1 * $defender_damage);
+        $attacker->register_event("CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage");
+        $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
         if($attacker->army == 0)
         {
-            $self->end_war($attacker, $defender, 'defender');
+            $losers{$attacker} = 1;
         }
         elsif($defender->army == 0)
         {
-            $self->end_war($attacker, $defender, 'attacker');
+            $losers{$defender} = 1;
         }
-        else
-        {
-            $attacker->register_event("CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage");
-            $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
-        }
+    }
+    for(keys %losers)
+    {
+        $self->lose_war($_);
     }
 }
 
-sub end_war
+sub lose_war
 {
     my $self = shift;
-    my $attacker = shift;;
-    my $defender = shift;
-    my $winner = shift;
-    return if ! $self->war_exists($attacker->name, $defender->name);
-    $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND ". $defender->name . " ENDS", $attacker->name, $defender->name);
-    if($winner eq 'defender') 
+    my $loser = shift;
+    my $internal_disorder ||= 0;
+    my @wars = $self->get_wars($loser->name);
+    my $retreat_penality = 0;
+    my @conquerors = ();
+    my $conquerors_leader = "";
+    foreach my $w (@wars)
     {
-        #Defender wins
-        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
-        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
+        my $other;
+        if($w->node1 eq $loser)
+        {
+            $retreat_penality = 1;
+            $other = $self->get_nation( $w->node2 );
+        }
+        elsif($w->node2 eq $loser)
+        {
+            $other = $self->get_nation( $w->node1 );
+            push @conquerors, $w->node1;
+            $self->delete_crisis($loser->name, $other->name);
+            $conquerors_leader = $w->attack_leader;
+        }
+        $loser->register_event("WAR WITH " . $other->name . " LOST.");
+        $other->register_event("WAR WITH " . $loser->name . " WON.");
     }
-    elsif($winner eq 'attacker') 
+    if(@conquerors > 0)
     {
-        #Attacker wins
-        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-        $self->conquer($attacker, $defender); 
-        $self->delete_crisis($attacker->name, $defender->name);
+        my $next = $internal_disorder ? "under influence" : "conquered";
+        $self->occupy($loser, $conquerors_leader, \@conquerors, $next);  
     }
-    elsif($winner eq 'defender-civilwar')
-    {
-        #Attacker has civil war at home and can't go on fighting
-        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
-        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
-    }
-    elsif($winner eq 'attacker-civilwar')
-    {
-        #Civil war helps attacker to win
-        $attacker->register_event("WAR WITH " . $defender->name . " WON.");
-        $defender->register_event("WAR WITH " .$attacker->name . " IS LOST. GOVERNMENT IN CHAOS");
-        $self->under_influence($attacker, $defender); 
-        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
-        $self->delete_crisis($attacker->name, $defender->name);
-    }
-        
-    @{$self->wars} = grep { ! $_->is_between($attacker->name, $defender->name) } @{$self->wars};
-    
 }
+
+
+
+
+#sub end_war
+#{
+#    my $self = shift;
+#    my $attacker = shift;;
+#    my $defender = shift;
+#    my $winner = shift;
+#    return if ! $self->war_exists($attacker->name, $defender->name);
+#    $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND ". $defender->name . " ENDS", $attacker->name, $defender->name);
+#    if($winner eq 'defender') 
+#    {
+#        #Defender wins
+#        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
+#        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
+#    }
+#    elsif($winner eq 'attacker') 
+#    {
+#        #Attacker wins
+#        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
+#        $self->conquer($attacker, $defender); 
+#        $self->delete_crisis($attacker->name, $defender->name);
+#    }
+#    elsif($winner eq 'defender-civilwar')
+#    {
+#        #Attacker has civil war at home and can't go on fighting
+#        $attacker->register_event("WAR WITH " . $defender->name . " LOST. WE RETREAT");
+#        $defender->register_event("WAR WITH " . $attacker->name . " WON.");
+#    }
+#    elsif($winner eq 'attacker-civilwar')
+#    {
+#        #Civil war helps attacker to win
+#        $attacker->register_event("WAR WITH " . $defender->name . " WON.");
+#        $defender->register_event("WAR WITH " .$attacker->name . " IS LOST. GOVERNMENT IN CHAOS");
+#        $self->under_influence($attacker, $defender); 
+#        $defender->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
+#        $self->delete_crisis($attacker->name, $defender->name);
+#    }
+#        
+#    @{$self->wars} = grep { ! $_->is_between($attacker->name, $defender->name) } @{$self->wars};
+#    
+#}
 1;

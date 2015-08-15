@@ -169,19 +169,35 @@ sub war_debts
         my $nation = $self->get_nation($n);
         if($self->situations->{$n}->{'status'} eq 'conquered')
         {
-            my $receiver = $self->get_nation($self->situations->{$n}->{by});
-            my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
-            my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
-            $nation->subtract_production('domestic', $amount_domestic);
-            $nation->subtract_production('export', $amount_export);
-            $nation->register_event("PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export");
-            $receiver->subtract_production('domestic', -1 * $amount_domestic);
-            $receiver->subtract_production('export', -1 * $amount_export);
-            $receiver->register_event("ACQUIRE LOOT FROM " . $nation->name . ": $amount_domestic + $amount_export");
+            $self->loot($nation, $self->situations->{$n}->{'by'});
+        }
+        elsif($self->situations->{$n}->{'status'} eq 'occupied')
+        {
+            foreach my $conq (@{$self->situations->{$n}->{'occupiers'}})
+            {
+                $self->loot($nation, $conq);
+            }
         }
         $self->situation_clock($nation);
     }
 }
+
+sub loot
+{
+    my $self = shift;
+    my $nation = shift;
+    my $receiver = shift;
+    my $amount_domestic = $nation->production_for_domestic >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_domestic;
+    my $amount_export = $nation->production_for_export >= CONQUEROR_LOOT_BY_TYPE ? CONQUEROR_LOOT_BY_TYPE : $nation->production_for_export;
+    $nation->subtract_production('domestic', $amount_domestic);
+    $nation->subtract_production('export', $amount_export);
+    $nation->register_event("PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export");
+    $receiver->subtract_production('domestic', -1 * $amount_domestic);
+    $receiver->subtract_production('export', -1 * $amount_export);
+    $receiver->register_event("ACQUIRE LOOT FROM " . $nation->name . ": $amount_domestic + $amount_export");
+}
+
+
 
 # PRODUCTION MANAGEMENT END ###############################################
 
@@ -324,6 +340,7 @@ sub internal_conflict
     my $self = shift;
     foreach my $n (@{$self->nations})
     {
+        my $present_status = $n->internal_disorder_status;
         if($n->internal_disorder_status eq 'Peace')
         {
             $n->calculate_disorder();
@@ -342,22 +359,10 @@ sub internal_conflict
                 $self->free_nation($n);
             }
         }
-        if($self->at_war($n->name) && $n->internal_disorder_status eq 'Civil war')
+        if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')
         {
             #This should happen only if status changed during this iteration
-            my $war = $self->get_war($n->name);
-            my $attacker = $self->get_nation( $war->node1 );
-            my $defender = $self->get_nation( $war->node2 );
-            my $winner = "";
-            if($attacker->name eq $n->name)
-            {
-                $winner = 'defender-civilwar';
-            }
-            elsif($defender->name eq $n->name)
-            {
-                $winner = 'attacker-civilwar';
-            }
-            $self->end_war($attacker, $defender, $winner);
+            $self->lose_war($n, 1);
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
