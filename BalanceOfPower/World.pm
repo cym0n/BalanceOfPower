@@ -9,7 +9,6 @@ use List::Util qw(shuffle);
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Nation;
-use BalanceOfPower::TradeRoute;
 
 has name => (
     is => 'ro',

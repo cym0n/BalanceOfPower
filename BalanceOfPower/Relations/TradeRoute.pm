@@ -1,4 +1,4 @@
-package BalanceOfPower::TradeRoute;
+package BalanceOfPower::Relations::TradeRoute;
 
 use strict;
 use v5.10;
@@ -12,7 +12,7 @@ has factor2 => (
     is => 'ro'
 );
 
-with 'BalanceOfPower::Role::Relation';
+with 'BalanceOfPower::Relations::Role::Relation';
 
 sub factor_for_node
 {

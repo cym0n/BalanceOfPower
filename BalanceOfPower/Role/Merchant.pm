@@ -6,6 +6,7 @@ use Moo::Role;
 
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Relations::TradeRoute;
 
 requires 'get_nation';
 requires 'broadcast_event';
@@ -52,7 +53,7 @@ sub generate_traderoute
     my $added = shift;
     my $factor1 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
     my $factor2 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
-    push @{$self->trade_routes}, BalanceOfPower::TradeRoute->new( node1 => $node1, node2 => $node2,
+    push @{$self->trade_routes}, BalanceOfPower::Relations::TradeRoute->new( node1 => $node1, node2 => $node2,
                                          factor1 => $factor1, factor2 => $factor2); 
     if($added)
     {

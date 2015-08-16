@@ -6,7 +6,7 @@ use Moo::Role;
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
 
-use BalanceOfPower::Influence;
+use BalanceOfPower::Relations::Influence;
 
 requires 'broadcast_event';
 
@@ -73,7 +73,7 @@ sub occupy
     {
         if($c eq $leader)
         {
-            push @{$self->influences}, BalanceOfPower::Influence->new( node1 => $c,
+            push @{$self->influences}, BalanceOfPower::Relations::Influence->new( node1 => $c,
                                                                        node2 => $nation,
                                                                        status => 0,
                                                                        next => $internal_disorder ? 2 : 1,
@@ -81,7 +81,7 @@ sub occupy
         }
         else
         {
-            push @{$self->influences}, BalanceOfPower::Influence->new( node1 => $c,
+            push @{$self->influences}, BalanceOfPower::Relations::Influence->new( node1 => $c,
                                                                        node2 => $nation,
                                                                        status => 0,
                                                                        clock => 0 );

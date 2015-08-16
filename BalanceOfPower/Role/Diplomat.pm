@@ -8,8 +8,8 @@ use List::Util qw(shuffle);
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
 
-use BalanceOfPower::Friendship;
-use BalanceOfPower::Alliance;
+use BalanceOfPower::Relations::Friendship;
+use BalanceOfPower::Relations::Alliance;
 
 has diplomatic_relations => (
     is => 'rw',
@@ -32,9 +32,9 @@ sub init_diplomacy
         {
             if($n1->name ne $n2->name && ! $self->diplomacy_exists($n1->name, $n2->name))
             {
-                my $rel = new BalanceOfPower::Friendship( node1 => $n1->name,
-                                                          node2 => $n2->name,
-                                                          factor => random(0,100));
+                my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1->name,
+                                                           node2 => $n2->name,
+                                                           factor => random(0,100));
                 push @{$self->diplomatic_relations}, $rel;
             }
         }
@@ -85,7 +85,7 @@ sub get_diplomacy_relation
         my $r = $self->diplomacy_exists($real_node1, $real_node2);
         $factor = $r->factor;
     }
-    return BalanceOfPower::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor);
+    return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor);
 }
 
 
@@ -205,7 +205,7 @@ sub create_alliance
     my $n2 = shift;
     if(! $self->exists_alliance($n1, $n2))
     {
-        push @{$self->alliances}, BalanceOfPower::Alliance->new(node1 => $n1, node2 => $n2);
+        push @{$self->alliances}, BalanceOfPower::Relations::Alliance->new(node1 => $n1, node2 => $n2);
     }
     $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
 }

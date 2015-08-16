@@ -1,4 +1,4 @@
-package BalanceOfPower::Friendship;
+package BalanceOfPower::Relations::Friendship;
 
 use strict;
 use v5.10;
@@ -9,7 +9,7 @@ use BalanceOfPower::Constants ':all';
 has factor => (
     is => 'rw'
 );
-with 'BalanceOfPower::Role::Relation';
+with 'BalanceOfPower::Relations::Role::Relation';
 
 sub status
 {

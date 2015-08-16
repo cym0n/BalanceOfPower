@@ -10,8 +10,8 @@ use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
-use BalanceOfPower::Crisis;
-use BalanceOfPower::War;
+use BalanceOfPower::Relations::Crisis;
+use BalanceOfPower::Relations::War;
 
 requires 'get_nation';
 requires 'get_hates';
@@ -162,7 +162,7 @@ sub create_or_escalate_crisis
     }
     else
     {
-        push @{$self->crises}, BalanceOfPower::Crisis->new(node1 => $node1, node2 => $node2);
+        push @{$self->crises}, BalanceOfPower::Relations::Crisis->new(node1 => $node1, node2 => $node2);
         $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
     }
 }
@@ -402,7 +402,7 @@ sub create_war
             }
         }
         my %attacker_leaders;
-        push @{$self->wars}, BalanceOfPower::War->new(node1 => $attacker->name, 
+        push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
                                                       node2 => $defender->name,
                                                       attack_leader => $attacker->name);
         $attacker_leaders{$defender->name} = $attacker->name;                                              
@@ -419,7 +419,7 @@ sub create_war
                 $leader = $c->[0];
                 $attacker_leaders{$c->[1]} = $c->[0];
             }
-            push @{$self->wars}, BalanceOfPower::War->new(node1 => $c->[0], 
+            push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $c->[0], 
                                                           node2 => $c->[1],
                                                           attack_leader => $leader);
             $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);

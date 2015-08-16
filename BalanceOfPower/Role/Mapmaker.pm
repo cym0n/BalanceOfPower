@@ -3,7 +3,7 @@ package BalanceOfPower::Role::Mapmaker;
 use strict;
 use Moo::Role;
 
-use BalanceOfPower::Border;
+use BalanceOfPower::Relations::Border;
 
 has borders => (
     is => 'rw',
@@ -21,7 +21,7 @@ sub load_borders
         my @nodes = split(/,/, $_);
         if($nodes[0] && $nodes[1] && ! $self->border_exists($nodes[0], $nodes[1]))
         {
-            my $b = BalanceOfPower::Border->new(node1 => $nodes[0], node2 => $nodes[1]);
+            my $b = BalanceOfPower::Relations::Border->new(node1 => $nodes[0], node2 => $nodes[1]);
             push @{$self->borders}, $b;
         }
     }

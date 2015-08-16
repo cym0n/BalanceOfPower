@@ -1,4 +1,4 @@
-package BalanceOfPower::Influence;
+package BalanceOfPower::Relations::Influence;
 
 use strict;
 use v5.10;
@@ -8,7 +8,7 @@ use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns)
 use BalanceOfPower::Constants ':all';
 
 
-with 'BalanceOfPower::Role::Relation';
+with 'BalanceOfPower::Relations::Role::Relation';
 
 # Status:
 #   0: occupy

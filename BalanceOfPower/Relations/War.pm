@@ -1,11 +1,11 @@
-package BalanceOfPower::War;
+package BalanceOfPower::Relations::War;
 
 use strict;
 use v5.10;
 
 use Moo;
 
-with 'BalanceOfPower::Role::Relation';
+with 'BalanceOfPower::Relations::Role::Relation';
 
 has attack_leader => (
     is => 'rw',

@@ -1,4 +1,4 @@
-package BalanceOfPower::Role::Relation;
+package BalanceOfPower::Relations::Role::Relation;
 
 use strict;
 use Moo::Role;
