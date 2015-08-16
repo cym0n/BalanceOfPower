@@ -249,6 +249,20 @@ sub at_war
     }
     return undef;
 }
+sub at_civil_war
+{
+    my $self = shift;
+    my $n = shift;
+    my $nation = $self->get_nation($n);
+    if($nation->internal_disorder_status eq 'Civil war')
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 
 
@@ -263,8 +277,10 @@ sub create_war
         $self->broadcast_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
         my @attacker_coalition = $self->coalition($attacker->name);
         @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
+        @attacker_coalition = grep { ! $self->at_civil_war($_) } @attacker_coalition;
         my @defender_coalition = $self->coalition($defender->name);
         @defender_coalition = grep { ! $self->at_war($_) } @defender_coalition;
+        @defender_coalition = grep { ! $self->at_civil_war($_) } @defender_coalition;
     
         #Allies management
         my @attacker_allies = $self->get_allies($attacker->name);
@@ -273,7 +289,7 @@ sub create_war
         {
             my $ally_name = $_;
             my $ally = $self->get_nation( $ally_name );
-            if($ally->good_prey($defender, $self, ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT, 0 ))
+            if($ally->good_prey($defender, $self, ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT, 0 ))
             {
                 if(! grep { $_ eq $ally_name } @attacker_coalition)
                 {
@@ -286,7 +302,7 @@ sub create_war
         {
             my $ally_name = $_;
             my $ally = $self->get_nation( $ally_name );
-            if($ally->good_prey($attacker, $self, ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT, 0 ))
+            if($ally->good_prey($attacker, $self, ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT, 0 ))
             {
                 if(! grep { $_ eq $ally_name } @defender_coalition)
                 {

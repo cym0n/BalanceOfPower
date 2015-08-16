@@ -67,7 +67,7 @@ use constant CONTROL_LOOT_BY_TYPE => 0;
 use constant DOMINATION_CLOCK_LIMIT => 5;
 use constant OCCUPATION_CLOCK_LIMIT => 1;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
-use constant ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT => 2;
+use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
 use constant STARTING_ALLIANCES => 7;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
@@ -133,7 +133,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'OCCUPATION_CLOCK_LIMIT',
                   'DOMINATION_CLOCK_LIMIT',
                   'ALLIANCE_FRIENDSHIP_FACTOR',
-                  'ALLY_CONFLIC_LEVEL_FOR_INVOLVEMENT',
+                  'ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT',
                   'STARTING_ALLIANCES'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

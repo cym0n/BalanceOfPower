@@ -237,6 +237,14 @@ sub good_prey
     my $world = shift;
     my $level = shift;
     my $border_needed = shift;
+    if($world->at_war($self->name))
+    {
+        return 0;
+    }
+    if($self->internal_disorder_status eq 'Civil war')
+    {
+        return 0;
+    }
     if(! $world->border_exists($self->name, $enemy->name) && $border_needed )
     {
         return 0;
