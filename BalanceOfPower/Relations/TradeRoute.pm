@@ -37,11 +37,11 @@ sub print
     my $from = shift;
     if($from eq $self->node1)
     {
-        say $from . " -x" . $self->factor1 . "-> " . $self->node2;
+        return $from . " -[x" . $self->factor1 . "]-> " . $self->node2;
     }
     elsif($from eq $self->node2)
     {
-        say $from . " -x" . $self->factor2 . "-> " . $self->node1;
+        return $from . " -[x" . $self->factor2 . "]-> " . $self->node1;
     }
 }
 

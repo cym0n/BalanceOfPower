@@ -539,6 +539,15 @@ sub add_army
 }
 
 
+sub print_attributes
+{
+    my $self = shift;
+    my $out = "";
+    $out .= "Export quote: " . $self->export_quote . "\n";
+    $out .= "Government strength: " . $self->government_strength . "\n";
+    $out .= "Internal situation: " . $self->internal_disorder_status . "\n";
+    return $out;
+}
 
 
 
@@ -548,8 +557,7 @@ sub print
     my $self = shift;
     my $out = "";
     $out .= "Name: " . $self->name . "\n";
-    $out .= "Export quote: " . $self->export_quote . "\n";
-    $out .= "Government strength: " . $self->government_strength . "\n";
+    $out .= $self->print_attributes();
     $out .= "Events:\n";
     foreach my $year (sort keys %{$self->events})
     {

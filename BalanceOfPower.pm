@@ -19,7 +19,7 @@ my @nation_names = ("Italy", "France", "United Kingdom", "Russia",
                     "Czech Republic", "Slovakia", "Slovenia", "Hungary",
                     "Poland", "Turkey", "Bulgaria", "Albania" ); 
 my $first_year = 1970;
-my $last_year = 1975;
+my $last_year = 1972;
 
 #Init
 my $world = BalanceOfPower::World->new();
@@ -53,9 +53,13 @@ sub interface
     say "Retrieve informations about history";
     say $commands;
     my $continue = 1;
+    my $query = undef;
     while($continue)
     {
-        my $query = prompt "?";
+        if(! $query)
+        {
+            $query = prompt "?";
+        }
         while ($query =~ m/\x08/g) {
              substr($query, pos($query)-2, 2, '');
         }
@@ -66,7 +70,9 @@ sub interface
         }
         elsif($query eq "nations")
         {
-            for(@nation_names) {say $_} ;
+            $query = prompt "?", -menu=>\@nation_names;
+            #for(@nation_names) {say $_} ;
+            next;
         }
         elsif($query eq "years")
         {
@@ -127,9 +133,10 @@ sub interface
             my @good_year = grep { $_ eq $query } ($first_year..$last_year);
             if(@good_nation > 0)
             { 
-                say "\n=====\n";
-                say $world->print_nation($query);
-                say $world->print_nation_statistics($query, $first_year, $last_year);
+                #    say "\n=====\n";
+                #say $world->print_nation($query);
+                #say $world->print_nation_statistics($query, $first_year, $last_year);
+                say $world->print_year_situation($query, $world->current_year);
             }
             elsif(@good_year > 0)
             {
@@ -139,6 +146,7 @@ sub interface
             {
             }
         }
+        $query = undef;
     }
 }
 

@@ -14,33 +14,38 @@ has statistics => (
 );
 
 requires 'get_nation';
+requires 'routes_for_node';
+requires 'get_allies';
+requires 'get_crises';
+requires 'get_wars';
+requires 'print_nation_situation';
 
 
 
-sub broadcast_event
-{
-    my $self = shift;
-    my $event = shift;
-    my @nations = @_;
-    $self->register_event($event);
-    for(@nations)
-    {
-        my $nation = $self->get_nation($_);
-        $nation->register_event($event);
-    }
-}
-sub send_event
-{
-    my $self = shift;
-    my $event = shift;
-    my @nations = @_;
-    for(@nations)
-    {
-        my $nation = $self->get_nation($_);
-        $nation->register_event($event);
-    }
-
-}
+#sub broadcast_event
+#{
+#    my $self = shift;
+#    my $event = shift;
+#    my @nations = @_;
+#    $self->register_event($event);
+#    for(@nations)
+#    {
+#        my $nation = $self->get_nation($_);
+#        $nation->register_event($event);
+#    }
+#}
+#sub send_event
+#{
+#    my $self = shift;
+#    my $event = shift;
+#    my @nations = @_;
+#    for(@nations)
+#    {
+#        my $nation = $self->get_nation($_);
+#        $nation->register_event($event);
+#    }
+#
+#}
 sub get_statistics_value
 {
     my $self = shift;
@@ -77,6 +82,60 @@ sub set_statistics_value
     {
         $self->statistics->{$self->current_year}->{$value_name} = $value;
     }
+}
+sub print_year_situation
+{
+    my $self = shift;
+    my $nation = shift;
+    my $turn = shift;
+    my $nation_obj = $self->get_nation($nation);
+    my $out = "\n\n$nation, $turn\n===\n";
+    $out .= $nation_obj->print_attributes();
+    $out .= "\n";
+    $out .= $self->print_nation_situation($nation);
+    $out .= "\n";
+    $out .= "\n";
+    $out .= $self->print_nation_statistics_header() . "\n";
+    $out .= $self->print_nation_statistics_line($nation, $turn) . "\n\n";
+    $out .= "TRADEROUTES\n---\n";
+    foreach my $tr ($self->routes_for_node($nation))
+    {
+        $out .= $tr->print($nation) . "\n";
+    }
+    $out .= "\n";
+    $out .= "ALLIES\n---\n";
+    foreach my $al ($self->get_allies($nation))
+    {
+        $out .= $al ."\n";
+    }
+    $out .="\n";
+    #$out .= "CRISES\tWARS\n";
+    $out .= sprintf "%-30s %-30s", "CRISES", "WARS";
+    $out .="\n";
+    $out .= sprintf "%-30s %-30s", "---", "---";
+    $out .="\n";
+    my @crises = $self->get_crises($nation);
+    my @wars = $self->get_wars($nation);
+    for(my $i = 0; ;$i++)
+    {
+        last if(@crises == 0 && @wars == 0);
+        my $crisis_text = "";
+        if(@crises)
+        {
+            my $c = shift @crises;
+            $crisis_text = $c->print;
+        }
+        my $war_text = "";
+        if(@wars)
+        {
+            my $w = shift @wars;
+            $war_text = $w->print;
+        }
+        $out .= sprintf "%-30s %-30s", $crisis_text, $war_text;
+        $out .="\n";
+    }
+    print $out.= "\n";
+    return $out;
 }
 sub print_nation_statistics
 {

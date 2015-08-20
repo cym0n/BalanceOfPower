@@ -61,8 +61,8 @@ sub get_real_node
 {
     my $self = shift;
     my $node = shift;
-    my $leader = $self->is_under_influence($node);
-    return $leader ? $leader : $node;
+    my $domination = $self->is_under_influence($node);
+    return $domination ? $domination->node1 : $node;
 }
 sub get_diplomacy_relation
 {
@@ -172,8 +172,9 @@ sub coalition
 {
     my $self = shift;
     my $n = shift;
-    if(my $dominator = $self->is_under_influence($n))
+    if(my $domination = $self->is_under_influence($n))
     {
+        my $dominator = $domination->node1;
         my @allies = $self->has_influence($dominator);
         push @allies, $dominator;
         return @allies;

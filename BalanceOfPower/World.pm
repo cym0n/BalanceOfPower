@@ -24,12 +24,13 @@ has nations => (
 
 
 
-with 'BalanceOfPower::Role::Historian';
-with 'BalanceOfPower::Role::Ruler';
+with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
+with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Warlord';
+with 'BalanceOfPower::Role::Historian';
 
 
 sub get_nation

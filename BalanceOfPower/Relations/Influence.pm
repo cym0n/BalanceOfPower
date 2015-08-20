@@ -95,6 +95,11 @@ sub change_to_next
     $self->clock(0);
     return $self->status_label;
 }
+sub print
+{
+    my $self = shift;
+    return $self->node1 . " " . $self->status_label . " " . $self->node2;
+}
 
 
 

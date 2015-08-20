@@ -35,9 +35,34 @@ sub is_under_influence
         if(($_->status == 1 && $_->next != -1) ||
             $_->status > 1)
         {
-            return $_->node1;
+            return $_;
         }
     }
+    return undef;
+}
+sub print_nation_situation
+{
+    my $self = shift;
+    my $nation = shift;
+    my $domination = $self->is_under_influence($nation);
+    return $domination->print if($domination);
+    my @influence = $self->has_influence($nation);
+    if(@influence > 0)
+    {
+        my $out = "$nation has influence on";
+        for(@influence)
+        {
+            my $i = shift @influence;
+            $out .= " " . $i;
+            $out .= "," if(@influence > 0);
+        }
+        return $out;
+    }
+    else
+    {
+        return "$nation is free";
+    }
+
 }
 sub has_influence
 {
