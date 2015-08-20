@@ -1,7 +1,8 @@
 package BalanceOfPower;
 use v5.10;
 
-use IO::Prompt;
+use IO::Prompter;
+use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::World;
@@ -18,7 +19,7 @@ my @nation_names = ("Italy", "France", "United Kingdom", "Russia",
                     "Czech Republic", "Slovakia", "Slovenia", "Hungary",
                     "Poland", "Turkey", "Bulgaria", "Albania" ); 
 my $first_year = 1970;
-my $last_year = 1995;
+my $last_year = 1975;
 
 #Init
 my $world = BalanceOfPower::World->new();
@@ -55,6 +56,9 @@ sub interface
     while($continue)
     {
         my $query = prompt "?";
+        while ($query =~ m/\x08/g) {
+             substr($query, pos($query)-2, 2, '');
+        }
         if($query eq "quit") { $continue = 0 }
         elsif($query eq "overall")
         {
@@ -130,6 +134,9 @@ sub interface
             elsif(@good_year > 0)
             {
                 say $world->print_year_statistics($query, @nation_names);
+            }
+            else
+            {
             }
         }
     }
