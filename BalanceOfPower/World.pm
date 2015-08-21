@@ -388,6 +388,30 @@ sub register_global_data
     $self->set_statistics_value(undef, 'wars', $wars);
 }
 
+sub collect_events
+{
+    my $self = shift;
+    my @events_to_collect = ("DISORDER LOWERED TO",
+                             "INTERNAL DISORDER LEVEL FROM",
+                             "CIVIL WAR OUTBREAK",
+                             "THE GOVERNMENT WON THE CIVIL WAR",
+                             "THE REBELS WON THE CIVIL WAR",
+                             "NEW GOVERNMENT CREATED");
+   foreach my $n (@{$self->nations})
+   {
+       my @collected = ();
+       foreach my $e (@events_to_collect)
+       {
+            push @collected, $n->get_events($e, $self->current_year);
+       }
+       foreach my $c (@collected)
+       {
+            $self->register_event($n->name . ": ". $c);
+       }
+       
+   }
+}
+
 
 
 1;

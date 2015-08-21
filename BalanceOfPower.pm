@@ -42,6 +42,7 @@ for($first_year..$last_year)
         $world->warfare();
         $world->internal_conflict();
         $world->register_global_data();
+        $world->collect_events();
     }
 }
 say "=======\n\n\n";

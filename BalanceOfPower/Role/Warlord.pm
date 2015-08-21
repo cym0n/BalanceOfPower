@@ -56,8 +56,8 @@ sub crisis_generator_round
     my $self = shift;
     my $hates_to_use = shift;
     my $crises_to_use = shift;
-    my @hates = @{ $hates_to_use };
-    my @crises = @{ $crises_to_use};
+    my @hates = shuffle @{ $hates_to_use };
+    my @crises = shuffle @{ $crises_to_use};
     my @original_hates = @hates;
     my @original_crises = @crises;
                      

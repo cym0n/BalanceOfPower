@@ -5,6 +5,7 @@ use Moo::Role;
 use Data::Dumper;
 
 use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Constants ':all';
 
 with 'BalanceOfPower::Role::Reporter';
 
@@ -156,7 +157,14 @@ sub print_nation_statistics
 }
 sub print_nation_statistics_header
 {
-    return "Year\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+    if(DEBT_ALLOWED)
+    {
+        return "Year\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+    }
+    else
+    {
+        return "Year\tProd.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
+    }
 }
 sub print_nation_statistics_line
 {
@@ -176,7 +184,10 @@ sub print_nation_statistics_line
         $out .= int(($self->get_statistics_value($y, $nation, 'wealth') / $self->get_statistics_value($y, $nation, 'production')) * 100) / 100 . "\t";
     }
     $out .= $self->get_statistics_value($y, $nation, 'wealth') - $self->get_statistics_value($y, $nation, 'production') . "\t";
-    $out .= $self->get_statistics_value($y, $nation, 'debt') . "\t";
+    if(DEBT_ALLOWED)
+    {
+        $out .= $self->get_statistics_value($y, $nation, 'debt') . "\t";
+    }
     $out .= $self->get_statistics_value($y, $nation, 'internal disorder') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
     return $out;
