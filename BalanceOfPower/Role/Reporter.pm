@@ -20,7 +20,7 @@ sub register_event
     push @{$self->events->{$time}}, $event;
 
     open(my $log, ">>", "bop.log");
-    print $log $self->name . ": $event\n";
+    print $log "[" . $self->name . "] $event\n";
     close($log);
 }
 sub get_events

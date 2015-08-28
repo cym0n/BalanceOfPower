@@ -1,5 +1,6 @@
 package BalanceOfPower::Utils;
 use BalanceOfPower::Constants ':all';
+use Term::ANSIColor;
 
 use strict;
 
@@ -48,7 +49,6 @@ sub next_year
     {
         return $y . '/' . ($i + 1);
     }
-
 }
 sub get_year_turns
 {
@@ -62,6 +62,12 @@ sub get_year_turns
     return @turns;
 }
 
-our @EXPORT_OK = ('prev_year', 'next_year', 'random', 'random10', 'get_year_turns');
+sub as_title
+{
+    my $text = shift;
+    return color("yellow bold") . $text . color("reset");
+}
+
+our @EXPORT_OK = ('prev_year', 'next_year', 'random', 'random10', 'get_year_turns', 'as_title');
 
 1;

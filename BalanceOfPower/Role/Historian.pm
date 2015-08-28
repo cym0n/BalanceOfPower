@@ -2,9 +2,10 @@ package BalanceOfPower::Role::Historian;
 
 use strict;
 use Moo::Role;
+use Term::ANSIColor;
 use Data::Dumper;
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title);
 use BalanceOfPower::Constants ':all';
 
 with 'BalanceOfPower::Role::Reporter';
@@ -192,12 +193,12 @@ sub print_nation_statistics_line
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
     return $out;
 }
-sub print_year_statistics
+sub print_turn_statistics
 {
     my $self = shift;
     my $y = shift;
     my @nations = @_;
-    my $out = "Medium values:\n";
+    my $out = as_title("Medium values:\n");
     $out .= "Year\tProd.\tWealth\tInt.Dis\n";
     foreach my $t (get_year_turns($y))
     {
@@ -205,18 +206,29 @@ sub print_year_statistics
         $out .= "$t\t$prod\t$wealth\t$disorder\n";
     }
     $out .= "\n";
-    foreach my $n (@nations)
+    $out .= as_title("\nEvents:\n");
+    $out .= $self->print_turn_events($y);
+    return $out;
+}
+sub print_turn_events
+{
+    my $self = shift;
+    my $y = shift;
+    my $out = "";
+    my @to_print;
+    if($y =~ /\d\d\d\d/)
     {
-        $out .=  $n . ":\n";
-        $out .= $self->print_nation_statistics_header() . "\n";
-        foreach my $t (get_year_turns($y))
-        {
-            $out .= $self->print_nation_statistics_line($n, $t) . "\n";
-        }
-        $out .= "\n";
+        @to_print = get_year_turns($y)
     }
-    $out .= "\nEvents of the year:\n";
-    foreach my $t (get_year_turns($y))
+    elsif($y =~ /\d\d\d\d\/\d+/)
+    {
+        @to_print = ($y);
+    }
+    else
+    {
+        return "";
+    }
+    foreach my $t (@to_print)
     {
         $out .= " - $t\n";
         foreach my $e (@{$self->events->{$t}})
