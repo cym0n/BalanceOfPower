@@ -55,11 +55,13 @@ sub interface
     say $commands;
     my $continue = 1;
     my $query = undef;
+    my $nation = undef;
     while($continue)
     {
         if(! $query)
         {
-            $query = prompt "?";
+            my $prompt_text = $nation ? "($nation) ?" : "?";
+            $query = prompt $prompt_text;
         }
         while ($query =~ m/\x08/g) {
              substr($query, pos($query)-2, 2, '');
@@ -68,11 +70,53 @@ sub interface
         elsif($query eq "nations")
         {
             $query = prompt "?", -menu=>\@nation_names;
+            $nation = undef;
             next;
         }
         elsif($query eq "years")
         {
             say "From $first_year to $last_year";
+            $nation = undef;
+        }
+        elsif($query =~ /^((.*) )?borders$/)
+        {
+            my $input_nation = $2;
+            if($input_nation)
+            {
+                say $world->print_borders($input_nation);
+                $nation = $input_nation;
+            }
+            elsif($nation)
+            {
+                say $world->print_borders($nation);
+            }
+        }
+        elsif($query =~ /^((.*) )?relations$/)
+        {
+            my $input_nation = $2;
+            if($input_nation)
+            {
+                say $world->print_diplomacy($input_nation);
+                $nation = $input_nation;
+            }
+            elsif($nation)
+            {
+                say $world->print_diplomacy($nation);
+            }
+        }
+        elsif($query =~ /^((.*) )?status$/)
+        {
+            my $input_nation = $2;
+            if($input_nation)
+            {
+                $query = $input_nation;
+                next;
+            }
+            elsif($nation)
+            {
+                $query = $nation;
+                next;
+            }
         }
         else
         {
@@ -80,6 +124,7 @@ sub interface
             if(@good_nation > 0) #it's a nation
             { 
                 say $world->print_year_situation($query, $world->current_year);
+                $nation = $query;
             }
             else
             {
@@ -95,11 +140,13 @@ sub interface
                             say $world->print_turn_statistics($t, @nation_names);
                             prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                         }
+                        $nation = undef;
                     }
                 }
                 
             }
         }
+        $query = undef;
 
 
         ### TO REVEW       
@@ -162,7 +209,6 @@ sub interface
 #            print $world->print_defcon_statistics($first_year, $last_year);
 #        }
      
-        $query = undef;
     }
 }
 

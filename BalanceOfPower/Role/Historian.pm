@@ -91,7 +91,7 @@ sub print_year_situation
     my $nation = shift;
     my $turn = shift;
     my $nation_obj = $self->get_nation($nation);
-    my $out = "\n\n$nation, $turn\n===\n";
+    my $out = as_title("\n\n$nation\n===\n");
     $out .= $nation_obj->print_attributes();
     $out .= "\n";
     $out .= $self->print_nation_situation($nation);
@@ -238,6 +238,7 @@ sub print_turn_events
     }
     return $out; 
 }
+
 sub print_overall_statistics
 {
     my $self =shift;
