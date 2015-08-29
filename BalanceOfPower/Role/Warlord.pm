@@ -9,7 +9,7 @@ use List::Util qw(shuffle);
 use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title);
 use BalanceOfPower::Relations::Crisis;
 use BalanceOfPower::Relations::War;
 
@@ -288,6 +288,7 @@ sub create_war
         my @attacker_targets = $self->get_group_borders(\@attacker_coalition, \@defender_coalition);
         my @defender_targets = $self->get_group_borders(\@defender_coalition, \@attacker_coalition);
         my @war_couples;
+        my @couples_factions;
         my %used;
         for(@attacker_coalition, @defender_coalition)
         {
@@ -363,6 +364,7 @@ sub create_war
                 }
             }
             push @war_couples, [$attack_now, $defend_now];
+            push @couples_factions, $faction;
             $used{$attack_now} += 1;
             $used{$defend_now} += 1;
             if($faction == 0)
@@ -375,11 +377,16 @@ sub create_war
             }
         }
         my %attacker_leaders;
+        my $war_id = time;
         push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
                                                       node2 => $defender->name,
-                                                      attack_leader => $attacker->name);
+                                                      attack_leader => $attacker->name,
+                                                      war_id => $war_id,
+                                                      node1_faction => 0,
+                                                      node2_faction => 1);
         $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
+        my $faction_counter = 0;
         foreach my $c (@war_couples)
         {
             my $leader;
@@ -392,9 +399,24 @@ sub create_war
                 $leader = $c->[0];
                 $attacker_leaders{$c->[1]} = $c->[0];
             }
+            my $faction1;
+            my $faction2;
+            if($couples_factions[$faction_counter] == 0)
+            {
+                $faction1 = 0;
+                $faction2 = 1;
+            }
+            else
+            {
+                $faction1 = 1;
+                $faction2 = 0;
+            }
             push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $c->[0], 
                                                           node2 => $c->[1],
-                                                          attack_leader => $leader);
+                                                          attack_leader => $leader,
+                                                          war_id => $war_id,
+                                                          node1_faction => $faction1,
+                                                          node2_faction => $faction2);
             $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
         }
     }
@@ -534,5 +556,32 @@ sub lose_war
     {
         $self->occupy($loser, \@conquerors, $conquerors_leader, $internal_disorder);  
     }
+}
+
+sub print_wars
+{
+    my $self = shift;
+    my %grouped_wars;
+    my $out = "";
+    $out .= as_title("WARS\n===\n");
+    foreach my $w (@{$self->wars})
+    {
+        if(! exists $grouped_wars{$w->war_id})
+        {
+            $grouped_wars{$w->war_id} = [];
+        }
+        push @{$grouped_wars{$w->war_id}}, $w; 
+    }
+    foreach my $k (keys %grouped_wars)
+    {
+        $out .= "\n";
+        foreach my $w ( @{$grouped_wars{$k}})
+        {
+            $out .= $w->print;
+            $out .= "\n";
+        }
+        $out .= "---\n";
+    }
+    return $out;
 }
 1;

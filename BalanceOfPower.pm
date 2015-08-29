@@ -76,7 +76,10 @@ sub interface
         elsif($query eq "years")
         {
             say "From $first_year to $last_year";
-            $nation = undef;
+        }
+        elsif($query eq "wars")
+        {
+            say $world->print_wars();
         }
         elsif($query eq "situation")
         {
@@ -176,7 +179,6 @@ sub interface
                             say $world->print_formatted_turn_events($t, @nation_names);
                             prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                         }
-                        $nation = undef;
                     }
                 }
                 
