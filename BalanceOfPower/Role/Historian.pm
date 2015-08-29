@@ -5,7 +5,7 @@ use Moo::Role;
 use Term::ANSIColor;
 use Data::Dumper;
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title);
+use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title from_to_turns);
 use BalanceOfPower::Constants ':all';
 
 with 'BalanceOfPower::Role::Reporter';
@@ -24,30 +24,6 @@ requires 'print_nation_situation';
 
 
 
-#sub broadcast_event
-#{
-#    my $self = shift;
-#    my $event = shift;
-#    my @nations = @_;
-#    $self->register_event($event);
-#    for(@nations)
-#    {
-#        my $nation = $self->get_nation($_);
-#        $nation->register_event($event);
-#    }
-#}
-#sub send_event
-#{
-#    my $self = shift;
-#    my $event = shift;
-#    my @nations = @_;
-#    for(@nations)
-#    {
-#        my $nation = $self->get_nation($_);
-#        $nation->register_event($event);
-#    }
-#
-#}
 sub get_statistics_value
 {
     my $self = shift;
@@ -85,11 +61,11 @@ sub set_statistics_value
         $self->statistics->{$self->current_year}->{$value_name} = $value;
     }
 }
-sub print_year_situation
+sub print_nation_actual_situation
 {
     my $self = shift;
     my $nation = shift;
-    my $turn = shift;
+    my $turn = $self->current_year;
     my $nation_obj = $self->get_nation($nation);
     my $out = as_title("\n\n$nation\n===\n");
     $out .= $nation_obj->print_attributes();
@@ -99,23 +75,23 @@ sub print_year_situation
     $out .= "\n";
     $out .= $self->print_nation_statistics_header() . "\n";
     $out .= $self->print_nation_statistics_line($nation, $turn) . "\n\n";
-    $out .= "TRADEROUTES\n---\n";
+    $out .= as_title("TRADEROUTES\n---\n");
     foreach my $tr ($self->routes_for_node($nation))
     {
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    $out .= "ALLIES\n---\n";
+    $out .= as_title("ALLIES\n---\n");
     foreach my $al ($self->get_allies($nation))
     {
         $out .= $al ."\n";
     }
     $out .="\n";
-    #$out .= "CRISES\tWARS\n";
-    $out .= sprintf "%-30s %-30s", "CRISES", "WARS";
-    $out .="\n";
-    $out .= sprintf "%-30s %-30s", "---", "---";
-    $out .="\n";
+    my $crises_wars_title = sprintf "%-40s %-40s", "CRISES", "WARS";
+    $crises_wars_title .="\n";
+    $crises_wars_title .= sprintf "%-40s %-40s", "---", "---";
+    $crises_wars_title .="\n";
+    $out .= as_title($crises_wars_title);
     my @crises = $self->get_crises($nation);
     my @wars = $self->get_wars($nation);
     for(my $i = 0; ;$i++)
@@ -133,26 +109,24 @@ sub print_year_situation
             my $w = shift @wars;
             $war_text = $w->print;
         }
-        $out .= sprintf "%-30s %-30s", $crisis_text, $war_text;
+        $out .= sprintf "%-40s %-40s", $crisis_text, $war_text;
         $out .="\n";
     }
-    print $out.= "\n";
+    $out.= "\n";
     return $out;
 }
 sub print_nation_statistics
 {
     my $self = shift;
     my $nation = shift;
-    my $first_year = shift;
-    my $last_year = shift;
-    my $out;
-    $out .= $self->print_nation_statistics_header() . "\n";
-    foreach my $y ($first_year..$last_year)
+    my $first_turn = shift;
+    my $last_turn = shift;
+    my $out = as_title($nation . "\n===\n");
+    
+    $out .= "Year\t" . $self->print_nation_statistics_header() . "\n";
+    foreach my $t (from_to_turns($first_turn, $last_turn))
     {
-        foreach my $t (get_year_turns($y))
-        {
-            $out .= $self->print_nation_statistics_line($nation, $t) . "\n";
-        }
+        $out .= $t . "\t" . $self->print_nation_statistics_line($nation, $t) . "\n";
     }
     return $out;
 }
@@ -160,11 +134,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Year\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+        return "Prod.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
     }
     else
     {
-        return "Year\tProd.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
+        return "Prod.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
     }
 }
 sub print_nation_statistics_line
@@ -173,7 +147,7 @@ sub print_nation_statistics_line
     my $nation = shift;
     my $y = shift;
     my $out = "";
-    $out .= "$y\t";
+    #$out .= "$y\t";
     $out .= $self->get_statistics_value($y, $nation, 'production') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'wealth') . "\t";
     if($self->get_statistics_value($y, $nation, 'production') <= 0)
@@ -193,50 +167,44 @@ sub print_nation_statistics_line
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
     return $out;
 }
+
+
+
+sub print_formatted_turn_events
+{
+    my $self = shift;
+    my $y = shift;
+    my @nations = @_;
+    my $out = "";
+    $out .= as_title("\nEvents:\n");
+    $out .= $self->print_turn_events($y);
+    return $out;
+}
+
+sub print_nation_events
+{
+    my $self = shift;
+    my $nation_name = shift;
+    my $y = shift;
+    my $nation = $self->get_nation($nation_name);
+    my $turn = shift;
+    return $nation->print_turn_events($y);
+}
+
 sub print_turn_statistics
 {
     my $self = shift;
     my $y = shift;
     my @nations = @_;
-    my $out = as_title("Medium values:\n");
-    $out .= "Year\tProd.\tWealth\tInt.Dis\n";
-    foreach my $t (get_year_turns($y))
+
+    my $out = "";
+    $out .= as_title(sprintf "%-16s %-16s", "Nation" , $self->print_nation_statistics_header() . "\n");
+    for(@nations)
     {
-        my ($prod, $wealth, $disorder) = $self->medium_statistics($t, @nations);
-        $out .= "$t\t$prod\t$wealth\t$disorder\n";
+        $out .= sprintf "%-16s %-16s", $_ , $self->print_nation_statistics_line($_, $y) . "\n";
     }
     $out .= "\n";
-    $out .= as_title("\nEvents:\n");
-    $out .= $self->print_turn_events($y);
     return $out;
-}
-sub print_turn_events
-{
-    my $self = shift;
-    my $y = shift;
-    my $out = "";
-    my @to_print;
-    if($y =~ /\d\d\d\d/)
-    {
-        @to_print = get_year_turns($y)
-    }
-    elsif($y =~ /\d\d\d\d\/\d+/)
-    {
-        @to_print = ($y);
-    }
-    else
-    {
-        return "";
-    }
-    foreach my $t (@to_print)
-    {
-        $out .= " - $t\n";
-        foreach my $e (@{$self->events->{$t}})
-        {
-            $out .= " " . $e . "\n";
-        }
-    }
-    return $out; 
 }
 
 sub print_overall_statistics

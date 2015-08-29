@@ -61,6 +61,55 @@ sub get_year_turns
     }
     return @turns;
 }
+sub from_to_turns
+{
+    my $from = shift;
+    my $to = shift;
+    my $from_y;
+    my $from_t;
+    my $to_y;
+    my $to_t;
+    if($from =~ /(\d+)(\/(\d+))?/)
+    {
+        $from_y = $1;
+        $from_t = $3 ? $3 : 1;
+    }
+    else
+    {
+        return ();
+    }
+    if($to =~ /(\d+)(\/(\d+))?/)
+    {
+        $to_y = $1;
+        $to_t = $3 ? $3 : 1;
+    }
+    else
+    {
+        return ();
+    }
+    return ()
+        if($to_y < $from_y || ($to_y == $from_y && $to_t < $from_t)); 
+    my $goon = 1;
+    my $to_add_y = $from_y;
+    my $to_add_t = $from_t;
+    my @turns = ();
+    while(1)
+    {
+        my $to_add = $to_add_y . '/' . $to_add_t;
+        push @turns, $to_add;
+        last if($to_add eq $to);
+        if($to_add_t < TURNS_FOR_YEAR)
+        {
+            $to_add_t++;
+        }
+        else
+        {
+            $to_add_y++;
+            $to_add_t = 1;
+        }
+    }
+    return @turns;
+}
 
 sub as_title
 {
@@ -68,6 +117,6 @@ sub as_title
     return color("yellow bold") . $text . color("reset");
 }
 
-our @EXPORT_OK = ('prev_year', 'next_year', 'random', 'random10', 'get_year_turns', 'as_title');
+our @EXPORT_OK = ('prev_year', 'next_year', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns');
 
 1;

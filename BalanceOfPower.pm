@@ -78,6 +78,10 @@ sub interface
             say "From $first_year to $last_year";
             $nation = undef;
         }
+        elsif($query eq "situation")
+        {
+           say $world->print_turn_statistics($world->current_year, @nation_names);  
+        }
         elsif($query =~ /^((.*) )?borders$/)
         {
             my $input_nation = $2;
@@ -104,6 +108,29 @@ sub interface
                 say $world->print_diplomacy($nation);
             }
         }
+        elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
+        {
+            my $input_nation = $2;
+            my $input_year = $4;
+            $input_year ||= undef;
+            if($input_nation)
+            {
+                $nation = $input_nation;
+            }
+            if($input_year)
+            {
+                my @turns = get_year_turns($input_year); 
+                foreach my $t (@turns)
+                {
+                    say $world->print_nation_events($nation, $t);
+                        prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
+                }
+            }
+            else
+            {
+                say $world->print_nation_events($nation);
+            }
+        }
         elsif($query =~ /^((.*) )?status$/)
         {
             my $input_nation = $2;
@@ -118,12 +145,21 @@ sub interface
                 next;
             }
         }
+        elsif($query =~ /^((.*) )?history$/)
+        {
+            my $input_nation = $2;
+            if($input_nation)
+            {
+                $nation = $input_nation;
+            }
+            say $world->print_nation_statistics($nation, $first_year, $world->current_year);
+        }
         else
         {
             my @good_nation = grep { $_ eq $query } @nation_names; 
             if(@good_nation > 0) #it's a nation
             { 
-                say $world->print_year_situation($query, $world->current_year);
+                say $world->print_nation_actual_situation($query);
                 $nation = $query;
             }
             else
@@ -137,7 +173,7 @@ sub interface
                         my @turns = get_year_turns($query); 
                         foreach my $t (@turns)
                         {
-                            say $world->print_turn_statistics($t, @nation_names);
+                            say $world->print_formatted_turn_events($t, @nation_names);
                             prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                         }
                         $nation = undef;

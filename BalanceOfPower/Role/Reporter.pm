@@ -3,6 +3,7 @@ package BalanceOfPower::Role::Reporter;
 use strict;
 use v5.10;
 use Moo::Role;
+use BalanceOfPower::Utils qw( get_year_turns as_title );
 
 
 has events => (
@@ -37,6 +38,38 @@ sub get_events
     {
         return ();
     }
+}
+sub print_turn_events
+{
+    my $self = shift;
+    my $y = shift;
+    my $out = "";
+    my @to_print;
+    if(! $y)
+    {
+        $y = $self->current_year ? $self->current_year : "START";
+    }
+    if($y =~ /\d\d\d\d/)
+    {
+        @to_print = get_year_turns($y)
+    }
+    elsif($y =~ /\d\d\d\d\/\d+/)
+    {
+        @to_print = ($y);
+    }
+    else
+    {
+        return "";
+    }
+    foreach my $t (@to_print)
+    {
+        $out .= as_title(" - $t\n");
+        foreach my $e (@{$self->events->{$t}})
+        {
+            $out .= " " . $e . "\n";
+        }
+    }
+    return $out; 
 }
 
 
