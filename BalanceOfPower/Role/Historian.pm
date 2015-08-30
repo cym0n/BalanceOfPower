@@ -87,9 +87,9 @@ sub print_nation_actual_situation
         $out .= $al ."\n";
     }
     $out .="\n";
-    my $crises_wars_title = sprintf "%-40s %-40s", "CRISES", "WARS";
+    my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
     $crises_wars_title .="\n";
-    $crises_wars_title .= sprintf "%-40s %-40s", "---", "---";
+    $crises_wars_title .= sprintf "%-35s %-35s", "---", "---";
     $crises_wars_title .="\n";
     $out .= as_title($crises_wars_title);
     my @crises = $self->get_crises($nation);
@@ -109,7 +109,7 @@ sub print_nation_actual_situation
             my $w = shift @wars;
             $war_text = $w->print;
         }
-        $out .= sprintf "%-40s %-40s", $crisis_text, $war_text;
+        $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
         $out .="\n";
     }
     $out.= "\n";
@@ -174,7 +174,6 @@ sub print_formatted_turn_events
 {
     my $self = shift;
     my $y = shift;
-    my @nations = @_;
     my $out = "";
     $out .= as_title("\nEvents:\n");
     $out .= $self->print_turn_events($y);
@@ -195,7 +194,7 @@ sub print_turn_statistics
 {
     my $self = shift;
     my $y = shift;
-    my @nations = @_;
+    my @nations = @{$self->nation_names};
 
     my $out = "";
     $out .= as_title(sprintf "%-16s %-16s", "Nation" , $self->print_nation_statistics_header() . "\n");
@@ -212,7 +211,7 @@ sub print_overall_statistics
     my $self =shift;
     my $first_year = shift;
     my $last_year = shift;
-    my @nations = @_;
+    my @nations = @{$self->nation_names};
     my $out = "Overall medium values\n";
     $out .= "Year\tProd.\tWealth\tInt.Dis\n";
     foreach my $y ($first_year..$last_year)
@@ -229,7 +228,7 @@ sub medium_statistics
 {
     my $self = shift;
     my $year = shift;
-    my @nations = @_;
+    my @nations = @{$self->nation_names};
     my $total_production = 0;
     my $total_wealth = 0;
     my $total_disorder = 0;

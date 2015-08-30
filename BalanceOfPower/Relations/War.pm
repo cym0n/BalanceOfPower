@@ -31,8 +31,12 @@ sub bidirectional
 sub print 
 {
     my $self = shift;
-    my $node1 = $self->node1;
-    my $node2 = $self->node2;
+    my $army_node1 = shift;
+    my $army_node2 = shift;
+    my $army_node1_label = $army_node1 ? "[".$army_node1."] " : "";
+    my $army_node2_label = $army_node2 ? " [".$army_node2."]" : "";
+    my $node1 = $army_node1_label . $self->node1;
+    my $node2 = $self->node2 . $army_node2_label;
     if($self->node1_faction == 0)
     {
         $node1 = color("bold") . $node1 . color("reset");

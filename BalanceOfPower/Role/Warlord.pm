@@ -6,6 +6,7 @@ use v5.10;
 use Moo::Role;
 
 use List::Util qw(shuffle);
+use Term::ANSIColor;
 use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
@@ -198,6 +199,25 @@ sub get_crises
     return @crises;
 }
 
+sub print_all_crises
+{
+    my $self = shift;
+    my $n = shift;
+    my $out;
+    $out .= as_title("CRISES\n===\n");
+    foreach my $b (@{$self->crises})
+    {
+        if($self->war_exists($b->node1, $b->node2))
+        {
+            $out .= color("red bold") . $b->print() . color("reset") . "\n";
+        }
+        else
+        {
+            $out .= $b->print() . "\n";
+        }
+    }
+    return $out;
+}
 sub print_crises
 {
     my $self = shift;
@@ -574,13 +594,23 @@ sub print_wars
     }
     foreach my $k (keys %grouped_wars)
     {
-        $out .= "\n";
+        $out .= "### WAR $k\n";
         foreach my $w ( @{$grouped_wars{$k}})
         {
-            $out .= $w->print;
+            my $nation1 = $self->get_nation($w->node1);
+            my $nation2 = $self->get_nation($w->node2);
+            $out .= $w->print($nation1->army, $nation2->army);
             $out .= "\n";
         }
         $out .= "---\n";
+    }
+    $out .= "\n";
+    foreach my $n (@{$self->nation_names})
+    {
+        if($self->at_civil_war($n))
+        {
+            $out .= "$n is fighting civil war\n";
+        }
     }
     return $out;
 }

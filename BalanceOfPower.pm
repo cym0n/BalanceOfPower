@@ -81,9 +81,13 @@ sub interface
         {
             say $world->print_wars();
         }
+        elsif($query eq "crises")
+        {
+            say $world->print_all_crises();
+        }
         elsif($query eq "situation")
         {
-           say $world->print_turn_statistics($world->current_year, @nation_names);  
+           say $world->print_turn_statistics($world->current_year);  
         }
         elsif($query =~ /^((.*) )?borders$/)
         {
@@ -176,7 +180,7 @@ sub interface
                         my @turns = get_year_turns($query); 
                         foreach my $t (@turns)
                         {
-                            say $world->print_formatted_turn_events($t, @nation_names);
+                            say $world->print_formatted_turn_events($t);
                             prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                         }
                     }

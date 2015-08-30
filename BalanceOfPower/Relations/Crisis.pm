@@ -15,7 +15,6 @@ with 'BalanceOfPower::Relations::Role::Relation';
 sub print 
 {
     my $self = shift;
-    my $from = shift;
     return $self->node1 . " <-> " . $self->node2 . " (" . $self->factor . ")";
 }
 

@@ -21,7 +21,10 @@ has nations => (
     is => 'rw',
     default => sub { [] }
 );
-
+has nation_names => (
+    is => 'rw',
+    default => sub { [] }
+);
 
 
 with 'BalanceOfPower::Role::Herald';
@@ -62,6 +65,8 @@ sub init_random
 {
     my $self = shift;
     my @nations = @_;
+
+    $self->nation_names = \@nations;
 
     $self->load_borders();
 
