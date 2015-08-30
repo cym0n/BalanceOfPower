@@ -5,7 +5,7 @@ use v5.10;
 use Moo::Role;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw( random );
 use BalanceOfPower::Relations::TradeRoute;
 
 requires 'get_nation';
@@ -21,7 +21,7 @@ has trade_routes => (
 sub init_trades
 {
     my $self = shift;
-    my @nations = @_;
+    my @nations = @{$self->nations};
     my %routes_counter;
     foreach my $n (@nations)
     {

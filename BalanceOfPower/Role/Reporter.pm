@@ -63,7 +63,7 @@ sub print_turn_events
     }
     foreach my $t (@to_print)
     {
-        $out .= as_title(" - $t\n");
+        $out .= as_title("- $t\n");
         foreach my $e (@{$self->events->{$t}})
         {
             $out .= " " . $e . "\n";

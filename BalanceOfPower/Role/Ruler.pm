@@ -3,7 +3,6 @@ package BalanceOfPower::Role::Ruler;
 use strict;
 use Moo::Role;
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
 
 use BalanceOfPower::Relations::Influence;

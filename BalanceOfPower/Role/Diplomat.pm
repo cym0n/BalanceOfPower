@@ -5,7 +5,7 @@ use Moo::Role;
 use List::Util qw(shuffle);
 
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw( random );
 use BalanceOfPower::Constants ':all';
 
 use BalanceOfPower::Relations::Friendship;
@@ -25,7 +25,7 @@ requires 'broadcast_event';
 sub init_diplomacy
 {
     my $self = shift;
-    my @nations = @_;
+    my @nations = @{$self->nations};
     foreach my $n1 (@nations)
     {
         foreach my $n2 (@nations)

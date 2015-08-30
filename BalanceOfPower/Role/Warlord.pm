@@ -10,7 +10,7 @@ use Term::ANSIColor;
 use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title);
+use BalanceOfPower::Utils qw( random  as_title );
 use BalanceOfPower::Relations::Crisis;
 use BalanceOfPower::Relations::War;
 

@@ -4,7 +4,7 @@ use v5.10;
 use IO::Prompter;
 use Data::Dumper;
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw(next_turn get_year_turns);
 use BalanceOfPower::World;
 
 use strict;
@@ -21,6 +21,32 @@ my @nation_names = ("Italy", "France", "United Kingdom", "Russia",
 my $first_year = 1970;
 my $last_year = 1972;
 
+my $commands = <<'COMMANDS';
+Say the name of a nation to select it and obtain its status.
+Say <nations> for the full list of nations.
+Say <clear> to un-select nation.
+
+With a nation selected you can use:
+<borders>
+<relations>
+<events>
+<status>
+<history>
+[year/turn]
+
+You can also say one of these as: [nation name] [command]
+
+[year/turn] with no nation selected gives all the events of the year/turns
+
+say <years> for available range of years
+
+say <wars> for a list of wars, <crises> for all the ongoing crises
+
+say <turn> to elaborate events for a new turn
+COMMANDS
+
+
+
 #Init
 my $world = BalanceOfPower::World->new();
 $world->init_random(@nation_names);
@@ -31,28 +57,31 @@ for($first_year..$last_year)
     my $y = $_;
     foreach my $t (get_year_turns($y))
     {
-        open(my $log, ">>", "bop.log");
-        print $log "--- $t ---\n";
-        close($log);
-        $world->init_year($t);
-        $world->war_debts();
-        $world->crisis_generator();
-        $world->execute_decisions();
-        $world->economy();
-        $world->warfare();
-        $world->internal_conflict();
-        $world->register_global_data();
-        $world->collect_events();
+        elaborate_turn($t);
     }
 }
 say "=======\n\n\n";
 interface();
 
+sub elaborate_turn
+{
+    my $t = shift;
+    open(my $log, ">>", "bop.log");
+    print $log "--- $t ---\n";
+    close($log);
+    $world->init_year($t);
+    $world->war_debts();
+    $world->crisis_generator();
+    $world->execute_decisions();
+    $world->economy();
+    $world->warfare();
+    $world->internal_conflict();
+    $world->register_global_data();
+    $world->collect_events();
+}
+
 sub interface
 {
-    my $commands = "Commands are:\n    nations, years,\n    history:[nation name], status:[nation name], diplomacy:[nation name], borders:[nation name]\n    crises,\n    [year], overall,\n    commands, quit";
-    say "Retrieve informations about history";
-    say $commands;
     my $continue = 1;
     my $query = undef;
     my $nation = undef;
@@ -61,12 +90,19 @@ sub interface
         if(! $query)
         {
             my $prompt_text = $nation ? "($nation) ?" : "?";
+            $prompt_text = "[Turn is " . $world->current_year . "]\n" . $prompt_text;
             $query = prompt $prompt_text;
         }
         while ($query =~ m/\x08/g) {
              substr($query, pos($query)-2, 2, '');
         }
+        print "\n";
         if($query eq "quit") { $continue = 0 }
+        elsif($query eq "turn")
+        {
+            $nation = undef;
+            elaborate_turn(next_turn($world->current_year));
+        }
         elsif($query eq "nations")
         {
             $query = prompt "?", -menu=>\@nation_names;
@@ -75,15 +111,23 @@ sub interface
         }
         elsif($query eq "years")
         {
-            say "From $first_year to $last_year";
+            say "From $first_year/1 to " . $world->current_year; 
+        }
+        elsif($query eq "clear")
+        {
+            $nation = undef;
+        }
+        elsif($query eq "commands")
+        {
+            print $commands;
         }
         elsif($query eq "wars")
         {
-            say $world->print_wars();
+            print $world->print_wars();
         }
         elsif($query eq "crises")
         {
-            say $world->print_all_crises();
+            print $world->print_all_crises();
         }
         elsif($query eq "situation")
         {
@@ -94,12 +138,11 @@ sub interface
             my $input_nation = $2;
             if($input_nation)
             {
-                say $world->print_borders($input_nation);
                 $nation = $input_nation;
             }
-            elsif($nation)
+            if($nation)
             {
-                say $world->print_borders($nation);
+                print $world->print_borders($nation);
             }
         }
         elsif($query =~ /^((.*) )?relations$/)
@@ -107,12 +150,11 @@ sub interface
             my $input_nation = $2;
             if($input_nation)
             {
-                say $world->print_diplomacy($input_nation);
                 $nation = $input_nation;
             }
-            elsif($nation)
+            if($nation)
             {
-                say $world->print_diplomacy($nation);
+                print $world->print_diplomacy($nation);
             }
         }
         elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
@@ -124,18 +166,21 @@ sub interface
             {
                 $nation = $input_nation;
             }
-            if($input_year)
+            if($nation)
             {
-                my @turns = get_year_turns($input_year); 
-                foreach my $t (@turns)
+                if($input_year)
                 {
-                    say $world->print_nation_events($nation, $t);
-                        prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
+                    my @turns = get_year_turns($input_year); 
+                    foreach my $t (@turns)
+                    {
+                        print $world->print_nation_events($nation, $t);
+                            prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
+                    }
                 }
-            }
-            else
-            {
-                say $world->print_nation_events($nation);
+                else
+                {
+                    print $world->print_nation_events($nation);
+                }
             }
         }
         elsif($query =~ /^((.*) )?status$/)
@@ -159,14 +204,17 @@ sub interface
             {
                 $nation = $input_nation;
             }
-            say $world->print_nation_statistics($nation, $first_year, $world->current_year);
+            if($nation)
+            {
+                print $world->print_nation_statistics($nation, $first_year, $world->current_year);
+            }
         }
         else
         {
             my @good_nation = grep { $_ eq $query } @nation_names; 
             if(@good_nation > 0) #it's a nation
             { 
-                say $world->print_nation_actual_situation($query);
+                print $world->print_nation_actual_situation($query);
                 $nation = $query;
             }
             else
@@ -177,6 +225,11 @@ sub interface
                     @good_year = grep { $_ eq $1 } ($first_year..$last_year);
                     if(@good_year > 0)
                     {
+                        if($nation)
+                        {
+                            $query = "events $query";
+                            next;
+                        }
                         my @turns = get_year_turns($query); 
                         foreach my $t (@turns)
                         {
@@ -188,69 +241,8 @@ sub interface
                 
             }
         }
+        print "\n";
         $query = undef;
-
-
-        ### TO REVEW       
-        
-        
-        
-        
-        
-#        elsif($query eq "overall")
-#        {
-#            say $world->print_overall_statistics($first_year, $last_year, @nation_names);
-#        }
-#        elsif($query eq "commands")
-#        {
-#            say $commands;
-#        }
-#        elsif($query =~ m/history:(.*)/)
-#        {
-#            my @good_nation = grep { $_ eq $1 } @nation_names; 
-#            if(@good_nation > 0)
-#            { 
-#                say $good_nation[0] . " - HISTORY";
-#                say "=====\n";
-#                say $world->print_nation_statistics($good_nation[0], $first_year, $last_year);
-#            }
-#        }
-#        elsif($query =~ m/status:(.*)/)
-#        {
-#            my @good_nation = grep { $_ eq $1 } @nation_names; 
-#            if(@good_nation > 0)
-#            { 
-#                say $good_nation[0] . " - STATUS";
-#                say "=====\n";
-#                say $world->print_nation($good_nation[0]);
-#            }
-#        }
-#        elsif($query =~ m/diplomacy:(.*)/)
-#        {
-#            my @good_nation = grep { $_ eq $1 } @nation_names; 
-#            if(@good_nation > 0)
-#            { 
-#                say $world->print_diplomacy($good_nation[0]);
-#            }
-#        }
-#        elsif($query =~ m/borders:(.*)/)
-#        {
-#            my @good_nation = grep { $_ eq $1 } @nation_names; 
-#            if(@good_nation > 0)
-#            { 
-#                say $world->print_borders($good_nation[0]);
-#            }
-#        }
-#        elsif($query =~ m/crises/)
-#        {
-#            foreach my $y ($first_year..$last_year)
-#            {
-#                print $world->print_crises($y);
-#            }
-#            print "\n";
-#            print $world->print_defcon_statistics($first_year, $last_year);
-#        }
-     
     }
 }
 

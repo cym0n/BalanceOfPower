@@ -7,7 +7,7 @@ use Moo;
 use List::Util qw(shuffle);
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
+use BalanceOfPower::Utils qw(prev_turn random random10);
 use BalanceOfPower::Nation;
 
 has name => (
@@ -35,7 +35,6 @@ with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Historian';
 
-
 sub get_nation
 {
     my $self = shift;
@@ -50,15 +49,6 @@ sub get_nation
         return undef;
     }
 }
-
-sub print_nation
-{
-    my $self = shift;
-    my $n = $self->get_nation( shift );
-    return $n->print;
-}
-
-
 
 #Initial values, randomly generated
 sub init_random
@@ -79,8 +69,8 @@ sub init_random
         say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
     }
-    $self->init_trades(@{$self->nations});
-    $self->init_diplomacy(@{$self->nations});
+    $self->init_trades();
+    $self->init_diplomacy();
 }
 
 # Configure current year
@@ -116,10 +106,10 @@ sub get_base_production
 {
     my $self = shift;
     my $nation = shift;
-    my $statistics_production = $self->get_statistics_value(prev_year($nation->current_year), $nation->name, 'production'); 
+    my $statistics_production = $self->get_statistics_value(prev_turn($nation->current_year), $nation->name, 'production'); 
     if($statistics_production)
     {
-        my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_year($nation->current_year));
+        my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_turn($nation->current_year));
         if(@newgov > 0)
         {
             return undef;
@@ -148,7 +138,7 @@ sub calculate_production
     {
         $next = random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION);
     }
-    my @retreats = $n->get_events("RETREAT FROM", prev_year($n->current_year));
+    my @retreats = $n->get_events("RETREAT FROM", prev_turn($n->current_year));
     if(@retreats > 0)
     {
         $next -= ATTACK_FAILED_PRODUCTION_MALUS;

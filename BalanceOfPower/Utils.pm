@@ -24,7 +24,7 @@ sub random10
     return $out;
 }
 
-sub prev_year
+sub prev_turn
 {
     my $year = shift;
     my ($y, $i) = split '/', $year;
@@ -37,7 +37,7 @@ sub prev_year
         return $y . '/' . ($i - 1);
     }
 }
-sub next_year
+sub next_turn
 {
     my $year = shift;
     my ($y, $i) = split '/', $year;
@@ -117,6 +117,6 @@ sub as_title
     return color("yellow bold") . $text . color("reset");
 }
 
-our @EXPORT_OK = ('prev_year', 'next_year', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns');
 
 1;

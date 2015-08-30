@@ -4,7 +4,7 @@ use strict;
 use v5.10;
 
 use Moo;
-use BalanceOfPower::Utils qw( prev_year next_year );
+use BalanceOfPower::Utils qw( prev_turn );
 use BalanceOfPower::Constants ':all';
 use List::Util qw(shuffle);
 
@@ -294,8 +294,8 @@ sub good_prey
     }
 
     #WEALTH EVALUATION
-    my $wealth = $world->get_statistics_value(prev_year($self->current_year), $self->name, 'wealth');
-    my $enemy_wealth = $world->get_statistics_value(prev_year($self->current_year), $enemy->name, 'wealth');
+    my $wealth = $world->get_statistics_value(prev_turn($self->current_year), $self->name, 'wealth');
+    my $enemy_wealth = $world->get_statistics_value(prev_turn($self->current_year), $enemy->name, 'wealth');
     $war_points += 1 if($enemy_wealth > $wealth);
                     
     #COALITION EVALUATION
@@ -330,7 +330,7 @@ sub domestic_advisor
 sub economy_advisor
 {
     my $self = shift;
-    my $prev_year = prev_year($self->current_year);
+    my $prev_year = prev_turn($self->current_year);
     my @trade_ko = $self->get_events("TRADE KO", $prev_year);
     if(@trade_ko > 1)
     {
@@ -340,7 +340,7 @@ sub economy_advisor
     }
     elsif(@trade_ko == 1)
     {
-        my @older_trade_ko = $self->get_events("TRADE KO", prev_year($prev_year));
+        my @older_trade_ko = $self->get_events("TRADE KO", prev_turn($prev_year));
         if(@older_trade_ko > 0)
         {
             my $to_delete = $trade_ko[$#trade_ko];

@@ -4,7 +4,6 @@ use strict;
 use v5.10;
 
 use Moo;
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns);
 use BalanceOfPower::Constants ':all';
 
 

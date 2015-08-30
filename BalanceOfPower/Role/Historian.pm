@@ -5,7 +5,7 @@ use Moo::Role;
 use Term::ANSIColor;
 use Data::Dumper;
 
-use BalanceOfPower::Utils qw(prev_year next_year random random10 get_year_turns as_title from_to_turns);
+use BalanceOfPower::Utils qw( get_year_turns as_title from_to_turns );
 use BalanceOfPower::Constants ':all';
 
 with 'BalanceOfPower::Role::Reporter';
@@ -67,7 +67,7 @@ sub print_nation_actual_situation
     my $nation = shift;
     my $turn = $self->current_year;
     my $nation_obj = $self->get_nation($nation);
-    my $out = as_title("\n\n$nation\n===\n");
+    my $out = as_title("$nation\n===\n");
     $out .= $nation_obj->print_attributes();
     $out .= "\n";
     $out .= $self->print_nation_situation($nation);
@@ -112,7 +112,6 @@ sub print_nation_actual_situation
         $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
         $out .="\n";
     }
-    $out.= "\n";
     return $out;
 }
 sub print_nation_statistics
