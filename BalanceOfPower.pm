@@ -21,6 +21,14 @@ my @nation_names = ("Italy", "France", "United Kingdom", "Russia",
 my $first_year = 1970;
 my $last_year = 1972;
 
+my $welcome_message = <<'WELCOME';
+Welcome to Balance of Power, simulation of a real dangerous world!
+
+Take the control of a country and try to make it the most powerful of the planet! 
+WELCOME
+
+
+
 my $commands = <<'COMMANDS';
 Say the name of a nation to select it and obtain its status.
 Say <nations> for the full list of nations.
@@ -49,7 +57,10 @@ COMMANDS
 
 #Init
 my $world = BalanceOfPower::World->new();
+#init_game();
+
 $world->init_random(@nation_names);
+
 
 #History generation
 for($first_year..$last_year)
@@ -62,6 +73,17 @@ for($first_year..$last_year)
 }
 say "=======\n\n\n";
 interface();
+
+
+
+sub init_game
+{
+    say $welcome_message;
+    my $player = prompt "Say your name, player: ";
+    my $player_nation = prompt "Select the nation you want to control: ", -menu=>\@nation_names;
+    $world->player($player);
+    $world->player_nation($player_nation);
+}
 
 sub elaborate_turn
 {
@@ -102,6 +124,7 @@ sub interface
         {
             $nation = undef;
             elaborate_turn(next_turn($world->current_year));
+            say $world->print_formatted_turn_events($world->current_year);
         }
         elsif($query eq "nations")
         {
