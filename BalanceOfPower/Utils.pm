@@ -61,32 +61,28 @@ sub get_year_turns
     }
     return @turns;
 }
+sub split_turn
+{
+    my $turn = shift;
+    if($turn =~ /(\d+)(\/(\d+))?/)
+    {
+        my $turn_y = $1;
+        my $turn_t = $3 ? $3 : 1;
+        return ($turn_y, $turn_t);
+    }
+    else
+    {
+        (undef, undef);
+    }
+}
 sub from_to_turns
 {
     my $from = shift;
     my $to = shift;
-    my $from_y;
-    my $from_t;
-    my $to_y;
-    my $to_t;
-    if($from =~ /(\d+)(\/(\d+))?/)
-    {
-        $from_y = $1;
-        $from_t = $3 ? $3 : 1;
-    }
-    else
-    {
-        return ();
-    }
-    if($to =~ /(\d+)(\/(\d+))?/)
-    {
-        $to_y = $1;
-        $to_t = $3 ? $3 : 1;
-    }
-    else
-    {
-        return ();
-    }
+    my ($from_y, $from_t) = split_turn($from);
+    return () if(! $from_y);
+    my ($to_y, $to_t) = split_turn($to);
+    return () if(! $from_y);
     return ()
         if($to_y < $from_y || ($to_y == $from_y && $to_t < $from_t)); 
     my $goon = 1;
@@ -110,6 +106,30 @@ sub from_to_turns
     }
     return @turns;
 }
+sub compare_turns
+{
+    my $first = shift;
+    my $second = shift;
+    return 0 if ($first eq $second);
+    my ($first_y, $first_t) = split_turn($first);
+    return undef if(! $first_y);
+    my ($second_y, $second_t) = split_turn($second);
+    return undef if(! $second_y);
+    return undef
+        if($first_t < 0 ||
+            $second_t < 0 ||
+            $first_t > TURNS_FOR_YEAR ||
+            $second_t > TURNS_FOR_YEAR);
+    if($first_y > $second_y ||
+      (($first_y > $second_y && $first_t > $second_t)))
+    {
+        return 1;
+    }
+    else
+    {
+        return -1;
+    }
+}
 
 sub as_title
 {
@@ -117,6 +137,6 @@ sub as_title
     return color("yellow bold") . $text . color("reset");
 }
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns');
 
 1;

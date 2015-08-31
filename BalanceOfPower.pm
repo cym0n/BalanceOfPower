@@ -4,7 +4,7 @@ use v5.10;
 use IO::Prompter;
 use Data::Dumper;
 
-use BalanceOfPower::Utils qw(next_turn get_year_turns);
+use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::World;
 
 use strict;
@@ -19,7 +19,7 @@ my @nation_names = ("Italy", "France", "United Kingdom", "Russia",
                     "Czech Republic", "Slovakia", "Slovenia", "Hungary",
                     "Poland", "Turkey", "Bulgaria", "Albania" ); 
 my $first_year = 1970;
-my $last_year = 1972;
+my $auto_years;
 
 my $welcome_message = <<'WELCOME';
 Welcome to Balance of Power, simulation of a real dangerous world!
@@ -57,13 +57,14 @@ COMMANDS
 
 #Init
 my $world = BalanceOfPower::World->new();
-#init_game();
+
+init_game();
 
 $world->init_random(@nation_names);
 
 
 #History generation
-for($first_year..$last_year)
+for($first_year..$first_year+$auto_years)
 {
     my $y = $_;
     foreach my $t (get_year_turns($y))
@@ -83,6 +84,7 @@ sub init_game
     my $player_nation = prompt "Select the nation you want to control: ", -menu=>\@nation_names;
     $world->player($player);
     $world->player_nation($player_nation);
+    $auto_years = prompt "Tell a number of years to generate before game start: ", -i;
 }
 
 sub elaborate_turn
@@ -245,8 +247,8 @@ sub interface
                 my @good_year = ();
                 if($query =~ /(\d+)(\/\d+)?/) #it's an year or a turn
                 {
-                    @good_year = grep { $_ eq $1 } ($first_year..$last_year);
-                    if(@good_year > 0)
+                    if((compare_turns($query, $world->current_year) == 0 || compare_turns($query, $world->current_year) == -1) &&
+                       compare_turns($query, $first_year) > 0)
                     {
                         if($nation)
                         {

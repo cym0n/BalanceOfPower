@@ -27,6 +27,7 @@ has nation_names => (
 );
 
 
+with 'BalanceOfPower::Role::Player';
 with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
