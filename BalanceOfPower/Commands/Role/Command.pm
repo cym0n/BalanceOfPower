@@ -15,18 +15,57 @@ has synonyms => (
     is => 'rw',
     default => sub { [] }
 );
+has allowed_at_war => (
+    is => 'ro',
+    default => 0
+);
+
+sub allowed
+{
+    my $self = shift;
+    return 0
+        if($self->get_nation($self->player_nation)->internal_disorder_status() eq 'Civil war');
+    if(! $self->allowed_at_war)
+    {
+        if($self->world->at_war($self->player_nation))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+sub extract_argument
+{
+    my $self = shift;
+    my $query = shift;
+    my $name = $self->name;
+    if($query =~ /^$name( (.*))?$/)
+    {
+        return $2;
+    }
+    foreach my $syn (@{$self->synonyms})
+    {
+        if($query =~ /^$_( (.*))?/)
+        {
+            return $2;
+        }
+    }
+    return undef;
+}
 
 sub recognize
 {
     my $self = shift;
     my $query = shift;
-    my $name = $self->name;
-    return 1 if($query =~ /^$name/);
-    foreach my $syn (@{$self->synonyms})
+    if(defined $self->extract_argument($query))
     {
-        return 1 if($query =~ /^$_/);
+        return 1;
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
 }
 
 sub execute

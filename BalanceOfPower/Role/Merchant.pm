@@ -123,7 +123,7 @@ sub routes_for_node
 {
     my $self = shift;
     my $node = shift;
-    my @routes;
+    my @routes = ();
     foreach my $r (@{$self->trade_routes})
     {
         if($r->has_node($node))
@@ -132,6 +132,18 @@ sub routes_for_node
         }
     }
     return @routes;
+}
+sub route_destinations_for_node
+{
+    my $self = shift;
+    my $node = shift;
+    my @routes = $self->routes_for_node($node);
+    my @nations = ();
+    for(@routes)
+    {
+        push @nations, $_->destination($node);
+    }
+    return @nations;
 }
 
 1;

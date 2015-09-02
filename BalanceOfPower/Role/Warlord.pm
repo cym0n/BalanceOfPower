@@ -218,6 +218,22 @@ sub print_all_crises
     }
     return $out;
 }
+sub available_for_war
+{
+    my $self;
+    my $nation;
+    my @crises = $self->get_crises();
+    my @out = ();
+    foreach my $c (@crises)
+    {
+        my $n = $c->destination($nation);
+        if(! $self->at_war($n))
+        {
+            push @out, $n;
+        }
+    }
+    return @out;
+}
 sub print_crises
 {
     my $self = shift;
