@@ -63,3 +63,5 @@ sub get_available_targets
     }
     return @nations
 }
+
+1;

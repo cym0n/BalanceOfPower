@@ -6,6 +6,7 @@ use Data::Dumper;
 
 use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::World;
+use BalanceOfPower::Commands;
 use Term::ANSIColor;
 
 use strict;
@@ -28,36 +29,12 @@ Welcome to Balance of Power, simulation of a real dangerous world!
 Take the control of a country and try to make it the most powerful of the planet! 
 WELCOME
 
-my $commands = <<'COMMANDS';
-Say the name of a nation to select it and obtain its status.
-Say <nations> for the full list of nations.
-Say <clear> to un-select nation.
-
-With a nation selected you can use:
-<borders>
-<relations>
-<events>
-<status>
-<history>
-[year/turn]
-
-You can also say one of these as: [nation name] [command]
-
-[year/turn] with no nation selected gives all the events of the year/turns
-
-say <years> for available range of years
-
-say <wars> for a list of wars, <crises> for all the ongoing crises
-
-say <turn> to elaborate events for a new turn
-COMMANDS
-
 use constant STUBBED_PLAYER => 1;
 
 
 
 #Init
-my $world = BalanceOfPower::World->new();
+my $world = BalanceOfPower::World->new( first_year => $first_year );
 $world->init_random(@nation_names);
 init_game();
 for($first_year..$first_year+$auto_years)
@@ -111,177 +88,25 @@ sub elaborate_turn
 
 sub interface
 {
-    my $continue = 1;
-    my $query = undef;
-    my $nation = undef;
-    while($continue)
+    my $commands = BalanceOfPower::Commands->new( world => $world );
+    $commands->init();
+    while($commands->active)
     {
-        if(! $query)
+        my $result = 0;
+        $commands->get_query();
+        $result = $commands->turn_command();
+        if($result)
         {
-            my $prompt_text = $nation ? "($nation) ?" : "?";
-            $prompt_text = "[" . $world->player . ", leader of " . $world->player_nation . ". Turn is " . $world->current_year . "]\n" . $prompt_text ;
-            print color("cyan");
-            $query = prompt $prompt_text;
-            print color("reset");
-        }
-        while ($query =~ m/\x08/g) {
-             substr($query, pos($query)-2, 2, '');
-        }
-        print "\n";
-        if($query eq "quit") { $continue = 0 }
-        elsif($query eq "turn")
-        {
-            $nation = undef;
             elaborate_turn(next_turn($world->current_year));
             say $world->print_formatted_turn_events($world->current_year);
-        }
-        elsif($query eq "nations")
-        {
-            $query = prompt "?", -menu=>$world->nation_names;
-            $nation = undef;
             next;
         }
-        elsif($query eq "years")
-        {
-            say "From $first_year/1 to " . $world->current_year; 
-        }
-        elsif($query eq "clear")
-        {
-            $nation = undef;
-        }
-        elsif($query eq "commands")
-        {
-            print $commands;
-        }
-        elsif($query eq "wars")
-        {
-            print $world->print_wars();
-        }
-        elsif($query eq "crises")
-        {
-            print $world->print_all_crises();
-        }
-        elsif($query eq "situation")
-        {
-           say $world->print_turn_statistics($world->current_year);  
-        }
-        elsif($query =~ /^((.*) )?borders$/)
-        {
-            my $input_nation = $2;
-            if($input_nation)
-            {
-                $nation = $input_nation;
-            }
-            if($nation)
-            {
-                print $world->print_borders($nation);
-            }
-        }
-        elsif($query =~ /^((.*) )?relations$/)
-        {
-            my $input_nation = $2;
-            if($input_nation)
-            {
-                $nation = $input_nation;
-            }
-            if($nation)
-            {
-                print $world->print_diplomacy($nation);
-            }
-        }
-        elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
-        {
-            my $input_nation = $2;
-            my $input_year = $4;
-            $input_year ||= undef;
-            if($input_nation)
-            {
-                $nation = $input_nation;
-            }
-            if($nation)
-            {
-                if($input_year)
-                {
-                    my @turns = get_year_turns($input_year); 
-                    foreach my $t (@turns)
-                    {
-                        print $world->print_nation_events($nation, $t);
-                            prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
-                    }
-                }
-                else
-                {
-                    print $world->print_nation_events($nation);
-                }
-            }
-            else
-            {
-                say $world->print_formatted_turn_events($world->current_year);
-            }
-        }
-        elsif($query =~ /^((.*) )?status$/)
-        {
-            my $input_nation = $2;
-            if($input_nation)
-            {
-                $query = $input_nation;
-                next;
-            }
-            elsif($nation)
-            {
-                $query = $nation;
-                next;
-            }
-        }
-        elsif($query =~ /^((.*) )?history$/)
-        {
-            my $input_nation = $2;
-            if($input_nation)
-            {
-                $nation = $input_nation;
-            }
-            if($nation)
-            {
-                print $world->print_nation_statistics($nation, $first_year, $world->current_year);
-            }
-        }
-        else
-        {
-            my @good_nation = grep { $query  =~ /$_/ } @{$world->nation_names};
-            if(@good_nation > 0) #it's a nation
-            { 
-                print $world->print_nation_actual_situation($query);
-                $nation = $query;
-            }
-            else
-            {
-                my @good_year = ();
-                if($query =~ /(\d+)(\/\d+)?/) #it's an year or a turn
-                {
-                    say compare_turns($query, $world->current_year);
-                    say compare_turns($query, $first_year);
-                    if((compare_turns($query, $world->current_year) == 0 || compare_turns($query, $world->current_year) == -1) &&
-                       compare_turns($query, $first_year) > 0)
-                    {
-                        if($nation)
-                        {
-                            $query = "events $query";
-                            next;
-                        }
-                        my @turns = get_year_turns($query); 
-                        foreach my $t (@turns)
-                        {
-                            say $world->print_formatted_turn_events($t);
-                            prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
-                        }
-                    }
-                }
-                
-            }
-        }
-        print "\n";
-        $query = undef;
+        $result = $commands->report_commands();
     }
+
 }
+
+
+
 
 

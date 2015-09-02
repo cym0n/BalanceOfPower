@@ -2,7 +2,7 @@ package BalanceOfPower::Commands::TargetRoute;
 
 use Moo;
 
-extends 'BalanceOfPower::Comands::TargetNation';
+extends 'BalanceOfPower::Commands::TargetNation';
 
 sub select_message
 {
@@ -32,4 +32,6 @@ sub execute
     $command .= "->" . $self->world->player_nation;
     return $command;
 }
+
+1;
 

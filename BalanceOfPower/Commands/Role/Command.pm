@@ -80,3 +80,5 @@ sub print
     my $self = shift;
     return $self->name;
 }
+
+1;

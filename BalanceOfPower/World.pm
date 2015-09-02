@@ -14,6 +14,9 @@ has name => (
     is => 'ro',
     default => 'WORLD'
 );
+has first_year => (
+    is => 'ro'
+);
 has current_year => (
     is => 'rw'
 );
