@@ -33,7 +33,6 @@ use constant STUBBED_PLAYER => 1;
 
 
 
-#Init
 my $world = BalanceOfPower::World->new( first_year => $first_year );
 $world->init_random(@nation_names);
 init_game();
@@ -45,6 +44,7 @@ for($first_year..$first_year+$auto_years)
         elaborate_turn($t);
     }
 }
+#stubbed_situations();
 say "=======\n\n\n";
 interface();
 
@@ -56,7 +56,7 @@ sub init_game
     {
         $world->player_nation("Italy");
         $world->player("PlayerOne");
-        $auto_years = 4;
+        $auto_years = 1;
     }
     else
     {
@@ -90,22 +90,47 @@ sub interface
 {
     my $commands = BalanceOfPower::Commands->new( world => $world );
     $commands->init();
+    $commands->welcome();
     while($commands->active)
     {
-        my $result = 0;
+        my $result = undef;
+        $commands->clear_query();
         $commands->get_query();
         $result = $commands->turn_command();
-        if($result)
+        if($result->{status} == 1)
         {
             elaborate_turn(next_turn($world->current_year));
             say $world->print_formatted_turn_events($world->current_year);
             next;
         }
         $result = $commands->report_commands();
+        next if($result->{status} == 1);
+        $result = $commands->orders();
+        if($result->{status} == -1)
+        {
+            say "Command not allowed";
+        }
+        elsif($result->{status} == -2)
+        {
+            say "No options available";
+        }
+        
+        elsif($result->{status} == 1)
+        {
+            say "Order selected: " . $result->{command};
+            $world->order($result->{command});
+        } 
     }
 
 }
 
+
+
+sub stubbed_situations
+{
+    $world->create_or_escalate_crisis("Italy", "Switzerland");
+    $world->create_or_escalate_crisis("Italy", "Russia");
+}
 
 
 

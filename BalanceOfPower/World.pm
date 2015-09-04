@@ -28,6 +28,10 @@ has nation_names => (
     is => 'rw',
     default => sub { [] }
 );
+has order => (
+    is => 'rw',
+    default => ""
+);
 
 
 with 'BalanceOfPower::Role::Player';
@@ -97,6 +101,7 @@ sub init_year
         $self->set_statistics_value($n, 'production', $prod);
         $self->set_statistics_value($n, 'debt', $n->debt);
     }
+    $self->order(undef);
     print "\n";
 }
 

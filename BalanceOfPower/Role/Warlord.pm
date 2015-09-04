@@ -220,10 +220,11 @@ sub print_all_crises
 }
 sub available_for_war
 {
-    my $self;
-    my $nation;
-    my @crises = $self->get_crises();
+    my $self = shift;
+    my $nation = shift;
+    my @crises = $self->get_crises($nation);
     my @out = ();
+    my @coalition = $self->coalition($nation);
     foreach my $c (@crises)
     {
         my $n = $c->destination($nation);
@@ -232,6 +233,7 @@ sub available_for_war
             push @out, $n;
         }
     }
+    @out = $self->get_group_borders(\@coalition, \@out);
     return @out;
 }
 sub print_crises

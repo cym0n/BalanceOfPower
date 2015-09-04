@@ -8,6 +8,7 @@ use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
+use Data::Dumper;
 
 has world => (
     is => 'ro'
@@ -22,7 +23,10 @@ has query => (
     is => 'rw',
     default => "" 
 );
-
+has keep_query => (
+    is => 'rw',
+    default => 0 
+);
 has nation => (
     is => 'rw',
     default => ""
@@ -60,20 +64,58 @@ sub init
     push @{$self->commands}, $command; 
 }
 
+sub print_orders
+{
+    my $self = shift;
+    my $out = "";
+    foreach my $c (@{$self->commands})
+    {
+        $out .= $c->print . "\n";
+    }
+    return $out;
+}
+
+sub welcome
+{
+    my $self = shift;
+    print $self->world->print_nation_actual_situation($self->world->player_nation);
+    print "\n";
+}
+
 sub get_query
 {
     my $self = shift;
     return if($self->query);
-    my $prompt_text = $self->nation ? "(" . $self->nation . ") ?" : "?";
-    $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n" . $prompt_text ;
+    my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
+    if($self->world->order)
+    {
+        $prompt_text .= "=== ORDER SELECTED: " . $self->world->order . "\n";
+    }
+    $prompt_text .= $self->nation ? "(" . $self->nation . ") ?" : "?";
     print color("cyan");
-    my $query = prompt $prompt_text;
+    my $input_query = prompt $prompt_text;
+    $input_query .= "";
+    print Dumper($input_query);
+    print "\n";
     print color("reset");
-    while ($query =~ m/\x08/g) {
-        substr($query, pos($query)-2, 2, '');
+    while ($input_query =~ m/\x08/g) {
+        substr($input_query, pos($input_query)-2, 2, '');
     }
     print "\n";
-    $self->query($query);
+    $self->query($input_query);
+}
+
+sub clear_query
+{
+    my $self = shift;
+    if($self->keep_query)
+    {
+        $self->keep_query(0);
+    }
+    else
+    {
+        $self->query(undef);
+    }
 }
 
 sub turn_command
@@ -84,11 +126,11 @@ sub turn_command
     {
         $self->nation(undef);
         $self->query(undef);
-        return 1;
+        return { status => 1 };
     }
     else
     {
-        return 0;
+        return { status => 0 };
     }
 }
 
@@ -121,46 +163,50 @@ say <wars> for a list of wars, <crises> for all the ongoing crises
 say <turn> to elaborate events for a new turn
 COMMANDS
 
-    my $keep_query = 0;
-    my $result = 0;
+    my $result = { status => 0 };
 
     if($query eq "quit") { $self->active(0); $result = 1 }
     elsif($query eq "nations")
     {
         $query = prompt "?", -menu=>$self->world->nation_names;
         $self->nation(undef);
-        $keep_query = 1;
-        $result = 1;
+        $self->keep_query(1);
+        $result = { status => 1 };
     }
     elsif($query eq "years")
     {
         say "From " . $self->world->first_year . "/1 to " . $self->world->current_year; 
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query eq "clear")
     {
         $self->nation(undef);
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query eq "commands")
     {
         print $commands;
-        $result = 1;
+        $result = { status => 1 };
+    }
+     elsif($query eq "orders")
+    {
+        print $self->print_orders();;
+        $result = { status => 1 };
     }
     elsif($query eq "wars")
     {
         print $self->world->print_wars();
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query eq "crises")
     {
         print $self->world->print_all_crises();
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query eq "situation")
     {
         say $self->world->print_turn_statistics($self->world->current_year);  
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?borders$/)
     {
@@ -173,7 +219,7 @@ COMMANDS
         {
            print $self->world->print_borders($self->nation);
         }
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?relations$/)
     {
@@ -186,7 +232,7 @@ COMMANDS
         {
             print $self->world->print_diplomacy($self->nation);
         }
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
     {
@@ -217,7 +263,7 @@ COMMANDS
         {
             say $self->world->print_formatted_turn_events($self->world->current_year);
         }
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?status$/)
     {
@@ -225,14 +271,14 @@ COMMANDS
         if($input_nation)
         {
             $query = $input_nation;
-            $keep_query = 1;
+            $self->keep_query(1);
         }
         elsif($self->nation)
         {
            $query = $self->nation;
-           $keep_query = 1;
+           $self->keep_query(1);
         }
-        $result = 1;
+        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?history$/)
     {
@@ -245,7 +291,7 @@ COMMANDS
         {
             print $self->world->print_nation_statistics($self->nation, $self->world->first_year, $self->world->current_year);
         }
-        $result = 1;
+        $result = { status => 1 };
     }
     else
     {
@@ -254,7 +300,7 @@ COMMANDS
         { 
             print $self->world->print_nation_actual_situation($query);
             $self->nation($query);
-            $result = 1;
+            $result = { status => 1 };
         }
         else
         {
@@ -267,7 +313,8 @@ COMMANDS
                     if($self->nation)
                     {
                         $query = "events $query";
-                        next;
+                        $self->keep_query(1);
+                        $result = { status => 1 };
                     }
                     my @turns = get_year_turns($query); 
                     foreach my $t (@turns)
@@ -275,21 +322,35 @@ COMMANDS
                         say $self->world->print_formatted_turn_events($t);
                         prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                     }
-                    $result = 1;
+                    $result = { status => 1 };
                 }
             }
         }
     }
     print "\n";
-    if($keep_query)
-    {
-        $self->query($query);
-    }
-    else
-    {
-        $self->query(undef);
-    }
+    $self->query($query);
     return $result;
+}
+
+sub orders
+{
+    my $self = shift;
+    my $query = $self->query;
+    foreach my $c (@{$self->commands})
+    {
+        if($c->recognize($query))
+        {
+            if($c->allowed())
+            {
+                return $c->execute($query, $self->nation);
+            }
+            else
+            {
+                return { status => -1 };
+            }
+        }
+    }
+    return { status => 0 };
 }
 
 1;

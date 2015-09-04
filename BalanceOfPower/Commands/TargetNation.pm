@@ -1,6 +1,7 @@
 package BalanceOfPower::Commands::TargetNation;
 
 use Moo;
+use v5.10;
 use IO::Prompter;
 
 
@@ -21,18 +22,33 @@ sub execute
     my $self = shift;
     my $query = shift;
     my $nation = shift;
-    if(good_target($nation))
+    if($self->good_target($nation))
     {
-        return $self->name . " " . $nation;
+        return { status => 1, command => $self->name . " " . $nation };
     }
     my $argument = $self->extract_argument($query);
-    if(good_target($argument))
+    if($argument)
     {
-        return $self->name . " " . $argument;
+        if($self->good_target($argument))
+        {
+            return $self->name . " " . $argument;
+            return { status => 1, command => $self->name . " " . $argument };
+        }
+        else
+        {
+            say "Bad argument provided";
+        }
     }
     my @nations = $self->get_available_targets;
-    $nation = prompt $self->select_message, -menu=>\@nations;
-    return $self->name . " " . $nation;
+    if(@nations > 0)
+    {
+        $nation = prompt $self->select_message, -menu=>\@nations;
+        return { status => 1, command => $self->name . " " . $nation };
+    }
+    else
+    {
+        return { status => -2 };
+    }
 }
 
 sub good_target
