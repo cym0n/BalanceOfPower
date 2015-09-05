@@ -283,7 +283,7 @@ sub manage_route_adding
             {
                 if(@route_adders == 0)
                 {
-                    $self->broadcast_event("$node1: TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                    $self->send_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     $done = 1;
                 } 
                 else
@@ -301,13 +301,13 @@ sub manage_route_adding
                     }     
                     if($complete == 0)
                     {
-                        $self->broadcast_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                        $self->send_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     }
                 }
             }
             else
             {
-                $self->broadcast_event("TRADEROUTE CREATION NOT POSSIBLE", $node1);
+                $self->broadcast_event("TRADEROUTE CREATION NOT POSSIBLE FOR $node1", $node1);
             }
             $done = 1 if(@route_adders == 0);
        }
@@ -435,7 +435,8 @@ sub collect_events
                              "CIVIL WAR OUTBREAK",
                              "THE GOVERNMENT WON THE CIVIL WAR",
                              "THE REBELS WON THE CIVIL WAR",
-                             "NEW GOVERNMENT CREATED");
+                             "NEW GOVERNMENT CREATED",
+                             "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS");
    foreach my $n (@{$self->nations})
    {
        my @collected = ();
