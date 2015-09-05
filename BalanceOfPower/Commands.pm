@@ -31,11 +31,12 @@ has nation => (
     is => 'rw',
     default => ""
 );
-
 has active => (
     is => 'rw',
     default => 1
 );
+
+use constant STUBBED_PLAYER => 1;
 
 sub init
 {
@@ -75,7 +76,38 @@ sub print_orders
     return $out;
 }
 
-sub welcome
+sub init_game
+{
+    my $self = shift;
+
+    my $welcome_message = <<'WELCOME';
+Welcome to Balance of Power, simulation of a real dangerous world!
+
+Take the control of a country and try to make it the most powerful of the planet! 
+WELCOME
+
+    my $auto_years;
+    if(STUBBED_PLAYER)
+    {
+        $self->world->player_nation("Italy");
+        $self->world->player("PlayerOne");
+        $auto_years = 1;
+    }
+    else
+    {
+        say $welcome_message;
+        my $player = prompt "Say your name, player: ";
+        my $player_nation = prompt "Select the nation you want to control: ", -menu=>$self->world->nation_names;
+        $self->world->player_nation($player_nation);
+        $self->world->player($player);
+        $auto_years = prompt "Tell a number of years to generate before game start: ", -i;
+    }
+    return $auto_years;
+}
+
+
+
+sub welcome_player
 {
     my $self = shift;
     print $self->world->print_nation_actual_situation($self->world->player_nation);

@@ -7,7 +7,7 @@ use Moo;
 use List::Util qw(shuffle);
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_turn random random10);
+use BalanceOfPower::Utils qw(prev_turn next_turn random random10);
 use BalanceOfPower::Nation;
 
 has name => (
@@ -31,6 +31,10 @@ has nation_names => (
 has order => (
     is => 'rw',
     default => ""
+);
+has autoplay => (
+    is => 'rw',
+    default => 0
 );
 
 
@@ -81,6 +85,22 @@ sub init_random
     $self->init_diplomacy();
 }
 
+#Group function for all the steps involved in a turn
+sub elaborate_turn
+{
+    my $self = shift;
+    my $t = shift;
+    $self->init_year($t);
+    $self->war_debts();
+    $self->crisis_generator();
+    $self->execute_decisions();
+    $self->economy();
+    $self->warfare();
+    $self->internal_conflict();
+    $self->register_global_data();
+    $self->collect_events();
+}
+
 # Configure current year
 # Give production to countries. Countries split it between export and domestic and, if allowed, raise the debt in case of necessity
 # Wealth reset
@@ -89,6 +109,13 @@ sub init_year
 {
     my $self = shift;
     my $turn = shift;
+    if(! $turn)
+    {
+        $turn = next_turn($self->current_year);
+    }
+    open(my $log, ">>", "bop.log");
+    print $log "--- $turn ---\n";
+    close($log);
     say $turn;
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
@@ -101,7 +128,6 @@ sub init_year
         $self->set_statistics_value($n, 'production', $prod);
         $self->set_statistics_value($n, 'debt', $n->debt);
     }
-    $self->order(undef);
     print "\n";
 }
 
@@ -238,9 +264,6 @@ sub execute_decisions
                 $self->create_war($attacker, $defender);
             }
         }
-        
-
-
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -296,7 +319,19 @@ sub decisions
     my @decisions = ();
     foreach my $nation (@{$self->nations})
     {
-        my $decision = $nation->decision($self);
+        my $decision;
+        if($nation->name eq $self->player_nation && ! $self->autoplay)
+        {
+            if($self->order)
+            {
+                $decision = $nation->name . ": " . $self->order;
+                $self->order(undef);
+            }
+        }
+        else
+        {
+            $decision = $nation->decision($self);
+        }
         if($decision)
         {
             push @decisions, $decision;
