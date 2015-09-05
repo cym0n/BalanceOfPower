@@ -283,7 +283,7 @@ sub manage_route_adding
             {
                 if(@route_adders == 0)
                 {
-                    $self->broadcast_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                    $self->broadcast_event("$node1: TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
                     $done = 1;
                 } 
                 else
