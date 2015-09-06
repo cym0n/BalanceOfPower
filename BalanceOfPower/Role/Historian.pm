@@ -82,10 +82,7 @@ sub print_nation_actual_situation
     }
     $out .= "\n";
     $out .= as_title("ALLIES\n---\n");
-    foreach my $al ($self->get_allies($nation))
-    {
-        $out .= $al ."\n";
-    }
+    $out .= $self->print_allies($nation);
     $out .="\n";
     my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
     $crises_wars_title .="\n";

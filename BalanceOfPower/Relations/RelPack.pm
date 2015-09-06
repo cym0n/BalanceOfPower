@@ -184,7 +184,7 @@ sub print_links
 {
     my $self = shift;
     my $n = shift;
-    my $out;
+    my $out = "";
     foreach my $b (@{$self->links})
     {
         if($n)

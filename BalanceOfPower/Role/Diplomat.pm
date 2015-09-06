@@ -24,6 +24,7 @@ has alliances => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_alliance => 'add_link',
+                 print_allies => 'print_links',
                  exists_alliance => 'exists_link',
                  get_allies => 'links_for_node' }
 );
