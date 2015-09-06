@@ -76,15 +76,14 @@ sub print
     }
 
 }
-sub diplomacy_exists
+
+sub change_factor
 {
     my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    foreach my $r (@{$self->diplomatic_relations})
-    {
-        return $r if($r->is_between($node1, $node2));
-    }
-    return undef;
+    my $delta = shift;
+    my $new_factor = $self->factor + $delta;
+    $new_factor = $new_factor < 0 ? 0 : $new_factor > 100 ? 100 : $new_factor;
+    $self->factor($new_factor);
 }
+
 1;

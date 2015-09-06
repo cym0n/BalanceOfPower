@@ -40,9 +40,9 @@ has autoplay => (
 
 with 'BalanceOfPower::Role::Player';
 with 'BalanceOfPower::Role::Herald';
+with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
-with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Historian';
@@ -196,7 +196,7 @@ sub calculate_production
 sub war_debts
 {
     my $self = shift;
-    for(@{$self->influences})
+    for($self->influences->all())
     {
         $self->loot($_);
     }
@@ -421,8 +421,8 @@ sub warfare
 sub register_global_data
 {
     my $self = shift;
-    my $crises = @{$self->crises};
-    my $wars = @{$self->wars};
+    my $crises = $self->crises->all();
+    my $wars = $self->wars->all();
     $self->set_statistics_value(undef, 'crises', $crises);
     $self->set_statistics_value(undef, 'wars', $wars);
 }

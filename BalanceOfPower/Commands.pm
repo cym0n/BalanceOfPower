@@ -8,7 +8,6 @@ use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
-use Data::Dumper;
 
 has world => (
     is => 'ro'
@@ -127,8 +126,6 @@ sub get_query
     print color("cyan");
     my $input_query = prompt $prompt_text;
     $input_query .= "";
-    print Dumper($input_query);
-    print "\n";
     print color("reset");
     while ($input_query =~ m/\x08/g) {
         substr($input_query, pos($input_query)-2, 2, '');
@@ -283,7 +280,7 @@ COMMANDS
                 foreach my $t (@turns)
                 {
                     print $self->world->print_nation_events($self->nation, $t);
-                    prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
+                    my $wait = prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
                 }
             }
             else
@@ -339,8 +336,9 @@ COMMANDS
             my @good_year = ();
             if($query =~ /(\d+)(\/\d+)?/) #it's an year or a turn
             {
+                print $query . " " . $self->world->current_year . " "  . $self->world->first_year . "\n";
                 if((compare_turns($query, $self->world->current_year) == 0 || compare_turns($query, $self->world->current_year) == -1) &&
-                    compare_turns($query, $self->world->first_year) > 0)
+                    compare_turns($query, $self->world->first_year) >= 0)
                 {
                     if($self->nation)
                     {
@@ -352,7 +350,7 @@ COMMANDS
                     foreach my $t (@turns)
                     {
                         say $self->world->print_formatted_turn_events($t);
-                        prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
+                        my $wait = prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
                     }
                     $result = { status => 1 };
                 }

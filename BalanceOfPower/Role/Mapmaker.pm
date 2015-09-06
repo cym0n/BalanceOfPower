@@ -4,10 +4,15 @@ use strict;
 use Moo::Role;
 
 use BalanceOfPower::Relations::Border;
+use BalanceOfPower::Relations::RelPack;
 
 has borders => (
-    is => 'rw',
-    default => sub { [] }
+    is => 'ro',
+    default => sub { BalanceOfPower::Relations::RelPack->new() },
+    handles => { add_border => 'add_link',
+                 border_exists => 'exists_link',
+                 print_borders => 'print_links'
+               }
 );
 
 sub load_borders
@@ -22,21 +27,11 @@ sub load_borders
         if($nodes[0] && $nodes[1] && ! $self->border_exists($nodes[0], $nodes[1]))
         {
             my $b = BalanceOfPower::Relations::Border->new(node1 => $nodes[0], node2 => $nodes[1]);
-            push @{$self->borders}, $b;
+            $self->add_border($b);
         }
     }
 }
-sub border_exists
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    foreach my $r (@{$self->borders})
-    {
-        return 1 if($r->is_between($node1, $node2));
-    }
-    return 0;
-}
+
 sub get_group_borders
 {
     my $self = shift;
@@ -60,19 +55,6 @@ sub get_group_borders
 }
 
 
-sub print_borders
-{
-    my $self = shift;
-    my $n = shift;
-    my $out;
-    foreach my $b (@{$self->borders})
-    {
-        if($b->has_node($n))
-        {
-            $out .= $b->print($n) . "\n";
-        }
-    }
-    return $out;
-}
+
 
 1;

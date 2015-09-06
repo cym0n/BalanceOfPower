@@ -99,6 +99,19 @@ sub print
     my $self = shift;
     return $self->node1 . " " . $self->status_label . " " . $self->node2;
 }
+sub actual_influence
+{
+    my $self = shift;
+    if(($self->status == 1 && $self->next != -1) ||
+        $_->status > 1)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
 
 
 

@@ -10,34 +10,34 @@ use BalanceOfPower::Relations::Influence;
 requires 'broadcast_event';
 
 has influences => (
-    is => 'rw',
-    default => sub { [] }
+    is => 'ro',
+    default => sub { BalanceOfPower::Relations::RelPack->new() },
+    handles => { reset_influeces => 'delete_link_for_node',
+                 add_influence => 'add_link' }
 );
-
-sub reset_influences
-{
-    my $self = shift;
-    my $n1 = shift;
-    @{$self->influences} = grep { ! $_->has_node($n1) } @{$self->influences};
-}
 sub influences_garbage_collector
 {
     my $self = shift;
-    @{$self->influences} = grep { ! $_->status == -1 } @{$self->influences};
+    $self->influences->garbage_collector(sub { my $rel = shift; return $rel->status == -1 });
 }
 sub is_under_influence
 {
     my $self = shift;
     my $nation = shift;
-    for(grep { $_->node2 eq $nation } @{$self->influences})
+    my @rels = $self->influences->query(
+        sub {
+            my $rel = shift;
+            return 0 if($rel->node2 ne $nation);
+            return $rel->actual_influence()
+        }, $nation);
+    if(@rels > 0)
     {
-        if(($_->status == 1 && $_->next != -1) ||
-            $_->status > 1)
-        {
-            return $_;
-        }
+        return $rels[0];
     }
-    return undef;
+    else
+    {
+        return undef;
+    }
 }
 sub print_nation_situation
 {
@@ -67,16 +67,12 @@ sub has_influence
 {
     my $self = shift;
     my $nation = shift;
-    my @out = ();
-    for(grep { $_->node1 eq $nation } @{$self->influences})
-    {
-        if(($_->status == 1 && $_->next != -1) ||
-            $_->status > 1)
-        {
-            push @out, $_->node1;
-        }
-    }
-    return @out;
+    return $self->influences->query(
+                    sub {
+                         my $rel = shift;
+                         return 0 if($rel->node1 ne $nation);
+                         return $rel->actual_influence()
+                    }, $nation);
 }
 sub free_nation
 {
@@ -97,18 +93,18 @@ sub occupy
     {
         if($c eq $leader)
         {
-            push @{$self->influences}, BalanceOfPower::Relations::Influence->new( node1 => $c,
+            $self->add_influence(BalanceOfPower::Relations::Influence->new( node1 => $c,
                                                                        node2 => $nation,
                                                                        status => 0,
                                                                        next => $internal_disorder ? 2 : 1,
-                                                                       clock => 0 );
+                                                                       clock => 0 ));
         }
         else
         {
-            push @{$self->influences}, BalanceOfPower::Relations::Influence->new( node1 => $c,
+            $self->add_influence(BalanceOfPower::Relations::Influence->new( node1 => $c,
                                                                        node2 => $nation,
                                                                        status => 0,
-                                                                       clock => 0 );
+                                                                       clock => 0 ));
         }
         $self->broadcast_event("$c OCCUPIES $nation", $c, $nation);
     }
@@ -116,7 +112,7 @@ sub occupy
 sub situation_clock
 {
     my $self = shift;
-    foreach my $i (@{$self->influences})
+    foreach my $i ($self->influences->all())
     {
         my $old_status = $i->status_label;
         my $new_status = $i->click();    

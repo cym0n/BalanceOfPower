@@ -24,19 +24,36 @@ requires 'get_group_borders';
 requires 'get_allies';
 
 has crises => (
-    is => 'rw',
-    default => sub { [] }
+    is => 'ro',
+    default => sub { BalanceOfPower::Relations::RelPack->new() },
+    handles => { add_crisis => 'add_link',
+                 delete_crisis => 'delete_link',
+                 crisis_exists => 'exists_link',
+                 get_crises => 'links_for_node',
+                 print_crises => 'print_links'
+               }
 );
 
 has wars => (
-    is => 'rw',
-    default => sub { [] }
+    is => 'ro',
+    default => sub { BalanceOfPower::Relations::RelPack->new() },
+    handles => { at_war => 'first_link_for_node',
+                 add_war => 'add_link',
+                 get_wars => 'links_for_node',
+                 war_exists => 'exists_link',
+                 delete_war => 'delete_link',
+                 get_attackers => 'links_for_node2'
+               }
+#                 diplomacy_exists => 'exists_link',
+#                 update_diplomacy => 'update_link',
+#                 add_influence => 'add_link' }
 );
+
 
 sub crisis_generator
 {
     my $self = shift;
-    my @crises = @{$self->crises}; 
+    my @crises = $self->crises->all(); 
     my @hates = ();
     foreach my $h  ($self->get_hates())
     {
@@ -136,7 +153,7 @@ sub create_or_escalate_crisis
     }
     else
     {
-        push @{$self->crises}, BalanceOfPower::Relations::Crisis->new(node1 => $node1, node2 => $node2);
+        $self->add_crisis(BalanceOfPower::Relations::Crisis->new(node1 => $node1, node2 => $node2));
         $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
     }
 }
@@ -150,6 +167,8 @@ sub cool_down
         if($crisis->factor == 1)
         {
             $self->delete_crisis($node1, $node2);
+            my $event = "CRISIS BETWEEN $node1 AND $node2 ENDED";
+            $self->broadcast_event($event, $node1, $node2);
         }
         else
         {
@@ -159,53 +178,13 @@ sub cool_down
     }
 }
 
-sub delete_crisis
-{
-    my $self = shift;
-    my $node1 = shift;;
-    my $node2 = shift;
-    return if ! $self->crisis_exists($node1, $node2);
-    my $n1 = $self->get_nation($node1);
-    my $n2 = $self->get_nation($node2);
-    
-    @{$self->crises} = grep { ! $_->is_between($node1, $node2) } @{$self->crises};
-    my $event = "CRISIS BETWEEN $node1 AND $node2 ENDED";
-    $self->broadcast_event($event, $node1, $node2);
-    
-}
-
-
-sub crisis_exists
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    foreach my $r (@{$self->crises})
-    {
-        return $r if($r->is_between($node1, $node2));
-    }
-    return undef;
-}
-
-sub get_crises
-{
-    my $self = shift;
-    my $node = shift;
-    my @crises = ();
-    foreach my $r (@{$self->crises})
-    {
-        push @crises, $r if $r->has_node($node);
-    }
-    return @crises;
-}
-
 sub print_all_crises
 {
     my $self = shift;
     my $n = shift;
     my $out;
     $out .= as_title("CRISES\n===\n");
-    foreach my $b (@{$self->crises})
+    foreach my $b ($self->crises->all())
     {
         if($self->war_exists($b->node1, $b->node2))
         {
@@ -236,43 +215,13 @@ sub available_for_war
     @out = $self->get_group_borders(\@coalition, \@out);
     return @out;
 }
-sub print_crises
-{
-    my $self = shift;
-    my $n = shift;
-    my $out;
-    foreach my $b (@{$self->crises})
-    {
-        if($b->has_node($n))
-        {
-            $out .= $b->print($n) . "\n";
-        }
-    }
-    return $out;
-}
-sub at_war
-{
-    my $self = shift;
-    my $n = shift;
-    foreach my $r (@{$self->wars})
-    {
-        return $r if($r->has_node($n));
-    }
-    return undef;
-}
+
 sub at_civil_war
 {
     my $self = shift;
     my $n = shift;
     my $nation = $self->get_nation($n);
-    if($nation->internal_disorder_status eq 'Civil war')
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+    return $nation->internal_disorder_status eq 'Civil war';
 }
 
 
@@ -416,12 +365,12 @@ sub create_war
         }
         my %attacker_leaders;
         my $war_id = time;
-        push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
+        $self->add_war( BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
                                                       node2 => $defender->name,
                                                       attack_leader => $attacker->name,
                                                       war_id => $war_id,
                                                       node1_faction => 0,
-                                                      node2_faction => 1);
+                                                      node2_faction => 1) );
         $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
         my $faction_counter = 0;
@@ -449,73 +398,22 @@ sub create_war
                 $faction1 = 1;
                 $faction2 = 0;
             }
-            push @{$self->wars}, BalanceOfPower::Relations::War->new(node1 => $c->[0], 
+            $self->add_war(BalanceOfPower::Relations::War->new(node1 => $c->[0], 
                                                           node2 => $c->[1],
                                                           attack_leader => $leader,
                                                           war_id => $war_id,
                                                           node1_faction => $faction1,
-                                                          node2_faction => $faction2);
+                                                          node2_faction => $faction2));
             $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
         }
     }
-}
-
-sub get_wars
-{
-    my $self = shift;
-    my $node1 = shift;
-    my @wars = ();
-    if($node1)
-    {
-        return grep { $_->has_node($node1) } @{$self->wars};
-    }
-    else
-    {
-        return @{$self->wars};
-    }
-}
-
-
-sub war_exists
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    foreach my $r (@{$self->wars})
-    {
-        return $r if($r->involve($node1, $node2));
-    }
-    return undef;
-}
-sub delete_war
-{
-    my $self = shift;
-    my $node1 = shift;;
-    my $node2 = shift;
-    return if ! $self->war_exists($node1, $node2);
-    @{$self->wars} = grep { ! $_->involve($node1, $node2) } @{$self->wars};
-}
-
-sub get_attackers
-{
-    my $self = shift;
-    my $n1 = shift;
-    my @attacks = ();
-    foreach my $r (@{$self->wars})
-    {
-        if($r->node2 eq $n1)
-        {
-            push @attacks, $r->node1;
-        }
-    }
-    return @attacks;
 }
 
 sub fight_wars
 {
     my $self = shift;
     my %losers;
-    foreach my $w (@{$self->wars})
+    foreach my $w ($self->wars->all())
     {
         #As Risiko
         my $attacker = $self->get_nation($w->node1);
