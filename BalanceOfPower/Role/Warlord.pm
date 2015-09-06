@@ -500,7 +500,7 @@ sub print_wars
     my %grouped_wars;
     my $out = "";
     $out .= as_title("WARS\n===\n");
-    foreach my $w (@{$self->wars})
+    foreach my $w ($self->wars->all())
     {
         if(! exists $grouped_wars{$w->war_id})
         {
