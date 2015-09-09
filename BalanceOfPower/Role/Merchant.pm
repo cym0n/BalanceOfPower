@@ -37,9 +37,10 @@ sub init_trades
         say "  routes to generate: $how_many_routes [" . $routes_counter{$n->name} . "]";
         my @my_names = @nations;
         @my_names = grep { $_->name ne $n->name } @my_names;
-        while($routes_counter{$n->name} < $how_many_routes)
+        while($routes_counter{$n->name} < $how_many_routes && @my_names > 0)
         {
             my $second_node = $my_names[rand @my_names];
+            @my_names = grep { $_->name ne $second_node->name } @my_names;
             if($second_node->name ne $n->name && ! $self->route_exists($n->name, $second_node->name))
             {
                 say "  creating trade route to " . $second_node->name;

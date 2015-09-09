@@ -1,6 +1,7 @@
 package BalanceOfPower::Role::Diplomat;
 
 use strict;
+use v5.10;
 use Moo::Role;
 use List::Util qw(shuffle);
 use Data::Dumper;
@@ -50,6 +51,11 @@ sub init_diplomacy
             }
         }
     }
+}
+sub init_random_alliances
+{
+    my $self = shift;
+    my @nations = @{$self->nations};
     for(my $i = 0; $i < STARTING_ALLIANCES; $i++)
     {
         @nations = shuffle @nations;
@@ -144,7 +150,7 @@ sub print_diplomacy
     my $n = shift;
     my $out;
     my @outnodes;
-    foreach my $f (@{$self->diplomatic_relations})
+    foreach my $f ($self->diplomatic_relations->all())
     {
         if($f->has_node($n))
         {

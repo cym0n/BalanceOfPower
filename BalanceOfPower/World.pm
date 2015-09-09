@@ -5,6 +5,7 @@ use v5.10;
 
 use Moo;
 use List::Util qw(shuffle);
+use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_turn next_turn random random10);
@@ -66,7 +67,23 @@ sub get_nation
 sub init_random
 {
     my $self = shift;
-    my @nations = @_;
+    my $n = shift;
+    my @nations = @{$n};
+    my $flags = shift;
+
+    my $trades = 1;
+    my $diplomacy = 1;
+    my $alliances = 1;
+    if($flags)
+    {
+        $trades = $flags->{'trades'}
+            if(exists $flags->{'trades'});
+        $diplomacy = $flags->{'diplomacy'}
+            if(exists $flags->{'diplomacy'});
+        $alliances = $flags->{'alliances'}
+            if(exists $flags->{'alliances'});
+
+    }
 
     $self->nation_names = \@nations;
 
@@ -81,8 +98,30 @@ sub init_random
         say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
     }
-    $self->init_trades();
-    $self->init_diplomacy();
+    if($trades)
+    {
+        $self->init_trades();
+    }
+    else
+    {
+        say "Trades generation skipped";
+    }
+    if($diplomacy)
+    {
+        $self->init_diplomacy();
+    }
+    else
+    {
+        say "Diplomacy generation skipped";
+    }
+    if($alliances)
+    {
+        $self->init_random_alliances();
+    }
+    else
+    {
+        say "Alliances generation skipped";
+    }
 }
 
 #Group function for all the steps involved in a turn

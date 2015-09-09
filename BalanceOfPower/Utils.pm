@@ -106,6 +106,14 @@ sub from_to_turns
     }
     return @turns;
 }
+
+
+
+
+# first < second  -> -1
+# first = second  -> 0
+# first > second  -> 1
+#
 sub compare_turns
 {
     my $first = shift;
@@ -115,13 +123,14 @@ sub compare_turns
     return undef if(! $first_y);
     my ($second_y, $second_t) = split_turn($second);
     return undef if(! $second_y);
+    return 0 if($first_y == $second_y && $first_t == $second_t);
     return undef
         if($first_t < 0 ||
-            $second_t < 0 ||
-            $first_t > TURNS_FOR_YEAR ||
-            $second_t > TURNS_FOR_YEAR);
+           $second_t < 0 ||
+           $first_t > TURNS_FOR_YEAR ||
+           $second_t > TURNS_FOR_YEAR);
     if($first_y > $second_y ||
-      (($first_y > $second_y && $first_t > $second_t)))
+      (($first_y == $second_y && $first_t > $second_t)))
     {
         return 1;
     }

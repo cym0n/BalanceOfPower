@@ -12,7 +12,7 @@ requires 'broadcast_event';
 has influences => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
-    handles => { reset_influeces => 'delete_link_for_node',
+    handles => { reset_influences => 'delete_link_for_node',
                  add_influence => 'add_link' }
 );
 sub influences_garbage_collector

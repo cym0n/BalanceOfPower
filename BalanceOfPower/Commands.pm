@@ -35,7 +35,6 @@ has active => (
     default => 1
 );
 
-use constant STUBBED_PLAYER => 1;
 
 sub init
 {
@@ -78,6 +77,7 @@ sub print_orders
 sub init_game
 {
     my $self = shift;
+    my $stubbed = shift;
 
     my $welcome_message = <<'WELCOME';
 Welcome to Balance of Power, simulation of a real dangerous world!
@@ -86,7 +86,7 @@ Take the control of a country and try to make it the most powerful of the planet
 WELCOME
 
     my $auto_years;
-    if(STUBBED_PLAYER)
+    if($stubbed)
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
@@ -336,7 +336,6 @@ COMMANDS
             my @good_year = ();
             if($query =~ /(\d+)(\/\d+)?/) #it's an year or a turn
             {
-                print $query . " " . $self->world->current_year . " "  . $self->world->first_year . "\n";
                 if((compare_turns($query, $self->world->current_year) == 0 || compare_turns($query, $self->world->current_year) == -1) &&
                     compare_turns($query, $self->world->first_year) >= 0)
                 {
@@ -346,13 +345,16 @@ COMMANDS
                         $self->keep_query(1);
                         $result = { status => 1 };
                     }
-                    my @turns = get_year_turns($query); 
-                    foreach my $t (@turns)
+                    else
                     {
-                        say $self->world->print_formatted_turn_events($t);
-                        my $wait = prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
+                        my @turns = get_year_turns($query); 
+                        foreach my $t (@turns)
+                        {
+                            say $self->world->print_formatted_turn_events($t);
+                            my $wait = prompt "... press enter to continue ...\n" if($t ne $turns[-1]);
+                        }
+                        $result = { status => 1 };
                     }
-                    $result = { status => 1 };
                 }
             }
         }
