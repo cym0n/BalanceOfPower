@@ -68,6 +68,16 @@ $commands->query("1970/1");
 $result = $commands->report_commands();
 is($result->{status}, 1, "Command elaborated: 1970/1");
 
+$commands->query("turn");
+$result = $commands->turn_command();
+is($result->{status}, 1, "Command elaborated: turn");
+
+$commands->query("BUILD TROOPS");
+$result = $commands->orders();
+is($result->{status}, 1, "Command elaborated: BUILD TROOPS");
+
+
+
 
 
 

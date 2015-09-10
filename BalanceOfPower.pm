@@ -71,7 +71,6 @@ sub interface
         {
             say "No options available";
         }
-        
         elsif($result->{status} == 1)
         {
             say "Order selected: " . $result->{command};
