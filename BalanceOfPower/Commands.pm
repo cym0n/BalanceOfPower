@@ -282,17 +282,23 @@ COMMANDS
                     print $self->world->print_nation_events($self->nation, $t);
                     my $wait = prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
                 }
+                $result = { status => 1 };
             }
             else
             {
                 print $self->world->print_nation_events($self->nation);
+                $result = { status => 1 };
             }
         }
         else
         {
-            say $self->world->print_formatted_turn_events($self->world->current_year);
+            if($input_year)
+            {
+                $query = $input_year;
+                $self->keep_query(1);
+                $result = { status => 1 };
+            } 
         }
-        $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?status$/)
     {
