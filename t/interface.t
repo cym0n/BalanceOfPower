@@ -35,7 +35,7 @@ $commands->init_game(1);
 my $result;
 
 #Generic commands
-foreach my $c ( ("years", "commands", "orders", "wars", "crises", "situation") )
+foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation") )
 {
     $commands->query($c);
     $result = $commands->report_commands();

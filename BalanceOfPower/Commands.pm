@@ -232,6 +232,11 @@ COMMANDS
         print $self->world->print_all_crises();
         $result = { status => 1 };
     }
+    elsif($query eq "alliances")
+    {
+        print $self->world->print_allies();
+        $result = { status => 1 };
+    }
     elsif($query eq "situation")
     {
         say $self->world->print_turn_statistics($self->world->current_year);  

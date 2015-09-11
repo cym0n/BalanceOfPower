@@ -37,16 +37,22 @@ requires 'has_influence';
 sub init_diplomacy
 {
     my $self = shift;
-    my @nations = @{$self->nations};
+    my @nations = @{$self->nation_names};
     foreach my $n1 (@nations)
     {
         foreach my $n2 (@nations)
         {
-            if($n1->name ne $n2->name && ! $self->diplomacy_exists($n1->name, $n2->name))
+            if($n1 ne $n2 && ! $self->diplomacy_exists($n1, $n2))
             {
-                my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1->name,
-                                                           node2 => $n2->name,
-                                                           factor => random(0,100));
+                my $minimum_friendship = 0;
+                if($self->exists_alliance($n1, $n2))
+                {
+                    $minimum_friendship = LOVE_LIMIT + 1;
+                }
+                  
+                my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1,
+                                                           node2 => $n2,
+                                                           factor => random($minimum_friendship ,100));
                 $self->add_diplomacy($rel);
             }
         }
@@ -55,15 +61,18 @@ sub init_diplomacy
 sub init_random_alliances
 {
     my $self = shift;
-    my @nations = @{$self->nations};
+    my @nations = @{$self->nation_names};
     for(my $i = 0; $i < STARTING_ALLIANCES; $i++)
     {
-        @nations = shuffle @nations;
-        my $n1 = $nations[0]->name;
-        my $n2 = $nations[1]->name;
-        my $all = BalanceOfPower::Relations::Alliance->new(node1 => $n1, node2 => $n2);
-        $self->add_alliance($all);
-        $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
+        #@nations = shuffle @nations;
+        my $n1 = $nations[random(0, $#nations)];
+        my $n2 = $nations[random(0, $#nations)];
+        if($n1 ne $n2)
+        {
+            my $all = BalanceOfPower::Relations::Alliance->new(node1 => $n1, node2 => $n2);
+            $self->add_alliance($all);
+            $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
+        }
     }
 }
 sub get_real_node
