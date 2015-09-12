@@ -382,7 +382,8 @@ sub economy_advisor
     {
         my @remains = $self->get_events("REMAIN", $prev_year);
         my @deleted = $self->get_events("TRADEROUTE DELETED", $prev_year);
-        if(@remains > 0 && @deleted == 0)
+        my @boost = $self->get_events("BOOST OF PRODUCTION", $prev_year);
+        if(@remains > 0 && @deleted == 0 && @boost == 0)
         {
             my $rem = $remains[0];
             $rem =~ m/^REMAIN (.*)$/;
@@ -554,6 +555,16 @@ sub new_government
     $world->reset_supports($self->name);
     $world->reset_crises($self->name);
     $self->register_event("NEW GOVERNMENT CREATED");
+}
+sub occupation
+{
+    my $self = shift;
+    my $world = shift;
+    $world->reset_alliances($self->name);
+    $world->reset_influences($self->name);
+    $world->reset_supports($self->name);
+    $world->reset_crises($self->name);
+
 }
 
 sub build_troops

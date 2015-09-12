@@ -266,6 +266,19 @@ COMMANDS
         }
         $result = { status => 1 };
     }
+    elsif($query =~ /^((.*) )?near$/)
+    {
+        my $input_nation = $2;
+        if($input_nation)
+        {
+            $self->nation($input_nation);
+        }
+        if($self->nation)
+        {
+           print $self->world->print_near_nations($self->nation);
+        }
+        $result = { status => 1 };
+    }
     elsif($query =~ /^((.*) )?relations$/)
     {
         my $input_nation = $2;

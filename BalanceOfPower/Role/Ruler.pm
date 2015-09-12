@@ -8,6 +8,7 @@ use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Relations::Influence;
 
 requires 'broadcast_event';
+requires 'get_nation';
 
 has influences => (
     is => 'ro',
@@ -81,7 +82,7 @@ sub occupy
     my $occupiers = shift;
     my $leader = shift;
     my $internal_disorder = shift || 0;
-    $self->reset_influences($nation);
+    $self->get_nation($nation)->occupation($self);
     foreach my $c (@{$occupiers})
     {
         if($c eq $leader)
