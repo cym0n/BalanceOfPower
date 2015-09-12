@@ -44,10 +44,10 @@ with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
+with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Historian';
-with 'BalanceOfPower::Role::Supporter';
 
 sub get_nation
 {

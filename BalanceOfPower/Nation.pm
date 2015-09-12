@@ -262,7 +262,7 @@ sub good_prey
     my $enemy = shift;
     my $world = shift;
     my $level = shift;
-    my $border_needed = shift;
+    my $near_needed = shift;
     if($world->at_war($self->name))
     {
         return 0;
@@ -271,7 +271,7 @@ sub good_prey
     {
         return 0;
     }
-    if(! $world->border_exists($self->name, $enemy->name) && $border_needed )
+    if(! $world->near($self->name, $enemy->name) && $near_needed )
     {
         return 0;
     }

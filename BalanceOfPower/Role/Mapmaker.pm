@@ -15,6 +15,8 @@ has borders => (
                }
 );
 
+requires 'supporter';
+
 sub load_borders
 {
     my $self = shift;
@@ -30,6 +32,21 @@ sub load_borders
             $self->add_border($b);
         }
     }
+}
+
+sub near
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return 1 if($self->border_exists($nation1, $nation2));
+    my @supported = $self->supporter($nation1);
+    for(@supported)
+    {
+        my $nation_supported = $_->destination($nation1);
+        return 1 if($self->border_exists($nation_supported, $nation2));
+    }
+    return 0;
 }
 
 sub get_group_borders
