@@ -247,8 +247,9 @@ sub create_war
         my @defender_allies = $self->get_allies($defender->name);
         for(@attacker_allies)
         {
-            my $ally_name = $_;
+            my $ally_name = $_->destination($attacker->name);
             my $ally = $self->get_nation( $ally_name );
+            say $ally_name;
             if($ally->good_prey($defender, $self, ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT, 0 ))
             {
                 if(! grep { $_ eq $ally_name } @attacker_coalition)
@@ -260,7 +261,7 @@ sub create_war
         }
         for(@defender_allies)
         {
-            my $ally_name = $_;
+            my $ally_name = $_->destination($defender->name);
             my $ally = $self->get_nation( $ally_name );
             if($ally->good_prey($attacker, $self, ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT, 0 ))
             {

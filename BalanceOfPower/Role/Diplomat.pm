@@ -112,6 +112,18 @@ sub get_hates
     my $self = shift;
     return $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'HATE' });
 }
+sub get_friends
+{
+    my $self = shift;
+    my $nation = shift;
+    my @friendships = $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'FRIENDSHIP' }, $nation);
+    my @out = ();
+    for(@friendships)
+    {
+        push @out, $_->destination($nation);
+    }
+    return @out;
+}
 
 sub change_diplomacy
 {
@@ -129,6 +141,18 @@ sub change_diplomacy
         $self->broadcast_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
     }
 }
+sub add_friendship
+{
+    my $self = shift;
+    my $node1 = $self->get_real_node( shift );
+    my $node2 = $self->get_real_node( shift );
+    my $delta = shift;
+    my $r = $self->diplomacy_exists($node1, $node2);
+    return if(!$r ); #Should never happen
+    $self->change_diplomacy($node1, $node2, $r->factor + $delta);
+}
+
+
 sub diplomacy_status
 {
     my $self = shift;

@@ -4,6 +4,7 @@ use v5.10;
 use Moo;
 use IO::Prompter;
 use Term::ANSIColor;
+use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
@@ -61,6 +62,11 @@ sub init
         BalanceOfPower::Commands::TargetRoute->new( name => "DELETE TRADEROUTE",
                                                  world => $self->world );
     push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::Plain->new( name => "BOOST PRODUCTION",
+                                                    world => $self->world,
+                                                    production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
+    push @{$self->commands}, $command; 
 }
 
 sub print_orders
@@ -90,7 +96,7 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 1;
+        $auto_years = 10;
     }
     else
     {
@@ -240,6 +246,11 @@ COMMANDS
     elsif($query eq "situation")
     {
         say $self->world->print_turn_statistics($self->world->current_year);  
+        $result = { status => 1 };
+    }
+    elsif($query eq "supports")
+    {
+        say $self->world->print_military_supports();  
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?borders$/)

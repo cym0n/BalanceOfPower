@@ -47,6 +47,7 @@ with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Historian';
+with 'BalanceOfPower::Role::Supporter';
 
 sub get_nation
 {
@@ -61,6 +62,11 @@ sub get_nation
     {
         return undef;
     }
+}
+sub get_player_nation
+{
+    my $self = shift;
+    return $self->get_nation($self->player_nation);
 }
 
 #Initial values, randomly generated
@@ -294,6 +300,11 @@ sub execute_decisions
            my $nation = $self->get_nation($1);
            $nation->build_troops();
         }
+        elsif($d =~ /^(.*): BOOST PRODUCTION$/)
+        {
+           my $nation = $self->get_nation($1);
+           $nation->boost_production();
+        }
         elsif($d =~ /^(.*): DECLARE WAR TO (.*)$/)
         {
             my $attacker = $self->get_nation($1);
@@ -301,6 +312,19 @@ sub execute_decisions
             if(! $self->at_war($attacker->name) && ! $self->at_war($defender->name))
             {
                 $self->create_war($attacker, $defender);
+            }
+        }
+        elsif($d =~ /^(.*): MILITARY SUPPORT (.*)$/)
+        {
+            my $supporter = $self->get_nation($1);
+            my $supported = $self->get_nation($2);
+            if($supported->accept_military_support($supporter, $self))
+            {
+                $self->start_military_support($supporter, $supported);
+            }
+            else
+            {
+                $self->broadcast_event($supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name);
             }
         }
     }

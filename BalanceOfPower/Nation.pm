@@ -127,6 +127,13 @@ sub war_cost
     $self->add_wealth(-1 * WAR_WEALTH_MALUS);
     $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
 }
+sub boost_production
+{
+    my $self = shift;
+    $self->subtract_production('export', -1 * BOOST_PRODUCTION_QUOTE);
+    $self->subtract_production('domestic', -1 * BOOST_PRODUCTION_QUOTE);
+    $self->register_event("BOOST OF PRODUCTION");
+}
 
 
 sub trade
@@ -194,19 +201,31 @@ sub military_advisor
 {
     my $self = shift;
     my $world = shift;
-    if($self->army >= MIN_ARMY_FOR_WAR && ! $world->at_war($self->name))
+    if(! $world->at_war($self->name))
     {
-        my @crises = $world->get_crises($self->name);
-        if(@crises > 0)
+        if($self->army >= MIN_ARMY_FOR_WAR)
         {
-            foreach my $c (@crises)
+            my @crises = $world->get_crises($self->name);
+            if(@crises > 0)
             {
-                my $enemy = $world->get_nation($c->destination($self->name));
-                next if($world->at_war($enemy->name));
-                if($self->good_prey($enemy, $world, $c->factor, 1))
+                foreach my $c (@crises)
                 {
-                    return $self->name . ": DECLARE WAR TO " . $enemy->name;
+                    my $enemy = $world->get_nation($c->destination($self->name));
+                    next if($world->at_war($enemy->name));
+                    if($self->good_prey($enemy, $world, $c->factor, 1))
+                    {
+                        return $self->name . ": DECLARE WAR TO " . $enemy->name;
+                    }
                 }
+            }
+        }
+        if($self->army >= MIN_ARMY_TO_EXPORT)
+        {
+            my @friends = shuffle $world->get_friends($self->name);
+            my $f = $friends[0];
+            if(! $world->already_in_military_support($f))
+            {
+                return $self->name . ": MILITARY SUPPORT " . $f;
             }
         }
     }
@@ -228,6 +247,13 @@ sub military_advisor
             return $self->name . ": BUILD TROOPS";
         }
     }
+}
+sub accept_military_support
+{
+    my $self = shift;
+    my $other = shift;
+    my $world = shift;
+    return $self->army < ARMY_TO_ACCEPT_MILITARY_SUPPORT;
 }
 
 sub good_prey
@@ -321,6 +347,10 @@ sub domestic_advisor
     if($self->internal_disorder > WORRYING_LIMIT && $self->production_for_domestic > DOMESTIC_BUDGET)
     {
         return $self->name . ": LOWER DISORDER";
+    }
+    elsif($self->production < EMERGENCY_PRODUCTION_LIMIT)
+    {
+        return $self->name . ": BOOST PRODUCTION";
     }
     else
     {
@@ -524,7 +554,7 @@ sub new_government
 sub build_troops
 {
     my $self = shift;
-    if($self->production_for_export > ARMY_COST)
+    if($self->production_for_export > ARMY_COST && $self->army < MAX_ARMY_LIMIT)
     {
         $self->subtract_production('export', ARMY_COST);
         $self->add_army(ARMY_UNIT);
@@ -536,6 +566,15 @@ sub add_army
     my $self = shift;
     my $army = shift;
     $self->army($self->army + $army);
+    if($self->army > MAX_ARMY_LIMIT)
+    {
+        $self->army(MAX_ARMY_LIMIT);
+    }
+    if($self->army < 0)
+    {
+        $self->army(0);
+    }
+
 }
 
 

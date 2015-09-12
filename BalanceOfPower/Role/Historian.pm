@@ -81,9 +81,32 @@ sub print_nation_actual_situation
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    $out .= as_title("ALLIES\n---\n");
-    $out .= $self->print_allies($nation);
-    $out .="\n";
+    my $allies_support_title = sprintf "%-35s %-35s", "ALLIES", "SUPPORTS";
+    $allies_support_title .="\n";
+    $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
+    $allies_support_title .="\n";
+    $out .= as_title($allies_support_title);
+    my @allies = $self->get_allies($nation);
+    my @supports = $self->supports($nation);
+    for(my $i = 0; ;$i++)
+    {
+        last if(@allies == 0 && @supports == 0);
+        my $allies_text = "";
+        if(@allies)
+        {
+            my $a = shift @allies;
+            $allies_text = $a->print;
+        }
+        my $support_text = "";
+        if(@supports)
+        {
+            my $s = shift @supports;
+            $support_text = $s->print;
+        }
+        $out .= sprintf "%-35s %-35s", $allies_text, $support_text;
+        $out .="\n";
+    }
+    $out .= "\n";
     my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
     $crises_wars_title .="\n";
     $crises_wars_title .= sprintf "%-35s %-35s", "---", "---";

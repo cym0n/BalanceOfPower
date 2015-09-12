@@ -20,18 +20,30 @@ has allowed_at_war => (
     is => 'ro',
     default => 0
 );
+has production_limit => (
+    is => 'ro',
+    default => sub { {} }
+);
 
 sub allowed
 {
     my $self = shift;
     return 0
-        if($self->world->get_nation($self->world->player_nation)->internal_disorder_status() eq 'Civil war');
+        if($self->world->get_player_nation()->internal_disorder_status() eq 'Civil war');
     if(! $self->allowed_at_war)
     {
         if($self->world->at_war($self->world->player_nation))
         {
             return 0;
         }
+    }
+    if(exists $self->production_limit->{'<'})
+    {
+        return $self->world->get_player_nation()->production() < $self->production_limit->{'<'};
+    }
+    elsif(exists $self->production_limit->{'>'})
+    {
+        return $self->world->get_player_nation()->production() > $self->production_limit->{'>'};
     }
     return 1;
 }

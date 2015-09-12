@@ -13,13 +13,13 @@ my $world = BalanceOfPower::World->new( first_year => $first_year );
 $world->init_random(\@nation_names, { alliances => 0});
 #Stubbed data
 
-$world->get_nation("Italy")->army(15);
+$world->get_nation("Germany")->army(15);
 $world->get_nation("France")->army(15);
 $world->add_alliance(BalanceOfPower::Relations::Alliance->new( node1 => 'Italy', node2 => 'Russia' ));
-$world->add_crisis(BalanceOfPower::Relations::Crisis->new( node1 => 'Italy', node2 => 'France' ));
-$world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Italy', 
+$world->add_crisis(BalanceOfPower::Relations::Crisis->new( node1 => 'Germany', node2 => 'France' ));
+$world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Germany', 
                                                     node2 => 'France',
-                                                    attack_leader => 'Italy',
+                                                    attack_leader => 'Germany',
                                                     war_id => 0000000,
                                                     node1_faction => 0,
                                                     node2_faction => 1));
@@ -43,9 +43,9 @@ foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "
 }
 
 #Nation configured
-$commands->query('Italy');
+$commands->query('Germany');
 $result = $commands->report_commands();
-is($result->{status}, 1, "Command elaborated: Italy");
+is($result->{status}, 1, "Command elaborated: Germany");
 
 #Commands for nation
 foreach my $c ( ("borders", "relations", "events", "status", "history") )
@@ -75,6 +75,16 @@ is($result->{status}, 1, "Command elaborated: turn");
 $commands->query("BUILD TROOPS");
 $result = $commands->orders();
 is($result->{status}, 1, "Command elaborated: BUILD TROOPS");
+
+$world->get_player_nation->production(50);
+$commands->query("BOOST PRODUCTION");
+$result = $commands->orders();
+is($result->{status}, 1, "Command elaborated: BOOST PRODUCTION (allowed)");
+
+$world->get_player_nation->production(60);
+$commands->query("BOOST PRODUCTION");
+$result = $commands->orders();
+is($result->{status}, -1, "Command elaborated: BOOST PRODUCTION (not allowed)");
 
 
 

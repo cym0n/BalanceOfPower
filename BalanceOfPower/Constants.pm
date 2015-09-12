@@ -50,7 +50,7 @@ use constant MAX_ARMY_BUDGET => 60;
 use constant ARMY_COST => 20;
 use constant ARMY_UNIT => 1;
 use constant ARMY_FOR_BATTLE => 3;
-use constant TRADEROUTE_DIPLOMACY_FACTOR => 10;
+use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
 use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 2;
 use constant ARMY_HELP_FOR_INTERNAL_DISORDER => 10;
 use constant CRISIS_GENERATION_TRIES => 5;
@@ -69,6 +69,13 @@ use constant OCCUPATION_CLOCK_LIMIT => 1;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
 use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
 use constant STARTING_ALLIANCES => 7;
+use constant EMERGENCY_PRODUCTION_LIMIT => 55;
+use constant BOOST_PRODUCTION_QUOTE => 15;
+use constant MIN_ARMY_TO_EXPORT => 12;
+use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
+use constant ARMY_FOR_SUPPORT => 7;
+use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
+use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -134,6 +141,13 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'DOMINATION_CLOCK_LIMIT',
                   'ALLIANCE_FRIENDSHIP_FACTOR',
                   'ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT',
-                  'STARTING_ALLIANCES'
+                  'STARTING_ALLIANCES',
+                  'EMERGENCY_PRODUCTION_LIMIT',
+                  'BOOST_PRODUCTION_QUOTE',
+                  'MIN_ARMY_TO_EXPORT',
+                  'ARMY_TO_ACCEPT_MILITARY_SUPPORT',
+                  'ARMY_FOR_SUPPORT',
+                  'DIPLOMACY_FACTOR_BREAKING_SUPPORT',
+                  'DIPLOMACY_FACTOR_STARTING_SUPPORT',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
