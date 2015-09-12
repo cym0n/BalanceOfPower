@@ -19,7 +19,8 @@ has diplomatic_relations => (
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_diplomacy => 'add_link',
                  diplomacy_exists => 'exists_link',
-                 update_diplomacy => 'update_link' }
+                 update_diplomacy => 'update_link',
+                 get_diplomatic_relations => 'links_for_node' }
 );
 has alliances => (
     is => 'ro',
@@ -27,7 +28,8 @@ has alliances => (
     handles => { add_alliance => 'add_link',
                  print_allies => 'print_links',
                  exists_alliance => 'exists_link',
-                 get_allies => 'links_for_node' }
+                 get_allies => 'links_for_node',
+                 reset_alliances => 'delete_link_for_node' }
 );
 
 requires 'broadcast_event';
@@ -73,6 +75,16 @@ sub init_random_alliances
             $self->add_alliance($all);
             $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
         }
+    }
+}
+sub reroll_diplomacy
+{
+    my $self = shift;
+    my $nation = shift;
+    my @rels = $self->get_diplomatic_relations($nation);
+    for(@rels)
+    {
+        $_->factor(random(0 ,100));
     }
 }
 sub get_real_node

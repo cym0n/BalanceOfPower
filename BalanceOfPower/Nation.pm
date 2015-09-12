@@ -4,7 +4,7 @@ use strict;
 use v5.10;
 
 use Moo;
-use BalanceOfPower::Utils qw( prev_turn );
+use BalanceOfPower::Utils qw( prev_turn random10 );
 use BalanceOfPower::Constants ':all';
 use List::Util qw(shuffle);
 
@@ -546,8 +546,13 @@ sub civil_war_battle
 sub new_government
 {
     my $self = shift;
-    my $params = shift;
-    $self->government_strength($params->{'government_strength'});
+    my $world = shift;
+    $self->government_strength(random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH));
+    $world->reroll_diplomacy($self->name);
+    $world->reset_alliances($self->name);
+    $world->reset_influences($self->name);
+    $world->reset_supports($self->name);
+    $world->reset_crises($self->name);
     $self->register_event("NEW GOVERNMENT CREATED");
 }
 

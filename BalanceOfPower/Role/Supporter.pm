@@ -20,7 +20,8 @@ has military_supports => (
                  supports => 'links_for_node',
                  supporter => 'links_for_node1',
                  supported => 'links_for_node2',
-                 print_military_supports => 'print_links'
+                 print_military_supports => 'print_links',
+                 reset_supports => 'delete_link_for_node'
                }
 );
 

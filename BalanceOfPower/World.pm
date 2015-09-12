@@ -453,8 +453,7 @@ sub internal_conflict
             my $winner = $n->fight_civil_war(random(0, 100), random(0, 100));
             if($winner && $winner eq 'rebels')
             {
-                $n->new_government({ government_strength => random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH)});
-                $self->free_nation($n->name);
+                $n->new_government($self);
             }
         }
         if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')

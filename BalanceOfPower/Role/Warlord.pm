@@ -30,7 +30,8 @@ has crises => (
                  delete_crisis => 'delete_link',
                  crisis_exists => 'exists_link',
                  get_crises => 'links_for_node',
-                 print_crises => 'print_links'
+                 print_crises => 'print_links',
+                 reset_crises => 'delete_link_for_node'
                }
 );
 
@@ -249,7 +250,6 @@ sub create_war
         {
             my $ally_name = $_->destination($attacker->name);
             my $ally = $self->get_nation( $ally_name );
-            say $ally_name;
             if($ally->good_prey($defender, $self, ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT, 0 ))
             {
                 if(! grep { $_ eq $ally_name } @attacker_coalition)

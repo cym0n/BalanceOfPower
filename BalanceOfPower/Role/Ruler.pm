@@ -74,13 +74,6 @@ sub has_influence
                          return $rel->actual_influence()
                     }, $nation);
 }
-sub free_nation
-{
-    my $self = shift;
-    my $nation = shift;
-    $self->reset_influences($nation);
-    $self->broadcast_event("$nation IS FREE!", $nation);
-}
 sub occupy
 {
     my $self = shift;
