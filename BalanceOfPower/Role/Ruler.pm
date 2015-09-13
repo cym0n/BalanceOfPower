@@ -33,7 +33,7 @@ sub is_under_influence
         }, $nation);
     if(@rels > 0)
     {
-        return $rels[0];
+        return $rels[0]->start($nation);
     }
     else
     {
@@ -45,7 +45,7 @@ sub print_nation_situation
     my $self = shift;
     my $nation = shift;
     my $domination = $self->is_under_influence($nation);
-    return $domination->print if($domination);
+    return "$nation is under control of $domination" if $domination;
     my @influence = $self->has_influence($nation);
     if(@influence > 0)
     {
@@ -68,12 +68,18 @@ sub has_influence
 {
     my $self = shift;
     my $nation = shift;
-    return $self->influences->query(
-                    sub {
-                         my $rel = shift;
-                         return 0 if($rel->node1 ne $nation);
-                         return $rel->actual_influence()
-                    }, $nation);
+    my @influences = $self->influences->query(
+                        sub {
+                            my $rel = shift;
+                            return 0 if($rel->node1 ne $nation);
+                            return $rel->actual_influence()
+                        }, $nation);
+    my @out = ();
+    for(@influences)
+    {
+        push @out, $_->destination($nation);
+    }
+    return @out;
 }
 sub occupy
 {

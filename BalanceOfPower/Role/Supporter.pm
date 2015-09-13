@@ -63,7 +63,7 @@ sub stop_military_support
 sub military_support_garbage_collector
 {
     my $self = shift;
-    $self->influences->garbage_collector(sub { my $rel = shift; return $rel->army <= 0 });
+    $self->military_supports->garbage_collector(sub { my $rel = shift; return $rel->army <= 0 });
 }
 
 1;
