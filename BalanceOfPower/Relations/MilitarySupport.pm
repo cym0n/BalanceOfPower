@@ -18,6 +18,14 @@ sub bidirectional
     return 0;
 }
 
+sub casualities
+{
+    my $self = shift;
+    my $casualities = shift;
+    $self->army($self->army - $casualities);
+    $self->army(0) if($self->army < 0);
+}
+
 sub print 
 {
     my $self = shift;

@@ -3,7 +3,6 @@ package BalanceOfPower::Role::Historian;
 use strict;
 use Moo::Role;
 use Term::ANSIColor;
-use Data::Dumper;
 
 use BalanceOfPower::Utils qw( get_year_turns as_title from_to_turns );
 use BalanceOfPower::Constants ':all';

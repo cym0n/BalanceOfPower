@@ -56,6 +56,23 @@ sub destination
         return undef;
     }
 }
+sub start
+{
+    my $self = shift;
+    my $node = shift;
+    if($self->node2 eq $node)
+    {
+        return $self->node1;
+    }
+    elsif($self->node1 eq $node && $self->bidirectional)
+    {
+        return $self->node1;
+    }
+    else
+    {
+        return undef;
+    }
+}
 sub print 
 {
     my $self = shift;

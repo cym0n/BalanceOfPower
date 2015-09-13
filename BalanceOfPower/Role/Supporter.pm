@@ -8,7 +8,6 @@ use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Constants ':all';
 
 requires 'get_nation';
-requires 'add_friendship';
 
 has military_supports => (
     is => 'ro',
@@ -47,7 +46,7 @@ sub start_military_support
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
     $self->broadcast_event("MILITARY SUPPORT TO " . $nation2->name . " STARTED BY " . $nation1->name, $nation1->name, $nation2->name);
-    $self->add_friendship($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_SUPPORT);
+    $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_SUPPORT);
 }
 sub stop_military_support
 {
@@ -59,7 +58,12 @@ sub stop_military_support
     $self->delete_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
     $self->broadcast_event("MILITARY SUPPORT FROM " . $node1->name . " STOPPED BY " . $node2->name, $node1->name, $node2->name);
-    $self->add_friendship($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT);
+    $self->change_diplomacy($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT);
+}
+sub military_support_garbage_collector
+{
+    my $self = shift;
+    $self->influences->garbage_collector(sub { my $rel = shift; return $rel->army <= 0 });
 }
 
 1;

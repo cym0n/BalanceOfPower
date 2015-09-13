@@ -76,6 +76,7 @@ use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
 use constant ARMY_FOR_SUPPORT => 7;
 use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
 use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
+use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -149,5 +150,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'ARMY_FOR_SUPPORT',
                   'DIPLOMACY_FACTOR_BREAKING_SUPPORT',
                   'DIPLOMACY_FACTOR_STARTING_SUPPORT',
+                  'DIPLOMACY_MALUS_FOR_SUPPORT',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

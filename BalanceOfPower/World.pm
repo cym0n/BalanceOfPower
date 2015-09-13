@@ -4,12 +4,12 @@ use strict;
 use v5.10;
 
 use Moo;
-use List::Util qw(shuffle);
 use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_turn next_turn random random10);
+use BalanceOfPower::Utils qw(prev_turn next_turn);
 use BalanceOfPower::Nation;
+use BalanceOfPower::Dice;
 
 has name => (
     is => 'ro',
@@ -36,6 +36,16 @@ has order => (
 has autoplay => (
     is => 'rw',
     default => 0
+);
+has dice => (
+    is => 'ro',
+    default => sub { BalanceOfPower::Dice->new() },
+    handles => { random => 'random',
+                 random10 => 'random10',
+                 shuffle => 'shuffle_array',
+                 tricks => 'tricks',
+                 freeze_decisions => 'freeze_decisions'
+               }
 );
 
 
@@ -98,9 +108,9 @@ sub init_random
     foreach my $n (@nations)
     {
         say "Working on $n";
-        my $export_quote = random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE);
+        my $export_quote = $self->random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE, "Export quote $n");
         say "  export quote: $export_quote";
-        my $government_strength = random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH);
+        my $government_strength = $self->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Government strenght $n");
         say "  government strength: $government_strength";
         push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
     }
@@ -212,11 +222,11 @@ sub calculate_production
     my $next = 0;
     if(defined $production)
     {
-        $next = $production + random10(MIN_DELTA_PRODUCTION, MAX_DELTA_PRODUCTION);
+        $next = $production + $self->random10(MIN_DELTA_PRODUCTION, MAX_DELTA_PRODUCTION, "Delta production " . $n->name);
     }
     else
     {
-        $next = random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION);
+        $next = $self->random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION, "Starting production " . $n->name);
     }
     my @retreats = $n->get_events("RETREAT FROM", prev_turn($n->current_year));
     if(@retreats > 0)
@@ -337,7 +347,7 @@ sub manage_route_adding
     my @route_adders = @_;
     if(@route_adders > 1)
     {
-       @route_adders = shuffle @route_adders; 
+       @route_adders = $self->shuffle("Route adders", @route_adders); 
        my $done = 0;
        while(! $done)
        {
@@ -445,12 +455,12 @@ sub internal_conflict
         }
         elsif($n->internal_disorder_status eq 'Terrorism' || $n->internal_disorder_status eq 'Insurgence' )
         {
-            $n->add_internal_disorder(random(-1 * INTERNAL_DISORDER_VARIATION_FACTOR, INTERNAL_DISORDER_VARIATION_FACTOR));
+            $n->add_internal_disorder($self->random(-1 * INTERNAL_DISORDER_VARIATION_FACTOR, INTERNAL_DISORDER_VARIATION_FACTOR, "Internal disorder variation " . $n->name));
             $n->calculate_disorder();
         }
         elsif($n->internal_disorder_status eq 'Civil war')
         {
-            my $winner = $n->fight_civil_war(random(0, 100), random(0, 100));
+            my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
             if($winner && $winner eq 'rebels')
             {
                 $n->new_government($self);

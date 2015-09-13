@@ -2,7 +2,6 @@ package BalanceOfPower::Role::Herald;
 
 use strict;
 use Moo::Role;
-use Data::Dumper;
 
 with 'BalanceOfPower::Role::Reporter';
 

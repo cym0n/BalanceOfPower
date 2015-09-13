@@ -5,13 +5,13 @@ use v5.10;
 use Moo::Role;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw( random );
 use BalanceOfPower::Relations::TradeRoute;
 
 requires 'get_nation';
 requires 'broadcast_event';
 requires 'change_diplomacy';
 requires 'diplomacy_status';
+requires 'random';
 
 has trade_routes => (
     is => 'ro',
@@ -33,7 +33,7 @@ sub init_trades
     foreach my $n (@nations)
     {
         $routes_counter{$n->name} = 0 if(! exists $routes_counter{$n->name});
-        my $how_many_routes = random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES);
+        my $how_many_routes = $self->random(MIN_STARTING_TRADEROUTES, MAX_STARTING_TRADEROUTES, "Routes to generate for " . $n->name);
         say "  routes to generate: $how_many_routes [" . $routes_counter{$n->name} . "]";
         my @my_names = @nations;
         @my_names = grep { $_->name ne $n->name } @my_names;
@@ -59,8 +59,8 @@ sub generate_traderoute
     my $node1 = shift;
     my $node2 = shift;
     my $added = shift;
-    my $factor1 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
-    my $factor2 = random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN);
+    my $factor1 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node1 to $node2");
+    my $factor2 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node2 to $node1");
     $self->add_traderoute( 
         BalanceOfPower::Relations::TradeRoute->new( 
             node1 => $node1, node2 => $node2,

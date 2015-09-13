@@ -3,11 +3,7 @@ package BalanceOfPower::Role::Diplomat;
 use strict;
 use v5.10;
 use Moo::Role;
-use List::Util qw(shuffle);
-use Data::Dumper;
 
-
-use BalanceOfPower::Utils qw( random );
 use BalanceOfPower::Constants ':all';
 
 use BalanceOfPower::Relations::Friendship;
@@ -32,6 +28,7 @@ has alliances => (
                  reset_alliances => 'delete_link_for_node' }
 );
 
+requires 'random';
 requires 'broadcast_event';
 requires 'is_under_influence';
 requires 'has_influence';
@@ -54,7 +51,7 @@ sub init_diplomacy
                   
                 my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1,
                                                            node2 => $n2,
-                                                           factor => random($minimum_friendship ,100));
+                                                           factor => $self->random($minimum_friendship ,100, "Friendship factor: $n1, $n2"));
                 $self->add_diplomacy($rel);
             }
         }
@@ -66,9 +63,8 @@ sub init_random_alliances
     my @nations = @{$self->nation_names};
     for(my $i = 0; $i < STARTING_ALLIANCES; $i++)
     {
-        #@nations = shuffle @nations;
-        my $n1 = $nations[random(0, $#nations)];
-        my $n2 = $nations[random(0, $#nations)];
+        my $n1 = $nations[$self->random(0, $#nations, "Nation1 for random alliance")];
+        my $n2 = $nations[$self->random(0, $#nations, "Nation2 for random alliance")];
         if($n1 ne $n2)
         {
             my $all = BalanceOfPower::Relations::Alliance->new(node1 => $n1, node2 => $n2);
@@ -84,7 +80,7 @@ sub reroll_diplomacy
     my @rels = $self->get_diplomatic_relations($nation);
     for(@rels)
     {
-        $_->factor(random(0 ,100));
+        $_->factor($self->random(0 ,100, "Reroll diplomacy for " . $_->node1 . ", " . $_->node2));
     }
 }
 sub get_real_node
@@ -153,18 +149,6 @@ sub change_diplomacy
         $self->broadcast_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
     }
 }
-sub add_friendship
-{
-    my $self = shift;
-    my $node1 = $self->get_real_node( shift );
-    my $node2 = $self->get_real_node( shift );
-    my $delta = shift;
-    my $r = $self->diplomacy_exists($node1, $node2);
-    return if(!$r ); #Should never happen
-    $self->change_diplomacy($node1, $node2, $r->factor + $delta);
-}
-
-
 sub diplomacy_status
 {
     my $self = shift;

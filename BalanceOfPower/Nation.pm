@@ -4,9 +4,8 @@ use strict;
 use v5.10;
 
 use Moo;
-use BalanceOfPower::Utils qw( prev_turn random10 );
+use BalanceOfPower::Utils qw( prev_turn );
 use BalanceOfPower::Constants ':all';
-use List::Util qw(shuffle);
 
 with 'BalanceOfPower::Role::Reporter';
 
@@ -175,7 +174,7 @@ sub decision
     else
     {
         @advisors = ('domestic', 'economy', 'military');
-        @advisors = shuffle @advisors;
+        @advisors = $world->shuffle("Choosing advisor for ".$self->name, @advisors);
     }
     foreach my $a (@advisors)
     {
@@ -221,7 +220,7 @@ sub military_advisor
         }
         if($self->army >= MIN_ARMY_TO_EXPORT)
         {
-            my @friends = shuffle $world->get_friends($self->name);
+            my @friends = $world->shuffle("Choosing friend to support for " . $self->name, $world->get_friends($self->name));
             my $f = $friends[0];
             if(! $world->already_in_military_support($f))
             {
@@ -548,7 +547,7 @@ sub new_government
 {
     my $self = shift;
     my $world = shift;
-    $self->government_strength(random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH));
+    $self->government_strength($world->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Reroll government strength for " . $self->name));
     $world->reroll_diplomacy($self->name);
     $world->reset_alliances($self->name);
     $world->reset_influences($self->name);

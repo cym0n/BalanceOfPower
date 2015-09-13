@@ -5,12 +5,11 @@ use v5.10;
 
 use Moo::Role;
 
-use List::Util qw(shuffle);
 use Term::ANSIColor;
 use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw( random  as_title );
+use BalanceOfPower::Utils qw( as_title );
 use BalanceOfPower::Relations::Crisis;
 use BalanceOfPower::Relations::War;
 
@@ -22,6 +21,10 @@ requires 'send_event';
 requires 'coalition';
 requires 'get_group_borders';
 requires 'get_allies';
+requires 'supported';
+requires 'military_support_garbage_collector';
+requires 'random';
+requires 'change_diplomacy';
 
 has crises => (
     is => 'ro',
@@ -75,8 +78,8 @@ sub crisis_generator_round
     my $self = shift;
     my $hates_to_use = shift;
     my $crises_to_use = shift;
-    my @hates = shuffle @{ $hates_to_use };
-    my @crises = shuffle @{ $crises_to_use};
+    my @hates = $self->shuffle("Crisis generation: choosing hate", @{ $hates_to_use });
+    my @crises = $self->shuffle("Crisis generation: choosing crisis", @{ $crises_to_use});
     my @original_hates = @hates;
     my @original_crises = @crises;
                      
@@ -92,7 +95,7 @@ sub crisis_generator_round
     }
    
 
-    my $action = random(0, CRISIS_GENERATOR_NOACTION_TOKENS + 3);
+    my $action = $self->random(0, CRISIS_GENERATOR_NOACTION_TOKENS + 3, "Crisis action choose");
     if($action == 0) #NEW CRISIS
     {
         return (\@original_hates, \@original_crises) if ! $picked_hate; 
@@ -324,7 +327,7 @@ sub create_war
                 }
                 
             }
-            @potential_attackers = shuffle @potential_attackers;
+            @potential_attackers = $self->shuffle("War creation. Choosing attackers", @potential_attackers);
             my $attack_now = $potential_attackers[0];
             my $defend_now;
             my $free_level = 0;
@@ -342,7 +345,7 @@ sub create_war
                 }
                 if(@potential_defenders > 0)
                 {
-                    @potential_defenders = shuffle @potential_defenders;
+                    @potential_defenders = $self->shuffle("War creation. Choosing defenders", @potential_defenders);
                     $defend_now = $potential_defenders[0];
                     $searching = 0;
                 }
@@ -410,6 +413,59 @@ sub create_war
     }
 }
 
+sub army_for_war
+{
+    my $self = shift;
+    my $nation = shift;
+    my @supported = $self->supported($nation->name);
+    my $army = $nation->army;
+    for(@supported)
+    {
+        $army += $_->army;
+    }
+    return $army;
+}
+
+sub damage_from_battle
+{
+    my $self = shift;
+    my $nation = shift;
+    my $damage = shift;
+    my @supported = $self->supported($nation->name);
+    my $flip = 0;
+    my $army_damage = 0;
+    while($damage > 0)
+    {
+        if($flip <= $#supported)
+        {
+            if($supported[$flip]->army > 0)
+            {
+                $supported[$flip]->casualities(1);
+                $damage--;
+            }
+        }
+        else
+        {
+            $army_damage++;
+            $damage--;
+        }
+        $flip++;
+        if($flip > $#supported + 1)
+        {
+            $flip = 0;
+        }
+    }
+    $nation->add_army(-1 * $army_damage);
+    for(@supported)
+    {
+        if($_->army <= 0)
+        {
+            $self->broadcast_event("MILITARY SUPPORT TO " . $_->node2 . " BY " . $_->node1 . "DESTROYED", $_->node1, $_->node2);
+        }
+    }
+    $self->military_support_garbage_collector();
+}
+
 sub fight_wars
 {
     my $self = shift;
@@ -419,15 +475,17 @@ sub fight_wars
         #As Risiko
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
-        my $attack = $attacker->army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $attacker->army;
-        my $defence = $defender->army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $defender->army;
+        my $attacker_army = $self->army_for_war($attacker);
+        my $defender_army = $self->army_for_war($defender);
+        my $attack = $attacker_army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $attacker_army;
+        my $defence = $defender_army >= ARMY_FOR_BATTLE ? ARMY_FOR_BATTLE : $defender_army;
         my $attacker_damage = 0;
         my $defender_damage = 0;
         my $counter = $attack < $defence ? $attack : $defence;
         for(my $i = 0; $i < $counter; $i++)
         {
-            my $att = random(1, 6);
-            my $def = random(1, 6);
+            my $att = $self->random(1, 6, "War risiko: throw for attacker " . $attacker->name);
+            my $def = $self->random(1, 6, "War risiko: throw for defender " . $defender->name);
             if($att > $def)
             {
                 $defender_damage++;
@@ -437,8 +495,21 @@ sub fight_wars
                 $attacker_damage++;
             }
         }
-        $attacker->add_army(-1 * $attacker_damage);
-        $defender->add_army(-1 * $defender_damage);
+        for($self->supported($attacker->name))
+        {
+            my $supporter_n = $_->start($attacker->name);
+            $self->broadcast_event("RELATIONS BETWEEN " . $defender->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $attacker->name, $attacker->name, $defender->name, $supporter_n);
+            $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+        }
+        for($self->supported($defender->name))
+        {
+            my $supporter_n = $_->start($defender->name);
+            $self->broadcast_event("RELATIONS BETWEEN " . $attacker->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $defender->name, $attacker->name, $defender->name, $supporter_n);
+            $self->change_diplomacy($attacker->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+        }
+
+        $self->damage_from_battle($attacker, $attacker_damage);
+        $self->damage_from_battle($defender, $defender_damage);
         $attacker->register_event("CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage");
         $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
         if($attacker->army == 0)

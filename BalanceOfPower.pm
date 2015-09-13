@@ -12,6 +12,7 @@ use Term::ANSIColor;
 use strict;
 
 unlink "bop.log";
+unlink "bop-dice.log";
 
 use constant STUBBED_PLAYER => 1;
 

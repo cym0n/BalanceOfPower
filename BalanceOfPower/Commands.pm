@@ -181,6 +181,7 @@ Say <clear> to un-select nation.
 
 With a nation selected you can use:
 <borders>
+<near>
 <relations>
 <events>
 <status>
@@ -195,7 +196,11 @@ say <years> for available range of years
 
 say <wars> for a list of wars, <crises> for all the ongoing crises
 
+say <supports> for military supports
+
 say <turn> to elaborate events for a new turn
+
+<orders> display a list of command you can give to your nation for the next turn
 COMMANDS
 
     my $result = { status => 0 };
