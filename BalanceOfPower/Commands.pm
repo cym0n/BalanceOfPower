@@ -9,6 +9,7 @@ use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
+use BalanceOfPower::Commands::MilitarySupport;
 
 has world => (
     is => 'ro'
@@ -66,6 +67,12 @@ sub init
         BalanceOfPower::Commands::Plain->new( name => "BOOST PRODUCTION",
                                                     world => $self->world,
                                                     production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
+    push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::MilitarySupport->new( name => "MILITARY SUPPORT",
+                                                      world => $self->world,
+                                                      army_limit => { '>' => ARMY_FOR_SUPPORT }
+                                                    );
     push @{$self->commands}, $command; 
 }
 

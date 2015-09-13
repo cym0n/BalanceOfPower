@@ -24,6 +24,11 @@ has production_limit => (
     is => 'ro',
     default => sub { {} }
 );
+has army_limit => (
+    is => 'ro',
+    default => sub { {} }
+);
+
 
 sub allowed
 {
@@ -44,6 +49,14 @@ sub allowed
     elsif(exists $self->production_limit->{'>'})
     {
         return $self->world->get_player_nation()->production() > $self->production_limit->{'>'};
+    }
+    if(exists $self->army_limit->{'<'})
+    {
+        return $self->world->get_player_nation()->army() < $self->army_limit->{'<'};
+    }
+    elsif(exists $self->army_limit->{'>'})
+    {
+        return $self->world->get_player_nation()->army() > $self->army_limit->{'>'};
     }
     return 1;
 }

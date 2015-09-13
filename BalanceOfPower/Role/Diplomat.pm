@@ -124,11 +124,15 @@ sub get_friends
 {
     my $self = shift;
     my $nation = shift;
-    my @friendships = $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'FRIENDSHIP' }, $nation);
+    my @relations = $self->get_diplomatic_relations($nation);
     my @out = ();
-    for(@friendships)
+    for(@relations)
     {
-        push @out, $_->destination($nation);
+        my $real_r = $self->get_diplomacy_relation($_->node1, $_->node2);
+        if($real_r->status eq 'FRIENDSHIP' or $real_r->status eq 'ALLIANCE')
+        {
+            push @out, $real_r->destination($nation);
+        }
     }
     return @out;
 }

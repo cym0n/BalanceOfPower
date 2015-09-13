@@ -3,6 +3,7 @@ package BalanceOfPower::Commands::TargetNation;
 use Moo;
 use v5.10;
 use IO::Prompter;
+use Data::Dumper;
 
 
 with "BalanceOfPower::Commands::Role::Command";
@@ -31,12 +32,11 @@ sub execute
     {
         if($self->good_target($argument))
         {
-            return $self->name . " " . $argument;
             return { status => 1, command => $self->name . " " . $argument };
         }
         else
         {
-            say "Bad argument provided";
+            say "Bad argument provided: $argument";
         }
     }
     my @nations = $self->get_available_targets;
@@ -57,7 +57,7 @@ sub good_target
     my $nation = shift;
     my @nations = $self->get_available_targets();
     my @selected = grep { $_ eq $nation} @nations;
-    if(@selected > 1)
+    if(@selected >= 1)
     {
         return 1;
     }
@@ -65,8 +65,6 @@ sub good_target
     {
         return 0;
     }
-
- 
 }
 
 sub get_available_targets

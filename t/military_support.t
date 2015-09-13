@@ -48,4 +48,20 @@ is($world->get_nation("Germany")->army(), 6, "Army decreased the right way for G
 my @sups = $world->supported("Germany");
 is($sups[0]->army, 5, "Italian support decreased the right way for Germany");
 is($france_diplomacy->factor, 63, "Diplomacy changed between Italy and France");
+
+$world->player_nation("Italy");
+$world->get_nation("Italy")->army(5);
+my $uk_diplomacy = $world->diplomacy_exists("Italy", "United Kingdom");
+$uk_diplomacy->factor(90);
+$commands->query("MILITARY SUPPORT United Kingdom");
+$result = $commands->orders();
+is($result->{status}, -1, "Command elaborated: MILITARY SUPPORT (not allowed)");
+$world->get_nation("Italy")->army(15);
+$commands->query("MILITARY SUPPORT United Kingdom");
+$result = $commands->orders();
+is($result->{status}, 1, "Command elaborated: MILITARY SUPPORT (allowed)");
+
+
+
+
 done_testing();
