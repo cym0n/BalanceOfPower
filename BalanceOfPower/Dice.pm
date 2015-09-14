@@ -25,7 +25,7 @@ sub random
     my $max = shift;
     my $message = shift || "NO MESSAGE [$min-$max]";
     my $out = $self->tricked($message);
-    if($out)
+    if(defined $out)
     {
         $self->log($message, $out, 1);
         return $out;
@@ -46,7 +46,7 @@ sub random10
     my $max = shift;
     my $message = shift || "NO MESSAGE [$min-$max]";
     my $out = $self->tricked($message);
-    if($out)
+    if(defined $out)
     {
         $self->log($message, $out, 1);
         return $out;

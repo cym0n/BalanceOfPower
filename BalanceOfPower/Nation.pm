@@ -174,8 +174,8 @@ sub decision
     else
     {
         @advisors = ('domestic', 'economy', 'military');
-        @advisors = $world->shuffle("Choosing advisor for ".$self->name, @advisors);
     }
+    @advisors = $world->shuffle("Choosing advisor for ".$self->name, @advisors);
     foreach my $a (@advisors)
     {
         my $decision = undef;
@@ -321,7 +321,15 @@ sub good_prey
     #WEALTH EVALUATION
     my $wealth = $world->get_statistics_value(prev_turn($self->current_year), $self->name, 'wealth');
     my $enemy_wealth = $world->get_statistics_value(prev_turn($self->current_year), $enemy->name, 'wealth');
-    $war_points += 1 if($enemy_wealth > $wealth);
+    if($wealth && $enemy_wealth)
+    {
+        $war_points += 1 if($enemy_wealth > $wealth);
+    }
+    else
+    {
+        $war_points += 1;
+    }
+
                     
     #COALITION EVALUATION
     if($world->coalition($self->name) && $world->coalition($enemy->name) && $world->coalition($self->name) > $world->coalition($enemy->name))
