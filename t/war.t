@@ -58,5 +58,12 @@ $world->occupy("Russia", [ "France" ], "France", 1);
 $world->situation_clock();
 $world->order("DECLARE WAR TO France");
 $world->elaborate_turn("1970/1");
+ok($world->war_exists("Italy", "France"), "Italy attacked France");
+ok($world->war_exists("Russia", "Germany"), "Russia attacked Germany");
 $world->elaborate_turn("1970/2");
+is($world->get_events("Italy OCCUPIES France", "1970/2"), 1, "Italy occupies France");
+is($world->get_events("WAR BETWEEN Germany AND Russia WON BY Germany", "1970/2"), 1, "WAR BETWEEN Germany AND Russia WON BY Germany");
+
+
+done_testing();
 

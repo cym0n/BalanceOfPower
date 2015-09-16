@@ -6,24 +6,6 @@ use strict;
 
 use base 'Exporter';
 
-sub random
-{
-    my $min = shift;
-    my $max = shift;
-    my $random_range = $max - $min + 1;
-    my $out = int(rand($random_range)) + $min;
-    return $out;
-}
-
-sub random10
-{
-    my $min = shift;
-    my $max = shift;
-    my $random_range = (($max - $min) / 10) + 1;
-    my $out = (int(rand($random_range)) * 10) + $min;
-    return $out;
-}
-
 sub prev_turn
 {
     my $year = shift;
