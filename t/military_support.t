@@ -40,7 +40,7 @@ $world->order("DECLARE WAR TO Germany");
 $world->tricks( { "War risiko: throw for attacker France" => [6, 6, 6],
                   "War risiko: throw for defender Germany" => [1, 1, 1]
               });  
-$world->freeze_decisions();
+$world->forced_advisor("Noone");
 my $france_diplomacy = $world->diplomacy_exists("Italy", "France");
 $france_diplomacy->factor(65);
 $world->elaborate_turn("1970/3");
@@ -60,6 +60,16 @@ $world->get_nation("Italy")->army(15);
 $commands->query("MILITARY SUPPORT United Kingdom");
 $result = $commands->orders();
 is($result->{status}, 1, "Command elaborated: MILITARY SUPPORT (allowed)");
+$world->order(undef);
+$world->player_nation("France");
+$world->get_nation("Italy")->army(3);
+$world->forced_advisor("military");
+$world->only_one_nation_acting("Italy");
+$world->elaborate_turn("1970/4");
+is($world->get_events("MILITARY SUPPORT FOR Germany STOPPED BY Italy", "1970/4"), 1, "MILITARY SUPPORT FOR Germany STOPPED BY Italy");
+is($world->get_nation("Italy")->army(), 8, "Italian army merged with returned support");
+
+
 
 
 

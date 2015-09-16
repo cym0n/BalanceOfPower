@@ -44,7 +44,8 @@ has dice => (
                  random10 => 'random10',
                  shuffle => 'shuffle_array',
                  tricks => 'tricks',
-                 freeze_decisions => 'freeze_decisions'
+                 forced_advisor => 'forced_advisor',
+                 only_one_nation_acting => 'only_one_nation_acting'
                }
 );
 
@@ -336,6 +337,12 @@ sub execute_decisions
             {
                 $self->broadcast_event($supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name);
             }
+        }
+        elsif($d =~ /^(.*): RECALL MILITARY SUPPORT (.*)$/)
+        {
+           my $supporter = $self->get_nation($1);
+           my $supported = $self->get_nation($2);
+           $self->stop_military_support($supporter, $supported);
         }
     }
     $self->manage_route_adding(@route_adders);

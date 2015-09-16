@@ -33,7 +33,7 @@ $world->tricks( { "Export quote Italy" => [30],
               });  
 $world->init_random(\@nation_names, { alliances => 0,
                                       trades => 0});
-$world->freeze_decisions(1);
+$world->forced_advisor("Noone");
 #$world->autoplay(1);
 #$world->elaborate_turn("1970/1");
 #$world->autoplay(0);

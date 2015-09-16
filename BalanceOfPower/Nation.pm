@@ -196,6 +196,13 @@ sub decision
     return undef;
 }
 
+# Military advisor
+#
+# DECLARE WAR TO
+# MILITARY SUPPORT
+# RECALL MILITARY SUPPORT
+# BUILD TROOPS
+
 sub military_advisor
 {
     my $self = shift;
@@ -226,6 +233,15 @@ sub military_advisor
             {
                 return $self->name . ": MILITARY SUPPORT " . $f;
             }
+        }
+    }
+    if($self->army <= ARMY_TO_RECALL_SUPPORT)
+    {
+        my @supports = $world->supporter($self->name);
+        if(@supports > 0)
+        {
+            @supports = $world->shuffle("Choosing support to recall", @supports);
+            return $self->name . ": RECALL MILITARY SUPPORT " . $supports[0]->destination($self->name);
         }
     }
     if($self->army < MINIMUM_ARMY_LIMIT)
@@ -347,6 +363,10 @@ sub good_prey
     }
 }
 
+# Domestic advisor
+#
+# LOWER DISORDER
+# BOOST PRODUCTION
 
 sub domestic_advisor
 {
@@ -364,6 +384,12 @@ sub domestic_advisor
         return undef;
     }
 }
+
+# Economy advisor
+#
+# DELETE TRADEROUTE
+# ADD ROUTE
+
 sub economy_advisor
 {
     my $self = shift;

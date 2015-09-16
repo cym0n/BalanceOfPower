@@ -57,7 +57,7 @@ sub stop_military_support
     return if (! $milsup);
     $self->delete_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
-    $self->broadcast_event("MILITARY SUPPORT FROM " . $node1->name . " STOPPED BY " . $node2->name, $node1->name, $node2->name);
+    $self->broadcast_event("MILITARY SUPPORT FOR " . $node2->name . " STOPPED BY " . $node1->name, $node1->name, $node2->name);
     $self->change_diplomacy($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT);
 }
 sub military_support_garbage_collector

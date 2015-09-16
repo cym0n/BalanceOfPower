@@ -13,7 +13,11 @@ has trick_counters => (
     is => 'rw',
     default => sub { {} }
 );
-has freeze_decisions => (
+has forced_advisor => (
+    is => 'rw',
+    default => 0
+);
+has only_one_nation_acting => (
     is => 'rw',
     default => 0
 );
@@ -64,9 +68,30 @@ sub shuffle_array
     my $self = shift;
     my $message = shift || "NO MESSAGE IN SHUFFLE";
     my @array = @_;
-    if($message =~ /^Choosing advisor for/ && $self->freeze_decisions())
+    if($message =~ /^Choosing advisor for (.*)$/) 
     {
-        return ("Noone");
+        my $nation = $1;
+        my @array_back;
+        my $tricked = 0;
+        if($self->forced_advisor())
+        {
+            @array_back = ( $self->forced_advisor() );
+            $tricked = 1;
+        }
+        else
+        {
+            @array_back = shuffle @array;
+        }
+        if($self->only_one_nation_acting)
+        {
+            if($self->only_one_nation_acting ne $nation)
+            {
+                @array_back = ("Noone");
+                $tricked = 1;
+            }
+        }
+        $self->log($message, "<<array>>, first result: " . $array_back[0], $tricked);
+        return @array_back
     }
 
     if(@array == 0)
