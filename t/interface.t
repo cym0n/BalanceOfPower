@@ -55,6 +55,14 @@ foreach my $c ( ("borders", "relations", "events", "status", "history") )
     is($result->{status}, 1, "Command elaborated: $c");
 }
 
+foreach my $c ( ("Germany borders", "Germany relations", "Germany events", "Germany status", "Germany history") )
+{
+    $commands->query($c);
+    $result = $commands->report_commands();
+    is($result->{status}, 1, "Command elaborated: $c");
+}
+
+
 #Year command
 $commands->query("1970/1");
 $result = $commands->report_commands();

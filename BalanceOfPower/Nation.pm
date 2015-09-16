@@ -229,7 +229,7 @@ sub military_advisor
         {
             my @friends = $world->shuffle("Choosing friend to support for " . $self->name, $world->get_friends($self->name));
             my $f = $friends[0];
-            if(! $world->already_in_military_support($f))
+            if(! $world->already_in_military_support($f) && $world->get_nation($f)->accept_military_support($self->name, $world))
             {
                 return $self->name . ": MILITARY SUPPORT " . $f;
             }

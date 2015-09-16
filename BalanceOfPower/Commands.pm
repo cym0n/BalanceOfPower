@@ -10,6 +10,7 @@ use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
 use BalanceOfPower::Commands::MilitarySupport;
+use BalanceOfPower::Commands::RecallMilitarySupport;
 
 has world => (
     is => 'ro'
@@ -74,6 +75,13 @@ sub init
                                                       army_limit => { '>' => ARMY_FOR_SUPPORT }
                                                     );
     push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::RecallMilitarySupport->new( name => "RECALL MILITARY SUPPORT",
+                                                        synonyms => ["RECALL SUPPORT"],
+                                                      world => $self->world,
+                                                      allowed_at_war => 1,
+                                                    );
+    push @{$self->commands}, $command; 
 }
 
 sub print_orders
@@ -103,7 +111,8 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 10;
+        $auto_years = 5;
+        $self->world->get_player_nation()->army(15);
     }
     else
     {
@@ -371,7 +380,7 @@ COMMANDS
     }
     else
     {
-        my @good_nation = grep { $query  =~ /$_/ } @{$self->world->nation_names};
+        my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
         if(@good_nation > 0) #it's a nation
         { 
             print $self->world->print_nation_actual_situation($query);

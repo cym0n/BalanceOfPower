@@ -55,6 +55,7 @@ sub good_target
 {
     my $self = shift;
     my $nation = shift;
+    return 0 if(! $nation);
     my @nations = $self->get_available_targets();
     my @selected = grep { $_ eq $nation} @nations;
     if(@selected >= 1)
