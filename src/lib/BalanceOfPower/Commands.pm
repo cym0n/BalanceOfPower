@@ -441,4 +441,37 @@ sub orders
     return { status => 0 };
 }
 
+sub interact
+{
+    my $self = shift;
+    while($self->active)
+    {
+        my $result = undef;
+        $self->clear_query();
+        $self->get_query();
+        $result = $self->turn_command();
+        if($result->{status} == 1)
+        {
+            $self->world->elaborate_turn();
+            say $self->world->print_formatted_turn_events($self->world->current_year);
+            next;
+        }
+        $result = $self->report_commands();
+        next if($result->{status} == 1);
+        $result = $self->orders();
+        if($result->{status} == -1)
+        {
+            say "Command not allowed";
+        }
+        elsif($result->{status} == -2)
+        {
+            say "No options available";
+        }
+        elsif($result->{status} == 1)
+        {
+            say "Order selected: " . $result->{command};
+            $self->world->order($result->{command});
+        } 
+    }
+}
 1;
