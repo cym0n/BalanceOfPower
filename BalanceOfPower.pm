@@ -16,18 +16,11 @@ unlink "bop-dice.log";
 
 use constant STUBBED_PLAYER => 1;
 
-#Initial status
-my @nation_names = ("Italy", "France", "United Kingdom", "Russia", 
-                    "Germany", "Spain", "Greece", "Switzerland", 
-                    "Finland", "Sweden", "Norway", "Netherlands", 
-                    "Belgium", "Portugal", "Denmark", "Austria",
-                    "Czech Republic", "Slovakia", "Slovenia", "Hungary",
-                    "Poland", "Turkey", "Bulgaria", "Albania" ); 
 my $first_year = 1970;
 
 #game
 my $world = BalanceOfPower::World->new( first_year => $first_year );
-$world->init_random(\@nation_names);
+$world->init_random();
 my $commands = BalanceOfPower::Commands->new( world => $world );
 my $auto_years = $commands->init_game(STUBBED_PLAYER);
 $world->autoplay(1);

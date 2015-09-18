@@ -80,12 +80,33 @@ sub get_player_nation
     return $self->get_nation($self->player_nation);
 }
 
+sub load_nation_names
+{
+    my $self = shift;
+    my $file = shift || "data/nations.txt";
+    open(my $nations_file, "<", $file) || die $!;
+    my @names = ();
+    for(<$nations_file>)
+    {
+        chomp;
+        push @names, $_;
+    }
+    $self->nation_names = \@names;
+}
+
 #Initial values, randomly generated
 sub init_random
 {
     my $self = shift;
     my $n = shift;
-    my @nations = @{$n};
+    if($n)
+    {
+        $self->nation_names = $n;
+    }
+    else
+    {
+        $self->load_nation_names();
+    }
     my $flags = shift;
 
     my $trades = 1;
@@ -102,11 +123,9 @@ sub init_random
 
     }
 
-    $self->nation_names = \@nations;
-
     $self->load_borders();
 
-    foreach my $n (@nations)
+    foreach my $n (@{$self->nation_names})
     {
         say "Working on $n";
         my $export_quote = $self->random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE, "Export quote $n");
