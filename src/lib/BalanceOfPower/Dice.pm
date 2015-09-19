@@ -5,6 +5,8 @@ use Moo;
 use Data::Dumper;
 use List::Util qw(shuffle);
 
+with 'BalanceOfPower::Role::Logger';
+
 has tricks => (
     is => 'rw',
     default => sub { {} } 
@@ -31,14 +33,14 @@ sub random
     my $out = $self->tricked($message);
     if(defined $out)
     {
-        $self->log($message, $out, 1);
+        $self->write_log($message, $out, 1);
         return $out;
     }
     else
     {
         my $random_range = $max - $min + 1;
         $out = int(rand($random_range)) + $min;
-        $self->log($message, $out, 0);
+        $self->write_log($message, $out, 0);
         return $out;
     }
 }
@@ -52,14 +54,14 @@ sub random10
     my $out = $self->tricked($message);
     if(defined $out)
     {
-        $self->log($message, $out, 1);
+        $self->write_log($message, $out, 1);
         return $out;
     }
     else
     {
         my $random_range = (($max - $min) / 10) + 1;
         $out = (int(rand($random_range)) * 10) + $min;
-        $self->log($message, $out, 0);
+        $self->write_log($message, $out, 0);
         return $out;
     }
 }
@@ -90,17 +92,17 @@ sub shuffle_array
                 $tricked = 1;
             }
         }
-        $self->log($message, "<<array>>, first result: " . $array_back[0], $tricked);
+        $self->write_log($message, "<<array>>, first result: " . $array_back[0], $tricked);
         return @array_back
     }
 
     if(@array == 0)
     {
-        $self->log($message, "<<array>>, Array empty");
+        $self->write_log($message, "<<array>>, Array empty");
         return @array;
     }
     @array = shuffle @array;
-    $self->log($message, "<<array>>, first result: " . $array[0]);
+    $self->write_log($message, "<<array>>, first result: " . $array[0]);
     return @array;
 }
 sub tricked
@@ -136,7 +138,7 @@ sub tricked
     } 
 }
 
-sub log
+sub write_log
 {
     my $self = shift;
     my $message = shift;
@@ -146,9 +148,8 @@ sub log
     {
         $message .= " *TRICKED* ";
     }
-    open(my $log, ">>", "bop-dice.log");
-    print $log "[" . $message . "] $result\n";
-    close($log); 
+    $message = "[" . $message . "] $result";
+    $self->log($message);
 }
 
 1;

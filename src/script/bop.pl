@@ -7,35 +7,32 @@ use IO::Prompter;
 use Term::ANSIColor;
 use BalanceOfPower::Utils qw(get_year_turns compare_turns);
 use BalanceOfPower::World;
-use BalanceOfPower::Commands;
+
 
 my $stubbed_player = 0;
 
-unlink "bop.log";
-unlink "bop-dice.log";
-
-if($ARGV[0] == 'devel')
+my $mode = shift @ARGV;
+if($mode eq 'devel')
 {
+   say "DEVELOPEMENT MODE";
    $stubbed_player = 1;
 }
 
-my $first_year = 1970;
+my $world;
+my $commands;
+my $first_year;
+my $auto_years;
 
-my $world = BalanceOfPower::World->new( first_year => $first_year );
+
+$first_year = 1970;
+$world = BalanceOfPower::World->new( first_year => $first_year );
 $world->init_random();
-my $commands = BalanceOfPower::Commands->new( world => $world );
-my $auto_years = $commands->init_game($stubbed_player);
-$world->autoplay(1);
-for($first_year..$first_year+$auto_years)
-{
-    my $y = $_;
-    foreach my $t (get_year_turns($y))
-    {
-        $world->elaborate_turn($t);
-    }
-}
-$world->autoplay(0);
-say "=======\n\n\n";
+
+$commands = $world->build_commands();
+$auto_years = $commands->init_game($stubbed_player);
+
+$world->autopilot($first_year, $first_year+$auto_years);
+
 $commands->init();
 $commands->welcome_player();
 $commands->interact();

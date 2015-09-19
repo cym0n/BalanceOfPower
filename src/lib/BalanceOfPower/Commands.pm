@@ -12,6 +12,8 @@ use BalanceOfPower::Commands::TargetRoute;
 use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
 
+with 'BalanceOfPower::Role::Logger';
+
 has world => (
     is => 'ro'
 );
@@ -138,7 +140,10 @@ sub welcome_player
 sub get_query
 {
     my $self = shift;
-    return if($self->query);
+    if($self->query)
+    {
+        $self->log("[Not interactive query] " . $self->query);
+    }
     my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
     if($self->world->order)
     {
@@ -154,6 +159,7 @@ sub get_query
     }
     print "\n";
     $self->query($input_query);
+    $self->log("[Interactive query] " . $self->query);
 }
 
 sub clear_query

@@ -20,7 +20,7 @@ requires 'supporter';
 sub load_borders
 {
     my $self = shift;
-    my $file = shift || "data/borders.txt";
+    my $file = shift || $self->data_directory . "/borders.txt";
     open(my $borders, "<", $file) || die $!;;
     for(<$borders>)
     {

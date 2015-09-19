@@ -5,11 +5,13 @@ use v5.10;
 
 use Moo;
 use Data::Dumper;
+use Cwd 'abs_path';
 
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_turn next_turn);
 use BalanceOfPower::Nation;
 use BalanceOfPower::Dice;
+use BalanceOfPower::Commands;
 
 has name => (
     is => 'ro',
@@ -37,9 +39,18 @@ has autoplay => (
     is => 'rw',
     default => 0
 );
+has data_directory => (
+    is => 'rw',
+    default => sub {
+        my $module_file_path = __FILE__;
+        my $root_path = abs_path($module_file_path);
+        $root_path =~ s/World\.pm//;
+        my $data_directory = $root_path . "data";
+    }
+);
 has dice => (
     is => 'ro',
-    default => sub { BalanceOfPower::Dice->new() },
+    default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log") },
     handles => { random => 'random',
                  random10 => 'random10',
                  shuffle => 'shuffle_array',
@@ -83,7 +94,7 @@ sub get_player_nation
 sub load_nation_names
 {
     my $self = shift;
-    my $file = shift || "data/nations.txt";
+    my $file = shift || $self->data_directory . "/nations.txt";
     open(my $nations_file, "<", $file) || die $!;
     my @names = ();
     for(<$nations_file>)
@@ -122,6 +133,9 @@ sub init_random
             if(exists $flags->{'alliances'});
 
     }
+
+    $self->delete_log();
+    $self->dice->delete_log();
 
     $self->load_borders();
 
@@ -176,6 +190,25 @@ sub elaborate_turn
     $self->collect_events();
 }
 
+#To automatically generate turns
+sub autopilot
+{
+    my $self = shift;
+    my $start = shift;
+    my $stop = shift;
+    $self->autoplay(1);
+    for($start..$stop)
+    {
+        my $y = $_;
+        foreach my $t (get_year_turns($y))
+        {
+            $self->elaborate_turn($t);
+        }
+    }
+    $self->autoplay(0);
+}
+
+
 # Configure current year
 # Give production to countries. Countries split it between export and domestic and, if allowed, raise the debt in case of necessity
 # Wealth reset
@@ -188,9 +221,7 @@ sub init_year
     {
         $turn = next_turn($self->current_year);
     }
-    open(my $log, ">>", "bop.log");
-    print $log "--- $turn ---\n";
-    close($log);
+    $self->log("--- $turn ---");
     say $turn;
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
@@ -548,6 +579,16 @@ sub collect_events
        }
        
    }
+}
+
+### Commands
+
+sub build_commands
+{
+    my $self = shift;
+    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log' );
+    $commands->init();
+    return $commands;
 }
 
 

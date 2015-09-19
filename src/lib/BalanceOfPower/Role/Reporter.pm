@@ -5,6 +5,7 @@ use v5.10;
 use Moo::Role;
 use BalanceOfPower::Utils qw( get_year_turns as_title );
 
+with "BalanceOfPower::Role::Logger";
 
 has events => (
     is => 'rw',
@@ -19,10 +20,7 @@ sub register_event
 
     $self->events({}) if(! $self->events );
     push @{$self->events->{$time}}, $event;
-
-    open(my $log, ">>", "bop.log");
-    print $log "[" . $self->name . "] $event\n";
-    close($log);
+    $self->log("[" . $self->name . "] $event");
 }
 sub get_events
 {
