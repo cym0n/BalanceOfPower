@@ -1,0 +1,69 @@
+# North America
+Canada
+Cuba
+Honduras
+Mexico
+Nicaragua
+Panama
+USA
+# South America
+Argentina
+Brazil
+Chile
+Colombia
+Peru
+Venezuela
+# Europe
+United Kingdom
+France
+Italy
+Spain
+Sweden
+West Germany
+Czechoslovakia
+East Germany
+Greece
+Poland
+Romania
+USSR
+Yugoslavia
+# Africa
+Algeria
+Egypt
+Ethiopia
+Libya
+Mali
+Morocco
+Nigeria
+Sudan
+Tunisia
+Angola
+Kenya
+Mozambique
+South Africa
+Tanzania
+Zaire
+Zimbabwe
+# Middle East
+Afghanistan
+Israel
+Iran
+Iraq
+Pakistan
+Saudi Arabia
+Syria
+Turkey
+# Far East
+Burma
+China
+India
+North Korea
+South Korea
+Thailand
+Vietnam
+# Pacific
+Australia
+Indonesia
+Japan
+Philippines
+Taiwan

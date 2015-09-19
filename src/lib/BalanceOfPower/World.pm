@@ -90,17 +90,27 @@ sub get_player_nation
     my $self = shift;
     return $self->get_nation($self->player_nation);
 }
+sub check_nation_name
+{
+    my $self = shift;
+    my $name = shift;
+    return grep {$_ eq $name} @{$self->nation_names};
+}
 
 sub load_nation_names
 {
     my $self = shift;
-    my $file = shift || $self->data_directory . "/nations.txt";
+    my $file = shift || $self->data_directory . "/nations-v2.txt";
     open(my $nations_file, "<", $file) || die $!;
     my @names = ();
     for(<$nations_file>)
     {
-        chomp;
-        push @names, $_;
+        my $n = $_;
+        chomp $n;
+        if(! ($n =~ /^#/))
+        {
+            push @names, $n;
+        }
     }
     $self->nation_names = \@names;
 }

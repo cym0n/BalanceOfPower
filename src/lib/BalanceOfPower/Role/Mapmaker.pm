@@ -1,5 +1,6 @@
 package BalanceOfPower::Role::Mapmaker;
 
+use v5.10;
 use strict;
 use Moo::Role;
 
@@ -20,16 +21,24 @@ requires 'supporter';
 sub load_borders
 {
     my $self = shift;
-    my $file = shift || $self->data_directory . "/borders.txt";
+    my $file = shift || $self->data_directory . "/borders-v2.txt";
     open(my $borders, "<", $file) || die $!;;
     for(<$borders>)
     {
         chomp;
-        my @nodes = split(/,/, $_);
-        if($nodes[0] && $nodes[1] && ! $self->border_exists($nodes[0], $nodes[1]))
+        my $border = $_;
+        my @nodes = split(/,/, $border);
+        if($self->check_nation_name($nodes[0]) && $self->check_nation_name($nodes[1]))
         {
-            my $b = BalanceOfPower::Relations::Border->new(node1 => $nodes[0], node2 => $nodes[1]);
-            $self->add_border($b);
+            if($nodes[0] && $nodes[1] && ! $self->border_exists($nodes[0], $nodes[1]))
+            {
+                my $b = BalanceOfPower::Relations::Border->new(node1 => $nodes[0], node2 => $nodes[1]);
+                $self->add_border($b);
+            }
+        }
+        else
+        {
+            say "WRONG BORDER: $border";
         }
     }
 }
