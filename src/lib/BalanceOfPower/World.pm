@@ -31,6 +31,10 @@ has nation_names => (
     is => 'rw',
     default => sub { [] }
 );
+has areas => (
+    is => 'rw',
+    default => sub { {} }
+);
 has order => (
     is => 'rw',
     default => ""
@@ -103,6 +107,8 @@ sub load_nation_names
     my $file = shift || $self->data_directory . "/nations-v2.txt";
     open(my $nations_file, "<", $file) || die $!;
     my @names = ();
+    my $area = undef;
+    my %areas;
     for(<$nations_file>)
     {
         my $n = $_;
@@ -110,9 +116,16 @@ sub load_nation_names
         if(! ($n =~ /^#/))
         {
             push @names, $n;
+            $areas{$n} = $area;
+        }
+        else
+        {
+            $n =~ /^# (.*)$/;
+            $area = $1;
         }
     }
     $self->nation_names = \@names;
+    $self->areas = \%areas;
 }
 
 #Initial values, randomly generated
@@ -156,7 +169,7 @@ sub init_random
         say "  export quote: $export_quote";
         my $government_strength = $self->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Government strenght $n");
         say "  government strength: $government_strength";
-        push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, export_quote => $export_quote, government_strength => $government_strength);
+        push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, area => $self->areas->{$n}, export_quote => $export_quote, government_strength => $government_strength);
     }
     if($trades)
     {

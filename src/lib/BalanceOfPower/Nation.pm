@@ -14,6 +14,12 @@ has name => (
     is => 'ro',
     default => 'Dummyland'
 );
+has area => (
+    is => 'ro',
+    default => 'Neverwhere'
+);
+
+
 has export_quote => (
     is => 'ro',
     default => 50
@@ -631,6 +637,7 @@ sub print_attributes
 {
     my $self = shift;
     my $out = "";
+    $out .= "Area: " . $self->area . "\n";
     $out .= "Export quote: " . $self->export_quote . "\n";
     $out .= "Government strength: " . $self->government_strength . "\n";
     $out .= "Internal situation: " . $self->internal_disorder_status . "\n";
