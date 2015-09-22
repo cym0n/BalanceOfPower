@@ -21,7 +21,8 @@ requires 'supporter';
 sub load_borders
 {
     my $self = shift;
-    my $file = shift || $self->data_directory . "/borders-v2.txt";
+    my $bordersfile = shift;
+    my $file = shift || $self->data_directory . "/" . $bordersfile;
     open(my $borders, "<", $file) || die $!;;
     for(<$borders>)
     {

@@ -113,7 +113,7 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 1;
+        $auto_years = 0;
     }
     else
     {

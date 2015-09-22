@@ -11,11 +11,12 @@ use constant MAX_STARTING_TRADEROUTES => 5;
 use constant ADDING_TRADEROUTE_COST => 30;
 use constant MIN_TRADEROUTE_GAIN => 2;
 use constant MAX_TRADEROUTE_GAIN => 4;
-use constant MIN_DELTA_PRODUCTION => -20;
-use constant MAX_DELTA_PRODUCTION => 20;
-use constant MAX_PRODUCTION => 180;
-use constant MIN_STARTING_PRODUCTION => 50;
-use constant MAX_STARTING_PRODUCTION => 100;
+use constant MIN_DELTA_PRODUCTION => -10;
+use constant MAX_DELTA_PRODUCTION => 10;
+use constant MAX_PRODUCTION => 50;
+use constant MIN_STARTING_PRODUCTION => 20;
+use constant MAX_STARTING_PRODUCTION => 40;
+use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
 use constant INTERNAL_PRODUCTION_GAIN => 1;
 use constant TRADING_QUOTE => 15;
 use constant TRADINGROUTE_COST => 10;
@@ -59,7 +60,7 @@ use constant CRISIS_MAX_FACTOR => 3;
 use constant MIN_ARMY_FOR_WAR => 5;
 use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
 use constant WAR_WEALTH_MALUS => 20;
-use constant ATTACK_FAILED_PRODUCTION_MALUS => 40;
+use constant ATTACK_FAILED_PRODUCTION_MALUS => 10;
 use constant AFTER_CONQUERED_INTERNAL_DISORDER => 30;
 use constant OCCUPATION_LOOT_BY_TYPE => 20;
 use constant DOMINATION_LOOT_BY_TYPE => 20;
@@ -91,6 +92,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MAX_PRODUCTION',
                   'MIN_STARTING_PRODUCTION',
                   'MAX_STARTING_PRODUCTION',
+                  'PRODUCTION_UNITS',
                   'INTERNAL_PRODUCTION_GAIN',
                   'TRADING_QUOTE',
                   'TRADINGROUTE_COST',

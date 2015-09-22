@@ -152,11 +152,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Prod.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
     }
     else
     {
-        return "Prod.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
     }
 }
 sub print_nation_statistics_line
@@ -166,6 +166,7 @@ sub print_nation_statistics_line
     my $y = shift;
     my $out = "";
     #$out .= "$y\t";
+    $out .= $self->get_nation($nation)->size . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'production') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'wealth') . "\t";
     if($self->get_statistics_value($y, $nation, 'production') <= 0)

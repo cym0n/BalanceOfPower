@@ -6,6 +6,11 @@ use Moo::Role;
 
 use Cwd;
 
+has log_active => (
+    is => 'rw',
+    default => 1
+);
+
 has log_name => (
     is => 'rw',
     default => "bop.log"
@@ -25,6 +30,7 @@ sub log_path
 sub log
 {
     my $self = shift;
+    return if(! $self->log_active);
     my $message = shift;
     open(my $log, ">>", $self->log_path);
     print $log $message . "\n";

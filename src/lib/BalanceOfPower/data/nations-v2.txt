@@ -1,69 +1,69 @@
 # North America
-Canada
-Cuba
-Honduras
-Mexico
-Nicaragua
-Panama
-USA
+Canada,2
+Cuba,0
+Honduras,0
+Mexico,1
+Nicaragua,0
+Panama,0
+USA,2
 # South America
-Argentina
-Brazil
-Chile
-Colombia
-Peru
-Venezuela
+Argentina,2
+Brazil,2
+Chile,1
+Colombia,0
+Peru,1
+Venezuela,0
 # Europe
-United Kingdom
-France
-Italy
-Spain
-Sweden
-West Germany
-Czechoslovakia
-East Germany
-Greece
-Poland
-Romania
-USSR
-Yugoslavia
+United Kingdom,2
+France,2
+Italy,2
+Spain,2
+Sweden,1
+West Germany,1
+Czechoslovakia,0
+East Germany,1
+Greece,0
+Poland,0
+Romania,0
+USSR,2
+Yugoslavia,1
 # Africa
-Algeria
-Egypt
-Ethiopia
-Libya
-Mali
-Morocco
-Nigeria
-Sudan
-Tunisia
-Angola
-Kenya
-Mozambique
-South Africa
-Tanzania
-Zaire
-Zimbabwe
+Algeria,1
+Egypt,2
+Ethiopia,1
+Libya,1
+Mali,0
+Morocco,0
+Nigeria,2
+Sudan,1
+Tunisia,0
+Angola,2
+Kenya,2
+Mozambique,0
+South Africa,2
+Tanzania,1
+Zaire,1
+Zimbabwe,0
 # Middle East
-Afghanistan
-Israel
-Iran
-Iraq
-Pakistan
-Saudi Arabia
-Syria
-Turkey
+Afghanistan,2
+Israel,1
+Iran,1
+Iraq,1
+Pakistan,1
+Saudi Arabia,2
+Syria,0
+Turkey,2
 # Far East
-Burma
-China
-India
-North Korea
-South Korea
-Thailand
-Vietnam
+Burma,0
+China,2
+India,2
+North Korea,1
+South Korea,1
+Thailand,0
+Vietnam,1
 # Pacific
-Australia
-Indonesia
-Japan
-Philippines
-Taiwan
+Australia,2
+Indonesia,0
+Japan,1
+Philippines,0
+Taiwan,0

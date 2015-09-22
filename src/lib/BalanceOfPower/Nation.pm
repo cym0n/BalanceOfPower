@@ -24,10 +24,13 @@ has export_quote => (
     is => 'ro',
     default => 50
 );
-
 has government_strength => (
     is => 'rw',
     default => 70
+);
+has size => (
+    is => 'ro',
+    default => 1
 );
 
 has internal_disorder => (

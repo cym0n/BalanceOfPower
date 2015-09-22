@@ -31,10 +31,6 @@ has nation_names => (
     is => 'rw',
     default => sub { [] }
 );
-has areas => (
-    is => 'rw',
-    default => sub { {} }
-);
 has order => (
     is => 'rw',
     default => ""
@@ -54,13 +50,14 @@ has data_directory => (
 );
 has dice => (
     is => 'ro',
-    default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log") },
+    default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log" ) },
     handles => { random => 'random',
                  random10 => 'random10',
                  shuffle => 'shuffle_array',
                  tricks => 'tricks',
                  forced_advisor => 'forced_advisor',
-                 only_one_nation_acting => 'only_one_nation_acting'
+                 only_one_nation_acting => 'only_one_nation_acting',
+                 dice_log => 'log_active'
                }
 );
 
@@ -101,22 +98,24 @@ sub check_nation_name
     return grep {$_ eq $name} @{$self->nation_names};
 }
 
-sub load_nation_names
+sub load_nations_data
 {
     my $self = shift;
-    my $file = shift || $self->data_directory . "/nations-v2.txt";
+    my $datafile = shift;
+    my $file = $self->data_directory . "/" . $datafile;
     open(my $nations_file, "<", $file) || die $!;
-    my @names = ();
-    my $area = undef;
-    my %areas;
+    my $area;
+    my %nations_data;
     for(<$nations_file>)
     {
         my $n = $_;
         chomp $n;
         if(! ($n =~ /^#/))
         {
-            push @names, $n;
-            $areas{$n} = $area;
+            my ($name, $size) = split(',', $n);
+            $nations_data{$name} = { area => $area,
+                                     size => $size }
+
         }
         else
         {
@@ -124,23 +123,16 @@ sub load_nation_names
             $area = $1;
         }
     }
-    $self->nation_names = \@names;
-    $self->areas = \%areas;
+    return %nations_data;
 }
 
 #Initial values, randomly generated
 sub init_random
 {
     my $self = shift;
-    my $n = shift;
-    if($n)
-    {
-        $self->nation_names = $n;
-    }
-    else
-    {
-        $self->load_nation_names();
-    }
+    my $datafile = shift;
+    my $bordersfile = shift;
+    my %nations_data = $self->load_nations_data($datafile);
     my $flags = shift;
 
     my $trades = 1;
@@ -159,18 +151,24 @@ sub init_random
 
     $self->delete_log();
     $self->dice->delete_log();
-
-    $self->load_borders();
-
-    foreach my $n (@{$self->nation_names})
+    my @nation_names = ();
+    foreach my $n (keys %nations_data)
     {
+        push @nation_names, $n;
         say "Working on $n";
         my $export_quote = $self->random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE, "Export quote $n");
         say "  export quote: $export_quote";
         my $government_strength = $self->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Government strenght $n");
         say "  government strength: $government_strength";
-        push @{$self->nations}, BalanceOfPower::Nation->new( name => $n, area => $self->areas->{$n}, export_quote => $export_quote, government_strength => $government_strength);
+        push @{$self->nations}, BalanceOfPower::Nation->new( 
+            name => $n, 
+            area => $nations_data{$n}->{area}, 
+            size => $nations_data{$n}->{size},
+            export_quote => $export_quote, 
+            government_strength => $government_strength);
     }
+    $self->nation_names = \@nation_names;
+    $self->load_borders($bordersfile);
     if($trades)
     {
         $self->init_trades();
@@ -249,7 +247,6 @@ sub init_year
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
     {
-        print ".";
         $n->current_year($turn);
         $n->wealth(0);
         my $prod = $self->calculate_production($n);
@@ -257,7 +254,6 @@ sub init_year
         $self->set_statistics_value($n, 'production', $prod);
         $self->set_statistics_value($n, 'debt', $n->debt);
     }
-    print "\n";
 }
 
 
@@ -270,54 +266,57 @@ sub get_base_production
 {
     my $self = shift;
     my $nation = shift;
-    my $statistics_production = $self->get_statistics_value(prev_turn($nation->current_year), $nation->name, 'production'); 
-    if($statistics_production)
+
+    my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_turn($nation->current_year));
+    my $previous_production = $self->get_statistics_value(prev_turn($nation->current_year), $nation->name, 'production'); 
+    
+    return () if(@newgov > 0);
+    return () if(! $previous_production);
+    
+    my @prods = ();
+    for(my $i = 0; $i < PRODUCTION_UNITS->[$nation->size]; $i++)
     {
-        my @newgov = $nation->get_events("NEW GOVERNMENT CREATED", prev_turn($nation->current_year));
-        if(@newgov > 0)
-        {
-            return undef;
-        }
-        else
-        {
-            return $statistics_production;
-        }
+        push @prods, $self->get_statistics_value(prev_turn($nation->current_year), $nation->name, 'production' . $i); 
     }
-    else
-    {
-        return undef;
-    }
+    return @prods;
 }
 sub calculate_production
 {
     my $self = shift;
     my $n = shift;
-    my $production = $self->get_base_production($n);
-    my $next = 0;
-    if(defined $production)
-    {
-        $next = $production + $self->random10(MIN_DELTA_PRODUCTION, MAX_DELTA_PRODUCTION, "Delta production " . $n->name);
-    }
-    else
-    {
-        $next = $self->random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION, "Starting production " . $n->name);
-    }
+    my @prev_prods = $self->get_base_production($n);
+    my @next_prods = ();
+    my $cost_for_retreat = 0;
     my @retreats = $n->get_events("RETREAT FROM", prev_turn($n->current_year));
-    if(@retreats > 0)
+    my $global_production = 0;
+    for(my $i = 0; $i < PRODUCTION_UNITS->[$n->size]; $i++)
     {
-        $next -= ATTACK_FAILED_PRODUCTION_MALUS;
-        $self->send_event("COST FOR DEFEAT ON PRODUCTION: " . ATTACK_FAILED_PRODUCTION_MALUS);
-    }
+        if(@prev_prods > 0)
+        {
+            $next_prods[$i] = $prev_prods[$i] + $self->random10(MIN_DELTA_PRODUCTION, MAX_DELTA_PRODUCTION, "Delta production" . $i . " " . $n->name);
+        }
+        else
+        {
+            $next_prods[$i] = $self->random10(MIN_STARTING_PRODUCTION, MAX_STARTING_PRODUCTION, "Starting production" . $i . " " . $n->name);
+        }
 
-    if($next < 0)
-    {
-        $next = 0;
+        #DEFEAT COST MANAGEMENT
+        if(@retreats)
+        {
+            $next_prods[$i] -= ATTACK_FAILED_PRODUCTION_MALUS;
+            $cost_for_retreat += ATTACK_FAILED_PRODUCTION_MALUS;
+        }
+        $next_prods[$i] = 0 if($next_prods[$i] < 0);
+        $next_prods[$i] = MAX_PRODUCTION if($next_prods[$i] > MAX_PRODUCTION);
+
+        $self->set_statistics_value($n, 'production' . $i, $next_prods[$i]);
+        $global_production += $next_prods[$i];
     }
-    if($next > MAX_PRODUCTION)
+    if($cost_for_retreat)
     {
-        $next = MAX_PRODUCTION;
+        $self->send_event("COST FOR DEFEAT ON PRODUCTION: " . $cost_for_retreat);
     }
-    return $next;
+    return $global_production;
 }
 
 
@@ -609,7 +608,7 @@ sub collect_events
 sub build_commands
 {
     my $self = shift;
-    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log' );
+    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active );
     $commands->init();
     return $commands;
 }
