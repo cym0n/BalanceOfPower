@@ -65,6 +65,20 @@ sub random10
         return $out;
     }
 }
+
+sub random_around_zero
+{
+    my $self = shift;
+    my $max = shift;
+    my $divider = shift || 1;
+    my $message = shift;
+    my $random_max = $max * 2;
+    my $r = $self->random(0, $random_max, "Internal, from random_around_zero");
+    $r = $r - $max;
+    $r = $r / $divider;
+    $self->write_log($message, $r, 0);
+    return $r;
+}
 sub shuffle_array
 {
     my $self = shift;

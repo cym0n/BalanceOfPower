@@ -53,6 +53,7 @@ has dice => (
     default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log" ) },
     handles => { random => 'random',
                  random10 => 'random10',
+                 random_around_zero => 'random_around_zero',
                  shuffle => 'shuffle_array',
                  tricks => 'tricks',
                  forced_advisor => 'forced_advisor',
@@ -519,37 +520,27 @@ sub economy
 
 # INTERNAL DISORDER #######################################################
 
-# If Peace internal disorder variation is only based on wealth
-# If Terrorism or Insurgence internal disorder variation is base on wealth and a random factor
-# If Civil war internal disorder IS NOT calculated. Civil war is fought.
 sub internal_conflict
 {
     my $self = shift;
     foreach my $n (@{$self->nations})
     {
         my $present_status = $n->internal_disorder_status;
-        if($n->internal_disorder_status eq 'Peace')
-        {
-            $n->calculate_disorder();
-        }
-        elsif($n->internal_disorder_status eq 'Terrorism' || $n->internal_disorder_status eq 'Insurgence' )
-        {
-            $n->add_internal_disorder($self->random(-1 * INTERNAL_DISORDER_VARIATION_FACTOR, INTERNAL_DISORDER_VARIATION_FACTOR, "Internal disorder variation " . $n->name));
-            $n->calculate_disorder();
-        }
-        elsif($n->internal_disorder_status eq 'Civil war')
-        {
-            my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
-            if($winner && $winner eq 'rebels')
-            {
-                $n->new_government($self);
-            }
-        }
+
+        $n->calculate_disorder($self);
+        
+        #This should happen only if status changed during this iteration
         if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')
         {
-            #This should happen only if status changed during this iteration
             $self->lose_war($n->name, 1);
         }
+        
+        my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
+        if($winner && $winner eq 'rebels')
+        {
+            $n->new_government($self);
+        }
+        
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
 }

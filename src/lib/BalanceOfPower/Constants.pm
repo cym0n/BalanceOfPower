@@ -20,9 +20,6 @@ use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
 use constant INTERNAL_PRODUCTION_GAIN => 1;
 use constant TRADING_QUOTE => 15;
 use constant TRADINGROUTE_COST => 10;
-use constant POVERTY_LIMIT => 80;
-use constant INTERNAL_DISORDER_VARIATION_FACTOR => 4;
-use constant RICHNESS_LIMIT => 110;
 use constant INTERNAL_DISORDER_TERRORISM_LIMIT => 10;
 use constant INTERNAL_DISORDER_INSURGENCE_LIMIT => 40;
 use constant INTERNAL_DISORDER_CIVIL_WAR_LIMIT => 80;
@@ -96,9 +93,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'INTERNAL_PRODUCTION_GAIN',
                   'TRADING_QUOTE',
                   'TRADINGROUTE_COST',
-                  'POVERTY_LIMIT',
-                  'RICHNESS_LIMIT',
-                  'INTERNAL_DISORDER_VARIATION_FACTOR',
                   'INTERNAL_DISORDER_TERRORISM_LIMIT',
                   'INTERNAL_DISORDER_INSURGENCE_LIMIT',
                   'INTERNAL_DISORDER_CIVIL_WAR_LIMIT',

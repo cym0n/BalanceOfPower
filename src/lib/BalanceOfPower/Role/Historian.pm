@@ -152,11 +152,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Size\tProd.\tWealth\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy";
     }
     else
     {
-        return "Size\tProd.\tWealth\tGrowth\tDelta\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy";
     }
 }
 sub print_nation_statistics_line
@@ -169,6 +169,9 @@ sub print_nation_statistics_line
     $out .= $self->get_nation($nation)->size . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'production') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'wealth') . "\t";
+    my $wd = $self->get_statistics_value($y, $nation, 'wealth') / PRODUCTION_UNITS->[$self->get_nation($nation)->size];
+    $wd = int($wd * 100) / 100;
+    $out .= $wd . "\t";
     if($self->get_statistics_value($y, $nation, 'production') <= 0)
     {
         $out .= "X\t";

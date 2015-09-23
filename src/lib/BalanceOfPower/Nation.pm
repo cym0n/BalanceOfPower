@@ -156,18 +156,29 @@ sub trade
 sub calculate_disorder
 {
     my $self = shift;
+    my $world = shift;
     return if($self->internal_disorder_status eq 'Civil war');
-    my $disorder = 0;
-    my $actual_poverty_limit = POVERTY_LIMIT - int(($self->internal_disorder + 1) / INTERNAL_DISORDER_VARIATION_FACTOR);
-    my $actual_richness_limit = RICHNESS_LIMIT - int(($self->internal_disorder + 1) / INTERNAL_DISORDER_VARIATION_FACTOR);
-    if($self->wealth < $actual_poverty_limit)
-    {
-        $disorder = int(($actual_poverty_limit - $self->wealth) / int($self->government_strength / 10));
-    }
-    elsif($self->wealth > $actual_richness_limit)
-    {
-        $disorder = -1 * int((($self->wealth - $actual_richness_limit) * $self->government_strength) / 100);
-    }
+
+    #Variables
+    my $wd = $self->wealth / PRODUCTION_UNITS->[$self->size];
+    my $d = $self->internal_disorder;
+    my $g = $self->government_strength;
+
+    #Constants
+    my $wd_middle = 30;
+    my $wd_divider = 10;
+    my $disorder_divider = 70;
+    my $government_strength_minimum = 60;
+    my $government_strength_divider = 40;
+    my $random_factor_max = 15;
+    
+    
+    my $disorder = ( ($wd_middle - $wd) / $wd_divider ) +
+                   ( $d / $disorder_divider           ) +
+                   ( ($government_strength_minimum - $g) / $government_strength_divider ) +
+                   $world->random_around_zero($random_factor_max, 100, "Internal disorder random factor for " . $self->name);
+    $disorder = int ($disorder * 100) / 100;
+    $self->register_event("DISORDER CHANGE: " . $disorder);
     $self->add_internal_disorder($disorder);
 }
 sub decision
@@ -524,6 +535,7 @@ sub fight_civil_war
     my $self = shift;
     my $government = shift;
     my $rebels = shift;
+    return undef if($self->internal_disorder_status ne 'Civil war');
     $self->register_event("FIGHTING CIVIL WAR");
     if($self->army >= ARMY_UNIT_FOR_INTERNAL_DISORDER)
     {
