@@ -45,7 +45,9 @@ has data_directory => (
         my $module_file_path = __FILE__;
         my $root_path = abs_path($module_file_path);
         $root_path =~ s/World\.pm//;
+        say $root_path . "data"; 
         my $data_directory = $root_path . "data";
+
     }
 );
 has dice => (

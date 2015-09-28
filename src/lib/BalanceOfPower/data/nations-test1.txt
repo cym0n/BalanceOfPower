@@ -1,0 +1,6 @@
+# Test World
+Italy,2
+France,2
+United Kingdom,2
+Russia,2
+Germany,2

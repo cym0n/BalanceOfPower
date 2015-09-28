@@ -2,10 +2,7 @@ use v5.10;
 use BalanceOfPower::World;
 use BalanceOfPower::Commands;
 use Test::More;
-
-
-unlink "bop.log";
-unlink "bop-dice.log";
+use lib "lib";
 
 #Initialization of test scenario
 my @nation_names = ("Italy", "France", "Russia", 

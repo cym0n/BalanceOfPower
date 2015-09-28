@@ -1,18 +1,15 @@
 use v5.10;
+use lib "lib";
 use BalanceOfPower::World;
 use BalanceOfPower::Commands;
 use Test::More;
-
-
-unlink "bop.log";
-unlink "bop-dice.log";
 
 #Initialization of test scenario
 my @nation_names = ("Italy", "France", "United Kingdom", "Russia", 
                     "Germany"); 
 my $first_year = 1970;
 my $world = BalanceOfPower::World->new( first_year => $first_year );
-$world->init_random(\@nation_names, { alliances => 0});
+$world->init_random('nations-test1.txt', 'borders-test1.txt', { alliances => 0});
 $world->autoplay(1);
 $world->elaborate_turn("1970/1");
 $world->autoplay(0);

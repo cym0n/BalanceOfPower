@@ -1,3 +1,4 @@
+use lib "lib";
 use BalanceOfPower::World;
 use BalanceOfPower::Commands;
 use BalanceOfPower::Relations::Alliance;
@@ -6,11 +7,9 @@ use BalanceOfPower::Relations::War;
 use Test::More;
 
 #Initialization of test scenario
-my @nation_names = ("Italy", "France", "United Kingdom", "Russia", 
-                    "Germany"); 
 my $first_year = 1970;
 my $world = BalanceOfPower::World->new( first_year => $first_year );
-$world->init_random(\@nation_names, { alliances => 0});
+$world->init_random('nations-test1.txt', 'borders-test1.txt');
 #Stubbed data
 
 $world->get_nation("Germany")->army(15);
