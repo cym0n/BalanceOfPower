@@ -535,7 +535,8 @@ sub internal_conflict
             $self->lose_war($n->name, 1);
         }
         
-        my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
+        #my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
+        my $winner = $n->fight_civil_war($self);
         if($winner && $winner eq 'rebels')
         {
             $n->new_government($self);

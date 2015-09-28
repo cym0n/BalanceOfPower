@@ -53,7 +53,7 @@ has debt => (
     is => 'rw',
     default => 0
 );
-has civil_war => (
+has rebel_provinces => (
     is => 'rw',
     default => 0
 );
@@ -185,9 +185,8 @@ sub decision
 {
     my $self = shift;
     my $world = shift;
-    return undef if($self->internal_disorder_status eq 'Civil war');
     my @advisors;
-    if($world->at_war($self->name))
+    if($world->at_war($self->name) || $world->at_civil_war($self->name))
     {
         @advisors = ('military');
     }
@@ -227,7 +226,7 @@ sub military_advisor
 {
     my $self = shift;
     my $world = shift;
-    if(! $world->at_war($self->name))
+    if(! $world->at_war($self->name) && ! $world->at_civil_war($self->name))
     {
         if($self->army >= MIN_ARMY_FOR_WAR)
         {
@@ -505,7 +504,7 @@ sub add_internal_disorder
         if($new_disorder eq "Civil war")
         {
             $self->register_event("CIVIL WAR OUTBREAK");
-            $self->civil_war(0);
+            $self->rebel_provinces(STARTING_REBEL_PROVINCES->[$self->size]);
         }
     }
 }
@@ -533,9 +532,10 @@ sub internal_disorder_status
 sub fight_civil_war
 {
     my $self = shift;
-    my $government = shift;
-    my $rebels = shift;
+    my $world = shift;
     return undef if($self->internal_disorder_status ne 'Civil war');
+    my $government = $world->random(0, 100, "Civil war " . $self->name . ": government fight result");
+    my $rebels = $world->random(0, 100, "Civil war " . $self->name . ": rebels fight result");
     $self->register_event("FIGHTING CIVIL WAR");
     if($self->army >= ARMY_UNIT_FOR_INTERNAL_DISORDER)
     {
@@ -561,39 +561,24 @@ sub civil_war_battle
     my $battle_winner = shift;
     if($battle_winner eq 'government')
     {
-        if($self->civil_war > 0)
-        {
-            $self->civil_war($self->civil_war + 1);
-            if($self->civil_war >= CIVIL_WAR_WIN)
-            {
-                $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-                $self->register_event("THE GOVERNMENT WON THE CIVIL WAR");
-                $self->civil_war(0);
-                return 'government';
-            }
-        }
-        elsif($self->civil_war <= 0)
-        {
-            $self->civil_war(1);
-        }
+        $self->rebel_provinces($self->rebel_provinces() - .5);
     }
     elsif($battle_winner eq 'rebels')
     {
-        if($self->civil_war < 0)
-        {
-            $self->civil_war($self->civil_war - 1);
-            if(abs($self->civil_war) >= CIVIL_WAR_WIN)
-            {
-                $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-                $self->register_event("THE REBELS WON THE CIVIL WAR");
-                $self->civil_war(0);
-                return 'rebels';
-            }
-        }
-        elsif($self->civil_war >= 0)
-        {
-            $self->civil_war(-1);
-        }
+        $self->rebel_provinces($self->rebel_provinces() + .5);
+    }
+    if($self->rebel_provinces == 0)
+    {
+        $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("THE GOVERNMENT WON THE CIVIL WAR");
+        return 'government';
+    }
+    elsif($self->rebel_provinces == PRODUCTION_UNITS->[$self->size])
+    {
+        $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("THE REBELS WON THE CIVIL WAR");
+        $self->rebel_provinces(0);
+        return 'rebels';
     }
     return undef;
 }

@@ -35,6 +35,7 @@ use constant DEBT_ALLOWED => 0;
 use constant DEBT_TO_RAISE_LIMIT => 50;
 use constant PRODUCTION_THROUGH_DEBT => 40;
 use constant MAX_DEBT => 3;
+use constant STARTING_REBEL_PROVINCES => [1, 1, 2];
 use constant CIVIL_WAR_WIN => 3;
 use constant AFTER_CIVIL_WAR_INTERNAL_DISORDER => 35;
 use constant TURNS_FOR_YEAR => 4;
@@ -109,6 +110,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MAX_DEBT',
                   'DEBT_ALLOWED',
                   'CIVIL_WAR_WIN',
+                  'STARTING_REBEL_PROVINCES',
                   'AFTER_CIVIL_WAR_INTERNAL_DISORDER',
                   'TURNS_FOR_YEAR',
                   'HATE_LIMIT',
