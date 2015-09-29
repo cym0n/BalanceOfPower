@@ -1,12 +1,10 @@
 use v5.10;
+use lib "lib";
 use BalanceOfPower::World;
 use BalanceOfPower::Commands;
 use Test::More;
-use lib "lib";
 
 #Initialization of test scenario
-my @nation_names = ("Italy", "France", "Russia", 
-                    "Germany"); 
 my $first_year = 1970;
 my $world = BalanceOfPower::World->new( first_year => $first_year );
 
@@ -14,10 +12,22 @@ $world->tricks( { "Export quote Italy" => [30],
                   "Export quote France" => [30],
                   "Export quote Russia" => [30],
                   "Export quote Germany" => [30],
-                  "Starting production Italy" => [120],
-                  "Starting production France" => [120],
-                  "Starting production Russia" => [120],
-                  "Starting production Germany" => [120],
+                  "Starting production0 Italy" => [30],
+                  "Starting production1 Italy" => [30],
+                  "Starting production2 Italy" => [30],
+                  "Starting production3 Italy" => [30],
+                  "Starting production0 France" => [30],
+                  "Starting production1 France" => [30],
+                  "Starting production2 France" => [30],
+                  "Starting production3 France" => [30],
+                  "Starting production0 Russia" => [30],
+                  "Starting production1 Russia" => [30],
+                  "Starting production2 Russia" => [30],
+                  "Starting production3 Russia" => [30],
+                  "Starting production0 Germany" => [30],
+                  "Starting production1 Germany" => [30],
+                  "Starting production2 Germany" => [30],
+                  "Starting production3 Germany" => [30],
                   "Delta production Italy" => [(0) x 20],
                   "Delta production France" => [(0) x 20],
                   "Delta production Russia" => [(0) x 20],
@@ -28,14 +38,9 @@ $world->tricks( { "Export quote Italy" => [30],
                   "War risiko: throw for attacker Russia" => [(1) x 20],
                   "War risiko: throw for defender Germany" => [(6) x 20],
               });  
-$world->init_random(\@nation_names, { alliances => 0,
-                                      trades => 0});
+$world->init_random("nations-test2.txt", "borders-test2.txt", 
+                    { alliances => 0, trades => 0 });
 $world->forced_advisor("Noone");
-#$world->autoplay(1);
-#$world->elaborate_turn("1970/1");
-#$world->autoplay(0);
-
-#Initialization of commands
 my $commands = BalanceOfPower::Commands->new( world => $world );
 $commands->init();
 $commands->init_game(1);
