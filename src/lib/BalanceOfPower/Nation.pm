@@ -82,6 +82,7 @@ sub production
         my $export = $prod - $internal;
         $self->production_for_domestic($internal);
         $self->production_for_export($export);
+        $self->register_event("PRODUCTION INT: $internal EXP: $export");
     }
     return $self->production_for_domestic + $self->production_for_export;
 }
@@ -263,22 +264,25 @@ sub military_advisor
             return $self->name . ": RECALL MILITARY SUPPORT " . $supports[0]->destination($self->name);
         }
     }
-    if($self->army < MINIMUM_ARMY_LIMIT)
+    if($self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
-        return $self->name . ": BUILD TROOPS";
-    }
-    elsif($self->army < MEDIUM_ARMY_LIMIT)
-    {
-        if($self->production_for_export > MEDIUM_ARMY_BUDGET)
+        if($self->army < MINIMUM_ARMY_LIMIT)
         {
             return $self->name . ": BUILD TROOPS";
         }
-    }
-    elsif($self->army < MAX_ARMY_LIMIT)
-    {
-        if($self->production_for_export > MAX_ARMY_BUDGET)
+        elsif($self->army < MEDIUM_ARMY_LIMIT)
         {
-            return $self->name . ": BUILD TROOPS";
+            if($self->production_for_export > MEDIUM_ARMY_BUDGET)
+            {
+                return $self->name . ": BUILD TROOPS";
+            }
+        }
+        elsif($self->army < MAX_ARMY_LIMIT)
+        {
+            if($self->production_for_export > MAX_ARMY_BUDGET)
+            {
+                return $self->name . ": BUILD TROOPS";
+            }
         }
     }
 }
@@ -609,7 +613,7 @@ sub occupation
 sub build_troops
 {
     my $self = shift;
-    if($self->production_for_export > ARMY_COST && $self->army < MAX_ARMY_LIMIT)
+    if($self->production_for_export > ARMY_COST && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
         $self->subtract_production('export', ARMY_COST);
         $self->add_army(ARMY_UNIT);
@@ -621,9 +625,9 @@ sub add_army
     my $self = shift;
     my $army = shift;
     $self->army($self->army + $army);
-    if($self->army > MAX_ARMY_LIMIT)
+    if($self->army > MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
-        $self->army(MAX_ARMY_LIMIT);
+        $self->army(MAX_ARMY_FOR_SIZE->[ $self->size ]);
     }
     if($self->army < 0)
     {

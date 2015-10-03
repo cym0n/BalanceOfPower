@@ -7,7 +7,7 @@ use base 'Exporter';
 use constant MIN_EXPORT_QUOTE => 30;
 use constant MAX_EXPORT_QUOTE => 60;
 use constant MIN_STARTING_TRADEROUTES => 1;
-use constant MAX_STARTING_TRADEROUTES => 5;
+use constant MAX_STARTING_TRADEROUTES => 3;
 use constant ADDING_TRADEROUTE_COST => 30;
 use constant MIN_TRADEROUTE_GAIN => 2;
 use constant MAX_TRADEROUTE_GAIN => 4;
@@ -45,6 +45,7 @@ use constant LOVE_LIMIT => 70;
 use constant MINIMUM_ARMY_LIMIT => 5;
 use constant MEDIUM_ARMY_LIMIT => 10;
 use constant MAX_ARMY_LIMIT => 15;
+use constant MAX_ARMY_FOR_SIZE => [ 9, 12, 15];
 use constant MEDIUM_ARMY_BUDGET => 40;
 use constant MAX_ARMY_BUDGET => 60;
 use constant ARMY_COST => 20;
@@ -119,6 +120,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MINIMUM_ARMY_LIMIT',
                   'MEDIUM_ARMY_LIMIT',
                   'MAX_ARMY_LIMIT',
+                  'MAX_ARMY_FOR_SIZE',
                   'MEDIUM_ARMY_BUDGET',
                   'MAX_ARMY_BUDGET',
                   'ARMY_COST',
