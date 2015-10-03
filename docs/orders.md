@@ -1,9 +1,9 @@
 Attività interne
 ---
 
- * BUILD TROOPS
- * LOWER DISORDER
- * BOOST PRODUCTION
+    * BUILD TROOPS
+    * LOWER DISORDER
+    * BOOST PRODUCTION
 
 Attività estere non sensibili
 ---
@@ -21,6 +21,8 @@ Attività estere sensibili
  * RECALL MILITARY SUPPORT
  * Military Aid
  * Aid to Insurgents
- * Intervene for Rebels
+ * Rebel military support
  * Destabilize
+ * Stabilize
  * Diplomatic pressure
+ * Block Traderoute
