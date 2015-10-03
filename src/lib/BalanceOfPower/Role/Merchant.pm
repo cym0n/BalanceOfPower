@@ -12,6 +12,7 @@ requires 'broadcast_event';
 requires 'change_diplomacy';
 requires 'diplomacy_status';
 requires 'random';
+requires 'distance';
 
 has trade_routes => (
     is => 'ro',
@@ -59,16 +60,41 @@ sub generate_traderoute
     my $node1 = shift;
     my $node2 = shift;
     my $added = shift;
-    my $factor1 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node1 to $node2");
-    my $factor2 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node2 to $node1");
+    #my $factor1 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node1 to $node2");
+    #my $factor2 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node2 to $node1");
+
+    my $n1 = $self->get_nation($node1);
+    my $n2 = $self->get_nation($node2);
+    my $distance = $self->distance($node1, $node2);
+    my $common_factor = 2;
+    if($distance ne 'X')
+    {
+        if($distance == 1)
+        {
+            $common_factor = 4;
+        }
+        elsif($distance == 2)
+        {
+            $common_factor = 3;
+        }
+    }
+    my $factor1 = $common_factor;
+    my $factor2 = $common_factor;
+    if($n1->size < $n2->size)
+    {
+        $factor1 = $common_factor + TRADEROUTE_SIZE_BONUS;
+    }
+    if($n2->size < $n1->size)
+    {
+        $factor2 = $common_factor + TRADEROUTE_SIZE_BONUS;
+    }
+    
     $self->add_traderoute( 
         BalanceOfPower::Relations::TradeRoute->new( 
             node1 => $node1, node2 => $node2,
             factor1 => $factor1, factor2 => $factor2)); 
     if($added)
     {
-        my $n1 = $self->get_nation($node1);
-        my $n2 = $self->get_nation($node2);
         $n1->subtract_production('export', ADDING_TRADEROUTE_COST);
         $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
         $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);

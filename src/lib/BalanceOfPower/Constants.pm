@@ -11,6 +11,7 @@ use constant MAX_STARTING_TRADEROUTES => 5;
 use constant ADDING_TRADEROUTE_COST => 30;
 use constant MIN_TRADEROUTE_GAIN => 2;
 use constant MAX_TRADEROUTE_GAIN => 4;
+use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant MIN_DELTA_PRODUCTION => -10;
 use constant MAX_DELTA_PRODUCTION => 10;
 use constant MAX_PRODUCTION => 50;
@@ -151,5 +152,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'DIPLOMACY_FACTOR_STARTING_SUPPORT',
                   'DIPLOMACY_MALUS_FOR_SUPPORT',
                   'ARMY_TO_RECALL_SUPPORT',
+                  'TRADEROUTE_SIZE_BONUS',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

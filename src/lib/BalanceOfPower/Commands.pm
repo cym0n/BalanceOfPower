@@ -113,7 +113,7 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 0;
+        $auto_years = -1;
     }
     else
     {
@@ -277,6 +277,11 @@ COMMANDS
     elsif($query eq "supports")
     {
         say $self->world->print_military_supports();  
+        $result = { status => 1 };
+    }
+    elsif($query =~ /^distance (.*)-(.*)$/)
+    {
+        say $self->world->print_distance($1, $2);
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?borders$/)

@@ -48,7 +48,8 @@ sub near_nations
 {
     my $self = shift;
     my $nation = shift;
-    return grep { $self->near($nation, $_) && $nation ne $_ } @{$self->nation_names};
+    my $geographical = shift || 0;
+    return grep { $self->near($nation, $_, $geographical) && $nation ne $_ } @{$self->nation_names};
 }
 sub print_near_nations
 {
@@ -67,15 +68,23 @@ sub near
     my $self = shift;
     my $nation1 = shift;
     my $nation2 = shift;
+    my $geographical = shift || 0;
     return 1 if($self->border_exists($nation1, $nation2));
-    my @supported = $self->supporter($nation1);
-    for(@supported)
+    if(! $geographical)
     {
-        my $nation_supported = $_->destination($nation1);
-        return 1 if $nation_supported eq $nation2 ||
-                    $self->border_exists($nation_supported, $nation2);
+        my @supported = $self->supporter($nation1);
+        for(@supported)
+        {
+            my $nation_supported = $_->destination($nation1);
+            return 1 if $nation_supported eq $nation2 ||
+                        $self->border_exists($nation_supported, $nation2);
+        }
+        return 0;
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
 }
 
 sub get_group_borders
@@ -100,6 +109,43 @@ sub get_group_borders
     return @out;
 }
 
+#BFS implementation
+sub distance
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my %nodes = ();
+    foreach(@{$self->nation_names})
+    {
+        $nodes{$_}->{distance} = -1;
+        $nodes{$_}->{parent} = undef;
+    }
+    my @queue = ( $nation1 );
+    $nodes{$nation1}->{distance} = 0;
+    while(@queue)
+    {
+        my $n = shift @queue;
+        foreach my $near ($self->near_nations($n, 1))
+        {
+            return $nodes{$n}->{distance} + 1 if($near eq $nation2);
+            if($nodes{$near}->{distance} == -1)
+            {
+               $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
+               $nodes{$near}->{parent} = $n;
+               push @queue, $near;
+            }
+        }
+    }
+    return "X";
+}
+sub print_distance
+{
+    my $self = shift;
+    my $n1 = shift;
+    my $n2 = shift;
+    return "Distance between $n1 and $n2: " . $self->distance($n1, $n2);
+}
 
 
 

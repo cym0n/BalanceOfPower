@@ -5,7 +5,7 @@ use strict;
 
 use IO::Prompter;
 use Term::ANSIColor;
-use BalanceOfPower::Utils qw(get_year_turns compare_turns);
+use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn);
 use BalanceOfPower::World;
 
 
@@ -38,8 +38,14 @@ $world->init_random("nations-v2.txt", "borders-v2.txt");
 
 $commands = $world->build_commands();
 $auto_years = $commands->init_game($stubbed_player);
-
-$world->autopilot($first_year, $first_year+$auto_years);
+if($auto_years >= 0)
+{
+    $world->autopilot($first_year, $first_year+$auto_years);
+}
+else
+{
+    $world->current_year(prev_turn($first_year));  
+}
 
 $commands->init();
 $commands->welcome_player();

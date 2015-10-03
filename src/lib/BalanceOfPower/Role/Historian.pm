@@ -165,8 +165,12 @@ sub print_nation_statistics_line
     my $nation = shift;
     my $y = shift;
     my $out = "";
-    #$out .= "$y\t";
     $out .= $self->get_nation($nation)->size . "\t";
+    if(! $self->get_statistics_value($y, $nation, 'production'))
+    {
+        $out .= "###            no statistics available           ###";
+        return $out;
+    }
     $out .= $self->get_statistics_value($y, $nation, 'production') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'wealth') . "\t";
     my $wd = $self->get_statistics_value($y, $nation, 'wealth') / PRODUCTION_UNITS->[$self->get_nation($nation)->size];

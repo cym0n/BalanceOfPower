@@ -10,6 +10,7 @@ sub prev_turn
 {
     my $year = shift;
     my ($y, $i) = split '/', $year;
+    $i ||= 1;
     if($i == 1)
     {
         return ($y -1) . '/' . TURNS_FOR_YEAR;
