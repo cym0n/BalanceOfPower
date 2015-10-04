@@ -16,6 +16,11 @@ has borders => (
                }
 );
 
+has distance_cache => (
+    is => 'rw',
+    default => sub { {} }
+);
+
 requires 'supporter';
 
 sub load_borders
@@ -116,28 +121,49 @@ sub distance
     my $nation1 = shift;
     my $nation2 = shift;
     my %nodes = ();
-    foreach(@{$self->nation_names})
-    {
-        $nodes{$_}->{distance} = -1;
-        $nodes{$_}->{parent} = undef;
-    }
     my @queue = ( $nation1 );
-    $nodes{$nation1}->{distance} = 0;
+    if(exists $self->distance_cache->{$nation1})
+    {
+        %nodes = %{$self->distance_cache->{$nation1}->{nodes}};
+        @queue = @{$self->distance_cache->{$nation1}->{queue}};
+        if($nodes{$nation2}->{distance} != -1)
+        {
+            return $nodes{$nation2}->{distance};
+        }
+    }
+    else
+    {
+        foreach(@{$self->nation_names})
+        {
+            $nodes{$_}->{distance} = -1;
+            $nodes{$_}->{parent} = undef;
+        }
+        $nodes{$nation1}->{distance} = 0;
+    }
     while(@queue)
     {
         my $n = shift @queue;
         foreach my $near ($self->near_nations($n, 1))
         {
-            return $nodes{$n}->{distance} + 1 if($near eq $nation2);
             if($nodes{$near}->{distance} == -1)
             {
-               $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
-               $nodes{$near}->{parent} = $n;
-               push @queue, $near;
+                $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
+                $nodes{$near}->{parent} = $n;
+                push @queue, $near;
+                if($near eq $nation2)
+                {
+                    $self->distance_cache->{$nation1}->{nodes} = \%nodes;
+                    $self->distance_cache->{$nation1}->{queue} = \@queue;
+                    return $nodes{$near}->{distance};
+                }
             }
         }
     }
-    return "X";
+    $nodes{$nation2}->{distance} = 100;
+    $nodes{$nation2}->{parent} = $nation1;
+    $self->distance_cache->{$nation1}->{nodes} = \%nodes;
+    $self->distance_cache->{$nation1}->{queue} = \@queue;
+    return 100;
 }
 sub print_distance
 {
