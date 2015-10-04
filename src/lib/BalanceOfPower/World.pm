@@ -174,6 +174,7 @@ sub init_random
     $self->load_borders($bordersfile);
     if($trades)
     {
+        say "Trades generation...";
         $self->init_trades();
     }
     else
@@ -182,6 +183,7 @@ sub init_random
     }
     if($diplomacy)
     {
+        say "Diplomacy generation...";
         $self->init_diplomacy();
     }
     else
@@ -190,6 +192,7 @@ sub init_random
     }
     if($alliances)
     {
+        say "Alliances generation...";
         $self->init_random_alliances();
     }
     else
