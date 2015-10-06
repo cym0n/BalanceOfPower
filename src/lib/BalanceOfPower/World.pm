@@ -115,9 +115,18 @@ sub load_nations_data
         chomp $n;
         if(! ($n =~ /^#/))
         {
-            my ($name, $size) = split(',', $n);
+            my ($name, $size, $government) = split(',', $n);
+            if($government eq 'd')
+            {
+                $government = 'democracy';
+            }
+            elsif($government eq 'D')
+            {
+                $government = 'dictatorship';
+            }
             $nations_data{$name} = { area => $area,
-                                     size => $size }
+                                     size => $size,
+                                     government => $government }
 
         }
         else
@@ -167,6 +176,7 @@ sub init_random
             name => $n, 
             area => $nations_data{$n}->{area}, 
             size => $nations_data{$n}->{size},
+            government => $nations_data{$n}->{government},
             export_quote => $export_quote, 
             government_strength => $government_strength);
     }

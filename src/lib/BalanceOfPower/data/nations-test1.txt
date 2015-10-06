@@ -1,6 +1,6 @@
 # Test World
-Italy,2
-France,2
-United Kingdom,2
-Russia,2
-Germany,2
+Italy,2,d
+France,2,d
+United Kingdom,2,d
+Russia,2,D
+Germany,2,d

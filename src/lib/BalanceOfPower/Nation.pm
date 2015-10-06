@@ -24,6 +24,10 @@ has export_quote => (
     is => 'ro',
     default => 50
 );
+has government => (
+    is => 'ro',
+    default => 'democracy'
+);
 has government_strength => (
     is => 'rw',
     default => 70
@@ -77,6 +81,10 @@ sub production
             $prod += PRODUCTION_THROUGH_DEBT;
             $self->debt($self->debt + 1);
             $self->register_event("DEBT RISE");
+        }
+        if($self->government eq 'dictatorship')
+        {
+            $prod -= DICTATORSHIP_PRODUCTION_MALUS;
         }
         my $internal = $prod - (($self->export_quote * $prod) / 100);
         my $export = $prod - $internal;
@@ -546,6 +554,10 @@ sub fight_civil_war
         $self->add_army(-1 * ARMY_UNIT_FOR_INTERNAL_DISORDER);
         $government += ARMY_HELP_FOR_INTERNAL_DISORDER;
     }
+    if($self->government eq 'dictatorship')
+    {
+        $government += DICTATORSHIP_BONUS_FOR_CIVIL_WAR;
+    }
     if($government > $rebels)
     {
         return $self->civil_war_battle('government');
@@ -613,9 +625,14 @@ sub occupation
 sub build_troops
 {
     my $self = shift;
-    if($self->production_for_export > ARMY_COST && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
+    my $army_cost = ARMY_COST;
+    if($self->government eq 'dictatorship')
     {
-        $self->subtract_production('export', ARMY_COST);
+        $army_cost -= DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION;
+    }
+    if($self->production_for_export > $army_cost && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
+    {
+        $self->subtract_production('export', $army_cost);
         $self->add_army(ARMY_UNIT);
         $self->register_event("NEW TROOPS FOR THE ARMY");
     } 

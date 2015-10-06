@@ -1,69 +1,69 @@
 # North America
-Canada,2
-Cuba,0
-Honduras,0
-Mexico,1
-Nicaragua,0
-Panama,0
-USA,2
+Canada,2,d
+Cuba,0,D
+Honduras,0,D
+Mexico,1,d
+Nicaragua,0,D
+Panama,0,d
+USA,2,d
 # South America
-Argentina,2
-Brazil,2
-Chile,1
-Colombia,0
-Peru,1
-Venezuela,0
+Argentina,2,D
+Brazil,2,d
+Chile,1,D
+Colombia,0,D
+Peru,1,d
+Venezuela,0,d
 # Europe
-United Kingdom,2
-France,2
-Italy,2
-Spain,2
-Sweden,1
-West Germany,1
-Czechoslovakia,0
-East Germany,1
-Greece,0
-Poland,0
-Romania,0
-USSR,2
-Yugoslavia,1
+United Kingdom,2,d
+France,2,d
+Italy,2,d
+Spain,2,d
+Sweden,1,d
+West Germany,1,d
+Czechoslovakia,0,D
+East Germany,1,D
+Greece,0,D
+Poland,0,D
+Romania,0,D
+USSR,2,D
+Yugoslavia,1,D
 # Africa
-Algeria,1
-Egypt,2
-Ethiopia,1
-Libya,1
-Mali,0
-Morocco,0
-Nigeria,2
-Sudan,1
-Tunisia,0
-Angola,2
-Kenya,2
-Mozambique,0
-South Africa,2
-Tanzania,1
-Zaire,1
-Zimbabwe,0
+Algeria,1,D
+Egypt,2,d
+Ethiopia,1,d
+Libya,1,D
+Mali,0,D
+Morocco,0,d
+Nigeria,2,d
+Sudan,1,d
+Tunisia,0,d
+Angola,2,d
+Kenya,2,d
+Mozambique,0,d
+South Africa,2,d
+Tanzania,1,d
+Zaire,1,D
+Zimbabwe,0,D
 # Middle East
-Afghanistan,2
-Israel,1
-Iran,1
-Iraq,1
-Pakistan,1
-Saudi Arabia,2
-Syria,0
-Turkey,2
+Afghanistan,2,D
+Israel,1,d
+Iran,1,D
+Iraq,1,D
+Pakistan,1,D
+Saudi Arabia,2,D
+Syria,0,D
+Turkey,2,d
 # Far East
-Burma,0
-China,2
-India,2
-North Korea,1
-South Korea,1
-Thailand,0
-Vietnam,1
+Burma,0,D
+China,2,D
+India,2,d
+North Korea,1,D
+South Korea,1,d
+Thailand,0,d
+Vietnam,1,D
 # Pacific
-Australia,2
-Indonesia,0
-Japan,1
-Philippines,0
-Taiwan,0
+Australia,2,d
+Indonesia,0,d
+Japan,1,d
+Philippines,0,d
+Taiwan,0,D
