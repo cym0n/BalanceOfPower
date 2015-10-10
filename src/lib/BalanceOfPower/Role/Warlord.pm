@@ -467,7 +467,7 @@ sub damage_from_battle
     {
         if($_->army <= 0)
         {
-            $self->broadcast_event("MILITARY SUPPORT TO " . $_->node2 . " BY " . $_->node1 . "DESTROYED", $_->node1, $_->node2);
+            $self->broadcast_event("MILITARY SUPPORT TO " . $_->node2 . " BY " . $_->node1 . " DESTROYED", $_->node1, $_->node2);
         }
     }
     $self->military_support_garbage_collector();
@@ -480,6 +480,7 @@ sub fight_wars
     foreach my $w ($self->wars->all())
     {
         #As Risiko
+        $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
         my $attacker_army = $self->army_for_war($attacker);
