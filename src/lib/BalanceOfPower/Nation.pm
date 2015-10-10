@@ -235,24 +235,40 @@ sub military_advisor
 {
     my $self = shift;
     my $world = shift;
-    if(! $world->at_war($self->name) && ! $world->at_civil_war($self->name))
+    if(! $world->war_busy($self->name))
     {
-        if($self->army >= MIN_ARMY_FOR_WAR)
+        #WAR ATTEMPT
+        my @crises = $world->get_crises($self->name);
+        if(@crises > 0)
         {
-            my @crises = $world->get_crises($self->name);
-            if(@crises > 0)
+            foreach my $c ($world->shuffle("Mixing crisis for war for " . $self->name, @crises))
             {
-                foreach my $c (@crises)
+                my $enemy = $world->get_nation($c->destination($self->name));
+                next if $world->war_busy($enemy->name);
+                if($self->good_prey($enemy, $world, $c->factor))
                 {
-                    my $enemy = $world->get_nation($c->destination($self->name));
-                    next if($world->at_war($enemy->name));
-                    if($self->good_prey($enemy, $world, $c->factor, 1))
+                    if($world->near($self->name, $enemy->name))
                     {
                         return $self->name . ": DECLARE WAR TO " . $enemy->name;
+                    }
+                    else
+                    {
+                        if($self->army >= MIN_ARMY_TO_EXPORT)
+                        {
+                            my @friends = $world->get_friends($self->name);                        
+                            for(@friends)
+                            {
+                                if($world->near($_, $enemy->name))
+                                {
+                                    return $self->name . ": MILITARY SUPPORT " . $_;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+        #MILITARY SUPPORT
         if($self->army >= MIN_ARMY_TO_EXPORT)
         {
             my @friends = $world->shuffle("Choosing friend to support for " . $self->name, $world->get_friends($self->name));
@@ -308,20 +324,7 @@ sub good_prey
     my $enemy = shift;
     my $world = shift;
     my $level = shift;
-    my $near_needed = shift;
-    if($world->at_war($self->name))
-    {
-        return 0;
-    }
-    if($self->internal_disorder_status eq 'Civil war')
-    {
-        return 0;
-    }
-    if(! $world->near($self->name, $enemy->name) && $near_needed )
-    {
-        return 0;
-    }
-    if($self->army == 0)
+    if($self->army < MIN_ARMY_FOR_WAR)
     {
         return 0;
     }

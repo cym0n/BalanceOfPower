@@ -228,6 +228,13 @@ sub at_civil_war
     return $nation->internal_disorder_status eq 'Civil war';
 }
 
+sub war_busy
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->at_civil_war($n) || $self->at_war($n);
+}
+
 
 
 sub create_war
