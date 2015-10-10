@@ -247,7 +247,7 @@ sub military_advisor
                 next if $world->war_busy($enemy->name);
                 if($self->good_prey($enemy, $world, $c->factor))
                 {
-                    if($world->near($self->name, $enemy->name))
+                    if($world->in_military_range($self->name, $enemy->name))
                     {
                         return $self->name . ": DECLARE WAR TO " . $enemy->name;
                     }
@@ -258,7 +258,7 @@ sub military_advisor
                             my @friends = $world->get_friends($self->name);                        
                             for(@friends)
                             {
-                                if($world->near($_, $enemy->name))
+                                if($world->border_exists($_, $enemy->name))
                                 {
                                     return $self->name . ": MILITARY SUPPORT " . $_;
                                 }

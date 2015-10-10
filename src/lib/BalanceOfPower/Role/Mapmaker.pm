@@ -21,8 +21,6 @@ has distance_cache => (
     default => sub { {} }
 );
 
-requires 'supporter';
-
 sub load_borders
 {
     my $self = shift;
@@ -54,7 +52,14 @@ sub near_nations
     my $self = shift;
     my $nation = shift;
     my $geographical = shift || 0;
-    return grep { $self->near($nation, $_, $geographical) && $nation ne $_ } @{$self->nation_names};
+    if($geographical)
+    {
+        return grep { $self->border_exists($nation, $_) && $nation ne $_ } @{$self->nation_names};
+    }
+    else
+    {
+        return grep { $self->in_military_range($nation, $_) && $nation ne $_ } @{$self->nation_names};
+    }
 }
 sub print_near_nations
 {
@@ -68,29 +73,6 @@ sub print_near_nations
     return $out;
 }
 
-sub near
-{
-    my $self = shift;
-    my $nation1 = shift;
-    my $nation2 = shift;
-    my $geographical = shift || 0;
-    return 1 if($self->border_exists($nation1, $nation2));
-    if(! $geographical)
-    {
-        my @supported = $self->supporter($nation1);
-        for(@supported)
-        {
-            my $nation_supported = $_->destination($nation1);
-            return 1 if $nation_supported eq $nation2 ||
-                        $self->border_exists($nation_supported, $nation2);
-        }
-        return 0;
-    }
-    else
-    {
-        return 0;
-    }
-}
 
 sub get_group_borders
 {
@@ -104,7 +86,7 @@ sub get_group_borders
     {
         foreach my $from_n (@from)
         {
-            if($self->near($from_n, $to_n))
+            if($self->in_military_range($from_n, $to_n))
             {
                 push @out, $to_n;
                 last;

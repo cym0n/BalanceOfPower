@@ -29,6 +29,8 @@ has alliances => (
 );
 
 requires 'random';
+requires 'distance';
+requires 'border_exists';
 requires 'broadcast_event';
 requires 'is_under_influence';
 requires 'has_influence';
@@ -51,12 +53,36 @@ sub init_diplomacy
                   
                 my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1,
                                                            node2 => $n2,
-                                                           factor => $self->random($minimum_friendship ,100, "Friendship factor: $n1, $n2"));
+                                                           factor => $self->calculate_random_friendship($n1, $n2));
                 $self->add_diplomacy($rel);
             }
         }
     }
 }
+
+#Random friendship is function of the distance
+sub calculate_random_friendship
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $distance = $self->distance($nation1, $nation2);
+    $distance = 3 if $distance > 3;
+
+    my $middle = 50;
+
+    my $polar_factor = ( 4 - $distance ) * 5;
+    my $random_floor = ( ( 3 - $distance ) * 5 ) + 25;
+
+    my $side = $self->random(0, 1, "Side for friendship between $nation1 and $nation2");
+    $side = $side == 0 ? -1 : 1;
+    my $random_factor = $self->random(0, $random_floor, "Random factor for friendship between $nation1 and $nation2 [floor: $random_floor]");
+
+    my $friendship = $middle + ( $side * ( $polar_factor + $random_factor ) );
+    return $friendship;
+}
+
+
 sub init_random_alliances
 {
     my $self = shift;
@@ -215,6 +241,22 @@ sub coalition
         return @allies;
     }
 }
+sub in_military_range
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return 1 if($self->border_exists($nation1, $nation2));
+    my @supported = $self->supporter($nation1);
+    for(@supported)
+    {
+        my $nation_supported = $_->destination($nation1);
+        return 1 if $nation_supported eq $nation2 ||
+                    $self->border_exists($nation_supported, $nation2);
+    }
+    return 0;
+}
+
 
 
 

@@ -19,11 +19,11 @@ sub status
     {
         return 'ALLIANCE';
     }
-    if($self->factor < HATE_LIMIT)
+    if($self->factor <= HATE_LIMIT)
     {
         return 'HATE';
     }
-    elsif($self->factor > LOVE_LIMIT)
+    elsif($self->factor >= LOVE_LIMIT)
     {
         return 'FRIENDSHIP';
     }
@@ -36,15 +36,15 @@ sub status
 sub status_color
 {
     my $self = shift;
-    if($self->factor == ALLIANCE_FRIENDSHIP_FACTOR)
+    if($self->status eq 'ALLIANCE')
     {
         return color("cyan bold");
     }
-    if($self->factor < HATE_LIMIT)
+    if($self->status eq 'HATE')
     {
         return color("red bold");
     }
-    elsif($self->factor > LOVE_LIMIT)
+    elsif($self->status eq 'FRIENDSHIP')
     {
         return color("green bold");
     }
@@ -63,7 +63,7 @@ sub print
     {
         if($from eq $self->node1)
         {
-            return $self->status_color . $from . " <--> " . $self->node2 . " [" . $self->status . "]" . color("reset");
+            return $self->status_color . $from . " <--> " . $self->node2 . " [" . $self->factor . " " . $self->status . "]" . color("reset");
         }
         elsif($from eq $self->node2)
         {
