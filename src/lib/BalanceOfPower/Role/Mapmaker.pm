@@ -114,31 +114,63 @@ sub get_group_borders
     return @out;
 }
 
-#BFS implementation
-sub distance
+#cache management
+sub get_cached_distance
 {
     my $self = shift;
     my $nation1 = shift;
     my $nation2 = shift;
+    if(exists $self->distance_cache->{$nation1} &&
+       exists $self->distance_cache->{$nation1}->{$nation2} &&
+       $self->distance_cache->{$nation1}->{$nation2} != -1)
+    {
+        return $self->distance_cache->{$nation1}->{$nation2};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub get_cached_nodes
+{
+    my $self = shift;
+    my $nation1 = shift;
     my %nodes = ();
-    my @queue = ( $nation1 );
     if(exists $self->distance_cache->{$nation1})
     {
         %nodes = %{$self->distance_cache->{$nation1}->{nodes}};
-        @queue = @{$self->distance_cache->{$nation1}->{queue}};
-        if($nodes{$nation2}->{distance} != -1)
-        {
-            return $nodes{$nation2}->{distance};
-        }
     }
     else
     {
         foreach(@{$self->nation_names})
         {
             $nodes{$_}->{distance} = -1;
-            $nodes{$_}->{parent} = undef;
         }
-        $nodes{$nation1}->{distance} = 0;
+    }
+    return %nodes;
+}
+#BFS implementation
+sub distance
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my %nodes = $self->get_cached_nodes($nation1);
+    if($nodes{$nation2}->{distance} != -1)
+    {
+        return $nodes{$nation2}->{distance};
+    }
+    if(my $cached_distance = $self->get_cached_distance($nation2, $nation1))
+    {
+      $nodes{$nation2}->{distance} = $cached_distance;
+      $self->distance_cache->{$nation1}->{nodes} = \%nodes;
+      return $cached_distance;
+    }
+
+    my @queue = ( $nation1 );
+    if(exists $self->distance_cache->{$nation1}->{queue})
+    {
+        @queue = @{$self->distance_cache->{$nation1}->{queue}};
     }
     while(@queue)
     {
@@ -147,8 +179,14 @@ sub distance
         {
             if($nodes{$near}->{distance} == -1)
             {
-                $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
-                $nodes{$near}->{parent} = $n;
+                if($nodes{$n}->{distance} == -1)
+                {
+                    $nodes{$near}->{distance} = 1;
+                }
+                else
+                {
+                    $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
+                }
                 push @queue, $near;
                 if($near eq $nation2)
                 {
@@ -160,7 +198,6 @@ sub distance
         }
     }
     $nodes{$nation2}->{distance} = 100;
-    $nodes{$nation2}->{parent} = $nation1;
     $self->distance_cache->{$nation1}->{nodes} = \%nodes;
     $self->distance_cache->{$nation1}->{queue} = \@queue;
     return 100;

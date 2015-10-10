@@ -208,8 +208,7 @@ With a nation selected you can use:
 <status>
 <history>
 [year/turn]
-
-You can also say one of these as: [nation name] [command]
+You can also say one of those commands as: [nation name] [command]
 
 [year/turn] with no nation selected gives all the events of the year/turns
 
@@ -218,6 +217,8 @@ say <years> for available range of years
 say <wars> for a list of wars, <crises> for all the ongoing crises
 
 say <supports> for military supports
+
+say <distance NATION1-NATION2> for distance between nations
 
 say <turn> to elaborate events for a new turn
 
@@ -281,8 +282,11 @@ COMMANDS
     }
     elsif($query =~ /^distance (.*)-(.*)$/)
     {
-        say $self->world->print_distance($1, $2);
-        $result = { status => 1 };
+        if($self->verify_nation($1) && $self->verify_nation($2))
+        {
+            say $self->world->print_distance($1, $2);
+            $result = { status => 1 };
+        }
     }
     elsif($query =~ /^((.*) )?borders$/)
     {
@@ -390,8 +394,7 @@ COMMANDS
     }
     else
     {
-        my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
-        if(@good_nation > 0) #it's a nation
+        if($self->verify_nation($query)) #it's a nation
         { 
             print $self->world->print_nation_actual_situation($query);
             $self->nation($query);
@@ -428,6 +431,13 @@ COMMANDS
     print "\n";
     $self->query($query);
     return $result;
+}
+sub verify_nation
+{
+    my $self = shift;
+    my $query = shift;
+    my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
+    return @good_nation > 0;
 }
 
 sub orders
