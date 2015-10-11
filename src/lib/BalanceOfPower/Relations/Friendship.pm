@@ -74,8 +74,13 @@ sub print
     {
         return $self->status_color . $self->node1 . " <--> " . $self->node2 . " [" . $self->status . "]" . color("reset");
     }
-
 }
+sub print_status
+{
+    my $self = shift;
+    return $self->status_color . $self->status . color("reset");
+}
+
 
 sub change_factor
 {

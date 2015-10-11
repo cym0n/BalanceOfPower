@@ -74,6 +74,7 @@ with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Historian';
+with 'BalanceOfPower::Role::Analyst';
 
 sub get_nation
 {

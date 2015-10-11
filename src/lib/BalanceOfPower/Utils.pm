@@ -128,7 +128,12 @@ sub as_title
     my $text = shift;
     return color("yellow bold") . $text . color("reset");
 }
+sub as_subtitle
+{
+    my $text = shift;
+    return color("yellow") . $text . color("reset");
+}
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle');
 
 1;

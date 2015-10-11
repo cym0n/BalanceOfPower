@@ -113,7 +113,7 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = -1;
+        $auto_years = 20;
     }
     else
     {
@@ -297,7 +297,8 @@ COMMANDS
         }
         if($self->nation)
         {
-           print $self->world->print_borders($self->nation);
+            #print $self->world->print_borders($self->nation);
+            print $self->world->print_borders_analysis($self->nation);
         }
         $result = { status => 1 };
     }
