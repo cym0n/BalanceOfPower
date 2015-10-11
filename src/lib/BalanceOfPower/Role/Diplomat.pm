@@ -43,14 +43,9 @@ sub init_diplomacy
     {
         foreach my $n2 (@nations)
         {
-            if($n1 ne $n2) # && ! $self->diplomacy_exists($n1, $n2))
+            if($n1 ne $n2 && ! $self->diplomacy_exists($n1, $n2))
             {
                 my $minimum_friendship = 0;
-                #if($self->exists_alliance($n1, $n2))
-                #{
-                #    $minimum_friendship = LOVE_LIMIT + 1;
-                #}
-                  
                 my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1,
                                                            node2 => $n2,
                                                            factor => $self->calculate_random_friendship($n1, $n2));
