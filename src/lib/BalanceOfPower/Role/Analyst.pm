@@ -109,7 +109,7 @@ sub print_borders_analysis
             foreach my $ms (@supps)
             {
                 my $supporter = $ms->start($b);
-                $out .= "   $supporter (" . $self->diplomacy_exists($nation, $supporter)->print_status() . ")\n";
+                $out .= "    $supporter (" . $self->diplomacy_exists($nation, $supporter)->print_status() . ")\n";
             }
         }
     }
