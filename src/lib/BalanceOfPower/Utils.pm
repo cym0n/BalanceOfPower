@@ -1,4 +1,5 @@
 package BalanceOfPower::Utils;
+
 use BalanceOfPower::Constants ':all';
 use Term::ANSIColor;
 
