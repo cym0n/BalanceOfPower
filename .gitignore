@@ -2,4 +2,5 @@ bop.log
 bop-dice.log
 bop-commands.log
 src/.build
+src/BalanceOfPower*
 

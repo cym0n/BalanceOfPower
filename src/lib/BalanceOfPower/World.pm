@@ -181,7 +181,7 @@ sub init_random
             export_quote => $export_quote, 
             government_strength => $government_strength);
     }
-    $self->nation_names = \@nation_names;
+    $self->nation_names(\@nation_names);
     $self->load_borders($bordersfile);
     if($trades)
     {
