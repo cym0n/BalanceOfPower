@@ -45,16 +45,16 @@ sub init
 {
     my $self = shift;
     my $command = 
-        BalanceOfPower::Commands::Plain->new( name => "BUILD TROOPS",
+        BalanceOfPower::Commands::NoArgs->new( name => "BUILD TROOPS",
                                               world => $self->world,
                                               allowed_at_war => 1 );
     push @{$self->commands}, $command; 
     $command = 
-        BalanceOfPower::Commands::Plain->new( name => "LOWER DISORDER",
+        BalanceOfPower::Commands::NoArgs->new( name => "LOWER DISORDER",
                                               world => $self->world );
     push @{$self->commands}, $command; 
     $command = 
-        BalanceOfPower::Commands::Plain->new( name => "ADD ROUTE",
+        BalanceOfPower::Commands::NoArgs->new( name => "ADD ROUTE",
                                               world => $self->world );
     push @{$self->commands}, $command; 
     $command =
@@ -67,7 +67,7 @@ sub init
                                                  world => $self->world );
     push @{$self->commands}, $command; 
     $command =
-        BalanceOfPower::Commands::Plain->new( name => "BOOST PRODUCTION",
+        BalanceOfPower::Commands::NoArgs->new( name => "BOOST PRODUCTION",
                                                     world => $self->world,
                                                     production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
     push @{$self->commands}, $command; 
