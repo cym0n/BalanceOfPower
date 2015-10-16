@@ -7,6 +7,7 @@ use Term::ANSIColor;
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns evidence_text);
 use BalanceOfPower::Commands::Plain;
+use BalanceOfPower::Commands::NoArgs;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
 use BalanceOfPower::Commands::MilitarySupport;
@@ -227,7 +228,7 @@ COMMANDS
 
     my $result = { status => 0 };
 
-    if($query eq "quit") { $self->active(0); $result = 1 }
+    if($query eq "quit") { $self->active(0); $result = { status => 1 }; }
     elsif($query eq "nations")
     {
         $query = prompt "?", -menu=>$self->world->nation_names;

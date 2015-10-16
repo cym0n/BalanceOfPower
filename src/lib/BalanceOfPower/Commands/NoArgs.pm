@@ -1,4 +1,4 @@
-package BalanceOfPower::Commands::DeclareWar;
+package BalanceOfPower::Commands::NoArgs;
 
 use Moo;
 
@@ -38,4 +38,4 @@ sub extract_argument
     }
     return undef;
 }
-
+1;
