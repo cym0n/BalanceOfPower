@@ -23,11 +23,8 @@ sub execute
     my $self = shift;
     my $query = shift;
     my $nation = shift;
-    if($self->good_target($nation))
-    {
-        return { status => 1, command => $self->name . " " . $nation };
-    }
     my $argument = $self->extract_argument($query);
+    $argument = $self->world->correct_nation_name($argument);
     if($argument)
     {
         if($self->good_target($argument))
@@ -37,6 +34,13 @@ sub execute
         else
         {
             say "Bad argument provided: $argument";
+        }
+    }
+    else
+    {
+        if($self->good_target($nation))
+        {
+            return { status => 1, command => $self->name . " " . $nation };
         }
     }
     my @nations = $self->get_available_targets;

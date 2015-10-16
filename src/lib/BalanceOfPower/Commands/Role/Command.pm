@@ -66,6 +66,7 @@ sub extract_argument
     my $self = shift;
     my $query = shift;
     my $extract = shift;
+    $query = uc $query; #Commands are always all caps
     $extract = 1 if(! defined $extract);
     my $name = $self->name;
     if($query =~ /^$name( (.*))?$/)
@@ -114,7 +115,7 @@ sub execute
 {
     my $self = shift;
     my $query = shift;
-    return { status => 1, command => $query };
+    return { status => 1, command => uc $query };
 }
 
 sub print

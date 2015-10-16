@@ -228,6 +228,8 @@ COMMANDS
 
     my $result = { status => 0 };
 
+    $query = lc $query;
+
     if($query eq "quit") { $self->active(0); $result = { status => 1 }; }
     elsif($query eq "nations")
     {
@@ -283,6 +285,8 @@ COMMANDS
     }
     elsif($query =~ /^distance (.*)-(.*)$/)
     {
+        my $n1 = $self->world->correct_nation_name($1);
+        my $n2 = $self->world->correct_nation_name($2);
         if($self->verify_nation($1) && $self->verify_nation($2))
         {
             say $self->world->print_distance($1, $2);
@@ -291,7 +295,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?borders$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
         {
             $self->nation($input_nation);
@@ -306,7 +310,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?near$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
         {
             $self->nation($input_nation);
@@ -320,7 +324,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?relations$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
         {
             $self->nation($input_nation);
@@ -334,7 +338,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         my $input_year = $4;
         $input_year ||= undef;
         if($input_nation)
@@ -371,7 +375,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?status$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
         {
             $query = $input_nation;
@@ -386,7 +390,7 @@ COMMANDS
     }
     elsif($query =~ /^((.*) )?history$/)
     {
-        my $input_nation = $2;
+        my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
         {
             $self->nation($input_nation);
@@ -400,10 +404,11 @@ COMMANDS
     }
     else
     {
-        if($self->verify_nation($query)) #it's a nation
+        my $nation_query = $self->world->correct_nation_name($query);
+        if($self->verify_nation($nation_query)) #it's a nation
         { 
-            print $self->world->print_nation_actual_situation($query);
-            $self->nation($query);
+            print $self->world->print_nation_actual_situation($nation_query);
+            $self->nation($nation_query);
             $result = { status => 1 };
         }
         else
@@ -442,6 +447,7 @@ sub verify_nation
 {
     my $self = shift;
     my $query = shift;
+    return 0 if (! $query);
     my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
     return @good_nation > 0;
 }

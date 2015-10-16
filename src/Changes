@@ -6,6 +6,7 @@ __???__
  * Player nation evidenced on turn debriefing
  * reports with nation use player's when no nation is selected 
  * Bugfix: better management of commands with no arguments
+ * Command line case unsensitive
 
 0.100001
 ===

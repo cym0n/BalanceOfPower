@@ -90,6 +90,17 @@ sub get_nation
         return undef;
     }
 }
+sub correct_nation_name
+{
+    my $self = shift;
+    my $nation = shift;
+    return undef if(! $nation);
+    for(@{$self->nation_names})
+    {
+        return $_ if(uc $_ eq uc $nation);
+    }
+    return undef;
+}
 sub get_player_nation
 {
     my $self = shift;

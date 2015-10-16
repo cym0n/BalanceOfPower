@@ -9,6 +9,7 @@ sub extract_argument
     my $self = shift;
     my $query = shift;
     my $extract = shift;
+    $query = uc $query;
     $extract = 1 if(! defined $extract);
     my $name = $self->name;
     if($query =~ /^$name$/)
