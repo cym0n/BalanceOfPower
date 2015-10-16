@@ -5,7 +5,7 @@ use Moo;
 use IO::Prompter;
 use Term::ANSIColor;
 use BalanceOfPower::Constants ":all";
-use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns);
+use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns evidence_text);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::TargetRoute;
@@ -113,7 +113,7 @@ WELCOME
     {
         $self->world->player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 20;
+        $auto_years = 10;
     }
     else
     {
@@ -295,11 +295,12 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if($self->nation)
+        if(! $self->nation)
         {
-            #print $self->world->print_borders($self->nation);
-            print $self->world->print_borders_analysis($self->nation);
+            $self->nation($self->world->player_nation);
         }
+        #print $self->world->print_borders($self->nation);
+        print $self->world->print_borders_analysis($self->nation);
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?near$/)
@@ -309,10 +310,11 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if($self->nation)
+        if(! $self->nation)
         {
-           print $self->world->print_near_nations($self->nation);
+            $self->nation($self->world->player_nation);
         }
+        print $self->world->print_near_nations($self->nation);
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?relations$/)
@@ -322,10 +324,11 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if($self->nation)
+        if(! $self->nation)
         {
-            print $self->world->print_diplomacy($self->nation);
+            $self->nation($self->world->player_nation);
         }
+        print $self->world->print_diplomacy($self->nation);
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
@@ -387,10 +390,11 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if($self->nation)
+        if(! $self->nation)
         {
-            print $self->world->print_nation_statistics($self->nation, $self->world->first_year, $self->world->current_year);
+            $self->nation($self->world->player_nation);
         }
+        print $self->world->print_nation_statistics($self->nation, $self->world->first_year, $self->world->current_year);
         $result = { status => 1 };
     }
     else
@@ -474,7 +478,7 @@ sub interact
         if($result->{status} == 1)
         {
             $self->world->elaborate_turn();
-            say $self->world->print_formatted_turn_events($self->world->current_year);
+            say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
             next;
         }
         $result = $self->report_commands();

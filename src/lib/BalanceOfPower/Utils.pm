@@ -123,6 +123,13 @@ sub compare_turns
         return -1;
     }
 }
+sub evidence_text
+{
+    my $text = shift;
+    my $key = shift;
+  	$text =~ s/($key)/as_evidenced($1)/eg;
+    return $text;
+}
 
 sub as_title
 {
@@ -134,7 +141,12 @@ sub as_subtitle
     my $text = shift;
     return color("yellow") . $text . color("reset");
 }
+sub as_evidenced
+{
+    my $text = shift;
+    return color("bold green") . $text . color("reset");
+}
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced');
 
 1;
