@@ -7,7 +7,9 @@ use Term::ANSIColor;
 use BalanceOfPower::Utils qw( as_title as_subtitle );
 
 requires 'diplomacy_exists';
+requires 'get_borders';
 requires 'supported';
+requires 'exists_military_support';
 requires 'near_nations';
 requires 'routes_for_node';
 requires 'get_allies';
@@ -111,6 +113,46 @@ sub print_borders_analysis
                 my $supporter = $ms->start($b);
                 $out .= "    $supporter (" . $self->diplomacy_exists($nation, $supporter)->print_status() . ")\n";
             }
+        }
+    }
+    return $out;
+}
+sub print_near_analysis
+{
+    my $self = shift;
+    my $nation = shift;
+    my @near = $self->near_nations($nation, 0);
+    my $out = "";
+    foreach my $b (@near)
+    {
+        $out .= as_title($b) . " " . $self->diplomacy_exists($nation, $b)->print_status();
+        if(! $self->border_exists($nation, $b))
+        {
+            if($self->exists_military_support($nation, $b))
+            {
+                $out .= " (supported)\n";
+            }
+            else
+            {
+                $out .= "\n";
+                my @foreign_borders = $self->get_borders($b);
+                foreach my $fb (@foreign_borders)
+                {
+                    my $other_n = $fb->destination($b);
+                    my @sups = $self->supported($other_n);
+                    for(@sups)
+                    {
+                        if($_->start($other_n) eq $nation)
+                        {
+                            $out .= "    Military support from: $other_n\n";   
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            $out .= "\n";
         }
     }
     return $out;

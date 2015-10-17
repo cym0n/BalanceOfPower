@@ -319,7 +319,8 @@ COMMANDS
         {
             $self->nation($self->world->player_nation);
         }
-        print $self->world->print_near_nations($self->nation);
+        #print $self->world->print_near_nations($self->nation);
+        print $self->world->print_near_analysis($self->nation);
         $result = { status => 1 };
     }
     elsif($query =~ /^((.*) )?relations$/)

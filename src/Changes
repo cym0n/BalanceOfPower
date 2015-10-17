@@ -7,6 +7,7 @@ __???__
  * reports with nation use player's when no nation is selected 
  * Bugfix: better management of commands with no arguments
  * Command line case unsensitive
+ * Better near summary
 
 0.100001
 ===

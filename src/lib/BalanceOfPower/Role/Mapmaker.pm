@@ -12,7 +12,8 @@ has borders => (
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_border => 'add_link',
                  border_exists => 'exists_link',
-                 print_borders => 'print_links'
+                 print_borders => 'print_links',
+                 get_borders => 'links_for_node',
                }
 );
 
