@@ -503,9 +503,10 @@ sub add_internal_disorder
 {
     my $self = shift;
     my $disorder = shift;
-    $disorder = int($disorder * 100) / 100;
     my $actual_disorder = $self->internal_disorder_status;
-    $self->internal_disorder($self->internal_disorder + $disorder);
+    my $new_disorder_data = $self->internal_disorder + $disorder;
+    $new_disorder_data = int($new_disorder_data * 100) / 100;
+    $self->internal_disorder($new_disorder_data);
     if($self->internal_disorder > 100)
     {
         $self->internal_disorder(100);
