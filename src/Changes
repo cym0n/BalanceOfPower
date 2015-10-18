@@ -1,13 +1,14 @@
 0.110000
 ===
 
-__???__
+__Sun 18 Oct 2015__
 
  * Player nation evidenced on turn debriefing
  * reports with nation use player's when no nation is selected 
  * Bugfix: better management of commands with no arguments
  * Command line case unsensitive
  * Better near summary
+ * Crises always written next to hate relationships
 
 0.100001
 ===
