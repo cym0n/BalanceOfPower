@@ -287,9 +287,9 @@ COMMANDS
     {
         my $n1 = $self->world->correct_nation_name($1);
         my $n2 = $self->world->correct_nation_name($2);
-        if($self->verify_nation($1) && $self->verify_nation($2))
+        if($self->verify_nation($n1) && $self->verify_nation($n2))
         {
-            say $self->world->print_distance($1, $2);
+            say $self->world->print_distance($n1, $n2);
             $result = { status => 1 };
         }
     }

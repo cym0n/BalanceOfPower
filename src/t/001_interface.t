@@ -64,7 +64,7 @@ foreach my $c ( ("Germany borders", "Germany relations", "Germany events", "Germ
 #Distance
 $commands->query("distance Italy-United Kingdom");
 $result = $commands->report_commands();
-is($result->{status}, 1, "Command elaborated: distance Italy-Zaire");
+is($result->{status}, 1, "Command elaborated: distance Italy-United Kingdom");
 
 
 #Year command
