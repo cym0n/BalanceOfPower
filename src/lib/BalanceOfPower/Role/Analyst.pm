@@ -79,7 +79,7 @@ sub print_nation_actual_situation
         if(@crises)
         {
             my $c = shift @crises;
-            $crisis_text = $c->print;
+            $crisis_text = $c->print_crisis;
         }
         my $war_text = "";
         if(@wars)
@@ -103,7 +103,9 @@ sub print_borders_analysis
     foreach my $b (@borders)
     {
         $out .= as_title("# " . $b  . " #") . "\n";
-        $out .= "  Relations: " . $self->diplomacy_exists($nation, $b)->print_status() . "\n";
+        my $rel = $self->diplomacy_exists($nation, $b);
+        $out .= "  Relations: " . $rel->print_status() . " " . 
+                                  $rel->print_crisis_bar() . "\n";
         my @supps = $self->supported($b);
         if(@supps)
         {
@@ -111,7 +113,13 @@ sub print_borders_analysis
             foreach my $ms (@supps)
             {
                 my $supporter = $ms->start($b);
-                $out .= "    $supporter (" . $self->diplomacy_exists($nation, $supporter)->print_status() . ")\n";
+                my $sup_rel = $self->diplomacy_exists($nation, $supporter);
+                $out .= "    $supporter (" . $sup_rel->print_status();
+                if($sup_rel->is_crisis())
+                {
+                    $out .= " " . $sup_rel->print_crisis_bar;
+                } 
+                $out .= ")\n";
             }
         }
     }

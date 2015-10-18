@@ -54,7 +54,7 @@ $world->autoplay(1);
 my $commands = BalanceOfPower::Commands->new( world => $world );
 $commands->init();
 $commands->init_game(1);
-$world->add_crisis(BalanceOfPower::Relations::Crisis->new( node1 => 'Italy', node2 => 'United Kingdom' ));
+$world->add_crisis('Italy', 'United Kingdom' );
 $world->get_nation("Italy")->army(15);
 $world->get_nation("United Kingdom")->army(3);
 $world->elaborate_turn("1970/1");

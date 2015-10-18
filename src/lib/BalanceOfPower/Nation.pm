@@ -245,7 +245,7 @@ sub military_advisor
             {
                 my $enemy = $world->get_nation($c->destination($self->name));
                 next if $world->war_busy($enemy->name);
-                if($self->good_prey($enemy, $world, $c->factor))
+                if($self->good_prey($enemy, $world, $c->crisis_level))
                 {
                     if($world->in_military_range($self->name, $enemy->name))
                     {
@@ -625,7 +625,6 @@ sub occupation
     $world->reset_influences($self->name);
     $world->reset_supports($self->name);
     $world->reset_crises($self->name);
-
 }
 
 sub build_troops

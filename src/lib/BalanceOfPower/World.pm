@@ -73,6 +73,7 @@ with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Warlord';
+with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Analyst';
 
@@ -591,7 +592,7 @@ sub warfare
 sub register_global_data
 {
     my $self = shift;
-    my $crises = $self->crises->all();
+    my $crises = $self->get_all_crises();
     my $wars = $self->wars->all();
     $self->set_statistics_value(undef, 'crises', $crises);
     $self->set_statistics_value(undef, 'wars', $wars);

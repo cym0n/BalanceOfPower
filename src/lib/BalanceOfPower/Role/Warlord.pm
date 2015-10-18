@@ -25,18 +25,8 @@ requires 'supported';
 requires 'military_support_garbage_collector';
 requires 'random';
 requires 'change_diplomacy';
-
-has crises => (
-    is => 'ro',
-    default => sub { BalanceOfPower::Relations::RelPack->new() },
-    handles => { add_crisis => 'add_link',
-                 delete_crisis => 'delete_link',
-                 crisis_exists => 'exists_link',
-                 get_crises => 'links_for_node',
-                 print_crises => 'print_links',
-                 reset_crises => 'delete_link_for_node'
-               }
-);
+requires 'get_crises';
+requires 'delete_crisis';
 
 has wars => (
     is => 'ro',
@@ -48,159 +38,10 @@ has wars => (
                  delete_war => 'delete_link',
                  get_attackers => 'links_for_node2'
                }
-#                 diplomacy_exists => 'exists_link',
-#                 update_diplomacy => 'update_link',
-#                 add_influence => 'add_link' }
 );
 
 
-sub crisis_generator
-{
-    my $self = shift;
-    my @crises = $self->crises->all(); 
-    my @hates = ();
-    foreach my $h  ($self->get_hates())
-    {
-        push @hates, $h
-            if(! $self->crisis_exists($h->node1, $h->node2))
-    }
-    my $crises_to_use = \@crises;
-    my $hates_to_use = \@hates;
-    for(my $i = 0; $i < CRISIS_GENERATION_TRIES; $i++)
-    {
-        ($hates_to_use, $crises_to_use) = $self->crisis_generator_round($hates_to_use, $crises_to_use);
-    }
 
-}
-
-sub crisis_generator_round
-{
-    my $self = shift;
-    my $hates_to_use = shift;
-    my $crises_to_use = shift;
-    my @hates = $self->shuffle("Crisis generation: choosing hate", @{ $hates_to_use });
-    my @crises = $self->shuffle("Crisis generation: choosing crisis", @{ $crises_to_use});
-    my @original_hates = @hates;
-    my @original_crises = @crises;
-                     
-    my $picked_hate = undef; 
-    my $picked_crisis = undef;
-    if(@hates)
-    {
-        $picked_hate = shift @hates;
-    }
-    if(@crises)
-    {
-        $picked_crisis = shift @crises;
-    }
-   
-
-    my $action = $self->random(0, CRISIS_GENERATOR_NOACTION_TOKENS + 3, "Crisis action choose");
-    if($action == 0) #NEW CRISIS
-    {
-        return (\@original_hates, \@original_crises) if ! $picked_hate; 
-        if(! $self->war_exists($picked_hate->node1, $picked_hate->node2))
-        {
-            $self->create_or_escalate_crisis($picked_hate->node1, $picked_hate->node2);
-            return (\@hates, \@original_crises);
-        }
-    }
-    elsif($action == 1) #ESCALATE
-    {
-        return (\@original_hates, \@original_crises) if ! $picked_crisis; 
-        if(! $self->war_exists($picked_crisis->node1, $picked_crisis->node2))
-        {
-            $self->create_or_escalate_crisis($picked_crisis->node1, $picked_crisis->node2);
-        }
-        return (\@original_hates, \@crises);
-    }
-    elsif($action == 2) #COOL DOWN
-    {
-        return (\@original_hates, \@original_crises) if ! $picked_crisis; 
-        if(! $self->war_exists($picked_crisis->node1, $picked_crisis->node2))
-        {
-            $self->cool_down($picked_crisis->node1, $picked_crisis->node2);
-        }
-        return (\@original_hates, \@crises);
-    }
-    elsif($action == 3) #ELIMINATE
-    {
-        return (\@original_hates, \@original_crises) if ! $picked_crisis; 
-        if(! $self->war_exists($picked_crisis->node1, $picked_crisis->node2))
-        {
-            $self->delete_crisis($picked_crisis->node1, $picked_crisis->node2);
-        }
-        return (\@original_hates, \@crises);
-    }
-    else
-    {
-        return (\@original_hates, \@original_crises);
-    }
-}
-sub create_or_escalate_crisis
-{
-    my $self = shift;
-    my $node1 = shift || "";
-    my $node2 = shift || "";
-    if(my $crisis = $self->crisis_exists($node1, $node2))
-    {
-        if($crisis->factor < CRISIS_MAX_FACTOR)
-        {
-            $crisis->factor($crisis->factor +1);
-            my $event = "CRISIS BETWEEN $node1 AND $node2 ESCALATES";
-            if($crisis->factor == CRISIS_MAX_FACTOR)
-            {
-               $event .= " TO MAX LEVEL"; 
-            }
-            $self->broadcast_event($event, $node1, $node2);
-        }
-    }
-    else
-    {
-        $self->add_crisis(BalanceOfPower::Relations::Crisis->new(node1 => $node1, node2 => $node2));
-        $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
-    }
-}
-sub cool_down
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    if(my $crisis = $self->crisis_exists($node1, $node2))
-    {
-        if($crisis->factor == 1)
-        {
-            $self->delete_crisis($node1, $node2);
-            my $event = "CRISIS BETWEEN $node1 AND $node2 ENDED";
-            $self->broadcast_event($event, $node1, $node2);
-        }
-        else
-        {
-            $crisis->factor($crisis->factor - 1);
-            $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 COOLED DOWN", $node1, $node2);
-        }
-    }
-}
-
-sub print_all_crises
-{
-    my $self = shift;
-    my $n = shift;
-    my $out;
-    $out .= as_title("CRISES\n===\n");
-    foreach my $b ($self->crises->all())
-    {
-        if($self->war_exists($b->node1, $b->node2))
-        {
-            $out .= color("red bold") . $b->print() . color("reset") . "\n";
-        }
-        else
-        {
-            $out .= $b->print() . "\n";
-        }
-    }
-    return $out;
-}
 sub available_for_war
 {
     my $self = shift;

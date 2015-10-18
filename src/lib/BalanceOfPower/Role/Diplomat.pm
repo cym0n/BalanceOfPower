@@ -132,7 +132,8 @@ sub get_diplomacy_relation
         my $r = $self->diplomacy_exists($real_node1, $real_node2);
         $factor = $r->factor;
     }
-    return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor);
+    my $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
+    return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
 }
 
 
@@ -252,7 +253,65 @@ sub in_military_range
     return 0;
 }
 
-
+#Functions to manage relationships as crises
+sub add_crisis
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $rel = $self->diplomacy_exists($nation1, $nation2);
+    if($rel->crisis_level == 0)
+    {
+        $rel->crisis_level(1);
+    }
+}
+sub delete_crisis
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $rel = $self->diplomacy_exists($nation1, $nation2);
+    $rel->crisis_level(0);
+}
+sub crisis_exists
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $rel =  $self->diplomacy_exists($nation1, $nation2);
+    if($rel->crisis_level > 0)
+    {
+        return $rel;
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub get_crises
+{
+    my $self = shift;
+    my $nation = shift;
+    my @crises = $self->get_diplomatic_relations($nation);
+    @crises = grep { $_->crisis_level > 0 } @crises;
+    return @crises;
+}
+sub get_all_crises
+{
+    my $self = shift;
+    my @rels = $self->diplomatic_relations->all();
+    return grep { $_->is_crisis() } @rels;
+}
+sub reset_crises
+{
+    my $self = shift;
+    my $nation = shift;
+    my @rels = $self->get_diplomatic_relations($nation);
+    for(@rels)
+    {
+        $_->crisis_level(0);
+    }
+}
 
 
 1;
