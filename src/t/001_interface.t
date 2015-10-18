@@ -15,7 +15,7 @@ $world->init_random('nations-test1.txt', 'borders-test1.txt');
 $world->get_nation("Germany")->army(15);
 $world->get_nation("France")->army(15);
 $world->add_alliance(BalanceOfPower::Relations::Alliance->new( node1 => 'Italy', node2 => 'Russia' ));
-$world->add_crisis(BalanceOfPower::Relations::Crisis->new( node1 => 'Germany', node2 => 'France' ));
+$world->add_crisis('Germany', 'France' );
 $world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Germany', 
                                                     node2 => 'France',
                                                     attack_leader => 'Germany',

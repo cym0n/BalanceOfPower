@@ -46,7 +46,7 @@ $commands->init();
 $commands->init_game(1);
 my $result;
 
-$world->add_crisis(BalanceOfPower::Relations::Crisis->new( node1 => 'Italy', node2 => 'France' ));
+$world->add_crisis('Italy', 'France');
 $world->get_nation("Italy")->army(6);
 $world->get_nation("Italy")->internal_disorder(0);
 $world->get_nation("Germany")->army(6);
