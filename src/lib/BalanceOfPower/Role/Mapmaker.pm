@@ -3,6 +3,7 @@ package BalanceOfPower::Role::Mapmaker;
 use v5.10;
 use strict;
 use Moo::Role;
+use Data::Dumper;
 
 use BalanceOfPower::Relations::Border;
 use BalanceOfPower::Relations::RelPack;
@@ -129,6 +130,7 @@ sub get_cached_nodes
         {
             $nodes{$_}->{distance} = -1;
         }
+        $nodes{$nation1}->{distance} = 0;
     }
     return %nodes;
 }
@@ -139,8 +141,12 @@ sub distance
     my $nation1 = shift;
     my $nation2 = shift;
     my %nodes = $self->get_cached_nodes($nation1);
+    my $log;
+    open($log, ">> bop-dist.log");
+    print {$log} "Elaborate $nation1-$nation2\n";
     if($nodes{$nation2}->{distance} != -1)
     {
+        print {$log} "$nation1-$nation2 cached\n";
         return $nodes{$nation2}->{distance};
     }
     if(my $cached_distance = $self->get_cached_distance($nation2, $nation1))
@@ -157,32 +163,42 @@ sub distance
     }
     while(@queue)
     {
+        print {$log} Dumper(\%nodes) . "\n";
+        
         my $n = shift @queue;
+        print {$log} "Elaborating $n\n";
         foreach my $near ($self->near_nations($n, 1))
         {
             if($nodes{$near}->{distance} == -1)
             {
+                print {$log} "Distance for near $near not calculated\n";
                 if($nodes{$n}->{distance} == -1)
                 {
+                    print {$log} "Distance for elaborating $n not calculated (" . $nodes{$n}->{distance} . ") Distance for $near to 1\n";
                     $nodes{$near}->{distance} = 1;
                 }
                 else
                 {
+                    my $d = $nodes{$n}->{distance} + 1;
+                    print {$log} "Distance for elaborating $n calculated. Distance for $near is that plus 1: $d\n";
                     $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
                 }
                 push @queue, $near;
-                if($near eq $nation2)
-                {
-                    $self->distance_cache->{$nation1}->{nodes} = \%nodes;
-                    $self->distance_cache->{$nation1}->{queue} = \@queue;
-                    return $nodes{$near}->{distance};
-                }
             }
+        }
+        if($nodes{$nation2}->{distance} != -1)
+        {
+            print {$log} "Returning distance fo $nation2: " . $nodes{$nation2}->{distance} . "\n";
+            $self->distance_cache->{$nation1}->{nodes} = \%nodes;
+            $self->distance_cache->{$nation1}->{queue} = \@queue;
+            close($log);
+            return $nodes{$nation2}->{distance};
         }
     }
     $nodes{$nation2}->{distance} = 100;
     $self->distance_cache->{$nation1}->{nodes} = \%nodes;
     $self->distance_cache->{$nation1}->{queue} = \@queue;
+    close($log);
     return 100;
 }
 sub print_distance
