@@ -13,6 +13,11 @@ has links_grid => (
     is => 'rw',
     default => sub { {} }
 );
+has distance_cache => (
+    is => 'rw',
+    default => sub { {} }
+);
+
 
 sub all
 {
@@ -244,6 +249,107 @@ sub print_links
         }
     }
     return $out;
+}
+
+#BFS implementation
+sub distance
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    my $nodes_list = shift;
+    my %nodes = $self->get_cached_nodes($node1, $nodes_list);
+    my $log;
+    if($nodes{$node2}->{distance} != -1)
+    {
+        return $nodes{$node2}->{distance};
+    }
+    if(my $cached_distance = $self->get_cached_distance($node2, $node1))
+    {
+      $nodes{$node2}->{distance} = $cached_distance;
+      $self->distance_cache->{$node1}->{nodes} = \%nodes;
+      return $cached_distance;
+    }
+
+    my @queue = ( $node1 );
+    if(exists $self->distance_cache->{$node1}->{queue})
+    {
+        @queue = @{$self->distance_cache->{$node1}->{queue}};
+    }
+    while(@queue)
+    {
+        
+        my $n = shift @queue;
+        foreach my $near ($self->near($n, $nodes_list))
+        {
+            if($nodes{$near}->{distance} == -1)
+            {
+                if($nodes{$n}->{distance} == -1)
+                {
+                    $nodes{$near}->{distance} = 1;
+                }
+                else
+                {
+                    my $d = $nodes{$n}->{distance} + 1;
+                    $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
+                }
+                push @queue, $near;
+            }
+        }
+        if($nodes{$node2}->{distance} != -1)
+        {
+            $self->distance_cache->{$node1}->{nodes} = \%nodes;
+            $self->distance_cache->{$node1}->{queue} = \@queue;
+            return $nodes{$node2}->{distance};
+        }
+    }
+    $nodes{$node2}->{distance} = 100;
+    $self->distance_cache->{$node1}->{nodes} = \%nodes;
+    $self->distance_cache->{$node1}->{queue} = \@queue;
+    return 100;
+}
+sub get_cached_distance
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    if(exists $self->distance_cache->{$node1} &&
+       exists $self->distance_cache->{$node1}->{$node2} &&
+       $self->distance_cache->{$node1}->{$node2} != -1)
+    {
+        return $self->distance_cache->{$node1}->{$node2};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub get_cached_nodes
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $nodes_list = shift;
+    my %nodes = ();
+    if(exists $self->distance_cache->{$node1})
+    {
+        %nodes = %{$self->distance_cache->{$node1}->{nodes}};
+    }
+    else
+    {
+        foreach(@{$nodes_list})
+        {
+            $nodes{$_}->{distance} = -1;
+        }
+        $nodes{$node1}->{distance} = 0;
+    }
+    return %nodes;
+}
+sub near
+{
+    my $self = shift;
+    my $node = shift;
+    my $nodes = shift;
+    return grep { $self->exists_link($node, $_) && $node ne $_ } @{$nodes};
 }
 
 1;

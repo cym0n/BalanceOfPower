@@ -14,13 +14,11 @@ has borders => (
                  border_exists => 'exists_link',
                  print_borders => 'print_links',
                  get_borders => 'links_for_node',
+                 near_on_the_map => 'near',
+                 distance_on_the_map => 'distance'
                }
 );
 
-has distance_cache => (
-    is => 'rw',
-    default => sub { {} }
-);
 
 sub load_borders
 {
@@ -55,7 +53,7 @@ sub near_nations
     my $geographical = shift || 0;
     if($geographical)
     {
-        return grep { $self->border_exists($nation, $_) && $nation ne $_ } @{$self->nation_names};
+        return $self->near_on_the_map($nation, $self->nation_names);
     }
     else
     {
@@ -72,6 +70,13 @@ sub print_near_nations
         $out .= $_ . "\n";
     }
     return $out;
+}
+sub distance
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return $self->distance_on_the_map($nation1, $nation2, $self->nation_names);
 }
 
 
@@ -98,97 +103,8 @@ sub get_group_borders
 }
 
 #cache management
-sub get_cached_distance
-{
-    my $self = shift;
-    my $nation1 = shift;
-    my $nation2 = shift;
-    if(exists $self->distance_cache->{$nation1} &&
-       exists $self->distance_cache->{$nation1}->{$nation2} &&
-       $self->distance_cache->{$nation1}->{$nation2} != -1)
-    {
-        return $self->distance_cache->{$nation1}->{$nation2};
-    }
-    else
-    {
-        return undef;
-    }
-}
-sub get_cached_nodes
-{
-    my $self = shift;
-    my $nation1 = shift;
-    my %nodes = ();
-    if(exists $self->distance_cache->{$nation1})
-    {
-        %nodes = %{$self->distance_cache->{$nation1}->{nodes}};
-    }
-    else
-    {
-        foreach(@{$self->nation_names})
-        {
-            $nodes{$_}->{distance} = -1;
-        }
-        $nodes{$nation1}->{distance} = 0;
-    }
-    return %nodes;
-}
-#BFS implementation
-sub distance
-{
-    my $self = shift;
-    my $nation1 = shift;
-    my $nation2 = shift;
-    my %nodes = $self->get_cached_nodes($nation1);
-    my $log;
-    if($nodes{$nation2}->{distance} != -1)
-    {
-        return $nodes{$nation2}->{distance};
-    }
-    if(my $cached_distance = $self->get_cached_distance($nation2, $nation1))
-    {
-      $nodes{$nation2}->{distance} = $cached_distance;
-      $self->distance_cache->{$nation1}->{nodes} = \%nodes;
-      return $cached_distance;
-    }
 
-    my @queue = ( $nation1 );
-    if(exists $self->distance_cache->{$nation1}->{queue})
-    {
-        @queue = @{$self->distance_cache->{$nation1}->{queue}};
-    }
-    while(@queue)
-    {
-        
-        my $n = shift @queue;
-        foreach my $near ($self->near_nations($n, 1))
-        {
-            if($nodes{$near}->{distance} == -1)
-            {
-                if($nodes{$n}->{distance} == -1)
-                {
-                    $nodes{$near}->{distance} = 1;
-                }
-                else
-                {
-                    my $d = $nodes{$n}->{distance} + 1;
-                    $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
-                }
-                push @queue, $near;
-            }
-        }
-        if($nodes{$nation2}->{distance} != -1)
-        {
-            $self->distance_cache->{$nation1}->{nodes} = \%nodes;
-            $self->distance_cache->{$nation1}->{queue} = \@queue;
-            return $nodes{$nation2}->{distance};
-        }
-    }
-    $nodes{$nation2}->{distance} = 100;
-    $self->distance_cache->{$nation1}->{nodes} = \%nodes;
-    $self->distance_cache->{$nation1}->{queue} = \@queue;
-    return 100;
-}
+
 sub print_distance
 {
     my $self = shift;
