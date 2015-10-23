@@ -445,6 +445,12 @@ sub execute_decisions
            my $supported = $self->get_nation($2);
            $self->stop_military_support($supporter, $supported);
         }
+        elsif($d =~ /^(.*): AID INSURGENTS IN (.*)$/)
+        {
+            my $attacker = $self->get_nation($1);
+            my $victim = $self->get_nation($2);
+            $self->aid_insurgents($attacker, $victim);
+        }
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -571,6 +577,19 @@ sub internal_conflict
         }
         
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
+    }
+}
+
+sub aid_insurgents
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    if($nation1->production_for_export > AID_INSURGENTS_COST && $nation2->internal_disorder_status ne 'Civil war')
+    {
+        $self->broadcast_event("AIDS FOR INSURGENTS OF " . $nation2->name . " FROM " . $nation1->name, $nation1->name, $nation2->name);
+        $nation1->subtract_production('export', AID_INSURGENTS_COST);
+        $nation2->add_internal_disorder(INSURGENTS_AID);
     }
 }
 

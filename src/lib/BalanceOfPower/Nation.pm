@@ -245,23 +245,30 @@ sub military_advisor
             {
                 my $enemy = $world->get_nation($c->destination($self->name));
                 next if $world->war_busy($enemy->name);
-                if($self->good_prey($enemy, $world, $c->crisis_level))
+                if($world->in_military_range($self->name, $enemy->name))
                 {
-                    if($world->in_military_range($self->name, $enemy->name))
+                    if($self->good_prey($enemy, $world, $c->crisis_level))
                     {
                         return $self->name . ": DECLARE WAR TO " . $enemy->name;
                     }
                     else
                     {
-                        if($self->army >= MIN_ARMY_TO_EXPORT)
+                        if($self->production_for_export >= AID_INSURGENTS_COST)
                         {
-                            my @friends = $world->get_friends($self->name);                        
-                            for(@friends)
+                            return $self->name . ": AID INSURGENTS IN " . $enemy->name;
+                        }
+                    }
+                }
+                else
+                {
+                    if($self->army >= MIN_ARMY_TO_EXPORT)
+                    {
+                        my @friends = $world->get_friends($self->name);                        
+                        for(@friends)
+                        {
+                            if($world->border_exists($_, $enemy->name))
                             {
-                                if($world->border_exists($_, $enemy->name))
-                                {
-                                    return $self->name . ": MILITARY SUPPORT " . $_;
-                                }
+                                return $self->name . ": MILITARY SUPPORT " . $_;
                             }
                         }
                     }

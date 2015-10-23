@@ -82,6 +82,8 @@ use constant ARMY_TO_RECALL_SUPPORT => 3;
 use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
 use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
+use constant AID_INSURGENTS_COST => 25;
+use constant INSURGENTS_AID => 15;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -160,6 +162,8 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'TRADEROUTE_SIZE_BONUS',
                   'DICTATORSHIP_PRODUCTION_MALUS',
                   'DICTATORSHIP_BONUS_FOR_CIVIL_WAR',
-                  'DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION'
+                  'DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION',
+                  'AID_INSURGENTS_COST',
+                  'INSURGENTS_AID'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
