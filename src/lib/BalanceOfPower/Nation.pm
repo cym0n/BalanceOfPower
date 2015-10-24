@@ -390,7 +390,7 @@ sub good_prey
 
                     
     #COALITION EVALUATION
-    if($world->coalition($self->name) && $world->coalition($enemy->name) && $world->coalition($self->name) > $world->coalition($enemy->name))
+    if($world->empire($self->name) && $world->empire($enemy->name) && $world->empire($self->name) > $world->empire($enemy->name))
     {
         $war_points += 1;
     }

@@ -18,7 +18,7 @@ requires 'get_hates';
 requires 'occupy';
 requires 'broadcast_event';
 requires 'send_event';
-requires 'coalition';
+requires 'empire';
 requires 'get_group_borders';
 requires 'get_allies';
 requires 'supported';
@@ -48,7 +48,7 @@ sub available_for_war
     my $nation = shift;
     my @crises = $self->get_crises($nation);
     my @out = ();
-    my @coalition = $self->coalition($nation);
+    my @coalition = $self->empire($nation);
     foreach my $c (@crises)
     {
         my $n = $c->destination($nation);
@@ -87,10 +87,10 @@ sub create_war
     if(! $self->war_exists($attacker->name, $defender->name))
     {
         $self->broadcast_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
-        my @attacker_coalition = $self->coalition($attacker->name);
+        my @attacker_coalition = $self->empire($attacker->name);
         @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
         @attacker_coalition = grep { ! $self->at_civil_war($_) } @attacker_coalition;
-        my @defender_coalition = $self->coalition($defender->name);
+        my @defender_coalition = $self->empire($defender->name);
         @defender_coalition = grep { ! $self->at_war($_) } @defender_coalition;
         @defender_coalition = grep { ! $self->at_civil_war($_) } @defender_coalition;
     

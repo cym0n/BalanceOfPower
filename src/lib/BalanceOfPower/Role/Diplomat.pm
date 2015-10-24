@@ -219,7 +219,7 @@ sub print_diplomacy
     }
     return $out;
 }
-sub coalition
+sub empire
 {
     my $self = shift;
     my $n = shift;
