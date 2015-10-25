@@ -280,8 +280,11 @@ sub init_year
         $n->wealth(0);
         my $prod = $self->calculate_production($n);
         $n->production($prod);
+        my $prestige = $self->calculate_prestige($n);
+        $n->prestige($prestige);
         $self->set_statistics_value($n, 'production', $prod);
         $self->set_statistics_value($n, 'debt', $n->debt);
+        $self->set_statistics_value($n, 'prestige', $prestige);
     }
 }
 
@@ -383,6 +386,43 @@ sub loot
 
 
 # PRODUCTION MANAGEMENT END ###############################################
+
+# PRESTIGE MANAGEMENT #####################################################
+
+sub calculate_prestige
+{
+    my $self = shift;
+    my $nation = shift;
+    my $prestige = 0;
+    my @routes = $self->routes_for_node($nation);
+    $prestige += @routes;
+    my @supported = $self->supporter($nation);
+    $prestige += @supported;
+    my @influenced = $self->has_influence($nation);
+    $prestige += @influenced * INFLUENCE_PRESTIGE_BONUS;
+    my @ordered_wealth = $self->order_statistics(prev_turn($nation->current_year), 'wealth');
+    my $bonus = 0;
+    if(@ordered_wealth >= BEST_WEALTH_FOR_PRESTIGE)
+    {
+        for(my $i = 0; $i < BEST_WEALTH_FOR_PRESTIGE; $i++)
+        {
+            if($ordered_wealth[$i]->{nation} eq $nation)
+            {
+                $bonus = BEST_WEALTH_FOR_PRESTIGE_BONUS;
+                $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation, $nation);
+            }
+        }
+    }
+    $prestige += $bonus;
+    my @wins = $nation->get_events("WAR BETWEEN .* AND .* WON BY $nation", prev_turn($nation->current_year));
+    if(@wins > 0)
+    {
+        $prestige += WAR_PRESTIGE_BONUS;
+    }
+    return $prestige;
+}
+
+# PRESTIGE MANAGEMENT END #####################################################
 
 # DECISIONS ###############################################################
 

@@ -16,6 +16,15 @@ has synonyms => (
     is => 'rw',
     default => sub { [] }
 );
+has export_cost => (
+    is => 'ro',
+    default => 0
+);
+has domestic_cost => (
+    is => 'ro',
+    default => 0
+);
+
 has allowed_at_war => (
     is => 'ro',
     default => 0
@@ -44,19 +53,27 @@ sub allowed
     }
     if(exists $self->production_limit->{'<'})
     {
-        return $self->world->get_player_nation()->production() < $self->production_limit->{'<'};
+        return $self->world->get_player_nation()->production() <= $self->production_limit->{'<'};
     }
     elsif(exists $self->production_limit->{'>'})
     {
-        return $self->world->get_player_nation()->production() > $self->production_limit->{'>'};
+        return $self->world->get_player_nation()->production() >= $self->production_limit->{'>'};
     }
     if(exists $self->army_limit->{'<'})
     {
-        return $self->world->get_player_nation()->army() < $self->army_limit->{'<'};
+        return $self->world->get_player_nation()->army() <= $self->army_limit->{'<'};
     }
     elsif(exists $self->army_limit->{'>'})
     {
-        return $self->world->get_player_nation()->army() > $self->army_limit->{'>'};
+        return $self->world->get_player_nation()->army() >= $self->army_limit->{'>'};
+    }
+    if($self->world->get_player_nation()->production_for_domestic < $self->domestic_cost)
+    {
+        return 0;
+    }
+    if($self->world->get_player_nation()->production_for_export < $self->export_cost)
+    {
+        return 0;
     }
     return 1;
 }

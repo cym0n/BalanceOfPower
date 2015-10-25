@@ -13,6 +13,8 @@ use BalanceOfPower::Utils qw( as_title );
 use BalanceOfPower::Relations::Crisis;
 use BalanceOfPower::Relations::War;
 
+requires 'empire';
+requires 'border_exists';
 requires 'get_nation';
 requires 'get_hates';
 requires 'occupy';
@@ -22,6 +24,7 @@ requires 'empire';
 requires 'get_group_borders';
 requires 'get_allies';
 requires 'supported';
+requires 'supporter';
 requires 'military_support_garbage_collector';
 requires 'random';
 requires 'change_diplomacy';
@@ -42,25 +45,6 @@ has wars => (
 
 
 
-sub available_for_war
-{
-    my $self = shift;
-    my $nation = shift;
-    my @crises = $self->get_crises($nation);
-    my @out = ();
-    my @coalition = $self->empire($nation);
-    foreach my $c (@crises)
-    {
-        my $n = $c->destination($nation);
-        if(! $self->at_war($n))
-        {
-            push @out, $n;
-        }
-    }
-    @out = $self->get_group_borders(\@coalition, \@out);
-    return @out;
-}
-
 sub at_civil_war
 {
     my $self = shift;
@@ -74,6 +58,33 @@ sub war_busy
     my $self = shift;
     my $n = shift;
     return $self->at_civil_war($n) || $self->at_war($n);
+}
+sub in_military_range
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return 1 if($self->border_exists($nation1, $nation2));
+    my @supported = $self->supporter($nation1);
+    for(@supported)
+    {
+        my $nation_supported = $_->destination($nation1);
+        if(! $self->war_busy($nation_supported))
+        {
+            return 1 if $nation_supported eq $nation2 ||
+                        $self->border_exists($nation_supported, $nation2);
+        }
+    }
+    my @empire = $self->empire($nation1);
+    for(@empire)
+    {
+        my $ally = $_;
+        if(! $self->war_busy($ally))
+        {
+            return 1 if $ally eq $nation2 || $self->border_exists($ally, $nation2);
+        }
+    }
+    return 0;
 }
 
 

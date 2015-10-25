@@ -75,11 +75,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy\tPstg.";
     }
     else
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy\tPstg.";
     }
 }
 sub print_nation_statistics_line
@@ -114,6 +114,7 @@ sub print_nation_statistics_line
     }
     $out .= $self->get_statistics_value($y, $nation, 'internal disorder') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
+    $out .= $self->get_statistics_value($y, $nation, 'prestige') . "\t";
     return $out;
 }
 
@@ -194,6 +195,23 @@ sub medium_statistics
     my $medium_wealth = int(($total_wealth / @nations)*100)/100;
     my $medium_disorder = int(($total_disorder / @nations)*100)/100;
     return ($medium_production, $medium_wealth, $medium_disorder);
+}
+
+sub order_statistics
+{
+    my $self = shift;
+    my $turn = shift;
+    my $value = shift;
+    my @nations = @{$self->nation_names};
+    my @ordered;
+    foreach my $n (@nations)
+    {
+        my $val = $self->get_statistics_value($turn, $n, $value);
+        return () if(! $val);
+        push @ordered, { nation => $n, value => $val }; 
+    }
+    @ordered = sort { $a->{value} <=> $b->{value} } @ordered;
+    return @ordered;
 }
 
 sub print_crises

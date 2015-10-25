@@ -84,6 +84,10 @@ use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
 use constant AID_INSURGENTS_COST => 25;
 use constant INSURGENTS_AID => 15;
+use constant INFLUENCE_PRESTIGE_BONUS => 3;
+use constant BEST_WEALTH_FOR_PRESTIGE => 5;
+use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
+use constant WAR_PRESTIGE_BONUS => 10;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -164,6 +168,10 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'DICTATORSHIP_BONUS_FOR_CIVIL_WAR',
                   'DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION',
                   'AID_INSURGENTS_COST',
-                  'INSURGENTS_AID'
+                  'INSURGENTS_AID',
+                  'INFLUENCE_PRESTIGE_BONUS',
+                  'BEST_WEALTH_FOR_PRESTIGE',
+                  'BEST_WEALTH_FOR_PRESTIGE_BONUS',
+                  'WAR_PRESTIGE_BONUS'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

@@ -237,21 +237,7 @@ sub empire
         return @allies;
     }
 }
-sub in_military_range
-{
-    my $self = shift;
-    my $nation1 = shift;
-    my $nation2 = shift;
-    return 1 if($self->border_exists($nation1, $nation2));
-    my @supported = $self->supporter($nation1);
-    for(@supported)
-    {
-        my $nation_supported = $_->destination($nation1);
-        return 1 if $nation_supported eq $nation2 ||
-                    $self->border_exists($nation_supported, $nation2);
-    }
-    return 0;
-}
+
 
 #Functions to manage relationships as crises
 sub add_crisis

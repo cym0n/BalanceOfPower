@@ -8,7 +8,7 @@ use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns evidence_text);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::NoArgs;
-use BalanceOfPower::Commands::DeclareWar;
+use BalanceOfPower::Commands::InMilitaryRange;
 use BalanceOfPower::Commands::TargetRoute;
 use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
@@ -48,20 +48,24 @@ sub init
     my $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "BUILD TROOPS",
                                               world => $self->world,
-                                              allowed_at_war => 1 );
+                                              allowed_at_war => 1,
+                                              export_cost => $self->world->get_player_nation()->build_troops_cost() );
     push @{$self->commands}, $command; 
     $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "LOWER DISORDER",
-                                              world => $self->world );
+                                              world => $self->world,
+                                              domestic_cost => RESOURCES_FOR_DISORDER );
     push @{$self->commands}, $command; 
     $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "ADD ROUTE",
-                                              world => $self->world );
+                                              world => $self->world,
+                                              export_cost => ADDING_TRADEROUTE_COST );
     push @{$self->commands}, $command; 
     $command =
-        BalanceOfPower::Commands::DeclareWar->new( name => "DECLARE WAR TO",
-                                                 synonyms => ["DECLARE WAR"],
-                                                 world => $self->world );
+        BalanceOfPower::Commands::InMilitaryRange->new( name => "DECLARE WAR TO",
+                                                        synonyms => ["DECLARE WAR"],
+                                                        world => $self->world,
+                                                        crisis_needed => 1 );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::TargetRoute->new( name => "DELETE TRADEROUTE",
@@ -84,6 +88,12 @@ sub init
                                                       world => $self->world,
                                                       allowed_at_war => 1,
                                                     );
+    $command =
+        BalanceOfPower::Commands::InMilitaryRange->new( name => "AID INSURGENTS IN",
+                                                             synonyms => ["AID INSURGENTS", "AID INSURGENCE"],
+                                                             world => $self->world,
+                                                             export_cost => AID_INSURGENTS_COST );
+    push @{$self->commands}, $command; 
     push @{$self->commands}, $command; 
 }
 

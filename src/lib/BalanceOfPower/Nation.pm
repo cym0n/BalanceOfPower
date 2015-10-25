@@ -49,6 +49,10 @@ has production_for_export => (
     is => 'rw',
     default => 0
 );
+has prestige => (
+    is => 'rw',
+    default => 0
+);
 has wealth => (
     is => 'rw',
     default => 0
@@ -637,11 +641,8 @@ sub occupation
 sub build_troops
 {
     my $self = shift;
-    my $army_cost = ARMY_COST;
-    if($self->government eq 'dictatorship')
-    {
-        $army_cost -= DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION;
-    }
+    my $army_cost = $self->build_troops_cost();
+  
     if($self->production_for_export > $army_cost && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
         $self->subtract_production('export', $army_cost);
@@ -649,6 +650,17 @@ sub build_troops
         $self->register_event("NEW TROOPS FOR THE ARMY");
     } 
 }
+sub build_troops_cost
+{
+    my $self = shift;
+    my $army_cost = ARMY_COST;
+    if($self->government eq 'dictatorship')
+    {
+        $army_cost -= DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION;
+    }
+    return $army_cost;
+}
+
 sub add_army
 {
     my $self = shift;
