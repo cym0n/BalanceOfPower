@@ -33,6 +33,8 @@ $commands->init();
 $commands->init_game(1);
 my $result;
 
+$world->get_player_nation->production(1000);
+
 #Generic commands
 foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation") )
 {

@@ -156,7 +156,7 @@ sub is_crisis
 sub is_max_crisis
 {
     my $self = shift;
-    return $self->crisis_level = CRISIS_MAX_FACTOR;
+    return $self->crisis_level(CRISIS_MAX_FACTOR);
 }
 
 
