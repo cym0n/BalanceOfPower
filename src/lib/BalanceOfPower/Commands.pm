@@ -356,6 +356,10 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
+        if(! $self->nation)
+        {
+            $self->nation($self->world->player_nation);
+        }
         if($self->nation)
         {
             if($input_year)

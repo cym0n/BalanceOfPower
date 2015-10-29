@@ -75,11 +75,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy\tPstg.";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy"; #\tPstg.";
     }
     else
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy\tPstg.";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy"; #\tPstg.";
     }
 }
 sub print_nation_statistics_line
@@ -114,7 +114,7 @@ sub print_nation_statistics_line
     }
     $out .= $self->get_statistics_value($y, $nation, 'internal disorder') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
-    $out .= $self->get_statistics_value($y, $nation, 'prestige') . "\t";
+    #$out .= $self->get_statistics_value($y, $nation, 'prestige') . "\t";
     return $out;
 }
 

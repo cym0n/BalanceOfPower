@@ -284,15 +284,8 @@ sub distance
         {
             if($nodes{$near}->{distance} == -1)
             {
-                if($nodes{$n}->{distance} == -1)
-                {
-                    $nodes{$near}->{distance} = 1;
-                }
-                else
-                {
-                    my $d = $nodes{$n}->{distance} + 1;
-                    $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
-                }
+                my $d = $nodes{$n}->{distance} + 1;
+                $nodes{$near}->{distance} = $nodes{$n}->{distance} + 1;
                 push @queue, $near;
             }
         }
