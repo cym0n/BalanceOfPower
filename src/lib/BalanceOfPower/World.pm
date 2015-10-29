@@ -393,12 +393,13 @@ sub calculate_prestige
 {
     my $self = shift;
     my $nation = shift;
+    my $nation_name = $nation->name;
     my $prestige = 0;
-    my @routes = $self->routes_for_node($nation);
+    my @routes = $self->routes_for_node($nation_name);
     $prestige += @routes;
-    my @supported = $self->supporter($nation);
+    my @supported = $self->supporter($nation_name);
     $prestige += @supported;
-    my @influenced = $self->has_influence($nation);
+    my @influenced = $self->has_influence($nation_name);
     $prestige += @influenced * INFLUENCE_PRESTIGE_BONUS;
     my @ordered_wealth = $self->order_statistics(prev_turn($nation->current_year), 'wealth');
     my $bonus = 0;
@@ -406,15 +407,15 @@ sub calculate_prestige
     {
         for(my $i = 0; $i < BEST_WEALTH_FOR_PRESTIGE; $i++)
         {
-            if($ordered_wealth[$i]->{nation} eq $nation)
+            if($ordered_wealth[$i]->{nation} eq $nation_name)
             {
                 $bonus = BEST_WEALTH_FOR_PRESTIGE_BONUS;
-                $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation, $nation);
+                $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, $nation_name);
             }
         }
     }
     $prestige += $bonus;
-    my @wins = $nation->get_events("WAR BETWEEN .* AND .* WON BY $nation", prev_turn($nation->current_year));
+    my @wins = $nation->get_events("WAR BETWEEN .* AND .* WON BY ". $nation_name, prev_turn($nation->current_year));
     if(@wins > 0)
     {
         $prestige += WAR_PRESTIGE_BONUS;
