@@ -14,8 +14,30 @@ has type => (
 around 'print' => sub {
     my $orig = shift;
     my $self = shift;
-    return $self->type . ": " .
+    return $self->short_tag . ": " .
            $self->$orig();
 };
+
+sub short_tag 
+{
+    my $self = shift;
+    if($self->type eq 'alliance')
+    {
+        return 'ALL';
+    }
+    elsif($self->type eq 'non aggression')
+    {
+        return 'NAG';
+    }
+    elsif($self->type eq 'commercial')
+    {
+        return 'COM';
+    }
+    else
+    {
+        return '???';
+    }
+
+}
 
 1;

@@ -306,7 +306,7 @@ sub exists_treaty_by_type
     my $nation2 = shift;
     my $type = shift;
     my $rel = $self->exists_treaty($nation1, $nation2);
-    if( $rel && $rel->type eq $type)
+    if( $rel && ($rel->type eq $type || $rel->type eq 'alliance')) #Alliance means both treaties are active
     {
         return $rel;
     }

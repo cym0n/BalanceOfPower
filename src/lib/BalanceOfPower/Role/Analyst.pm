@@ -39,12 +39,12 @@ sub print_nation_actual_situation
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    my $allies_support_title = sprintf "%-35s %-35s", "ALLIES", "SUPPORTS";
+    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES", "SUPPORTS";
     $allies_support_title .="\n";
     $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
     $allies_support_title .="\n";
     $out .= as_title($allies_support_title);
-    my @allies = $self->get_allies($nation);
+    my @allies = $self->get_treaties_for_nation($nation);
     my @supports = $self->supports($nation);
     for(my $i = 0; ;$i++)
     {
