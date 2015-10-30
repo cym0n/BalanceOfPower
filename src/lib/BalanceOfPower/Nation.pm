@@ -218,7 +218,7 @@ sub decision
         }
         elsif($a eq 'economy')
         {
-            $decision = $self->economy_advisor();
+            $decision = $self->economy_advisor($world);
         }
         elsif($a eq 'military')
         {
@@ -436,11 +436,28 @@ sub domestic_advisor
 #
 # DELETE TRADEROUTE
 # ADD ROUTE
+# TREATY COM
 
 sub economy_advisor
 {
     my $self = shift;
+    my $world = shift;
     my $prev_year = prev_turn($self->current_year);
+    my @trade_ok = $self->get_events("TRADE OK", $prev_year);
+    if($self->prestige > TREATY_PRESTIGE_COST && @trade_ok > 0)
+    {
+        for(@trade_ok)
+        {
+            my $route = $_;
+            $route =~ s/^TRADE OK //;
+            $route =~ s/ \[.*$//;
+            if(! $world->exists_treaty($self->name, $route))
+            {
+                say $self->name . ": TREATY COM WITH " . $route;
+                return $self->name . ": TREATY COM WITH " . $route;
+            }
+        }
+    }
     my @trade_ko = $self->get_events("TRADE KO", $prev_year);
     if(@trade_ko > 1)
     {

@@ -88,6 +88,7 @@ use constant INFLUENCE_PRESTIGE_BONUS => 3;
 use constant BEST_WEALTH_FOR_PRESTIGE => 5;
 use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 use constant WAR_PRESTIGE_BONUS => 10;
+use constant TREATY_PRESTIGE_COST => 7;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -172,6 +173,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'INFLUENCE_PRESTIGE_BONUS',
                   'BEST_WEALTH_FOR_PRESTIGE',
                   'BEST_WEALTH_FOR_PRESTIGE_BONUS',
-                  'WAR_PRESTIGE_BONUS'
+                  'WAR_PRESTIGE_BONUS',
+                  'TREATY_PRESTIGE_COST'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

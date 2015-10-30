@@ -401,13 +401,13 @@ sub calculate_prestige
     $prestige += @supported;
     my @influenced = $self->has_influence($nation_name);
     $prestige += @influenced * INFLUENCE_PRESTIGE_BONUS;
-    my @ordered_wealth = $self->order_statistics(prev_turn($nation->current_year), 'wealth');
+    my @ordered_best = $self->order_statistics(prev_turn($nation->current_year), 'w/d');
     my $bonus = 0;
-    if(@ordered_wealth >= BEST_WEALTH_FOR_PRESTIGE)
+    if(@ordered_best >= BEST_WEALTH_FOR_PRESTIGE)
     {
         for(my $i = 0; $i < BEST_WEALTH_FOR_PRESTIGE; $i++)
         {
-            if($ordered_wealth[$i]->{nation} eq $nation_name)
+            if($ordered_best[$i]->{nation} eq $nation_name)
             {
                 $bonus = BEST_WEALTH_FOR_PRESTIGE_BONUS;
                 $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, $nation_name);
@@ -491,6 +491,17 @@ sub execute_decisions
             my $attacker = $self->get_nation($1);
             my $victim = $self->get_nation($2);
             $self->aid_insurgents($attacker, $victim);
+        }
+        elsif($d =~ /^(.*): TREATY (.*) WITH (.*)$/)
+        {
+            say $1;
+            say $2;
+            say $3;
+            my $nation1 = $self->get_nation($1);
+            my $nation2 = $self->get_nation($3);
+            say $nation1;
+            say $nation2;
+            $self->stipulate_treaty($nation1, $nation2, $2);
         }
     }
     $self->manage_route_adding(@route_adders);
@@ -662,6 +673,50 @@ sub warfare
     }    
 }
 # WAR END ##################################################################
+
+# TREATIES #################################################################
+
+sub stipulate_treaty
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $type = shift;
+    my $present_treaty = $self->exists_treaty($nation1->name, $nation2->name);
+    if($nation1->prestige >= TREATY_PRESTIGE_COST)
+    {
+        if($type eq 'COM')
+        {
+            if(! $present_treaty)
+            {
+                $self->create_treaty($nation1->name, $nation2->name, 'commercial');
+                $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+            }
+        }
+        elsif($type eq 'NAG')
+        {
+            if(! $present_treaty)
+            {
+                $self->create_treaty($nation1->name, $nation2->name, 'no aggression');
+                $self->broadcast_event("NO AGGRESSION TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+            }
+        }
+        else
+        {
+            if($present_treaty && $present_treaty->type ne 'alliance')
+            {
+                $self->create_treaty($nation1->name, $nation2->name, 'alliance');
+                $self->broadcast_event("ALLIANCE BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+            }
+        }
+    }
+
+
+}
+
+
+
+# TRATIES END ##############################################################
 
 sub register_global_data
 {

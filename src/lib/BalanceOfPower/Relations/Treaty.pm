@@ -25,7 +25,7 @@ sub short_tag
     {
         return 'ALL';
     }
-    elsif($self->type eq 'non aggression')
+    elsif($self->type eq 'no aggression')
     {
         return 'NAG';
     }

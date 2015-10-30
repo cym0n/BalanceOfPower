@@ -299,6 +299,17 @@ sub reset_crises
 }
 
 #Functions to manage treaties
+sub create_treaty
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $type = shift;
+    $self->add_treaty(BalanceOfPower::Relations::Treaty->new(
+                        node1 => $nation1,
+                        node2 => $nation2,
+                        type => $type ));
+}
 sub exists_treaty_by_type
 {
     my $self = shift;
@@ -330,10 +341,7 @@ sub add_alliance
     my $self = shift;
     my $nation1 = shift;
     my $nation2 = shift;
-    $self->add_treaty(BalanceOfPower::Relations::Treaty->new(
-                        node1 => $nation1,
-                        node2 => $nation2,
-                        type => 'alliance' ));
+    $self->create_treaty($nation1, $nation2, 'alliance');
 }
 sub print_allies
 {
