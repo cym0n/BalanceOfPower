@@ -7,7 +7,7 @@ use Moo::Role;
 use BalanceOfPower::Constants ':all';
 
 use BalanceOfPower::Relations::Friendship;
-use BalanceOfPower::Relations::Alliance;
+use BalanceOfPower::Relations::Treaty;
 use BalanceOfPower::Relations::RelPack;
 
 has diplomatic_relations => (
@@ -18,14 +18,14 @@ has diplomatic_relations => (
                  update_diplomacy => 'update_link',
                  get_diplomatic_relations => 'links_for_node' }
 );
-has alliances => (
+has treaties => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
-    handles => { add_alliance => 'add_link',
-                 print_allies => 'print_links',
-                 exists_alliance => 'exists_link',
-                 get_allies => 'links_for_node',
-                 reset_alliances => 'delete_link_for_node' }
+    handles => { add_treaty => 'add_link',
+                 print_treaties => 'print_links',
+                 exists_treaty => 'exists_link',
+                 get_treaties_for_nation => 'links_for_node',
+                 reset_treaties => 'delete_link_for_node' }
 );
 
 requires 'random';
@@ -88,8 +88,7 @@ sub init_random_alliances
         my $n2 = $nations[$self->random(0, $#nations, "Nation2 for random alliance")];
         if($n1 ne $n2)
         {
-            my $all = BalanceOfPower::Relations::Alliance->new(node1 => $n1, node2 => $n2);
-            $self->add_alliance($all);
+            $self->add_alliance($n1, $n2);
             $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
         }
     }
@@ -297,6 +296,73 @@ sub reset_crises
     {
         $_->crisis_level(0);
     }
+}
+
+#Functions to manage treaties
+sub exists_treaty_by_type
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $type = shift;
+    my $rel = $self->exists_treaty($nation1, $nation2);
+    if( $rel && $rel->type eq $type)
+    {
+        return $rel;
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub get_treaties_for_nation_by_type
+{
+    my $self = shift;
+    my $nation = shift;
+    my $type = shift;
+    my @treaties = $self->get_treaties_for_nation($nation);
+    return grep { $_->type eq $type } @treaties;
+}
+
+#Functions to manage alliances
+sub add_alliance
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    $self->add_treaty(BalanceOfPower::Relations::Treaty->new(
+                        node1 => $nation1,
+                        node2 => $nation2,
+                        type => 'alliance' ));
+}
+sub print_allies
+{
+    my $self = shift;
+    my @treaties = $self->treaties->all();
+    my $out = "";
+    for(@treaties)
+    {
+        if($_->type eq 'alliance')
+        {
+            $out .= $_->print . "\n";
+        }
+    }
+    return $out;
+}
+
+sub exists_alliance
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return $self->exists_treaty_by_type($nation1, $nation2, 'alliance');
+}
+
+sub get_allies
+{
+    my $self = shift;
+    my $nation = shift;
+    return $self->get_treaties_for_nation_by_type($nation, 'alliance');
 }
 
 

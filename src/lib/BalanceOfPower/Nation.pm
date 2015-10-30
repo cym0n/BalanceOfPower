@@ -623,7 +623,7 @@ sub new_government
     my $world = shift;
     $self->government_strength($world->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Reroll government strength for " . $self->name));
     $world->reroll_diplomacy($self->name);
-    $world->reset_alliances($self->name);
+    $world->reset_treaties($self->name);
     $world->reset_influences($self->name);
     $world->reset_supports($self->name);
     $world->reset_crises($self->name);
@@ -633,7 +633,7 @@ sub occupation
 {
     my $self = shift;
     my $world = shift;
-    $world->reset_alliances($self->name);
+    $world->reset_treaties($self->name);
     $world->reset_influences($self->name);
     $world->reset_supports($self->name);
     $world->reset_crises($self->name);
