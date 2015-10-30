@@ -1,5 +1,6 @@
 package BalanceOfPower::Role::Historian;
 
+use v5.10;
 use strict;
 use Moo::Role;
 use Term::ANSIColor;
@@ -75,11 +76,11 @@ sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDebt\tDisor.\tArmy"; #\tPstg.";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDebt\tDisor.\tArmy\tPstg.";
     }
     else
     {
-        return "Size\tProd.\tWealth\tW/D\tGrowth\tDelta\tDisor.\tArmy"; #\tPstg.";
+        return "Size\tProd.\tWealth\tW/D\tGrowth\tDisor.\tArmy\tPstg.";
     }
 }
 sub print_nation_statistics_line
@@ -89,32 +90,22 @@ sub print_nation_statistics_line
     my $y = shift;
     my $out = "";
     $out .= $self->get_nation($nation)->size . "\t";
-    if(! $self->get_statistics_value($y, $nation, 'production'))
+    if(! defined $self->get_statistics_value($y, $nation, 'production'))
     {
         $out .= "###            no statistics available           ###";
         return $out;
     }
     $out .= $self->get_statistics_value($y, $nation, 'production') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'wealth') . "\t";
-    my $wd = $self->get_statistics_value($y, $nation, 'wealth') / PRODUCTION_UNITS->[$self->get_nation($nation)->size];
-    $wd = int($wd * 100) / 100;
-    $out .= $wd . "\t";
-    if($self->get_statistics_value($y, $nation, 'production') <= 0)
-    {
-        $out .= "X\t";
-    }
-    else
-    {
-        $out .= int(($self->get_statistics_value($y, $nation, 'wealth') / $self->get_statistics_value($y, $nation, 'production')) * 100) / 100 . "\t";
-    }
-    $out .= $self->get_statistics_value($y, $nation, 'wealth') - $self->get_statistics_value($y, $nation, 'production') . "\t";
+    $out .= $self->get_statistics_value($y, $nation, 'w/d') . "\t";
+    $out .= $self->get_statistics_value($y, $nation, 'growth') . "\t";
     if(DEBT_ALLOWED)
     {
         $out .= $self->get_statistics_value($y, $nation, 'debt') . "\t";
     }
     $out .= $self->get_statistics_value($y, $nation, 'internal disorder') . "\t";
     $out .= $self->get_statistics_value($y, $nation, 'army') . "\t";
-    #$out .= $self->get_statistics_value($y, $nation, 'prestige') . "\t";
+    $out .= $self->get_statistics_value($y, $nation, 'prestige') . "\t";
     return $out;
 }
 
@@ -144,13 +135,25 @@ sub print_turn_statistics
 {
     my $self = shift;
     my $y = shift;
+    my $order = shift;
     my @nations = @{$self->nation_names};
-
     my $out = "";
     $out .= as_title(sprintf "%-16s %-16s", "Nation" , $self->print_nation_statistics_header() . "\n");
-    for(@nations)
+    if($order)
     {
-        $out .= sprintf "%-16s %-16s", $_ , $self->print_nation_statistics_line($_, $y) . "\n";
+        my @ordered = $self->order_statistics($y, lc $order);
+        for(@ordered)
+        {
+            my $n = $_->{nation};
+            $out .= sprintf "%-16s %-16s", $n , $self->print_nation_statistics_line($n, $y) . "\n";
+        } 
+    }
+    else
+    {
+        for(@nations)
+        {
+            $out .= sprintf "%-16s %-16s", $_ , $self->print_nation_statistics_line($_, $y) . "\n";
+        }
     }
     $out .= "\n";
     return $out;
@@ -207,10 +210,13 @@ sub order_statistics
     foreach my $n (@nations)
     {
         my $val = $self->get_statistics_value($turn, $n, $value);
-        return () if(! $val);
+        if(! defined $val)
+        { 
+            return ();
+        }
         push @ordered, { nation => $n, value => $val }; 
     }
-    @ordered = sort { $a->{value} <=> $b->{value} } @ordered;
+    @ordered = sort { $b->{value} <=> $a->{value} } @ordered;
     return @ordered;
 }
 

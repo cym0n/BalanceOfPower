@@ -283,9 +283,10 @@ COMMANDS
         print $self->world->print_allies();
         $result = { status => 1 };
     }
-    elsif($query eq "situation")
+    elsif($query =~ /^situation( (.*))?$/)
     {
-        say $self->world->print_turn_statistics($self->world->current_year);  
+        my $order = $2;
+        say $self->world->print_turn_statistics($self->world->current_year, $order);  
         $result = { status => 1 };
     }
     elsif($query eq "supports")

@@ -151,8 +151,9 @@ sub war_cost
 sub boost_production
 {
     my $self = shift;
-    $self->subtract_production('export', -1 * BOOST_PRODUCTION_QUOTE);
-    $self->subtract_production('domestic', -1 * BOOST_PRODUCTION_QUOTE);
+    my $boost = BOOST_PRODUCTION_QUOTE * PRODUCTION_UNITS->[$self->size];
+    $self->subtract_production('export', -1 * $boost);
+    $self->subtract_production('domestic', -1 * $boost);
     $self->register_event("BOOST OF PRODUCTION");
 }
 

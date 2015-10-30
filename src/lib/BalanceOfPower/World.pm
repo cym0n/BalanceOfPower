@@ -587,7 +587,21 @@ sub economy
         {
             $n->war_cost();
         }
+
+        my $wealth = $n->wealth;
+        my $pu = PRODUCTION_UNITS->[$n->size];
+        my $prod = $self->get_statistics_value($self->current_year, $n->name, 'production');
+
         $self->set_statistics_value($n, 'wealth', $n->wealth);
+        $self->set_statistics_value($n, 'w/d', int(($wealth / $pu) * 100) / 100);
+        if($prod != 0)
+        {
+            $self->set_statistics_value($n, 'growth', int(($wealth / $prod) * 100) / 100 );
+        }
+        else
+        {
+            $self->set_statistics_value($n, 'growth', 'X' );
+        }
     }
 }
 
