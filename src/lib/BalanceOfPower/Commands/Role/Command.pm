@@ -24,6 +24,10 @@ has domestic_cost => (
     is => 'ro',
     default => 0
 );
+has prestige_cost => (
+    is => 'ro',
+    default => 0
+);
 
 has allowed_at_war => (
     is => 'ro',
@@ -72,6 +76,10 @@ sub allowed
         return 0;
     }
     if($self->world->get_player_nation()->production_for_export < $self->export_cost)
+    {
+        return 0;
+    }
+    if($self->world->get_player_nation()->prestige < $self->prestige_cost)
     {
         return 0;
     }
