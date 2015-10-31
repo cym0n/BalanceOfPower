@@ -491,7 +491,10 @@ sub economy_advisor
         {
             my $to_delete = $trade_ko[$#trade_ko];
             $to_delete =~ s/TRADE KO //;
-            return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
+            if(! $world->exists_treaty_by_type($self->name, $to_delete, 'commercial'))
+            {
+                return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
+            }
         }
     }
     else

@@ -110,10 +110,19 @@ sub delete_route
     my $node2 = shift;
     my $n1 = $self->get_nation($node1);
     my $n2 = $self->get_nation($node2);
-    $self->delete_traderoute($node1, $node2);
-    my $event = "TRADEROUTE DELETED: $node1<->$node2";
-    $self->broadcast_event($event, $node1, $node2);
-    $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
+    my $present_treaty = $self->exists_treaty_by_type($node1, $node2, 'commercial');
+    if($present_treaty)
+    {
+        my $not_event = "TRADEROUTE DELETION $node1<->$node2 BLOCKED BY TREATY";
+        $self->broadcast_event($not_event, $node1, $node2);
+    }
+    else
+    {
+        $self->delete_traderoute($node1, $node2);
+        my $event = "TRADEROUTE DELETED: $node1<->$node2";
+        $self->broadcast_event($event, $node1, $node2);
+        $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
+    }
 }
 sub suitable_route_creator
 {
