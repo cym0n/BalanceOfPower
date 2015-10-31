@@ -8,21 +8,23 @@ Attività interne
 Attività estere non sensibili
 ---
 
- * ADD ROUTE
- * DELETE TRADEROUTE
- * Economic Aid
- * Treaty
+    * ADD ROUTE
+    * DELETE TRADEROUTE
+    * Economic Aid
+    * treaty com
+    * treaty nag
+    * treaty all
 
 Attività estere sensibili
 ---
 
- * DECLARE WAR TO
- * MILITARY SUPPORT
- * RECALL MILITARY SUPPORT
- * Military Aid
- * Aid to Insurgents
- * Rebel military support
- * Destabilize
- * Stabilize
- * Diplomatic pressure
- * Block Traderoute
+    * DECLARE WAR TO
+    * MILITARY SUPPORT
+    * RECALL MILITARY SUPPORT
+    * military aid
+    * AID TO INSURGENTS
+    * rebel military support
+    * destabilize
+    * stabilize
+    * diplomatic pressure
+    * block traderoute

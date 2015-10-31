@@ -123,8 +123,19 @@ sub calculate_trading
         {
            if($self->production_for_export >= TRADING_QUOTE)
            {
-                $self->trade(TRADING_QUOTE, $r->factor_for_node($self->name));
-                $self->register_event("TRADE OK " . $r->destination($self->name) . " [x" . $r->factor_for_node($self->name) . "]");
+                my $treaty_bonus = 0;
+                if($world->exists_treaty_by_type($self->name, $r->destination($self->name), 'commercial'))
+                {
+                    $treaty_bonus = TREATY_TRADE_FACTOR;
+                }
+                $self->trade(TRADING_QUOTE, $r->factor_for_node($self->name) + $treaty_bonus);
+                my $event = "TRADE OK " . $r->destination($self->name) . " [x" . $r->factor_for_node($self->name);
+                if($treaty_bonus > 0)
+                {
+                    $event .= " +$treaty_bonus";
+                }
+                $event .= "]";
+                $self->register_event($event);
            }
            else
            {
@@ -453,7 +464,6 @@ sub economy_advisor
             $route =~ s/ \[.*$//;
             if(! $world->exists_treaty($self->name, $route))
             {
-                say $self->name . ": TREATY COM WITH " . $route;
                 return $self->name . ": TREATY COM WITH " . $route;
             }
         }
@@ -461,9 +471,18 @@ sub economy_advisor
     my @trade_ko = $self->get_events("TRADE KO", $prev_year);
     if(@trade_ko > 1)
     {
-        my $to_delete = $trade_ko[$#trade_ko];
-        $to_delete =~ s/TRADE KO //;
-        return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
+        #my $to_delete = $trade_ko[$#trade_ko];
+        #$to_delete =~ s/TRADE KO //;
+        #return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
+        for(@trade_ko)
+        {
+            my $to_delete = $_;
+            $to_delete =~ s/TRADE KO //;
+            if(! $world->exists_treaty_by_type($self->name, $to_delete, 'commercial'))
+            {
+                return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;   
+            }
+        }
     }
     elsif(@trade_ko == 1)
     {

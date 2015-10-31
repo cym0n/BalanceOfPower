@@ -45,7 +45,6 @@ has data_directory => (
         my $module_file_path = __FILE__;
         my $root_path = abs_path($module_file_path);
         $root_path =~ s/World\.pm//;
-        say $root_path . "data"; 
         my $data_directory = $root_path . "data";
 
     }
@@ -494,13 +493,8 @@ sub execute_decisions
         }
         elsif($d =~ /^(.*): TREATY (.*) WITH (.*)$/)
         {
-            say $1;
-            say $2;
-            say $3;
             my $nation1 = $self->get_nation($1);
             my $nation2 = $self->get_nation($3);
-            say $nation1;
-            say $nation2;
             $self->stipulate_treaty($nation1, $nation2, $2);
         }
     }
