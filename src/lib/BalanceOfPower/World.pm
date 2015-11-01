@@ -677,6 +677,12 @@ sub stipulate_treaty
     my $nation2 = shift;
     my $type = shift;
     my $present_treaty = $self->exists_treaty($nation1->name, $nation2->name);
+    my $diplomatic_status = $self->diplomacy_status($nation1->name, $nation2->name);
+    if($diplomatic_status eq 'HATE')
+    {
+        $self->broadcast_event("TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE OF HATE", $nation1->name, $nation2->name);
+        return;
+    }
     if($nation1->prestige >= TREATY_PRESTIGE_COST)
     {
         if($type eq 'COM')

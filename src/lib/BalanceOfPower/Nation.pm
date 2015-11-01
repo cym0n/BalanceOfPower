@@ -462,7 +462,8 @@ sub economy_advisor
             my $route = $_;
             $route =~ s/^TRADE OK //;
             $route =~ s/ \[.*$//;
-            if(! $world->exists_treaty($self->name, $route))
+            my $status = $world->diplomacy_status($self->name, $route);
+            if(! $world->exists_treaty($self->name, $route) && $status ne 'HATE')
             {
                 return $self->name . ": TREATY COM WITH " . $route;
             }
