@@ -4,6 +4,8 @@ use strict;
 use v5.10;
 
 use Moo;
+use Array::Utils qw(intersect);
+
 use BalanceOfPower::Utils qw( prev_turn );
 use BalanceOfPower::Constants ':all';
 
@@ -225,7 +227,7 @@ sub decision
         my $decision = undef;
         if($a eq 'domestic')
         {
-            $decision = $self->domestic_advisor();
+            $decision = $self->domestic_advisor($world);
         }
         elsif($a eq 'economy')
         {
@@ -425,10 +427,12 @@ sub good_prey
 #
 # LOWER DISORDER
 # BOOST PRODUCTION
+# TREATY NAG
 
 sub domestic_advisor
 {
     my $self = shift;
+    my $world = shift;
     if($self->internal_disorder > WORRYING_LIMIT && $self->production_for_domestic > DOMESTIC_BUDGET)
     {
         return $self->name . ": LOWER DISORDER";
@@ -436,6 +440,100 @@ sub domestic_advisor
     elsif($self->production < EMERGENCY_PRODUCTION_LIMIT)
     {
         return $self->name . ": BOOST PRODUCTION";
+    }
+    elsif($self->prestige >= TREATY_PRESTIGE_COST)
+    {
+        #Scanning neighbors
+        my @near = $world->near_nations($self->name, 1);
+        my @friends = $world->get_nations_with_status($self->name, ['NEUTRAL', 'FRIENDSHIP', 'ALLIANCE']);
+        my @friendly_neighbors = $world->shuffle("Mixing neighbors to choose about NAG treaty", intersect(@near, @friends));
+        my @ordered_friendly_neighbors = ();
+        for(@friendly_neighbors)
+        {
+            my $n = $_;
+            if(! $world->exists_treaty($self->name, $n))
+            {
+                my @supporter = $world->supported($n);
+                if(@supporter > 0)
+                {
+                    my $supporter_nation = $supporter[0]->node1;
+                    if($supporter_nation eq $self->name)
+                    {
+                        #I'm the supporter of this nation!
+                        push @ordered_friendly_neighbors, { nation => $n,
+                                                            interest => 0 };
+                    }
+                    else
+                    {
+                        if($world->crisis_exists($self->name, $supporter_nation))
+                        {
+                            push @ordered_friendly_neighbors, { nation => $n,
+                                                                interest => 100 };
+                        }
+                        elsif($world->diplomacy_status($self->name, $supporter_nation) eq 'HATE')
+                        {
+                            push @ordered_friendly_neighbors, { nation => $n,
+                                                            interest => 10 };
+                        }
+                        else
+                        {
+                            push @ordered_friendly_neighbors, { nation => $n,
+                                                                interest => 2 };
+                        }
+                    }
+                }
+                else
+                {
+                    push @ordered_friendly_neighbors, { nation => $n,
+                                                        interest => 1 };
+                }
+            }
+        }
+        if(@ordered_friendly_neighbors > 0)
+        {
+            @ordered_friendly_neighbors = sort { $b->{interest} <=> $a->{interest} } @ordered_friendly_neighbors;
+            return $self->name . ": TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
+        }
+        else
+        {
+            #Scanning crises
+            my @crises = $world->get_crises($self->name);
+            if(@crises > 0)
+            {
+                foreach my $c ($world->shuffle("Mixing crisis for war for " . $self->name, @crises))
+                {
+                    #NAG with enemy supporter
+                    my $enemy = $c->destination($self->name);
+                    my @supporter = $world->supported($enemy);
+                    if(@supporter > 0)
+                    {
+                        my $supporter_nation = $supporter[0]->node1;
+                        if($supporter_nation ne $self->name &&
+                           $world->diplomacy_status($self->name, $supporter_nation) ne 'HATE' &&
+                           ! $world->exists_treaty($self->name, $supporter_nation))
+                        {
+                            return $self->name . ": TREATY NAG WITH " . $supporter_nation;
+                        } 
+                    }
+                    #NAG with enemy ally
+                    my @allies = $world->get_allies($enemy);
+                    for($world->shuffle("Mixing allies of enemy for a NAG", @allies))
+                    {
+                        my $all = $_->destination($enemy);
+                        if($all ne $self->name &&
+                           $world->diplomacy_status($self->name, $all) ne 'HATE' &&
+                           ! $world->exists_treaty($self->name, $all))
+                        {
+                            return $self->name . ": TREATY NAG WITH " . $all;
+                        } 
+                    }
+                }
+            }
+            else
+            {
+                return undef;
+            }
+        }
     }
     else
     {
@@ -455,7 +553,7 @@ sub economy_advisor
     my $world = shift;
     my $prev_year = prev_turn($self->current_year);
     my @trade_ok = $self->get_events("TRADE OK", $prev_year);
-    if($self->prestige > TREATY_PRESTIGE_COST && @trade_ok > 0)
+    if($self->prestige >= TREATY_PRESTIGE_COST && @trade_ok > 0)
     {
         for(@trade_ok)
         {

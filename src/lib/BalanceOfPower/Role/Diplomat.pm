@@ -141,22 +141,32 @@ sub get_hates
     my $self = shift;
     return $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'HATE' });
 }
-sub get_friends
+sub get_nations_with_status
 {
     my $self = shift;
     my $nation = shift;
+    my $status = shift;
+    my @st_array = @{$status};
     my @relations = $self->get_diplomatic_relations($nation);
     my @out = ();
     for(@relations)
     {
         my $real_r = $self->get_diplomacy_relation($_->node1, $_->node2);
-        if($real_r->status eq 'FRIENDSHIP' or $real_r->status eq 'ALLIANCE')
+        if(grep{ $_ eq $real_r->status } @st_array)
         {
             push @out, $real_r->destination($nation);
         }
     }
     return @out;
 }
+
+sub get_friends
+{
+    my $self = shift;
+    my $nation = shift;
+    return $self->get_nations_with_status($nation, ['FRIENDSHIP', 'ALLIANCE']);
+}
+
 
 sub change_diplomacy
 {
@@ -261,9 +271,14 @@ sub delete_crisis
 sub crisis_exists
 {
     my $self = shift;
-    my $nation1 = shift;
-    my $nation2 = shift;
+    my $nation1 = shift || "";
+    my $nation2 = shift || "";
     my $rel =  $self->diplomacy_exists($nation1, $nation2);
+    if(! $rel)
+    {
+        say "ERROR: $nation1 <-> $nation2";
+        return undef;
+    }
     if($rel->crisis_level > 0)
     {
         return $rel;

@@ -28,3 +28,4 @@ Attività estere sensibili
     * stabilize
     * diplomatic pressure
     * block traderoute
+    * reduce friendship
