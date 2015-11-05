@@ -448,6 +448,7 @@ sub domestic_advisor
         my @friends = $world->get_nations_with_status($self->name, ['NEUTRAL', 'FRIENDSHIP', 'ALLIANCE']);
         my @friendly_neighbors = $world->shuffle("Mixing neighbors to choose about NAG treaty", intersect(@near, @friends));
         my @ordered_friendly_neighbors = ();
+        my $dangerous_neighbor = 0;
         for(@friendly_neighbors)
         {
             my $n = $_;
@@ -469,6 +470,7 @@ sub domestic_advisor
                         {
                             push @ordered_friendly_neighbors, { nation => $n,
                                                                 interest => 100 };
+                            $dangerous_neighbor = 1;
                         }
                         elsif($world->diplomacy_status($self->name, $supporter_nation) eq 'HATE')
                         {
@@ -489,7 +491,7 @@ sub domestic_advisor
                 }
             }
         }
-        if(@ordered_friendly_neighbors > 0)
+        if(@ordered_friendly_neighbors > 0 && $dangerous_neighbor)
         {
             @ordered_friendly_neighbors = sort { $b->{interest} <=> $a->{interest} } @ordered_friendly_neighbors;
             return $self->name . ": TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
@@ -529,10 +531,12 @@ sub domestic_advisor
                     }
                 }
             }
-            else
+            if(@ordered_friendly_neighbors > 0)
             {
-                return undef;
+                @ordered_friendly_neighbors = sort { $b->{interest} <=> $a->{interest} } @ordered_friendly_neighbors;
+                return $self->name . ": TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
             }
+            return undef;
         }
     }
     else

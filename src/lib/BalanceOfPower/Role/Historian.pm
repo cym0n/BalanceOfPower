@@ -25,7 +25,7 @@ sub get_statistics_value
     my $turn = shift;
     my $nation = shift;
     my $value = shift;
-    if(exists $self->statistics->{$turn})
+    if($turn && exists $self->statistics->{$turn})
     {
         if($nation)
         {
