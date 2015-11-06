@@ -193,12 +193,18 @@ sub create_war
             }
             @potential_attackers = $self->shuffle("War creation. Choosing attackers", @potential_attackers);
             my $attack_now = $potential_attackers[0];
-            my $defend_now;
+            my $defend_now = undef;
             my $free_level = 0;
             my $searching = 1;
             while($searching)
             {
                 my @potential_defenders;
+                @potential_defenders = grep { ! $self->exists_treaty_by_type($_, $attack_now, 'no aggression') } @potential_defenders;
+                if(@potential_defenders == 0)
+                {
+                    @attacker_coalition = grep { ! $attack_now eq $_ } @attacker_coalition;
+                    $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . "FOR $attack_now", $attack_now);
+                }
                 if($faction == 0)
                 {
                     @potential_defenders = grep { $used{$_} <= $free_level } @defender_coalition;
@@ -295,7 +301,9 @@ sub damage_from_battle
     my $self = shift;
     my $nation = shift;
     my $damage = shift;
+    my $attacker = shift;
     my @supported = $self->supported($nation->name);
+    @supported = grep { ! $self->exists_treaty_by_type($attacker->name, $_, 'no aggression') } @supported;
     my $flip = 0;
     my $army_damage = 0;
     while($damage > 0)
@@ -363,18 +371,24 @@ sub fight_wars
         for($self->supported($attacker->name))
         {
             my $supporter_n = $_->start($attacker->name);
-            $self->broadcast_event("RELATIONS BETWEEN " . $defender->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $attacker->name, $attacker->name, $defender->name, $supporter_n);
-            $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+            if(! $self->exists_treaty_by_type($defender->name, $supporter_n, 'no aggression'))
+            {
+                $self->broadcast_event("RELATIONS BETWEEN " . $defender->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $attacker->name, $attacker->name, $defender->name, $supporter_n);
+                $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+            }
         }
         for($self->supported($defender->name))
         {
             my $supporter_n = $_->start($defender->name);
-            $self->broadcast_event("RELATIONS BETWEEN " . $attacker->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $defender->name, $attacker->name, $defender->name, $supporter_n);
-            $self->change_diplomacy($attacker->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+            if(! $self->exists_treaty_by_type($attacker->name, $supporter_n, 'no aggression'))
+            {
+                $self->broadcast_event("RELATIONS BETWEEN " . $attacker->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $defender->name, $attacker->name, $defender->name, $supporter_n);
+                $self->change_diplomacy($attacker->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+            }
         }
 
-        $self->damage_from_battle($attacker, $attacker_damage);
-        $self->damage_from_battle($defender, $defender_damage);
+        $self->damage_from_battle($attacker, $attacker_damage, $defender);
+        $self->damage_from_battle($defender, $defender_damage, $attacker);
         $attacker->register_event("CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage");
         $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
         if($attacker->army == 0)
