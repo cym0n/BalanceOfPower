@@ -9,7 +9,7 @@ my $first_year = 1970;
 
 
 #Scenario: a neighbor has military support from an enemy nation
-my $world = BalanceOfPower::World->new( first_year => $first_year );
+my $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 $world->add_crisis('Italy', 'United Kingdom' );
@@ -24,9 +24,13 @@ $italy->production(100);
 $italy->prestige(20);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Germany', "Italy will subscribe a non aggression treaty with Germany (dangerous neighbor)");
+is($world->in_military_range("United Kingdom", "Italy"), 1, "With no treaty Italy is in UK military range");
+$world->create_treaty('Italy', 'Germany', "no aggression");
+is($world->in_military_range("United Kingdom", "Italy"), 0, "With treaty Italy is NOT in UK military range");
+
 
 #Scenario: neutralize the supporter of the enemy
-$world = BalanceOfPower::World->new( first_year => $first_year );
+$world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 $world->add_crisis('Italy', 'United Kingdom' );
@@ -42,10 +46,9 @@ $italy->production(100);
 $italy->prestige(20);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Russia', "Italy will subscribe a non aggression treaty with Russia (enemy supporter)");
-say $italy->decision($world);
 
 #Scenario: neutralize the ally of the enemy
-$world = BalanceOfPower::World->new( first_year => $first_year );
+$world = BalanceOfPower::World->new( first_year => $first_year, silent => 1  );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 $world->add_crisis('Italy', 'United Kingdom' );
@@ -60,10 +63,9 @@ $italy->production(100);
 $italy->prestige(20);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Russia', "Italy will subscribe a non aggression treaty with Russia (enemy ally)");
-say $italy->decision($world);
 
 #Scenario: generic neighbor
-$world = BalanceOfPower::World->new( first_year => $first_year );
+$world = BalanceOfPower::World->new( first_year => $first_year, silent => 1  );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 $world->add_crisis('Italy', 'United Kingdom' );
@@ -77,7 +79,6 @@ $italy->production(100);
 $italy->prestige(20);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH France', "Italy will subscribe a non aggression treaty with France (generic friendly neighbor)");
-say $italy->decision($world);
 
 
 

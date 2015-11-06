@@ -17,6 +17,10 @@ has name => (
     is => 'ro',
     default => 'WORLD'
 );
+has silent => (
+    is => 'rw',
+    default => 0
+);
 has first_year => (
     is => 'ro'
 );
@@ -179,11 +183,11 @@ sub init_random
     foreach my $n (keys %nations_data)
     {
         push @nation_names, $n;
-        say "Working on $n";
+        say "Working on $n" if ! $self->silent;
         my $export_quote = $self->random10(MIN_EXPORT_QUOTE, MAX_EXPORT_QUOTE, "Export quote $n");
-        say "  export quote: $export_quote";
+        say "  export quote: $export_quote" if ! $self->silent;
         my $government_strength = $self->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Government strenght $n");
-        say "  government strength: $government_strength";
+        say "  government strength: $government_strength" if ! $self->silent;
         push @{$self->nations}, BalanceOfPower::Nation->new( 
             name => $n, 
             area => $nations_data{$n}->{area}, 
@@ -196,30 +200,30 @@ sub init_random
     $self->load_borders($bordersfile);
     if($trades)
     {
-        say "Trades generation...";
+        say "Trades generation..." if ! $self->silent;
         $self->init_trades();
     }
     else
     {
-        say "Trades generation skipped";
+        say "Trades generation skipped" if ! $self->silent;
     }
     if($diplomacy)
     {
-        say "Diplomacy generation...";
+        say "Diplomacy generation..." if ! $self->silent;
         $self->init_diplomacy();
     }
     else
     {
-        say "Diplomacy generation skipped";
+        say "Diplomacy generation skipped" if ! $self->silent;
     }
     if($alliances)
     {
-        say "Alliances generation...";
+        say "Alliances generation..." if ! $self->silent;
         $self->init_random_alliances();
     }
     else
     {
-        say "Alliances generation skipped";
+        say "Alliances generation skipped" if ! $self->silent;
     }
 }
 
