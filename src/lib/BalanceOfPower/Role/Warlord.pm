@@ -307,7 +307,7 @@ sub damage_from_battle
     my $damage = shift;
     my $attacker = shift;
     my @supported = $self->supported($nation->name);
-    @supported = grep { ! $self->exists_treaty_by_type($attacker->name, $_, 'no aggression') } @supported;
+    @supported = grep { ! $self->exists_treaty_by_type($attacker->name, $_->node1, 'no aggression') } @supported;
     my $flip = 0;
     my $army_damage = 0;
     while($damage > 0)

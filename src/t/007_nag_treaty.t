@@ -44,8 +44,24 @@ $world->start_military_support($world->get_nation('Russia'), $world->get_nation(
 $italy = $world->get_nation('Italy');
 $italy->production(100);
 $italy->prestige(20);
+$italy->army(15);
+my $uk = $world->get_nation('United Kingdom');
+$uk->production(100);
+$uk->army(15);
+$world->tricks( {"War risiko: throw for attacker Italy" => [ 6, 6, 6 ],
+                "War risiko: throw for defender United Kingdom" => [ 0, 0, 0 ]}
+              );
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Russia', "Italy will subscribe a non aggression treaty with Russia (enemy supporter)");
+$world->create_treaty('Italy', 'Russia', "no aggression");
+my @sups = $world->supported('United Kingdom');
+my $before_support = $sups[0]->army;
+$world->create_war($world->get_nation('Italy'), $world->get_nation('United Kingdom'));
+$world->fight_wars();
+@sups = $world->supported('United Kingdom');
+my $after_support = $sups[0]->army;
+is($before_support, $after_support, "Russian army not involved in war between Italy and United Kingdom");
+
 
 #Scenario: neutralize the ally of the enemy
 $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
