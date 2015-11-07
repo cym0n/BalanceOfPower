@@ -203,7 +203,8 @@ sub create_war
                 if(@potential_defenders == 0)
                 {
                     @attacker_coalition = grep { ! $attack_now eq $_ } @attacker_coalition;
-                    $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . "FOR $attack_now", $attack_now);
+                    $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
+                    last;
                 }
                 if($faction == 0)
                 {
@@ -224,10 +225,13 @@ sub create_war
                     $free_level++;
                 }
             }
-            push @war_couples, [$attack_now, $defend_now];
-            push @couples_factions, $faction;
+            if($defend_now)
+            {
+                push @war_couples, [$attack_now, $defend_now];
+                push @couples_factions, $faction;
+                $used{$defend_now} += 1;
+            }
             $used{$attack_now} += 1;
-            $used{$defend_now} += 1;
             if($faction == 0)
             {
                 $faction = 1;

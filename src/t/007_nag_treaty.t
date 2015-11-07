@@ -48,9 +48,10 @@ $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Russia', "Italy will subscribe a non aggression treaty with Russia (enemy supporter)");
 
 #Scenario: neutralize the ally of the enemy
-$world = BalanceOfPower::World->new( first_year => $first_year, silent => 1  );
+$world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
+$world->current_year('1970/1');
 $world->add_crisis('Italy', 'United Kingdom' );
 $world->change_diplomacy('Italy', 'Germany', 100);
 $world->change_diplomacy('Italy', 'France', 100);
@@ -61,8 +62,19 @@ $world->add_alliance('Russia', 'United Kingdom');
 $italy = $world->get_nation('Italy');
 $italy->production(100);
 $italy->prestige(20);
+my $russia = $world->get_nation('Russia');
+$russia->army(10);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Russia', "Italy will subscribe a non aggression treaty with Russia (enemy ally)");
+$world->create_treaty('Italy', 'Russia', "no aggression");
+my $event_to_trace_1 = 'NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN United Kingdom AND Italy FOR Russia';
+my $event_to_trace_2 = 'NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN Italy AND United Kingdom FOR Russia';
+$world->create_war($world->get_nation('United Kingdom'), $world->get_nation('Italy'));
+is($world->get_events($event_to_trace_1, "1970/1"), 1, "Russia refused to partecipate to war UK->Italy");
+$world->wars->reset();
+$world->create_war($world->get_nation('Italy'), $world->get_nation('United Kingdom'));
+is($world->get_events($event_to_trace_2, "1970/1"), 1, "Russia refused to partecipate to war Italy->UK");
+
 
 #Scenario: generic neighbor
 $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1  );

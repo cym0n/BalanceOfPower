@@ -24,6 +24,13 @@ sub all
     my $self = shift;
     return @{$self->links};
 }
+sub reset
+{
+    my $self = shift;
+    $self->links([]);
+    $self->links_grid({});
+    $self->distance_cache({});
+}
 
 sub exists_link
 {
