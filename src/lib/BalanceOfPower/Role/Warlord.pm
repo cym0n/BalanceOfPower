@@ -199,21 +199,27 @@ sub create_war
             while($searching)
             {
                 my @potential_defenders;
-                @potential_defenders = grep { ! $self->exists_treaty_by_type($_, $attack_now, 'no aggression') } @potential_defenders;
-                if(@potential_defenders == 0)
-                {
-                    @attacker_coalition = grep { ! $attack_now eq $_ } @attacker_coalition;
-                    $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
-                    last;
-                }
                 if($faction == 0)
                 {
-                    @potential_defenders = grep { $used{$_} <= $free_level } @defender_coalition;
+                    @potential_defenders = grep { ! $self->exists_treaty_by_type($_, $attack_now, 'no aggression') } @defender_coalition;
+                    if(@potential_defenders == 0)
+                    {
+                        @attacker_coalition = grep { ! $attack_now eq $_ } @attacker_coalition;
+                        $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
+                        last;
+                    }
                 }
                 elsif($faction == 1)
                 {
-                    @potential_defenders = grep { $used{$_} <= $free_level } @attacker_coalition;
+                    @potential_defenders = grep { ! $self->exists_treaty_by_type($_, $attack_now, 'no aggression') } @attacker_coalition;
+                    if(@potential_defenders == 0)
+                    {
+                        @defender_coalition = grep { ! $attack_now eq $_ } @defender_coalition;
+                        $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
+                        last;
+                    }
                 }
+                @potential_defenders = grep { $used{$_} <= $free_level } @potential_defenders;
                 if(@potential_defenders > 0)
                 {
                     @potential_defenders = $self->shuffle("War creation. Choosing defenders", @potential_defenders);

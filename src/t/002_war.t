@@ -6,7 +6,7 @@ use Test::More;
 
 #Initialization of test scenario
 my $first_year = 1970;
-my $world = BalanceOfPower::World->new( first_year => $first_year );
+my $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 
 $world->tricks( { "Export quote Italy" => [30],
                   "Export quote France" => [30],
