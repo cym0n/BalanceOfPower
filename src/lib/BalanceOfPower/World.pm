@@ -229,19 +229,33 @@ sub init_random
 }
 
 #Group function for all the steps involved in a turn
-sub elaborate_turn
+sub pre_decisions_elaborations
 {
     my $self = shift;
     my $t = shift;
     $self->init_year($t);
     $self->war_debts();
     $self->crisis_generator();
+}
+sub post_decisions_elaborations
+{
+    my $self = shift;
     $self->execute_decisions();
     $self->economy();
     $self->warfare();
     $self->internal_conflict();
     $self->register_global_data();
     $self->collect_events();
+}
+
+
+
+sub elaborate_turn
+{
+    my $self = shift;
+    my $t = shift;
+    $self->pre_decisions_elaborations($t);
+    $self->post_decisions_elaborations();
 }
 
 #To automatically generate turns

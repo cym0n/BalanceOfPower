@@ -5,7 +5,7 @@ use Moo;
 use IO::Prompter;
 use Term::ANSIColor;
 use BalanceOfPower::Constants ":all";
-use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns evidence_text);
+use BalanceOfPower::Utils qw(next_turn prev_turn get_year_turns compare_turns evidence_text);
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::NoArgs;
 use BalanceOfPower::Commands::InMilitaryRange;
@@ -165,6 +165,19 @@ sub welcome_player
     print $self->world->print_nation_actual_situation($self->world->player_nation);
     print "\n";
 }
+sub get_prompt_text
+{
+    my $self = shift;
+    my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
+    my $nation  = $self->world->get_player_nation();
+    $prompt_text .= "Int:" . $nation->production_for_domestic . "    Exp:" . $nation->production_for_export . "    Prtg:" . $nation->prestige . "\n";
+    if($self->world->order)
+    {
+        $prompt_text .= "=== ORDER SELECTED: " . $self->world->order . "\n";
+    }
+    $prompt_text .= $self->nation ? "(" . $self->nation . ") ?" : "?";
+    return $prompt_text;
+}
 
 sub get_query
 {
@@ -173,14 +186,8 @@ sub get_query
     {
         $self->log("[Not interactive query] " . $self->query);
     }
-    my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
-    if($self->world->order)
-    {
-        $prompt_text .= "=== ORDER SELECTED: " . $self->world->order . "\n";
-    }
-    $prompt_text .= $self->nation ? "(" . $self->nation . ") ?" : "?";
     print color("cyan");
-    my $input_query = prompt $prompt_text;
+    my $input_query = prompt $self->get_prompt_text();
     $input_query .= "";
     print color("reset");
     while ($input_query =~ m/\x08/g) {
@@ -394,7 +401,7 @@ COMMANDS
             }
             else
             {
-                print $self->world->print_nation_events($self->nation);
+                print $self->world->print_nation_events($self->nation, prev_turn($self->world->current_year) );
                 $result = { status => 1 };
             }
         }
@@ -442,7 +449,7 @@ COMMANDS
         my $nation_query = $self->world->correct_nation_name($query);
         if($self->verify_nation($nation_query)) #it's a nation
         { 
-            print $self->world->print_nation_actual_situation($nation_query);
+            print $self->world->print_nation_actual_situation($nation_query, 1);
             $self->nation($nation_query);
             $result = { status => 1 };
         }
@@ -511,6 +518,7 @@ sub orders
 sub interact
 {
     my $self = shift;
+    $self->world->pre_decisions_elaborations();
     while($self->active)
     {
         my $result = undef;
@@ -519,8 +527,9 @@ sub interact
         $result = $self->turn_command();
         if($result->{status} == 1)
         {
-            $self->world->elaborate_turn();
+            $self->world->post_decisions_elaborations();
             say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
+            $self->world->pre_decisions_elaborations();
             next;
         }
         $result = $self->report_commands();

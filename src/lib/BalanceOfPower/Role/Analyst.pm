@@ -4,7 +4,7 @@ use strict;
 use v5.10;
 use Moo::Role;
 use Term::ANSIColor;
-use BalanceOfPower::Utils qw( as_title as_subtitle );
+use BalanceOfPower::Utils qw( prev_turn as_title as_subtitle );
 
 requires 'diplomacy_exists';
 requires 'get_borders';
@@ -23,7 +23,16 @@ sub print_nation_actual_situation
 {
     my $self = shift;
     my $nation = shift;
-    my $turn = $self->current_year;
+    my $in_the_middle = shift;
+    my $turn = shift;
+    if($in_the_middle)
+    {
+        $turn = prev_turn($self->current_year);
+    }
+    else
+    {
+        $turn = $self->current_year;
+    }
     my $nation_obj = $self->get_nation($nation);
     my $out = as_title("$nation\n===\n");
     $out .= $nation_obj->print_attributes();
