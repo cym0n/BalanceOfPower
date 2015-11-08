@@ -13,6 +13,7 @@ use BalanceOfPower::Commands::DeleteRoute;
 use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
 use BalanceOfPower::Commands::ComTreaty;
+use BalanceOfPower::Commands::NagTreaty;
 
 with 'BalanceOfPower::Role::Logger';
 
@@ -104,6 +105,14 @@ sub init
                                                              prestige_cost => TREATY_PRESTIGE_COST 
                                                             );
     push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::NagTreaty->new( name => "NAG TREATY WITH",
+                                                             synonyms => ["NAG TREATY"],
+                                                             world => $self->world,
+                                                             #prestige_cost => TREATY_PRESTIGE_COST 
+                                                            );
+    push @{$self->commands}, $command; 
+
 
 }
 
