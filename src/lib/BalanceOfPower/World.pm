@@ -694,8 +694,15 @@ sub stipulate_treaty
         {
             if(! $present_treaty)
             {
-                $self->create_treaty($nation1->name, $nation2->name, 'commercial');
-                $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+                if($self->route_exists($nation1->name, $nation2->name))
+                {
+                    $self->create_treaty($nation1->name, $nation2->name, 'commercial');
+                    $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+                }
+                else
+                {
+                    $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " MADE USELESS BY ROUTE CANCELATION", $nation1->name, $nation2->name);
+                }
             }
         }
         elsif($type eq 'NAG')

@@ -9,9 +9,10 @@ use BalanceOfPower::Utils qw(next_turn get_year_turns compare_turns evidence_tex
 use BalanceOfPower::Commands::Plain;
 use BalanceOfPower::Commands::NoArgs;
 use BalanceOfPower::Commands::InMilitaryRange;
-use BalanceOfPower::Commands::TargetRoute;
+use BalanceOfPower::Commands::DeleteRoute;
 use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
+use BalanceOfPower::Commands::ComTreaty;
 
 with 'BalanceOfPower::Role::Logger';
 
@@ -68,8 +69,9 @@ sub init
                                                         crisis_needed => 1 );
     push @{$self->commands}, $command; 
     $command =
-        BalanceOfPower::Commands::TargetRoute->new( name => "DELETE TRADEROUTE",
-                                                 world => $self->world );
+        BalanceOfPower::Commands::DeleteRoute->new( name => "DELETE TRADEROUTE",
+                                                    synonyms => ["DELETE ROUTE"],
+                                                    world => $self->world );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::NoArgs->new( name => "BOOST PRODUCTION",
@@ -88,13 +90,21 @@ sub init
                                                       world => $self->world,
                                                       allowed_at_war => 1,
                                                     );
+    push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::InMilitaryRange->new( name => "AID INSURGENTS IN",
                                                              synonyms => ["AID INSURGENTS", "AID INSURGENCE"],
                                                              world => $self->world,
                                                              export_cost => AID_INSURGENTS_COST );
     push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::ComTreaty->new( name => "COM TREATY WITH",
+                                                             synonyms => ["COM TREATY"],
+                                                             world => $self->world,
+                                                             prestige_cost => TREATY_PRESTIGE_COST 
+                                                            );
     push @{$self->commands}, $command; 
+
 }
 
 sub print_orders

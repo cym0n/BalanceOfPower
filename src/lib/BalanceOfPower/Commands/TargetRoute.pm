@@ -24,23 +24,7 @@ sub get_available_targets
     return $self->world->route_destinations_for_node($self->world->player_nation);    
 }
 
-sub execute
-{
-    my $self = shift;
-    my $query = shift;
-    my $nation = shift;
-    my $result = $self->SUPER::execute($query, $nation);
-    if($result->{status} == 1)
-    {
-        my $command = $result->{command};
-        $command .= "->" . $self->world->player_nation;
-        return { status => 1, command => $command };
-    }
-    else
-    {
-        return $result;
-    }
-}
+
 
 1;
 
