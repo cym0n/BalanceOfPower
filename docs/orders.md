@@ -11,8 +11,8 @@ Attività estere non sensibili
     * ADD ROUTE
     * DELETE TRADEROUTE
     * Economic Aid
-    * treaty com
-    * treaty nag
+    * COM TREATY
+    * NAG TREATY
     * treaty all
 
 Attività estere sensibili
