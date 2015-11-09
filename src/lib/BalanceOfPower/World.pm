@@ -290,7 +290,7 @@ sub init_year
         $turn = next_turn($self->current_year);
     }
     $self->log("--- $turn ---");
-    say $turn;
+    say $turn if $self->autoplay();
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
     {

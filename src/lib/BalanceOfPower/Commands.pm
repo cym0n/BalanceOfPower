@@ -185,6 +185,7 @@ sub get_query
     if($self->query)
     {
         $self->log("[Not interactive query] " . $self->query);
+        return;
     }
     print color("cyan");
     my $input_query = prompt $self->get_prompt_text();
@@ -527,6 +528,7 @@ sub interact
         $result = $self->turn_command();
         if($result->{status} == 1)
         {
+            say "Elaborating " . $self->world->current_year . "...\n";
             $self->world->post_decisions_elaborations();
             say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
             $self->world->pre_decisions_elaborations();
