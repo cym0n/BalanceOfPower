@@ -139,7 +139,20 @@ sub get_diplomacy_relation
 sub get_hates
 {
     my $self = shift;
-    return $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'HATE' });
+    my $nation = shift;
+    my @hates = $self->diplomatic_relations->query( sub { my $rel = shift; return $rel->status eq 'HATE' });
+    my @out = ();
+    foreach my $r (@hates)
+    {
+        if(($nation && $r->has_node($nation)) || (! $nation))
+        {
+            if(! $self->is_under_influence($r->node1) && ! $self->is_under_influence($r->node2))
+            {
+                push @out, $r;
+            }
+        }
+    }
+    return @out;
 }
 sub get_nations_with_status
 {

@@ -37,7 +37,7 @@ sub decision
         {
             $decision = $self->military_advisor($world);
         }
-        return $decision if($decision);
+        return $self->name .  ": " . $decision if($decision);
     }
     return undef;
 }
@@ -53,11 +53,11 @@ sub domestic_advisor
     my $world = shift;
     if($self->internal_disorder > WORRYING_LIMIT && $self->production_for_domestic > DOMESTIC_BUDGET)
     {
-        return $self->name . ": LOWER DISORDER";
+        return "LOWER DISORDER";
     }
     elsif($self->production < EMERGENCY_PRODUCTION_LIMIT)
     {
-        return $self->name . ": BOOST PRODUCTION";
+        return "BOOST PRODUCTION";
     }
     elsif($self->prestige >= TREATY_PRESTIGE_COST)
     {
@@ -112,7 +112,7 @@ sub domestic_advisor
         if(@ordered_friendly_neighbors > 0 && $dangerous_neighbor)
         {
             @ordered_friendly_neighbors = sort { $b->{interest} <=> $a->{interest} } @ordered_friendly_neighbors;
-            return $self->name . ": TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
+            return "TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
         }
         else
         {
@@ -132,7 +132,7 @@ sub domestic_advisor
                            $world->diplomacy_status($self->name, $supporter_nation) ne 'HATE' &&
                            ! $world->exists_treaty($self->name, $supporter_nation))
                         {
-                            return $self->name . ": TREATY NAG WITH " . $supporter_nation;
+                            return "TREATY NAG WITH " . $supporter_nation;
                         } 
                     }
                     #NAG with enemy ally
@@ -144,7 +144,7 @@ sub domestic_advisor
                            $world->diplomacy_status($self->name, $all) ne 'HATE' &&
                            ! $world->exists_treaty($self->name, $all))
                         {
-                            return $self->name . ": TREATY NAG WITH " . $all;
+                            return "TREATY NAG WITH " . $all;
                         } 
                     }
                 }
@@ -152,7 +152,7 @@ sub domestic_advisor
             if(@ordered_friendly_neighbors > 0)
             {
                 @ordered_friendly_neighbors = sort { $b->{interest} <=> $a->{interest} } @ordered_friendly_neighbors;
-                return $self->name . ": TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
+                return "TREATY NAG WITH " . $ordered_friendly_neighbors[0]->{nation};
             }
             return undef;
         }
@@ -168,6 +168,7 @@ sub domestic_advisor
 #   DELETE TRADEROUTE
 #   ADD ROUTE
 #   TREATY COM
+#   ECONOMIC AID
 sub economy_advisor
 {
     my $self = shift;
@@ -184,7 +185,7 @@ sub economy_advisor
             my $status = $world->diplomacy_status($self->name, $route);
             if(! $world->exists_treaty($self->name, $route) && $status ne 'HATE')
             {
-                return $self->name . ": TREATY COM WITH " . $route;
+                return "TREATY COM WITH " . $route;
             }
         }
     }
@@ -200,7 +201,7 @@ sub economy_advisor
             $to_delete =~ s/TRADE KO //;
             if(! $world->exists_treaty_by_type($self->name, $to_delete, 'commercial'))
             {
-                return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;   
+                return "DELETE TRADEROUTE " . $self->name . "->" . $to_delete;   
             }
         }
     }
@@ -213,7 +214,7 @@ sub economy_advisor
             $to_delete =~ s/TRADE KO //;
             if(! $world->exists_treaty_by_type($self->name, $to_delete, 'commercial'))
             {
-                return $self->name . ": DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
+                return "DELETE TRADEROUTE " . $self->name . "->" . $to_delete;
             }
         }
     }
@@ -229,8 +230,19 @@ sub economy_advisor
             my $remaining = $1;
             if($remaining >= TRADING_QUOTE && $self->production_for_export > TRADINGROUTE_COST)
             {
-                return $self->name . ": ADD ROUTE";
+                return "ADD ROUTE";
             }
+        }
+    }
+    if($self->production_for_export >= ECONOMIC_AID_COST)
+    {
+        my @hates = $world->get_hates($self->name);
+        if(@hates)
+        {
+            #Minor hate is used
+            @hates = sort { $b->factor <=> $a->factor } @hates;
+            my $other = $hates[0]->destination($self->name);
+            return "ECONOMIC AID FOR $other";
         }
     }
     return undef;
@@ -242,6 +254,7 @@ sub economy_advisor
 #   MILITARY SUPPORT
 #   RECALL MILITARY SUPPORT
 #   BUILD TROOPS
+#   AID INSURGENTS
 sub military_advisor
 {
     my $self = shift;
@@ -260,13 +273,13 @@ sub military_advisor
                 {
                     if($self->good_prey($enemy, $world, $c->crisis_level))
                     {
-                        return $self->name . ": DECLARE WAR TO " . $enemy->name;
+                        return "DECLARE WAR TO " . $enemy->name;
                     }
                     else
                     {
                         if($self->production_for_export >= AID_INSURGENTS_COST)
                         {
-                            return $self->name . ": AID INSURGENTS IN " . $enemy->name;
+                            return "AID INSURGENTS IN " . $enemy->name;
                         }
                     }
                 }
@@ -279,7 +292,7 @@ sub military_advisor
                         {
                             if($world->border_exists($_, $enemy->name))
                             {
-                                return $self->name . ": MILITARY SUPPORT " . $_;
+                                return "MILITARY SUPPORT " . $_;
                             }
                         }
                     }
@@ -293,7 +306,7 @@ sub military_advisor
             my $f = $friends[0];
             if($world->get_nation($f)->accept_military_support($self->name, $world))
             {
-                return $self->name . ": MILITARY SUPPORT " . $f;
+                return "MILITARY SUPPORT " . $f;
             }
         }
     }
@@ -303,27 +316,27 @@ sub military_advisor
         if(@supports > 0)
         {
             @supports = $world->shuffle("Choosing support to recall", @supports);
-            return $self->name . ": RECALL MILITARY SUPPORT " . $supports[0]->destination($self->name);
+            return "RECALL MILITARY SUPPORT " . $supports[0]->destination($self->name);
         }
     }
     if($self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
         if($self->army < MINIMUM_ARMY_LIMIT)
         {
-            return $self->name . ": BUILD TROOPS";
+            return "BUILD TROOPS";
         }
         elsif($self->army < MEDIUM_ARMY_LIMIT)
         {
             if($self->production_for_export > MEDIUM_ARMY_BUDGET)
             {
-                return $self->name . ": BUILD TROOPS";
+                return "BUILD TROOPS";
             }
         }
         elsif($self->army < MAX_ARMY_LIMIT)
         {
             if($self->production_for_export > MAX_ARMY_BUDGET)
             {
-                return $self->name . ": BUILD TROOPS";
+                return "BUILD TROOPS";
             }
         }
     }
@@ -415,4 +428,6 @@ sub good_prey
         return 0;
     }
 }
+
+1;
 

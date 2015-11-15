@@ -516,6 +516,12 @@ sub execute_decisions
             my $nation2 = $self->get_nation($3);
             $self->stipulate_treaty($nation1, $nation2, $2);
         }
+        elsif($d =~ /^(.*): ECONOMIC AID FOR (.*)$/)
+        {
+            my $nation1 = $self->get_nation($1);
+            my $nation2 = $self->get_nation($2);
+            $self->economic_aid($nation1, $nation2);
+        }
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -627,6 +633,17 @@ sub economy
             $self->set_statistics_value($n, 'growth', 'X' );
         }
     }
+}
+sub economic_aid
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    $nation1->subtract_production('export', ECONOMIC_AID_COST);
+    $nation2->receive_aid($nation1->name);
+    $self->broadcast_event("ECONOMIC AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
+    $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR);
+
 }
 
 # ECONOMY END #############################################################

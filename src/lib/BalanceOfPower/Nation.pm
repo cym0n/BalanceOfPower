@@ -172,6 +172,14 @@ sub boost_production
     $self->subtract_production('domestic', -1 * $boost);
     $self->register_event("BOOST OF PRODUCTION");
 }
+sub receive_aid
+{
+    my $self = shift;
+    my $from = shift;
+    my $boost = ECONOMIC_AID_QUOTE * PRODUCTION_UNITS->[$self->size];
+    $self->subtract_production('export', -1 * $boost);
+    $self->subtract_production('domestic', -1 * $boost);
+}
 
 sub trade
 {

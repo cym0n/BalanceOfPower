@@ -90,6 +90,9 @@ use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 use constant WAR_PRESTIGE_BONUS => 10;
 use constant TREATY_PRESTIGE_COST => 7;
 use constant TREATY_TRADE_FACTOR => .5;
+use constant ECONOMIC_AID_COST => 20;
+use constant ECONOMIC_AID_QUOTE => 7;
+use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -176,6 +179,9 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'BEST_WEALTH_FOR_PRESTIGE_BONUS',
                   'WAR_PRESTIGE_BONUS',
                   'TREATY_PRESTIGE_COST',
-                  'TREATY_TRADE_FACTOR'
+                  'TREATY_TRADE_FACTOR',
+                  'ECONOMIC_AID_COST',
+                  'ECONOMIC_AID_QUOTE',
+                  'ECONOMIC_AID_DIPLOMACY_FACTOR',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
