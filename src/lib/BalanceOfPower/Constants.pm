@@ -90,7 +90,7 @@ use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 use constant WAR_PRESTIGE_BONUS => 10;
 use constant TREATY_PRESTIGE_COST => 7;
 use constant TREATY_TRADE_FACTOR => .5;
-use constant ECONOMIC_AID_COST => 20;
+use constant ECONOMIC_AID_COST => 40;
 use constant ECONOMIC_AID_QUOTE => 7;
 use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
 
