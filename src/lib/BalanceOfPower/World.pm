@@ -116,6 +116,11 @@ sub check_nation_name
     my $name = shift;
     return grep {$_ eq $name} @{$self->nation_names};
 }
+sub get_prev_year
+{
+    my $self = shift;
+    return prev_turn($self->current_year);
+}
 
 sub load_nations_data
 {

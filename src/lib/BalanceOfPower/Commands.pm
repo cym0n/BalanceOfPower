@@ -109,7 +109,14 @@ sub init
         BalanceOfPower::Commands::NagTreaty->new( name => "NAG TREATY WITH",
                                                              synonyms => ["NAG TREATY"],
                                                              world => $self->world,
-                                                             #prestige_cost => TREATY_PRESTIGE_COST 
+                                                             prestige_cost => TREATY_PRESTIGE_COST 
+                                                            );
+    push @{$self->commands}, $command; 
+    $command =
+        BalanceOfPower::Commands::TargetNation->new( name => "ECONOMIC AID FOR",
+                                                             synonyms => ["ECONOMIC AID"],
+                                                             world => $self->world,
+                                                             export_cost => ECONOMIC_AID_COST
                                                             );
     push @{$self->commands}, $command; 
 
@@ -313,7 +320,7 @@ COMMANDS
     elsif($query =~ /^situation( (.*))?$/)
     {
         my $order = $2;
-        say $self->world->print_turn_statistics($self->world->current_year, $order);  
+        say $self->world->print_turn_statistics($self->world->get_prev_year(), $order);  
         $result = { status => 1 };
     }
     elsif($query eq "supports")
