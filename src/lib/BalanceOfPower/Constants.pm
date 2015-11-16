@@ -4,61 +4,60 @@ use strict;
 
 use base 'Exporter';
 
+#Random init parameters 
 use constant MIN_EXPORT_QUOTE => 30;
 use constant MAX_EXPORT_QUOTE => 60;
 use constant MIN_STARTING_TRADEROUTES => 1;
 use constant MAX_STARTING_TRADEROUTES => 3;
-use constant ADDING_TRADEROUTE_COST => 30;
-use constant MIN_TRADEROUTE_GAIN => 2;
-use constant MAX_TRADEROUTE_GAIN => 4;
-use constant TRADEROUTE_SIZE_BONUS => .5;
+use constant MIN_STARTING_PRODUCTION => 20;
+use constant MAX_STARTING_PRODUCTION => 40;
+use constant MIN_GOVERNMENT_STRENGTH => 50;
+use constant MAX_GOVERNMENT_STRENGTH => 100;
+use constant STARTING_ALLIANCES => 7;
+
+#Random parameters 
 use constant MIN_DELTA_PRODUCTION => -10;
 use constant MAX_DELTA_PRODUCTION => 10;
 use constant MAX_PRODUCTION => 50;
-use constant MIN_STARTING_PRODUCTION => 20;
-use constant MAX_STARTING_PRODUCTION => 40;
-use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
-use constant INTERNAL_PRODUCTION_GAIN => 1;
-use constant TRADING_QUOTE => 15;
-use constant TRADINGROUTE_COST => 10;
-use constant INTERNAL_DISORDER_TERRORISM_LIMIT => 10;
-use constant INTERNAL_DISORDER_INSURGENCE_LIMIT => 40;
-use constant INTERNAL_DISORDER_CIVIL_WAR_LIMIT => 80;
 use constant MIN_ADDED_DISORDER => -2;
 use constant MAX_ADDED_DISORDER => 2;
+use constant CRISIS_GENERATION_TRIES => 5;
+use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
+
+#export costs
+use constant ADDING_TRADEROUTE_COST => 30;
+use constant TRADEROUTE_COST => 10;
+use constant TRADING_QUOTE => 15;
+use constant ARMY_COST => 20;
+use constant AID_INSURGENTS_COST => 25;
+use constant ECONOMIC_AID_COST => 40;
+
+#domestic costs
+use constant RESOURCES_FOR_DISORDER => 20;
+
+#IA Thresholds
 use constant WORRYING_LIMIT => 30;
 use constant DOMESTIC_BUDGET => 50;
-use constant RESOURCES_FOR_DISORDER => 20;
-use constant DISORDER_REDUCTION => 10;
-use constant MIN_GOVERNMENT_STRENGTH => 50;
-use constant MAX_GOVERNMENT_STRENGTH => 100;
-use constant DEBT_ALLOWED => 0;
-use constant DEBT_TO_RAISE_LIMIT => 50;
-use constant PRODUCTION_THROUGH_DEBT => 40;
-use constant MAX_DEBT => 3;
+use constant MINIMUM_ARMY_LIMIT => 5;
+use constant MEDIUM_ARMY_LIMIT => 10;
+use constant MEDIUM_ARMY_BUDGET => 40;
+use constant MAX_ARMY_BUDGET => 60;
+use constant MIN_ARMY_FOR_WAR => 5;
+use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
+use constant MIN_ARMY_TO_EXPORT => 12;
+use constant ARMY_TO_RECALL_SUPPORT => 3;
+use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
+
+#Civil war
 use constant STARTING_REBEL_PROVINCES => [1, 1, 2];
 use constant CIVIL_WAR_WIN => 3;
 use constant AFTER_CIVIL_WAR_INTERNAL_DISORDER => 35;
-use constant TURNS_FOR_YEAR => 4;
-use constant HATE_LIMIT => 30;
-use constant LOVE_LIMIT => 70;
-use constant MINIMUM_ARMY_LIMIT => 5;
-use constant MEDIUM_ARMY_LIMIT => 10;
-use constant MAX_ARMY_LIMIT => 15;
-use constant MAX_ARMY_FOR_SIZE => [ 9, 12, 15];
-use constant MEDIUM_ARMY_BUDGET => 40;
-use constant MAX_ARMY_BUDGET => 60;
-use constant ARMY_COST => 20;
-use constant ARMY_UNIT => 1;
-use constant ARMY_FOR_BATTLE => 3;
-use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
 use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 2;
 use constant ARMY_HELP_FOR_INTERNAL_DISORDER => 10;
-use constant CRISIS_GENERATION_TRIES => 5;
-use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
-use constant CRISIS_MAX_FACTOR => 3;
-use constant MIN_ARMY_FOR_WAR => 5;
-use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
+use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
+
+#War & domination
+use constant ARMY_FOR_BATTLE => 3;
 use constant WAR_WEALTH_MALUS => 20;
 use constant ATTACK_FAILED_PRODUCTION_MALUS => 10;
 use constant AFTER_CONQUERED_INTERNAL_DISORDER => 30;
@@ -67,22 +66,36 @@ use constant DOMINATION_LOOT_BY_TYPE => 20;
 use constant CONTROL_LOOT_BY_TYPE => 0;
 use constant DOMINATION_CLOCK_LIMIT => 5;
 use constant OCCUPATION_CLOCK_LIMIT => 1;
+use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
+
+#Others
+use constant TRADEROUTE_SIZE_BONUS => .5;
+use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
+use constant INTERNAL_PRODUCTION_GAIN => 1;
+use constant INTERNAL_DISORDER_TERRORISM_LIMIT => 10;
+use constant INTERNAL_DISORDER_INSURGENCE_LIMIT => 40;
+use constant INTERNAL_DISORDER_CIVIL_WAR_LIMIT => 80;
+use constant DISORDER_REDUCTION => 10;
+use constant DEBT_ALLOWED => 0;
+use constant DEBT_TO_RAISE_LIMIT => 50;
+use constant PRODUCTION_THROUGH_DEBT => 40;
+use constant MAX_DEBT => 3;
+use constant TURNS_FOR_YEAR => 4;
+use constant HATE_LIMIT => 30;
+use constant LOVE_LIMIT => 70;
+use constant MAX_ARMY_FOR_SIZE => [ 9, 12, 15];
+use constant ARMY_UNIT => 1;
+use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
+use constant CRISIS_MAX_FACTOR => 3;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
-use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
-use constant STARTING_ALLIANCES => 7;
 use constant EMERGENCY_PRODUCTION_LIMIT => 55;
 use constant BOOST_PRODUCTION_QUOTE => 5;
-use constant MIN_ARMY_TO_EXPORT => 12;
 use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
 use constant ARMY_FOR_SUPPORT => 4;
 use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
 use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
-use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
-use constant ARMY_TO_RECALL_SUPPORT => 3;
 use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
-use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
-use constant AID_INSURGENTS_COST => 25;
 use constant INSURGENTS_AID => 15;
 use constant INFLUENCE_PRESTIGE_BONUS => 3;
 use constant BEST_WEALTH_FOR_PRESTIGE => 5;
@@ -90,7 +103,6 @@ use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 use constant WAR_PRESTIGE_BONUS => 10;
 use constant TREATY_PRESTIGE_COST => 7;
 use constant TREATY_TRADE_FACTOR => .5;
-use constant ECONOMIC_AID_COST => 40;
 use constant ECONOMIC_AID_QUOTE => 7;
 use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
 
@@ -99,8 +111,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MIN_STARTING_TRADEROUTES',
                   'MAX_STARTING_TRADEROUTES',
                   'ADDING_TRADEROUTE_COST',
-                  'MIN_TRADEROUTE_GAIN',
-                  'MAX_TRADEROUTE_GAIN',
                   'MIN_DELTA_PRODUCTION',
                   'MAX_DELTA_PRODUCTION',
                   'MAX_PRODUCTION',
@@ -109,7 +119,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'PRODUCTION_UNITS',
                   'INTERNAL_PRODUCTION_GAIN',
                   'TRADING_QUOTE',
-                  'TRADINGROUTE_COST',
+                  'TRADEROUTE_COST',
                   'INTERNAL_DISORDER_TERRORISM_LIMIT',
                   'INTERNAL_DISORDER_INSURGENCE_LIMIT',
                   'INTERNAL_DISORDER_CIVIL_WAR_LIMIT',
@@ -133,7 +143,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'LOVE_LIMIT',
                   'MINIMUM_ARMY_LIMIT',
                   'MEDIUM_ARMY_LIMIT',
-                  'MAX_ARMY_LIMIT',
                   'MAX_ARMY_FOR_SIZE',
                   'MEDIUM_ARMY_BUDGET',
                   'MAX_ARMY_BUDGET',

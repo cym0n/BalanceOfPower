@@ -188,7 +188,7 @@ sub trade
     my $gain = shift;
     $self->subtract_production('export', $production);
     $self->add_wealth($production * $gain);
-    $self->add_wealth(-1 * TRADINGROUTE_COST);
+    $self->add_wealth(-1 * TRADEROUTE_COST);
 }
 
 sub calculate_disorder

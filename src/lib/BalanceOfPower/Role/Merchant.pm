@@ -60,8 +60,6 @@ sub generate_traderoute
     my $node1 = shift;
     my $node2 = shift;
     my $added = shift;
-    #my $factor1 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node1 to $node2");
-    #my $factor2 = $self->random(MIN_TRADEROUTE_GAIN, MAX_TRADEROUTE_GAIN, "Traderoute gain from $node2 to $node1");
 
     my $n1 = $self->get_nation($node1);
     my $n2 = $self->get_nation($node2);

@@ -228,7 +228,7 @@ sub economy_advisor
             my $rem = $remains[0];
             $rem =~ m/^REMAIN (.*)$/;
             my $remaining = $1;
-            if($remaining >= TRADING_QUOTE && $self->production_for_export > TRADINGROUTE_COST)
+            if($remaining >= TRADING_QUOTE && $self->production_for_export > TRADEROUTE_COST)
             {
                 return "ADD ROUTE";
             }
@@ -332,7 +332,7 @@ sub military_advisor
                 return "BUILD TROOPS";
             }
         }
-        elsif($self->army < MAX_ARMY_LIMIT)
+        else
         {
             if($self->production_for_export > MAX_ARMY_BUDGET)
             {
