@@ -302,6 +302,16 @@ sub military_advisor
         #MILITARY SUPPORT
         if($self->army >= MIN_ARMY_TO_EXPORT)
         {
+            #FOR REBELS
+            my @enemies = $world->shuffle("Choosing enemy for rebel support for " . $self->name, $world->get_hates($self->name)); 
+            foreach my $e (@enemies)
+            {
+                if($world->at_civil_war($e))
+                {
+                    return "REBEL MILITARY SUPPORT " . $e;
+                }
+            }
+            #FOR A NATION
             my @friends = $world->shuffle("Choosing friend to support for " . $self->name, $world->get_friends($self->name));
             my $f = $friends[0];
             if($world->get_nation($f)->accept_military_support($self->name, $world))

@@ -10,7 +10,7 @@ Attività estere non sensibili
 
     * ADD ROUTE
     * DELETE TRADEROUTE
-    * Economic Aid
+    * ECONOMIC AID
     * COM TREATY
     * NAG TREATY
     * treaty all
@@ -27,5 +27,6 @@ Attività estere sensibili
     * destabilize
     * stabilize
     * diplomatic pressure
-    * block traderoute
+    * hijack/block traderoute
     * reduce friendship
+    * create crisis
