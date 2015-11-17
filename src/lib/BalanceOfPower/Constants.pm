@@ -28,12 +28,12 @@ use constant CRISIS_GENERATOR_NOACTION_TOKENS => 6;
 use constant ADDING_TRADEROUTE_COST => 30;
 use constant TRADEROUTE_COST => 10;
 use constant TRADING_QUOTE => 15;
-use constant ARMY_COST => 20;
 use constant AID_INSURGENTS_COST => 25;
 use constant ECONOMIC_AID_COST => 40;
 
 #domestic costs
 use constant RESOURCES_FOR_DISORDER => 20;
+use constant ARMY_COST => 20;
 
 #IA Thresholds
 use constant WORRYING_LIMIT => 30;

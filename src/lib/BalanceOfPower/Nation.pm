@@ -392,9 +392,9 @@ sub build_troops
     my $self = shift;
     my $army_cost = $self->build_troops_cost();
   
-    if($self->production_for_export > $army_cost && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
+    if($self->production_for_domestic > $army_cost && $self->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
     {
-        $self->subtract_production('export', $army_cost);
+        $self->subtract_production('domestic', $army_cost);
         $self->add_army(ARMY_UNIT);
         $self->register_event("NEW TROOPS FOR THE ARMY");
     } 
