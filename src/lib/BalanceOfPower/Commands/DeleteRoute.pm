@@ -8,7 +8,7 @@ sub get_available_targets
 {
     my $self = shift;
     my @targets = $self->SUPER::get_available_targets();
-    my $nation = $self->world->player_nation();
+    my $nation = $self->actor;
     @targets = grep {! $self->world->exists_treaty_by_type($nation, $_, 'commercial') } @targets;
     return @targets;
 }
@@ -22,7 +22,7 @@ sub execute
     if($result->{status} == 1)
     {
         my $command = $result->{command};
-        $command .= "->" . $self->world->player_nation;
+        $command .= "->" . $self->actor;
         return { status => 1, command => $command };
     }
     else

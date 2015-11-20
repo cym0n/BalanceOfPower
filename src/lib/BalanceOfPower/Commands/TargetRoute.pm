@@ -9,9 +9,9 @@ sub select_message
 {
     my $self = shift;
     my $message = "";
-    foreach my $tr ($self->world->routes_for_node($self->world->player_nation))
+    foreach my $tr ($self->world->routes_for_node($self->actor))
     {
-        $message .= $tr->print($self->world->player_nation) . "\n";
+        $message .= $tr->print($self->actor) . "\n";
     }
     $message .= "\n";
     $message .= "Select traderoute:\n";
@@ -21,7 +21,7 @@ sub select_message
 sub get_available_targets
 {
     my $self = shift;
-    return $self->world->route_destinations_for_node($self->world->player_nation);    
+    return $self->world->route_destinations_for_node($self->actor);    
 }
 
 

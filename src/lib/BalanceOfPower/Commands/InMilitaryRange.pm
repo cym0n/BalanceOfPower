@@ -12,7 +12,7 @@ has crisis_needed => (
 sub get_available_targets
 {
     my $self = shift;
-    my $player = $self->world->player_nation;
+    my $player = $self->actor;
     my @out = ();
     for(@{$self->world->nation_names})
     {

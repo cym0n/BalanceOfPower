@@ -49,52 +49,61 @@ sub init
     my $self = shift;
     my $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "BUILD TROOPS",
+                                               actor => $self->world->player_nation,
                                               world => $self->world,
                                               allowed_at_war => 1,
                                               export_cost => $self->world->get_player_nation()->build_troops_cost() );
     push @{$self->commands}, $command; 
     $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "LOWER DISORDER",
+                                               actor => $self->world->player_nation,
                                               world => $self->world,
                                               domestic_cost => RESOURCES_FOR_DISORDER );
     push @{$self->commands}, $command; 
     $command = 
         BalanceOfPower::Commands::NoArgs->new( name => "ADD ROUTE",
                                               world => $self->world,
+                                               actor => $self->world->player_nation,
                                               export_cost => ADDING_TRADEROUTE_COST );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::InMilitaryRange->new( name => "DECLARE WAR TO",
                                                         synonyms => ["DECLARE WAR"],
+                                                        actor => $self->world->player_nation,
                                                         world => $self->world,
                                                         crisis_needed => 1 );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::DeleteRoute->new( name => "DELETE TRADEROUTE",
                                                     synonyms => ["DELETE ROUTE"],
+                                                    actor => $self->world->player_nation,
                                                     world => $self->world );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::NoArgs->new( name => "BOOST PRODUCTION",
                                                     world => $self->world,
+                                                    actor => $self->world->player_nation,
                                                     production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::MilitarySupport->new( name => "MILITARY SUPPORT",
                                                       world => $self->world,
+                                                      actor => $self->world->player_nation,
                                                       army_limit => { '>' => ARMY_FOR_SUPPORT }
                                                     );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::RecallMilitarySupport->new( name => "RECALL MILITARY SUPPORT",
                                                         synonyms => ["RECALL SUPPORT"],
-                                                      world => $self->world,
+                                                        world => $self->world,
+                                                      actor => $self->world->player_nation,
                                                       allowed_at_war => 1,
                                                     );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::InMilitaryRange->new( name => "AID INSURGENTS IN",
                                                              synonyms => ["AID INSURGENTS", "AID INSURGENCE"],
+                                                            actor => $self->world->player_nation,
                                                              world => $self->world,
                                                              export_cost => AID_INSURGENTS_COST );
     push @{$self->commands}, $command; 
@@ -102,6 +111,7 @@ sub init
         BalanceOfPower::Commands::ComTreaty->new( name => "COM TREATY WITH",
                                                              synonyms => ["COM TREATY"],
                                                              world => $self->world,
+                                                            actor => $self->world->player_nation,
                                                              prestige_cost => TREATY_PRESTIGE_COST 
                                                             );
     push @{$self->commands}, $command; 
@@ -109,14 +119,16 @@ sub init
         BalanceOfPower::Commands::NagTreaty->new( name => "NAG TREATY WITH",
                                                              synonyms => ["NAG TREATY"],
                                                              world => $self->world,
-                                                             prestige_cost => TREATY_PRESTIGE_COST 
+                                                             prestige_cost => TREATY_PRESTIGE_COST,
+                                                            actor => $self->world->player_nation,
                                                             );
     push @{$self->commands}, $command; 
     $command =
         BalanceOfPower::Commands::TargetNation->new( name => "ECONOMIC AID FOR",
                                                              synonyms => ["ECONOMIC AID"],
                                                              world => $self->world,
-                                                             export_cost => ECONOMIC_AID_COST
+                                                             export_cost => ECONOMIC_AID_COST,
+                                                            actor => $self->world->player_nation,
                                                             );
     push @{$self->commands}, $command; 
 

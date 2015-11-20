@@ -8,7 +8,7 @@ use Data::Dumper;
 
 with "BalanceOfPower::Commands::Role::Command";
 
-has exclude_player_nation => (
+has exclude_actor => (
     is => 'rw',
     default => 1
 );
@@ -76,9 +76,9 @@ sub get_available_targets
 {
     my $self = shift;
     my @nations = @{$self->world->nation_names};
-    if($self->exclude_player_nation)
+    if($self->exclude_actor)
     {
-        @nations = grep { $_ ne $self->world->player_nation } @nations;
+        @nations = grep { $_ ne $self->actor } @nations;
     }
     return @nations
 }

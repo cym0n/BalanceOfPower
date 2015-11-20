@@ -7,7 +7,7 @@ extends 'BalanceOfPower::Commands::TargetNation';
 sub get_available_targets
 {
     my $self = shift;
-    return $self->world->get_friends($self->world->player_nation);    
+    return $self->world->get_friends($self->actor);    
 }
 
 1;

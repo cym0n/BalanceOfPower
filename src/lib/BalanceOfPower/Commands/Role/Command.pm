@@ -8,6 +8,9 @@ has name => (
     is => 'ro',
     default => 'DO NOTHING'
 );
+has actor => (
+    is => 'ro',
+);
 
 has world => (
     is => 'ro'
@@ -46,40 +49,41 @@ has army_limit => (
 sub allowed
 {
     my $self = shift;
+    my $nation = $self->world->get_nation($self->actor);
     return 0
-        if($self->world->get_player_nation()->internal_disorder_status() eq 'Civil war');
+        if($nation->internal_disorder_status() eq 'Civil war');
     if(! $self->allowed_at_war)
     {
-        if($self->world->at_war($self->world->player_nation))
+        if($self->world->at_war($self->actor))
         {
             return 0;
         }
     }
     if(exists $self->production_limit->{'<'})
     {
-        return $self->world->get_player_nation()->production() <= $self->production_limit->{'<'};
+        return $nation->production() <= $self->production_limit->{'<'};
     }
     elsif(exists $self->production_limit->{'>'})
     {
-        return $self->world->get_player_nation()->production() >= $self->production_limit->{'>'};
+        return $nation->production() >= $self->production_limit->{'>'};
     }
     if(exists $self->army_limit->{'<'})
     {
-        return $self->world->get_player_nation()->army() <= $self->army_limit->{'<'};
+        return $nation->army() <= $self->army_limit->{'<'};
     }
     elsif(exists $self->army_limit->{'>'})
     {
-        return $self->world->get_player_nation()->army() >= $self->army_limit->{'>'};
+        return $nation->army() >= $self->army_limit->{'>'};
     }
-    if($self->world->get_player_nation()->production_for_domestic < $self->domestic_cost)
+    if($nation->production_for_domestic < $self->domestic_cost)
     {
         return 0;
     }
-    if($self->world->get_player_nation()->production_for_export < $self->export_cost)
+    if($nation->production_for_export < $self->export_cost)
     {
         return 0;
     }
-    if($self->world->get_player_nation()->prestige < $self->prestige_cost)
+    if($nation->prestige < $self->prestige_cost)
     {
         return 0;
     }
