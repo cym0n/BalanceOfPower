@@ -527,6 +527,12 @@ sub execute_decisions
             my $nation2 = $self->get_nation($2);
             $self->economic_aid($nation1, $nation2);
         }
+        elsif($d =~ /^(.*): REBEL MILITARY SUPPORT (.*)$/)
+        {
+            my $nation1 = $self->get_nation($1);
+            my $nation2 = $self->get_nation($2);
+            $self->start_rebel_military_support($nation1, $nation2);
+        }
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -693,6 +699,15 @@ sub aid_insurgents
         $nation2->add_internal_disorder(INSURGENTS_AID);
     }
 }
+
+sub at_civil_war
+{
+    my $self = shift;
+    my $n = shift;
+    my $nation = $self->get_nation($n);
+    return $nation->internal_disorder_status eq 'Civil war';
+}
+
 
 # INTERNAL DISORDER END ######################################################
 

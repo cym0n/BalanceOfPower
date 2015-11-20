@@ -194,6 +194,35 @@ sub first_link_for_node
     }
     return undef;
 }
+sub first_link_for_node1
+{
+    my $self = shift;
+    my $node = shift;
+    my @links = $self->links_for_node1($node);
+    if(@links)
+    {
+        return $links[0]
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub first_link_for_node2
+{
+    my $self = shift;
+    my $node = shift;
+    my @links = $self->links_for_node2($node);
+    if(@links)
+    {
+        return $links[0]
+    }
+    else
+    {
+        return undef;
+    }
+}
+
 sub link_destinations_for_node
 {
     my $self = shift;

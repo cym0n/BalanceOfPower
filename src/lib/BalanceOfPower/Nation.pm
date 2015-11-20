@@ -313,21 +313,40 @@ sub fight_civil_war
     my $government = $world->random(0, 100, "Civil war " . $self->name . ": government fight result");
     my $rebels = $world->random(0, 100, "Civil war " . $self->name . ": rebels fight result");
     $self->register_event("FIGHTING CIVIL WAR");
-    if($self->army >= ARMY_UNIT_FOR_INTERNAL_DISORDER)
+    if($self->army >= ARMY_UNIT_FOR_CIVIL_WAR)
     {
-        $self->add_army(-1 * ARMY_UNIT_FOR_INTERNAL_DISORDER);
-        $government += ARMY_HELP_FOR_INTERNAL_DISORDER;
+        $self->add_army(-1 * ARMY_UNIT_FOR_CIVIL_WAR);
+        $government += ARMY_HELP_FOR_CIVIL_WAR;
     }
     if($self->government eq 'dictatorship')
     {
         $government += DICTATORSHIP_BONUS_FOR_CIVIL_WAR;
     }
+    my $reb_sup;
+    my $sup;
+    if($reb_sup = $world->rebel_supported($self->name))
+    {
+        $rebels += REBEL_SUPPORT_HELP_FOR_CIVIL_WAR;
+    }
+    if($sup = $world->supported($self->name))
+    {
+        $government += SUPPORT_HELP_FOR_CIVIL_WAR;
+    }
+    if($sup && $reb_sup)
+    {
+        $self->broadcast_event("RELATIONS BETWEEN " . $sup->node1 . " AND " . $reb_sup->node1 . " CHANGED FOR CIVIL WAR IN " . $self->name, $self->name, $sup->node1, $reb_sup->node1);
+        $world->change_diplomacy($sup->node1, $reb_sup->node1, -1 * DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT);
+    }
     if($government > $rebels)
     {
+        $reb_sup->casualities(1) if $reb_sup;
+        $world->rebel_military_support_garbage_collector();
         return $self->civil_war_battle('government');
     }
     elsif($rebels > $government)
     {
+        $sup->casualities(1) if $sup;
+        $world->military_support_garbage_collector();
         return $self->civil_war_battle('rebels');
     }
     else

@@ -72,10 +72,10 @@ sub domestic_advisor
             my $n = $_;
             if(! $world->exists_treaty($self->name, $n))
             {
-                my @supporter = $world->supported($n);
-                if(@supporter > 0)
+                my $supporter = $world->supported($n);
+                if($supporter)
                 {
-                    my $supporter_nation = $supporter[0]->node1;
+                    my $supporter_nation = $supporter->node1;
                     if($supporter_nation eq $self->name)
                     {
                         #I'm the supporter of this nation!
@@ -124,10 +124,10 @@ sub domestic_advisor
                 {
                     #NAG with enemy supporter
                     my $enemy = $c->destination($self->name);
-                    my @supporter = $world->supported($enemy);
-                    if(@supporter > 0)
+                    my $supporter = $world->supported($enemy);
+                    if($supporter)
                     {
-                        my $supporter_nation = $supporter[0]->node1;
+                        my $supporter_nation = $supporter->node1;
                         if($supporter_nation ne $self->name &&
                            $world->diplomacy_status($self->name, $supporter_nation) ne 'HATE' &&
                            ! $world->exists_treaty($self->name, $supporter_nation))
@@ -306,9 +306,9 @@ sub military_advisor
             my @enemies = $world->shuffle("Choosing enemy for rebel support for " . $self->name, $world->get_hates($self->name)); 
             foreach my $e (@enemies)
             {
-                if($world->at_civil_war($e))
+                if($world->at_civil_war($e->destination($self->name)))
                 {
-                    return "REBEL MILITARY SUPPORT " . $e;
+                    return "REBEL MILITARY SUPPORT " . $e->destination($self->name);
                 }
             }
             #FOR A NATION

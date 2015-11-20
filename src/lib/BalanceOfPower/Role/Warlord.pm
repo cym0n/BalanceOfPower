@@ -30,6 +30,7 @@ requires 'random';
 requires 'change_diplomacy';
 requires 'get_crises';
 requires 'delete_crisis';
+requires 'at_civil_war';
 
 has wars => (
     is => 'ro',
@@ -45,13 +46,6 @@ has wars => (
 
 
 
-sub at_civil_war
-{
-    my $self = shift;
-    my $n = shift;
-    my $nation = $self->get_nation($n);
-    return $nation->internal_disorder_status eq 'Civil war';
-}
 
 sub war_busy
 {
@@ -297,11 +291,11 @@ sub army_for_war
 {
     my $self = shift;
     my $nation = shift;
-    my @supported = $self->supported($nation->name);
+    my $supported = $self->supported($nation->name);
     my $army = $nation->army;
-    for(@supported)
+    if($supported)
     {
-        $army += $_->army;
+        $army += $supported->army;
     }
     return $army;
 }
@@ -312,37 +306,37 @@ sub damage_from_battle
     my $nation = shift;
     my $damage = shift;
     my $attacker = shift;
-    my @supported = $self->supported($nation->name);
-    @supported = grep { ! $self->exists_treaty_by_type($attacker->name, $_->node1, 'no aggression') } @supported;
+    my $supported = $self->supported($nation->name);
+    if($supported && $self->exists_treaty_by_type($attacker->name, $supported->node1, 'no aggression'))
+    {
+        $supported = undef;
+    }
     my $flip = 0;
     my $army_damage = 0;
     while($damage > 0)
     {
-        if($flip <= $#supported)
+        if($flip == 0)
         {
-            if($supported[$flip]->army > 0)
+            if($supported && $supported->army > 0)
             {
-                $supported[$flip]->casualities(1);
+                $supported->casualities(1);
                 $damage--;
             }
+            $flip = 1;
         }
         else
         {
             $army_damage++;
             $damage--;
-        }
-        $flip++;
-        if($flip > $#supported + 1)
-        {
             $flip = 0;
         }
     }
     $nation->add_army(-1 * $army_damage);
-    for(@supported)
+    if($supported)
     {
-        if($_->army <= 0)
+        if($supported->army <= 0)
         {
-            $self->broadcast_event("MILITARY SUPPORT TO " . $_->node2 . " BY " . $_->node1 . " DESTROYED", $_->node1, $_->node2);
+            $self->broadcast_event("MILITARY SUPPORT TO " . $supported->node2 . " BY " . $supported->node1 . " DESTROYED", $supported->node1, $supported->node2);
         }
     }
     $self->military_support_garbage_collector();
@@ -378,18 +372,18 @@ sub fight_wars
                 $attacker_damage++;
             }
         }
-        for($self->supported($attacker->name))
+        if(my $sup = $self->supported($attacker->name))
         {
-            my $supporter_n = $_->start($attacker->name);
+            my $supporter_n = $sup->start($attacker->name);
             if(! $self->exists_treaty_by_type($defender->name, $supporter_n, 'no aggression'))
             {
                 $self->broadcast_event("RELATIONS BETWEEN " . $defender->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $attacker->name, $attacker->name, $defender->name, $supporter_n);
                 $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
             }
         }
-        for($self->supported($defender->name))
+        if(my $sup = $self->supported($defender->name))
         {
-            my $supporter_n = $_->start($defender->name);
+            my $supporter_n = $sup->start($defender->name);
             if(! $self->exists_treaty_by_type($attacker->name, $supporter_n, 'no aggression'))
             {
                 $self->broadcast_event("RELATIONS BETWEEN " . $attacker->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $defender->name, $attacker->name, $defender->name, $supporter_n);

@@ -52,9 +52,13 @@ use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
 use constant STARTING_REBEL_PROVINCES => [1, 1, 2];
 use constant CIVIL_WAR_WIN => 3;
 use constant AFTER_CIVIL_WAR_INTERNAL_DISORDER => 35;
-use constant ARMY_UNIT_FOR_INTERNAL_DISORDER => 2;
-use constant ARMY_HELP_FOR_INTERNAL_DISORDER => 10;
+use constant ARMY_UNIT_FOR_CIVIL_WAR => 2;
+use constant ARMY_HELP_FOR_CIVIL_WAR => 10;
 use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
+use constant REBEL_ARMY_FOR_SUPPORT => 4;
+use constant SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
+use constant REBEL_SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
+use constant DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT => 3;
 
 #War & domination
 use constant ARMY_FOR_BATTLE => 3;
@@ -94,6 +98,7 @@ use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
 use constant ARMY_FOR_SUPPORT => 4;
 use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
 use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
+use constant DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT => -10;
 use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
 use constant INSURGENTS_AID => 15;
@@ -150,8 +155,8 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'ARMY_UNIT',
                   'ARMY_FOR_BATTLE',
                   'TRADEROUTE_DIPLOMACY_FACTOR',
-                  'ARMY_UNIT_FOR_INTERNAL_DISORDER',
-                  'ARMY_HELP_FOR_INTERNAL_DISORDER',
+                  'ARMY_UNIT_FOR_CIVIL_WAR',
+                  'ARMY_HELP_FOR_CIVIL_WAR',
                   'CRISIS_GENERATOR_NOACTION_TOKENS',
                   'CRISIS_GENERATION_TRIES',
                   'CRISIS_MAX_FACTOR',
@@ -192,5 +197,10 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'ECONOMIC_AID_COST',
                   'ECONOMIC_AID_QUOTE',
                   'ECONOMIC_AID_DIPLOMACY_FACTOR',
+                  'REBEL_ARMY_FOR_SUPPORT',
+                  'DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT',
+                  'SUPPORT_HELP_FOR_CIVIL_WAR', 
+                  'REBEL_SUPPORT_HELP_FOR_CIVIL_WAR',
+                  'DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT', 
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

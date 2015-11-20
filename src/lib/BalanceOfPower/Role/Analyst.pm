@@ -115,21 +115,18 @@ sub print_borders_analysis
         my $rel = $self->diplomacy_exists($nation, $b);
         $out .= "  Relations: " . $rel->print_status() . " " . 
                                   $rel->print_crisis_bar() . "\n";
-        my @supps = $self->supported($b);
-        if(@supps)
+        my $supps = $self->supported($b);
+        if($supps)
         {
             $out .= as_subtitle("  Military support in the country:\n");
-            foreach my $ms (@supps)
+            my $supporter = $supps->start($b);
+            my $sup_rel = $self->diplomacy_exists($nation, $supporter);
+            $out .= "    $supporter (" . $sup_rel->print_status();
+            if($sup_rel->is_crisis())
             {
-                my $supporter = $ms->start($b);
-                my $sup_rel = $self->diplomacy_exists($nation, $supporter);
-                $out .= "    $supporter (" . $sup_rel->print_status();
-                if($sup_rel->is_crisis())
-                {
-                    $out .= " " . $sup_rel->print_crisis_bar;
-                } 
-                $out .= ")\n";
-            }
+                $out .= " " . $sup_rel->print_crisis_bar;
+            } 
+            $out .= ")\n";
         }
     }
     return $out;
@@ -156,10 +153,10 @@ sub print_near_analysis
                 foreach my $fb (@foreign_borders)
                 {
                     my $other_n = $fb->destination($b);
-                    my @sups = $self->supported($other_n);
-                    for(@sups)
+                    my $sups = $self->supported($other_n);
+                    for($sups)
                     {
-                        if($_->start($other_n) eq $nation)
+                        if($sups->start($other_n) eq $nation)
                         {
                             $out .= "    Military support from: $other_n\n";   
                         }

@@ -28,7 +28,7 @@ $world->get_nation("Italy")->army(15);
 $world->order("MILITARY SUPPORT Germany");
 $world->elaborate_turn("1970/2");
 is($world->get_nation("Italy")->army(), 11, "Army of Italy decremented for support");
-is($world->supported("Germany"), 1, "Germany has a support");
+ok($world->supported("Germany"), "Germany has a support");
 
 $world->get_nation("Germany")->army(7);
 $world->get_nation("France")->army(10);
@@ -42,8 +42,8 @@ my $france_diplomacy = $world->diplomacy_exists("Italy", "France");
 $france_diplomacy->factor(65);
 $world->elaborate_turn("1970/3");
 is($world->get_nation("Germany")->army(), 6, "Army decreased the right way for Germany");
-my @sups = $world->supported("Germany");
-is($sups[0]->army, 2, "Italian support decreased the right way for Germany");
+my $sups = $world->supported("Germany");
+is($sups->army, 2, "Italian support decreased the right way for Germany");
 is($france_diplomacy->factor, 63, "Diplomacy changed between Italy and France");
 
 $world->player_nation("Italy");
