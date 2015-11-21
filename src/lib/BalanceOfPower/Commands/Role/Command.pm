@@ -45,11 +45,16 @@ has army_limit => (
     default => sub { {} }
 );
 
+sub get_nation
+{
+    my $self = shift;
+    return $self->world->get_nation($self->actor);
+}
 
 sub allowed
 {
     my $self = shift;
-    my $nation = $self->world->get_nation($self->actor);
+    my $nation = $self->get_nation();
     return 0
         if($nation->internal_disorder_status() eq 'Civil war');
     if(! $self->allowed_at_war)
@@ -152,5 +157,12 @@ sub print
     my $self = shift;
     return $self->name;
 }
+
+sub IA
+{
+    my $self = shift;
+    return $self->name;
+}
+
 
 1;

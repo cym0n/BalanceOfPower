@@ -15,6 +15,8 @@ use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
 use BalanceOfPower::Commands::ComTreaty;
 use BalanceOfPower::Commands::NagTreaty;
+use BalanceOfPower::Commands::LowerDisorder;
+use BalanceOfPower::Commands::BoostProduction;
 
 has actor => (
     is => 'rw',
@@ -36,7 +38,7 @@ sub init
                                               allowed_at_war => 1, );
     $self->commands->{"BUILD TROOPS"} = $command; 
     $command = 
-        BalanceOfPower::Commands::NoArgs->new( name => "LOWER DISORDER",
+        BalanceOfPower::Commands::LowerDisorder->new( name => "LOWER DISORDER",
                                               world => $world,
                                               domestic_cost => RESOURCES_FOR_DISORDER );
     $self->commands->{"LOWER DISORDER"} = $command; 
@@ -57,9 +59,9 @@ sub init
                                                     world => $world );
     $self->commands->{"DELETE TRADEROUTE"} = $command; 
     $command =
-        BalanceOfPower::Commands::NoArgs->new( name => "BOOST PRODUCTION",
-                                                    world => $world,
-                                                    production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
+        BalanceOfPower::Commands::BoostProduction->new( name => "BOOST PRODUCTION",
+                                                        world => $world,
+                                                      );
     $self->commands->{"BOOST PRODUCTION"} = $command; 
     $command =
         BalanceOfPower::Commands::MilitarySupport->new( name => "MILITARY SUPPORT",
@@ -81,19 +83,25 @@ sub init
                                                              export_cost => AID_INSURGENTS_COST );
     $self->commands->{"AID INSURGENTS IN"} = $command; 
     $command =
-        BalanceOfPower::Commands::ComTreaty->new( name => "COM TREATY WITH",
-                                                             synonyms => ["COM TREATY"],
+        BalanceOfPower::Commands::ComTreaty->new( name => "TREATY COM WITH",
+                                                             synonyms => ["COM TREATY",
+                                                                          "COM TREATY WITH",
+                                                                          "TREATY COM",
+                                                             ],
                                                              world => $world,
                                                              prestige_cost => TREATY_PRESTIGE_COST 
                                                             );
-    $self->commands->{"COM TREATY WITH"} = $command; 
+    $self->commands->{"TREATY COM WITH"} = $command; 
     $command =
-        BalanceOfPower::Commands::NagTreaty->new( name => "NAG TREATY WITH",
-                                                             synonyms => ["NAG TREATY"],
+        BalanceOfPower::Commands::NagTreaty->new( name => "TREATY NAG WITH",
+                                                             synonyms => ["NAG TREATY",
+                                                                          "NAG TREATY WITH",
+                                                                          "TREATY NAG"
+                                                                         ],
                                                              world => $world,
                                                              prestige_cost => TREATY_PRESTIGE_COST,
                                                             );
-    $self->commands->{"NAG TREATY WITH"} = $command; 
+    $self->commands->{"TREATY NAG WITH"} = $command; 
     $command =
         BalanceOfPower::Commands::TargetNation->new( name => "ECONOMIC AID FOR",
                                                              synonyms => ["ECONOMIC AID"],
@@ -128,6 +136,24 @@ sub recognize_command
         }
     }
     return { status => 0 };
+}
+
+sub decide
+{
+    my $self = shift;
+    my $order = shift;
+    return undef if(! exists $self->commands->{$order});
+    my $c = $self->commands->{$order};
+    $c->actor($self->actor);
+    if($c->allowed())
+    {
+        my $command = $c->IA();
+        return $command;  
+    }
+    else
+    {
+        return undef;
+    }
 }
 
 sub print_orders
