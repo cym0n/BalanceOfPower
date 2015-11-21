@@ -16,6 +16,11 @@ use BalanceOfPower::Commands::RecallMilitarySupport;
 use BalanceOfPower::Commands::ComTreaty;
 use BalanceOfPower::Commands::NagTreaty;
 
+has actor => (
+    is => 'rw',
+    default => sub { undef }
+);
+
 has commands => (
     is => 'ro',
     default => sub { {} }
@@ -98,12 +103,13 @@ sub init
     $self->commands->{"ECONOMIC AID FOR"} = $command; 
 }
 
+
 sub recognize_command
 {
     my $self = shift;
-    my $actor = shift;
     my $nation = shift;
     my $query = shift;
+    my $actor = $self->actor;
     for(keys %{$self->commands})
     {
         my $c = $self->commands->{$_};
@@ -127,12 +133,11 @@ sub recognize_command
 sub print_orders
 {
     my $self = shift;
-    my $actor = shift;
     my $out = "";
     for(keys %{$self->commands})
     {
         my $c = $self->commands->{$_};
-        $c->actor($actor);
+        $c->actor($self->actor);
         $out .= $c->print . "\n";
     }
     return $out;

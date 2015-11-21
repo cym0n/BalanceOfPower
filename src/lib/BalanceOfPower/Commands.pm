@@ -62,7 +62,7 @@ WELCOME
     my $auto_years;
     if($stubbed)
     {
-        $self->world->player_nation("Italy");
+        $self->set_player_nation("Italy");
         $self->world->player("PlayerOne");
         $auto_years = 10;
     }
@@ -71,13 +71,19 @@ WELCOME
         say $welcome_message;
         my $player = prompt "Say your name, player: ";
         my $player_nation = prompt "Select the nation you want to control: ", -menu=>$self->world->nation_names;
-        $self->world->player_nation($player_nation);
         $self->world->player($player);
+        $self->set_player_nation($player_nation);
         $auto_years = prompt "Tell a number of years to generate before game start: ", -i;
     }
     return $auto_years;
 }
-
+sub set_player_nation
+{
+    my $self = shift;
+    my $player_nation = shift;
+    $self->world->player_nation($player_nation);
+    $self->executive->actor($player_nation);
+}
 
 
 sub welcome_player
@@ -418,8 +424,7 @@ sub verify_nation
 sub orders
 {
     my $self = shift;
-    return $self->recognize_command($self->world->player_nation,
-                                    $self->nation,
+    return $self->recognize_command($self->nation,
                                     $self->query);
     
 }

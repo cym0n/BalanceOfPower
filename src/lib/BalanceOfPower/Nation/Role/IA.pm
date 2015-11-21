@@ -8,6 +8,10 @@ use Array::Utils qw(intersect);
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn );
 
+has executive => (
+    is => 'ro'
+);
+
 sub decision
 {
     my $self = shift;

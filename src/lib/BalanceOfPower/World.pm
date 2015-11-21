@@ -147,7 +147,8 @@ sub load_nations_data
             }
             $nations_data{$name} = { area => $area,
                                      size => $size,
-                                     government => $government }
+                                     government => $government ,
+                                   }
 
         }
         else
@@ -193,8 +194,12 @@ sub init_random
         say "  export quote: $export_quote" if ! $self->silent;
         my $government_strength = $self->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Government strenght $n");
         say "  government strength: $government_strength" if ! $self->silent;
+
+        my $executive = BalanceOfPower::Executive->new( actor => $n );
+        $executive->init($self);
         push @{$self->nations}, BalanceOfPower::Nation->new( 
             name => $n, 
+            executive => $executive,
             area => $nations_data{$n}->{area}, 
             size => $nations_data{$n}->{size},
             government => $nations_data{$n}->{government},

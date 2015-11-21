@@ -41,8 +41,7 @@ $world->tricks( { "Export quote Italy" => [30],
 $world->init_random("nations-test2.txt", "borders-test2.txt", 
                     { alliances => 0, trades => 0 });
 $world->forced_advisor("Noone");
-my $commands = BalanceOfPower::Commands->new( world => $world );
-$commands->init();
+$commands = $world->build_commands();
 $commands->init_game(1);
 my $result;
 
