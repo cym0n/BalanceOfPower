@@ -28,8 +28,7 @@ $world->elaborate_turn("1970/1");
 $world->autoplay(0);
 
 #Initialization of commands
-my $commands = BalanceOfPower::Commands->new( world => $world );
-$commands->init();
+my $commands = $world->build_commands();
 $commands->init_game(1);
 my $result;
 

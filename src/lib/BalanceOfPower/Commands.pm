@@ -4,28 +4,22 @@ use v5.10;
 use Moo;
 use IO::Prompter;
 use Term::ANSIColor;
+use BalanceOfPower::Executive;
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn prev_turn get_year_turns compare_turns evidence_text);
-use BalanceOfPower::Commands::Plain;
-use BalanceOfPower::Commands::NoArgs;
-use BalanceOfPower::Commands::InMilitaryRange;
-use BalanceOfPower::Commands::DeleteRoute;
-use BalanceOfPower::Commands::MilitarySupport;
-use BalanceOfPower::Commands::RecallMilitarySupport;
-use BalanceOfPower::Commands::ComTreaty;
-use BalanceOfPower::Commands::NagTreaty;
 
 with 'BalanceOfPower::Role::Logger';
 
 has world => (
     is => 'ro'
 );
-
-has commands => (
-    is => 'rw',
-    default => sub { [] }
+has executive => (
+    is => 'ro',
+    default => sub { BalanceOfPower::Executive->new; },           
+    handles => { recognize_command => 'recognize_command',
+                 print_orders => 'print_orders'
+               }
 );
-
 has query => (
     is => 'rw',
     default => "" 
@@ -43,108 +37,16 @@ has active => (
     default => 1
 );
 
-
 sub init
 {
     my $self = shift;
-    my $command = 
-        BalanceOfPower::Commands::NoArgs->new( name => "BUILD TROOPS",
-                                               actor => $self->world->player_nation,
-                                              world => $self->world,
-                                              allowed_at_war => 1,
-                                              export_cost => $self->world->get_player_nation()->build_troops_cost() );
-    push @{$self->commands}, $command; 
-    $command = 
-        BalanceOfPower::Commands::NoArgs->new( name => "LOWER DISORDER",
-                                               actor => $self->world->player_nation,
-                                              world => $self->world,
-                                              domestic_cost => RESOURCES_FOR_DISORDER );
-    push @{$self->commands}, $command; 
-    $command = 
-        BalanceOfPower::Commands::NoArgs->new( name => "ADD ROUTE",
-                                              world => $self->world,
-                                               actor => $self->world->player_nation,
-                                              export_cost => ADDING_TRADEROUTE_COST );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::InMilitaryRange->new( name => "DECLARE WAR TO",
-                                                        synonyms => ["DECLARE WAR"],
-                                                        actor => $self->world->player_nation,
-                                                        world => $self->world,
-                                                        crisis_needed => 1 );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::DeleteRoute->new( name => "DELETE TRADEROUTE",
-                                                    synonyms => ["DELETE ROUTE"],
-                                                    actor => $self->world->player_nation,
-                                                    world => $self->world );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::NoArgs->new( name => "BOOST PRODUCTION",
-                                                    world => $self->world,
-                                                    actor => $self->world->player_nation,
-                                                    production_limit => { '<' => EMERGENCY_PRODUCTION_LIMIT } );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::MilitarySupport->new( name => "MILITARY SUPPORT",
-                                                      world => $self->world,
-                                                      actor => $self->world->player_nation,
-                                                      army_limit => { '>' => ARMY_FOR_SUPPORT }
-                                                    );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::RecallMilitarySupport->new( name => "RECALL MILITARY SUPPORT",
-                                                        synonyms => ["RECALL SUPPORT"],
-                                                        world => $self->world,
-                                                      actor => $self->world->player_nation,
-                                                      allowed_at_war => 1,
-                                                    );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::InMilitaryRange->new( name => "AID INSURGENTS IN",
-                                                             synonyms => ["AID INSURGENTS", "AID INSURGENCE"],
-                                                            actor => $self->world->player_nation,
-                                                             world => $self->world,
-                                                             export_cost => AID_INSURGENTS_COST );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::ComTreaty->new( name => "COM TREATY WITH",
-                                                             synonyms => ["COM TREATY"],
-                                                             world => $self->world,
-                                                            actor => $self->world->player_nation,
-                                                             prestige_cost => TREATY_PRESTIGE_COST 
-                                                            );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::NagTreaty->new( name => "NAG TREATY WITH",
-                                                             synonyms => ["NAG TREATY"],
-                                                             world => $self->world,
-                                                             prestige_cost => TREATY_PRESTIGE_COST,
-                                                            actor => $self->world->player_nation,
-                                                            );
-    push @{$self->commands}, $command; 
-    $command =
-        BalanceOfPower::Commands::TargetNation->new( name => "ECONOMIC AID FOR",
-                                                             synonyms => ["ECONOMIC AID"],
-                                                             world => $self->world,
-                                                             export_cost => ECONOMIC_AID_COST,
-                                                            actor => $self->world->player_nation,
-                                                            );
-    push @{$self->commands}, $command; 
-
-
+    $self->executive->init($self->world);
 }
 
-sub print_orders
-{
-    my $self = shift;
-    my $out = "";
-    foreach my $c (@{$self->commands})
-    {
-        $out .= $c->print . "\n";
-    }
-    return $out;
-}
+
+
+
+
 
 sub init_game
 {
@@ -311,7 +213,7 @@ COMMANDS
     }
      elsif($query eq "orders")
     {
-        print $self->print_orders();;
+        print $self->print_orders($self->world->player_nation);;
         $result = { status => 1 };
     }
     elsif($query eq "wars")
@@ -513,26 +415,13 @@ sub verify_nation
     my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
     return @good_nation > 0;
 }
-
 sub orders
 {
     my $self = shift;
-    my $query = $self->query;
-    foreach my $c (@{$self->commands})
-    {
-        if($c->recognize($query))
-        {
-            if($c->allowed())
-            {
-                return $c->execute($query, $self->nation);
-            }
-            else
-            {
-                return { status => -1 };
-            }
-        }
-    }
-    return { status => 0 };
+    return $self->recognize_command($self->world->player_nation,
+                                    $self->nation,
+                                    $self->query);
+    
 }
 
 sub interact
@@ -571,4 +460,6 @@ sub interact
         } 
     }
 }
+
+
 1;

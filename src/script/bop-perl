@@ -47,7 +47,6 @@ else
     $world->current_year(prev_turn($first_year));  
 }
 
-$commands->init();
 $commands->welcome_player();
 $commands->interact();
 

@@ -821,7 +821,7 @@ sub build_commands
 {
     my $self = shift;
     my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active );
-    $commands->init();
+    $commands->init($self);
     return $commands;
 }
 

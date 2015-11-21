@@ -9,7 +9,7 @@ has name => (
     default => 'DO NOTHING'
 );
 has actor => (
-    is => 'ro',
+    is => 'rw',
 );
 
 has world => (
