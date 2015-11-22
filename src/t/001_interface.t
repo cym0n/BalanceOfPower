@@ -89,23 +89,15 @@ $commands->query("BUILD TROOPS");
 $result = $commands->orders();
 is($result->{status}, 1, "Command elaborated: BUILD TROOPS");
 
-$world->get_player_nation->production(50);
-$commands->query("BOOST PRODUCTION");
+$world->get_player_nation->production(100);
+$commands->query("BUILD TROOPS");
 $result = $commands->orders();
-is($result->{status}, 1, "Command elaborated: BOOST PRODUCTION (allowed)");
+is($result->{status}, 1, "Command elaborated: BUILD TROOPS (allowed)");
 
-$world->get_player_nation->production(60);
-$commands->query("BOOST PRODUCTION");
+$world->get_player_nation->production(10);
+$commands->query("BUILD TROOPS");
 $result = $commands->orders();
-is($result->{status}, -1, "Command elaborated: BOOST PRODUCTION (not allowed)");
-
-
-
-
-
-
-#$result = $commands->orders();
-#$result = $commands->turn_command();
+is($result->{status}, -1, "Command elaborated: BUILD TROOPS (not allowed)");
 
 done_testing;
 

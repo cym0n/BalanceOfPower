@@ -6,17 +6,20 @@ use v5.10;
 use Moo;
 
 use BalanceOfPower::Constants ":all";
-use BalanceOfPower::Commands::Plain;
-use BalanceOfPower::Commands::NoArgs;
 use BalanceOfPower::Commands::BuildTroops;
 use BalanceOfPower::Commands::InMilitaryRange;
 use BalanceOfPower::Commands::DeleteRoute;
 use BalanceOfPower::Commands::MilitarySupport;
+use BalanceOfPower::Commands::RebelMilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
 use BalanceOfPower::Commands::ComTreaty;
 use BalanceOfPower::Commands::NagTreaty;
 use BalanceOfPower::Commands::LowerDisorder;
 use BalanceOfPower::Commands::BoostProduction;
+use BalanceOfPower::Commands::AddRoute;
+use BalanceOfPower::Commands::EconomicAid;
+use BalanceOfPower::Commands::DeclareWar;
+use BalanceOfPower::Commands::AidInsurgents;
 
 has actor => (
     is => 'rw',
@@ -34,8 +37,9 @@ sub init
     my $world = shift;
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
-                                              world => $world,
-                                              allowed_at_war => 1, );
+                                                    domestic_cost => ARMY_COST,
+                                                    world => $world,
+                                                    allowed_at_war => 1, );
     $self->commands->{"BUILD TROOPS"} = $command; 
     $command = 
         BalanceOfPower::Commands::LowerDisorder->new( name => "LOWER DISORDER",
@@ -43,12 +47,12 @@ sub init
                                               domestic_cost => RESOURCES_FOR_DISORDER );
     $self->commands->{"LOWER DISORDER"} = $command; 
     $command = 
-        BalanceOfPower::Commands::NoArgs->new( name => "ADD ROUTE",
+        BalanceOfPower::Commands::AddRoute->new( name => "ADD ROUTE",
                                               world => $world,
                                               export_cost => ADDING_TRADEROUTE_COST );
     $self->commands->{"ADD ROUTE"} = $command; 
     $command =
-        BalanceOfPower::Commands::InMilitaryRange->new( name => "DECLARE WAR TO",
+        BalanceOfPower::Commands::DeclareWar->new( name => "DECLARE WAR TO",
                                                         synonyms => ["DECLARE WAR"],
                                                         world => $world,
                                                         crisis_needed => 1 );
@@ -77,7 +81,7 @@ sub init
                                                     );
     $self->commands->{"RECALL MILITARY SUPPORT"} = $command; 
     $command =
-        BalanceOfPower::Commands::InMilitaryRange->new( name => "AID INSURGENTS IN",
+        BalanceOfPower::Commands::AidInsurgents->new( name => "AID INSURGENTS IN",
                                                              synonyms => ["AID INSURGENTS", "AID INSURGENCE"],
                                                              world => $world,
                                                              export_cost => AID_INSURGENTS_COST );
@@ -103,12 +107,18 @@ sub init
                                                             );
     $self->commands->{"TREATY NAG WITH"} = $command; 
     $command =
-        BalanceOfPower::Commands::TargetNation->new( name => "ECONOMIC AID FOR",
+        BalanceOfPower::Commands::EconomicAid->new( name => "ECONOMIC AID FOR",
                                                              synonyms => ["ECONOMIC AID"],
                                                              world => $world,
                                                              export_cost => ECONOMIC_AID_COST,
                                                             );
     $self->commands->{"ECONOMIC AID FOR"} = $command; 
+    $command =
+        BalanceOfPower::Commands::RebelMilitarySupport->new( name => "REBEL MILITARY SUPPORT",
+                                                             world => $world,
+                                                             army_limit => { '>' => ARMY_FOR_SUPPORT }
+                                                    );
+    $self->commands->{"REBEL MILITARY SUPPORT"} = $command; 
 }
 
 

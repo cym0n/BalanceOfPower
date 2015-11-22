@@ -1,6 +1,7 @@
 package BalanceOfPower::Role::Herald;
 
 use strict;
+use v5.10;
 use Moo::Role;
 
 with 'BalanceOfPower::Role::Reporter';

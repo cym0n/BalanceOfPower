@@ -2,6 +2,8 @@ package BalanceOfPower::Commands::BuildTroops;
 
 use Moo;
 
+use BalanceOfPower::Constants ':all';
+
 extends 'BalanceOfPower::Commands::NoArgs';
 
 sub allowed
@@ -18,6 +20,34 @@ sub allowed
     {
         return 0;
     }
+}
+
+sub IA
+{
+    my $self = shift;
+    my $actor = $self->get_nation();
+    if($actor->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
+    {
+        if($actor->army < MINIMUM_ARMY_LIMIT)
+        {
+            return "BUILD TROOPS";
+        }
+        elsif($actor->army < MEDIUM_ARMY_LIMIT)
+        {
+            if($actor->production_for_export > MEDIUM_ARMY_BUDGET)
+            {
+                return "BUILD TROOPS";
+            }
+        }
+        else
+        {
+            if($actor->production_for_export > MAX_ARMY_BUDGET)
+            {
+                return "BUILD TROOPS";
+            }
+        }
+    }
+    return undef;
 }
 
 1;
