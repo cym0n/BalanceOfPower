@@ -1,5 +1,6 @@
 package BalanceOfPower::Commands::AidInsurgents;
 
+use v5.10;
 use Moo;
 
 use Array::Utils qw(intersect);

@@ -1,5 +1,6 @@
 package BalanceOfPower::Commands::DeclareWar;
 
+use v5.10;
 use Moo;
 
 use Array::Utils qw(intersect);
@@ -14,7 +15,6 @@ sub IA
 {
     my $self = shift;
     my $actor = $self->get_nation();
-
     my @available = $self->get_available_targets();
     my @crises = $self->world->get_crises($actor->name);
     my @crisis_enemies;
@@ -28,7 +28,7 @@ sub IA
     for(@choose)
     {
         my $enemy = $self->world->get_nation($_);
-        if($self->good_prey($enemy, $self->world, $crisis_levels{$enemy->name}))
+        if($actor->good_prey($enemy, $self->world, $crisis_levels{$enemy->name}))
         {
             return "DECLARE WAR TO " . $enemy->name;
         }

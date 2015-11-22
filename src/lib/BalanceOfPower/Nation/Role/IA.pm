@@ -64,7 +64,7 @@ sub advisor
 sub domestic_advisor
 {
     my $self = shift;
-    return $self->advisor("LOWER ORDER", 
+    return $self->advisor("LOWER DISORDER", 
                           "BOOST PRODUCTION",
                           "TREATY NAG WITH");
 }
@@ -88,8 +88,8 @@ sub economy_advisor
 sub military_advisor
 {
     my $self = shift;
-    return $self->advisor("DECLARE WAR", 
-                          "AID INSURGENTS",
+    return $self->advisor("DECLARE WAR TO", 
+                          "AID INSURGENTS IN",
                           "MILITARY SUPPORT",
                           "REBEL MILITARY SUPPORT",
                           "RECALL MILITARY SUPPORT",

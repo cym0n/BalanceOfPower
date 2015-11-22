@@ -14,7 +14,7 @@ sub get_available_targets
     my $self = shift;
     my $player = $self->actor;
     my @out = ();
-    for(@{$self->world->nation_names})
+    for($self->SUPER::get_available_targets())
     {
         my $n = $_;
         my $push = 0;

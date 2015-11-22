@@ -5,6 +5,8 @@ use v5.10;
 
 use Moo;
 
+with 'BalanceOfPower::Role::Logger';
+
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Commands::BuildTroops;
 use BalanceOfPower::Commands::InMilitaryRange;
@@ -34,6 +36,8 @@ has commands => (
 sub init
 {
     my $self = shift;
+    $self->log_name("bop-IA.log");
+    $self->delete_log();
     my $world = shift;
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
@@ -53,9 +57,9 @@ sub init
     $self->commands->{"ADD ROUTE"} = $command; 
     $command =
         BalanceOfPower::Commands::DeclareWar->new( name => "DECLARE WAR TO",
-                                                        synonyms => ["DECLARE WAR"],
-                                                        world => $world,
-                                                        crisis_needed => 1 );
+                                                   synonyms => ["DECLARE WAR"],
+                                                   world => $world,
+                                                   crisis_needed => 1 );
     $self->commands->{"DECLARE WAR TO"} = $command; 
     $command =
         BalanceOfPower::Commands::DeleteRoute->new( name => "DELETE TRADEROUTE",
@@ -69,9 +73,9 @@ sub init
     $self->commands->{"BOOST PRODUCTION"} = $command; 
     $command =
         BalanceOfPower::Commands::MilitarySupport->new( name => "MILITARY SUPPORT",
-                                                      world => $world,
-                                                      army_limit => { '>' => ARMY_FOR_SUPPORT }
-                                                    );
+                                                        world => $world,
+                                                        army_limit => { '>' => ARMY_FOR_SUPPORT }
+                                                      );
     $self->commands->{"MILITARY SUPPORT"} = $command; 
     $command =
         BalanceOfPower::Commands::RecallMilitarySupport->new( name => "RECALL MILITARY SUPPORT",
@@ -152,16 +156,22 @@ sub decide
 {
     my $self = shift;
     my $order = shift;
-    return undef if(! exists $self->commands->{$order});
+    if(! exists $self->commands->{$order})
+    {
+        $self->log($self->actor . ": $order doesn't exists!");
+        return undef;
+    }
     my $c = $self->commands->{$order};
     $c->actor($self->actor);
     if($c->allowed())
     {
+        $self->log($self->actor . ": executing $order");
         my $command = $c->IA();
         return $command;  
     }
     else
     {
+        $self->log($self->actor . ": $order not allowed");
         return undef;
     }
 }
