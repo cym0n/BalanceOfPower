@@ -4,7 +4,7 @@ use strict;
 use v5.10;
 use Moo::Role;
 use Term::ANSIColor;
-use BalanceOfPower::Utils qw( prev_turn as_title as_subtitle );
+use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle );
 
 requires 'diplomacy_exists';
 requires 'get_borders';
@@ -99,6 +99,12 @@ sub print_nation_actual_situation
         $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
         $out .="\n";
     }
+    $out .= "\n";
+    if($self->player_nation ne $nation)
+    {
+        $out .= "Relations with player: " . $self->get_diplomacy_relation($self->player_nation, $nation)->print() . "\n";
+        $out .= "\n";
+    }
     return $out;
 }
 
@@ -172,4 +178,44 @@ sub print_near_analysis
     return $out;
 }
 
+sub print_hotspots
+{
+    my $self = shift;
+    my $out = "";
+    my @crises = $self->get_all_crises();
+    $out .= as_title("CRISES") . "\n";
+    for(@crises)
+    {
+        my $c = $_;
+        if(! $self->war_exists($c->node1, $c->node2))
+        {
+            $out .= as_subtitle($c->print_crisis()) . "\n";
+            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $c->node1)->print() . "\n";
+            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $c->node2)->print(). "\n";
+            $out .= "\n";
+        }
+    }
+    $out .= "\n";
+    $out .= as_title("WARS") . "\n";
+    my @wars = $self->wars->all();
+    for(@wars)
+    {
+        my $w = $_;
+        $out .= $w->print() . "\n";
+        $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $w->node1)->print() . "\n";
+        $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $w->node2)->print(). "\n";
+        $out .= "\n";
+    }
+    $out .= "\n";
+    $out .= as_title("CIVIL WARS") . "\n";
+    foreach my $n (@{$self->nation_names})
+    {
+        if($self->at_civil_war($n))
+        {
+            $out .= "$n is fighting civil war\n";
+            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $n)->print() . "\n";
+        }
+    }
+    return $out;
+}
 1;

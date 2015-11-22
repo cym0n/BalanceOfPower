@@ -64,7 +64,7 @@ WELCOME
     {
         $self->set_player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 10;
+        $auto_years = 5;
     }
     else
     {
@@ -181,6 +181,8 @@ say <years> for available range of years
 
 say <wars> for a list of wars, <crises> for all the ongoing crises
 
+say <hotspots> gives you wars and crises with also your diplomatic relationship with countries involved
+
 say <supports> for military supports
 
 say <distance NATION1-NATION2> for distance between nations
@@ -245,6 +247,12 @@ COMMANDS
         print $self->world->print_allies();
         $result = { status => 1 };
     }
+    elsif($query eq "hotspots")
+    {
+        print $self->world->print_hotspots();
+        $result = { status => 1 };
+    }
+
     elsif($query =~ /^situation( (.*))?$/)
     {
         my $order = $2;

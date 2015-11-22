@@ -98,7 +98,7 @@ sub print_crisis
     my $self = shift;
     if($self->crisis_level > 0)
     {
-        return $self->node1 . " <-> " . $self->node2 . " (" . $self->crisis_level . ")";
+        return $self->node1 . " <-> " . $self->node2 . " " . $self->print_crisis_bar();
     }
     else
     {
