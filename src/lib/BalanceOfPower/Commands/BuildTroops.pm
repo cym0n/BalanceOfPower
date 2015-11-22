@@ -26,7 +26,7 @@ sub IA
 {
     my $self = shift;
     my $actor = $self->get_nation();
-    if($actor->army < MAX_ARMY_FOR_SIZE->[ $self->size ])
+    if($actor->army < MAX_ARMY_FOR_SIZE->[ $actor->size ])
     {
         if($actor->army < MINIMUM_ARMY_LIMIT)
         {

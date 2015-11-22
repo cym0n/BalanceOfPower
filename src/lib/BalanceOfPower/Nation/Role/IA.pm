@@ -48,42 +48,34 @@ sub decision
     return undef;
 }
 
-### DOMESTIC ###
-# Orders:
-#   LOWER DISORDER
-#   BOOST PRODUCTION
-#   TREATY NAG
+sub advisor
+{
+    my $self = shift;
+    my @orders = @_;
+    my $order = undef;
+    for(@orders)
+    {
+        $order = $self->decide($_);
+        return $order if $order;
+    }
+    return undef;
+}
+
 sub domestic_advisor
 {
     my $self = shift;
-    my $order = undef;
-    $order = $self->decide("LOWER DISORDER");
-    return $order if $order;
-    $order = $self->decide("BOOST PRODUCTION");
-    return $order if $order;
-    $order = $self->decide("TREATY NAG WITH");
-    return $order;
+    return $self->advisor("LOWER ORDER", 
+                          "BOOST PRODUCTION",
+                          "TREATY NAG WITH");
 }
 
-### ECONOMY ###
-# Orders:
-#   DELETE TRADEROUTE
-#   ADD ROUTE
-#   TREATY COM
-#   ECONOMIC AID
 sub economy_advisor
 {
     my $self = shift;
-    my $order = undef;
-    $order = $self->decide("TREATY COM WITH");
-    return $order if $order;
-    $order = $self->decide("DELETE TRADEROUTE");
-    return $order if $order;
-    $order = $self->decide("ADD ROUTE");
-    return $order if $order;
-    $order = $self->decide("ECONOMIC AID");
-    return $order if $order;
-    return $order;
+    return $self->advisor("TREATY COM WITH", 
+                          "DELETE TRADEROUTE",
+                          "ADD ROUTE",
+                          "ECONOMIC AID");
 }
 
 ### MILITARY ###
@@ -96,21 +88,12 @@ sub economy_advisor
 sub military_advisor
 {
     my $self = shift;
-    my $order = undef;
-    $order = $self->decide("DECLARE WAR");
-    return $order if $order;
-    $order = $self->decide("AID INSURGENTS");
-    return $order if $order;
-    $order = $self->decide("MILITARY SUPPORT");
-    return $order if $order;
-    $order = $self->decide("MILITARY SUPPORT");
-    return $order;
-    $order = $self->decide("REBEL MILITARY SUPPORT");
-    return $order;
-    $order = $self->decide("RECALL MILITARY SUPPORT");
-    return $order;
-    $order = $self->decide("BUILD TROOPS");
-    return $order;
+    return $self->advisor("DECLARE WAR", 
+                          "AID INSURGENTS",
+                          "MILITARY SUPPORT",
+                          "REBEL MILITARY SUPPORT",
+                          "RECALL MILITARY SUPPORT",
+                          "BUILD TROOPS");
 }
 sub accept_military_support
 {
