@@ -8,6 +8,7 @@ use Moo;
 with 'BalanceOfPower::Role::Logger';
 
 use BalanceOfPower::Constants ":all";
+use BalanceOfPower::Utils qw(as_active);
 use BalanceOfPower::Commands::BuildTroops;
 use BalanceOfPower::Commands::InMilitaryRange;
 use BalanceOfPower::Commands::DeleteRoute;
@@ -38,6 +39,7 @@ sub init
     my $self = shift;
     $self->log_name("bop-IA.log");
     $self->delete_log();
+    $self->log_active(0);
     my $world = shift;
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
@@ -184,7 +186,14 @@ sub print_orders
     {
         my $c = $self->commands->{$_};
         $c->actor($self->actor);
-        $out .= $c->print . "\n";
+        if( $c->allowed() )
+        {
+            $out .= as_active($c->print) . "\n";
+        }
+        else
+        {
+            $out .= $c->print . "\n";
+        }
     }
     return $out;
 }

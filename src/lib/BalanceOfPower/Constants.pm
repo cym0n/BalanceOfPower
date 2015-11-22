@@ -29,7 +29,7 @@ use constant ADDING_TRADEROUTE_COST => 30;
 use constant TRADEROUTE_COST => 10;
 use constant TRADING_QUOTE => 15;
 use constant AID_INSURGENTS_COST => 25;
-use constant ECONOMIC_AID_COST => 40;
+use constant ECONOMIC_AID_COST => 30;
 
 #domestic costs
 use constant RESOURCES_FOR_DISORDER => 20;

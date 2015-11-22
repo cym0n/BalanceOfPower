@@ -146,7 +146,12 @@ sub as_evidenced
     my $text = shift;
     return color("bold green") . $text . color("reset");
 }
+sub as_active
+{
+    my $text = shift;
+    return color("bold white") . $text . color("reset");
+}
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active');
 
 1;

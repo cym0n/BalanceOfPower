@@ -47,6 +47,7 @@ sub execute
     if(@nations > 0)
     {
         $nation = prompt $self->select_message, -menu=>\@nations;
+        return { status => -3} if ! $nation;
         return { status => 1, command => $self->name . " " . $nation };
     }
     else

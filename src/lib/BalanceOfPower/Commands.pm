@@ -97,7 +97,7 @@ sub get_prompt_text
     my $self = shift;
     my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
     my $nation  = $self->world->get_player_nation();
-    $prompt_text .= "Int:" . $nation->production_for_domestic . "    Exp:" . $nation->production_for_export . "    Prtg:" . $nation->prestige . "\n";
+    $prompt_text .= "Int:" . $nation->production_for_domestic . "    Exp:" . $nation->production_for_export . "    Prtg:" . $nation->prestige . "    Army:" . $nation->army . "\n";
     if($self->world->order)
     {
         $prompt_text .= "=== ORDER SELECTED: " . $self->world->order . "\n";
@@ -188,6 +188,8 @@ say <distance NATION1-NATION2> for distance between nations
 say <turn> to elaborate events for a new turn
 
 <orders> display a list of command you can give to your nation for the next turn
+
+<clearorders> nullify the command issued for the next turn    
 COMMANDS
 
     my $result = { status => 0 };
@@ -210,6 +212,12 @@ COMMANDS
     elsif($query eq "clear")
     {
         $self->nation(undef);
+        $result = { status => 1 };
+    }
+    elsif($query eq "clearorders")
+    {
+        $self->nation(undef);
+        $self->world->order(undef);
         $result = { status => 1 };
     }
     elsif($query eq "commands")
@@ -457,6 +465,10 @@ sub interact
         elsif($result->{status} == -2)
         {
             say "No options available";
+        }
+        elsif($result->{status} == -3)
+        {
+            say "Command aborted";
         }
         elsif($result->{status} == 1)
         {

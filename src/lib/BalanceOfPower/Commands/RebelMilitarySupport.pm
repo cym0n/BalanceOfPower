@@ -8,7 +8,7 @@ sub get_available_targets
 {
     my $self = shift;
     my $player = $self->actor;
-    return grep { $self->world->at_civil_war($_)  }  @{$self->world->nations};
+    return grep { $self->world->at_civil_war($_) && ! $self->world->rebel_supported($_)  }  @{$self->world->nations};
 }
 
 sub IA
