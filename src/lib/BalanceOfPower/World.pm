@@ -536,7 +536,14 @@ sub execute_decisions
         {
             my $nation1 = $self->get_nation($1);
             my $nation2 = $self->get_nation($2);
-            $self->start_rebel_military_support($nation1, $nation2);
+            if($self->rebel_supported($nation2->name))
+            {
+                $self->broadcast_event("REBEL SUPPORT IN " . $nation2->name . " IMPOSSIBLE FOR " . $nation1->name, $nation1->name, $nation2->name);
+            }
+            else
+            {
+                $self->start_rebel_military_support($nation1, $nation2);
+            }
         }
     }
     $self->manage_route_adding(@route_adders);
@@ -685,7 +692,12 @@ sub internal_conflict
         my $winner = $n->fight_civil_war($self);
         if($winner && $winner eq 'rebels')
         {
+            $n->win_civil_war('rebels', $self);
             $n->new_government($self);
+        }
+        elsif($winner && $winner eq 'government')
+        {
+            $n->win_civil_war('government', $self);
         }
         
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
