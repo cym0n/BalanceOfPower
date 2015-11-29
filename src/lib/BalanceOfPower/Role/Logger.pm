@@ -21,6 +21,11 @@ has log_dir => (
     default => sub { getcwd }
 );
 
+has log_on_stdout => (
+    is => 'rw',
+    default => 0
+);
+
 sub log_path
 {
     my $self = shift;
@@ -35,6 +40,10 @@ sub log
     open(my $log, ">>", $self->log_path);
     print $log $message . "\n";
     close($log);
+    if($self->log_on_stdout)
+    {
+        print $message . "\n";
+    }
 }
 
 sub delete_log

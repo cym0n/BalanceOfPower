@@ -205,7 +205,8 @@ sub init_random
             government => $nations_data{$n}->{government},
             export_quote => $export_quote, 
             government_strength => $government_strength,
-            log_name => $self->log_name);
+            log_name => $self->log_name,
+            log_on_stdout => $self->log_on_stdout);
     }
     $self->nation_names(\@nation_names);
     $self->load_borders($bordersfile);
