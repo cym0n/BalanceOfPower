@@ -4,6 +4,7 @@ use strict;
 use v5.10;
 use Moo::Role;
 use Term::ANSIColor;
+use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle );
 
 requires 'diplomacy_exists';
@@ -216,6 +217,25 @@ sub print_hotspots
             $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $n)->print() . "\n";
         }
     }
+    return $out;
+}
+
+sub print_civil_war_report
+{
+    my $self = shift;
+    my $nation = shift;
+    if (! $self->at_civil_war($nation))
+    {
+        return "$nation is not fightinh civil war";
+    }
+    my $out = "";
+    my $nation_obj = $self->get_nation($nation);
+    $out .= "Rebel provinces: " . $nation_obj->rebel_provinces . "/" . PRODUCTION_UNITS->[$nation_obj->size] . "\n";
+    $out .= "Army: " . $nation_obj->army . "\n";
+    my $sup = $self->supported($nation);
+    my $rebsup = $self->rebel_supported($nation);
+    $out .= "Support: " . $sup->print . "\n" if($sup);
+    $out .= "Rebel support: " . $rebsup->print . "\n" if ($rebsup);
     return $out;
 }
 1;
