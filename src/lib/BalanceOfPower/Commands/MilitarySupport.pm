@@ -33,10 +33,13 @@ sub IA
             }
         }
     }
-    my $f = $friends[0];
-    if($self->world->get_nation($f)->accept_military_support($actor->name, $self->world))
+    if(@friends)
     {
-        return "MILITARY SUPPORT " . $f;
+        my $f = $friends[0];
+        if($self->world->get_nation($f)->accept_military_support($actor->name, $self->world))
+        {
+            return "MILITARY SUPPORT " . $f;
+        }
     }
     return undef;
 }

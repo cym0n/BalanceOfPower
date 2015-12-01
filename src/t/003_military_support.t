@@ -11,6 +11,7 @@ my $first_year = 1970;
 my $world = BalanceOfPower::World->new( first_year => $first_year );
 $world->init_random('nations-test1.txt', 'borders-test1.txt', { alliances => 0});
 $world->autoplay(1);
+$world->forced_advisor("Noone");
 $world->elaborate_turn("1970/1");
 $world->autoplay(0);
 
@@ -37,7 +38,6 @@ $world->order("DECLARE WAR TO Germany");
 $world->tricks( { "War risiko: throw for attacker France" => [6, 6, 6],
                   "War risiko: throw for defender Germany" => [1, 1, 1]
               });  
-$world->forced_advisor("Noone");
 my $france_diplomacy = $world->diplomacy_exists("Italy", "France");
 $france_diplomacy->factor(65);
 $world->elaborate_turn("1970/3");

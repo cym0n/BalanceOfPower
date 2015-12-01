@@ -36,8 +36,8 @@ sub crisis_generator
 sub crisis_generator_round
 {
     my $self = shift;
-    my $hates_to_use = shift;
-    my $crises_to_use = shift;
+    my $hates_to_use = shift || [] ;
+    my $crises_to_use = shift || [];
     my @hates = $self->shuffle("Crisis generation: choosing hate", @{ $hates_to_use });
     my @crises = $self->shuffle("Crisis generation: choosing crisis", @{ $crises_to_use});
     my @original_hates = @hates;
