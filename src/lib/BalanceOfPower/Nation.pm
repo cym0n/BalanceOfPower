@@ -395,17 +395,16 @@ sub win_civil_war
     my $world = shift;
     if($winner eq 'rebels')
     {
+        $self->new_government($world);
         my $rebsup = $world->rebel_supported($self->name);
-        my $rebel_supporter = undef;
         if($rebsup)
         {
-            $rebel_supporter = $world->get_nation($rebsup->node1);
+            my $rebel_supporter = $world->get_nation($rebsup->node1);
+            $world->stop_rebel_military_support($rebel_supporter, $self) if $rebel_supporter;
+            $world->diplomacy_exists($self->name, $rebel_supporter->name)->factor(REBEL_SUPPORTER_WINNER_FRIENDSHIP);
+            $world->create_treaty($self->name, $rebel_supporter->name, 'alliance');
+            $world->broadcast_event($self->name . " AND " . $rebel_supporter->name . " ARE NOW ALLIES. " . $rebel_supporter->name . " HELPED " . $self->name . " REVOLUTION", $self->name, $rebel_supporter->name);
         }
-        $self->new_government($world);
-        $world->stop_rebel_military_support($rebel_supporter, $self);
-        $world->diplomacy_exists($self->name, $rebel_supporter->name)->factor(REBEL_SUPPORTER_WINNER_FRIENDSHIP);
-        $world->create_treaty($self->name, $rebel_supporter->name, 'alliance');
-        $world->broadcast_event($self->name . " AND " . $rebel_supporter->name . " ARE NOW ALLIES. " . $rebel_supporter->name . " HELPED " . $self->name . " REVOLUTION", $self->name, $rebel_supporter->name);
     }
 }
 
