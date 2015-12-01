@@ -16,6 +16,25 @@ has crisis_level => (
 );
 with 'BalanceOfPower::Relations::Role::Relation';
 
+sub get_crisis_level
+{
+    my $self = shift;
+    if($self->factor > PERMANENT_CRISIS_HATE_LIMIT)
+    {
+        return $self->crisis_level;
+    }
+    else
+    {
+        if($self->crisis_level < CRISIS_MAX_FACTOR)
+        {
+            return $self->crisis_level + 1;
+        }
+        else
+        {
+            return $self->crisis_level;
+        }
+    }
+}
 sub status
 {
     my $self = shift;
@@ -81,7 +100,7 @@ sub print
         $second_node = $self->node2;
     }
     $out = $self->status_color . $from . " <--> " . $second_node . " [" . $self->factor . " " . $self->status . "]";
-    if($self->crisis_level > 0)
+    if($self->get_crisis_level > 0)
     {
         $out .= " " . $self->print_crisis_bar();
     }
@@ -96,7 +115,7 @@ sub print_status
 sub print_crisis
 {
     my $self = shift;
-    if($self->crisis_level > 0)
+    if($self->get_crisis_level > 0)
     {
         return $self->node1 . " <-> " . $self->node2 . " " . $self->print_crisis_bar();
     }
@@ -109,12 +128,12 @@ sub print_crisis_bar
 {
     my $self = shift;
     my $out = "";
-    if($self->crisis_level > 0)
+    if($self->get_crisis_level > 0)
     {
         $out .= $self->status_color . "[";
         for(my $i = 0; $i < CRISIS_MAX_FACTOR; $i++)
         {
-            if($i < $self->crisis_level)
+            if($i < $self->get_crisis_level)
             {
                 $out .= "*";
             }
@@ -141,12 +160,18 @@ sub change_factor
 sub escalate_crisis
 {
     my $self = shift;
-    $self->crisis_level($self->crisis_level() + 1);
+    if($self->crisis_level < CRISIS_MAX_FACTOR)
+    {
+        $self->crisis_level($self->crisis_level() + 1);
+    }
 }
 sub cooldown_crisis
 {
     my $self = shift;
-    $self->crisis_level($self->crisis_level() - 1);
+    if($self->crisis_level > 0)
+    {
+        $self->crisis_level($self->crisis_level() - 1);
+    }
 }
 sub is_crisis
 {
@@ -156,7 +181,7 @@ sub is_crisis
 sub is_max_crisis
 {
     my $self = shift;
-    return $self->crisis_level(CRISIS_MAX_FACTOR);
+    return $self->get_crisis_level() == CRISIS_MAX_FACTOR;
 }
 
 

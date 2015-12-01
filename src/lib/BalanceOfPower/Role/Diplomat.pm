@@ -131,7 +131,7 @@ sub get_diplomacy_relation
         my $r = $self->diplomacy_exists($real_node1, $real_node2);
         $factor = $r->factor;
     }
-    my $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
+    my $crisis_level = $self->diplomacy_exists($node1, $node2)->get_crisis_level();
     return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
 }
 
@@ -268,9 +268,9 @@ sub add_crisis
     my $nation1 = shift;
     my $nation2 = shift;
     my $rel = $self->diplomacy_exists($nation1, $nation2);
-    if($rel->crisis_level == 0)
+    if($rel->get_crisis_level == 0)
     {
-        $rel->crisis_level(1);
+        $rel->escalate_crisis();
     }
 }
 sub delete_crisis
@@ -292,7 +292,7 @@ sub crisis_exists
         say "ERROR: $nation1 <-> $nation2";
         return undef;
     }
-    if($rel->crisis_level > 0)
+    if($rel->get_crisis_level > 0)
     {
         return $rel;
     }
@@ -306,7 +306,7 @@ sub get_crises
     my $self = shift;
     my $nation = shift;
     my @crises = $self->get_diplomatic_relations($nation);
-    @crises = grep { $_->crisis_level > 0 } @crises;
+    @crises = grep { $_->get_crisis_level > 0 } @crises;
     return @crises;
 }
 sub get_all_crises

@@ -22,7 +22,7 @@ sub IA
     foreach my $c (@crises)
     {
        push @crisis_enemies, $c->destination($actor->name); 
-       $crisis_levels{$c->destination($actor->name)} = $c->crisis_level;
+       $crisis_levels{$c->destination($actor->name)} = $c->get_crisis_level;
     }
     my @choose = $self->world->shuffle("Choosing someone to declare war to for ". $actor->name , intersect(@available, @crisis_enemies));
     for(@choose)
