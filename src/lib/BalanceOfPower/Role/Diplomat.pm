@@ -131,7 +131,7 @@ sub get_diplomacy_relation
         my $r = $self->diplomacy_exists($real_node1, $real_node2);
         $factor = $r->factor;
     }
-    my $crisis_level = $self->diplomacy_exists($node1, $node2)->get_crisis_level();
+    my $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
     return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
 }
 
