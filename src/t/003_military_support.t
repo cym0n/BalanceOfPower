@@ -25,6 +25,7 @@ my $result;
 
 my $germany_diplomacy = $world->diplomacy_exists("Italy", "Germany");
 $germany_diplomacy->factor(90);
+$world->delete_crisis("Germany", "Italy");
 $world->get_nation("Italy")->army(15);
 $world->order("MILITARY SUPPORT Germany");
 $world->elaborate_turn("1970/2");
@@ -40,6 +41,7 @@ $world->tricks( { "War risiko: throw for attacker France" => [6, 6, 6],
               });  
 my $france_diplomacy = $world->diplomacy_exists("Italy", "France");
 $france_diplomacy->factor(65);
+$world->delete_crisis("France", "Italy");
 $world->elaborate_turn("1970/3");
 is($world->get_nation("Germany")->army(), 6, "Army decreased the right way for Germany");
 my $sups = $world->supported("Germany");
@@ -50,6 +52,7 @@ $world->player_nation("Italy");
 $world->get_nation("Italy")->army(2);
 my $uk_diplomacy = $world->diplomacy_exists("Italy", "United Kingdom");
 $uk_diplomacy->factor(90);
+$world->delete_crisis("United Kingdom", "Italy");
 $commands->query("MILITARY SUPPORT United Kingdom");
 $result = $commands->orders();
 is($result->{status}, -1, "Command elaborated: MILITARY SUPPORT (not allowed)");
@@ -65,6 +68,7 @@ $world->only_one_nation_acting("Italy");
 $world->elaborate_turn("1970/4");
 is($world->get_events("MILITARY SUPPORT FOR Germany STOPPED BY Italy", "1970/4"), 1, "MILITARY SUPPORT FOR Germany STOPPED BY Italy");
 is($world->get_nation("Italy")->army(), 5, "Italian army merged with returned support");
+$world->get_hates("Italy");
 
 
 
