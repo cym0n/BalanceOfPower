@@ -118,20 +118,23 @@ sub get_diplomacy_relation
     my $real_node1 = $self->get_real_node($node1);
     my $real_node2 = $self->get_real_node($node2);
     my $factor;
+    my $crisis_level;
     if($real_node1 eq $real_node2) 
     {
         $factor = 100;
+        $crisis_level = 0;
     }
     elsif($self->exists_alliance($real_node1, $real_node2))
     {
         $factor = ALLIANCE_FRIENDSHIP_FACTOR;
+        $crisis_level = 0;
     }
     else
     {
         my $r = $self->diplomacy_exists($real_node1, $real_node2);
+        $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
         $factor = $r->factor;
     }
-    my $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
     return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
 }
 
