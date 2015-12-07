@@ -242,4 +242,17 @@ sub print_civil_war_report
     $out .= "Rebel support: " . $rebsup->print . "\n" if ($rebsup);
     return $out;
 }
+
+sub print_war_history
+{
+    my $self = shift;
+    my $out .= as_title("WAR HISTORY\n\n");
+    foreach my $w (@{$self->memorial})
+    {
+        $out .= $w->print_history;
+        $out .= "\n";
+    }
+    return $out;
+
+}
 1;

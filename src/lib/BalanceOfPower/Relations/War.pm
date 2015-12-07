@@ -20,10 +20,29 @@ has node1_faction => (
     is => 'rw',
     default => ""
 );
+has node1_starting_army => (
+    is => 'rw',
+    default => 0
+);
+has node2_starting_army => (
+    is => 'rw',
+    default => 0
+);
 has node2_faction => (
     is => 'rw',
     default => ""
 );
+has start_date => (
+    is => 'ro'
+);
+has end_date => (
+    is => 'rw'
+);
+has ending_line => (
+    is => 'rw'
+);
+
+
 sub bidirectional
 {
     return 0;
@@ -46,6 +65,19 @@ sub print
         $node2 = color("bold") . $node2 . color("reset");
     }
     return  $node1 . " -> " . $node2;
+}
+sub print_history
+{
+    my $self = shift;
+    my $out = "";
+    $out .= "### WAR " .  $self->war_id . "\n";
+    $out .= $self->node1 . " => " . $self->node2 . "\n";
+    $out .= "War started in " . $self->start_date . "\n";
+    $out .= "Starting army for " . $self->node1 . ": " . $self->node1_starting_army . "\n";
+    $out .= "Starting army for " . $self->node2 . ": " . $self->node2_starting_army . "\n";
+    $out .= "War ended in " . $self->end_date . "\n";
+    $out .= $self->ending_line . "\n";
+    return $out;
 }
 
 

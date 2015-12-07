@@ -103,7 +103,11 @@ sub good_prey
     my $self = shift;
     my $enemy = shift;
     my $world = shift;
-    my $level = shift;
+
+    my $crisis = $world->crisis_exists($self->name, $enemy->name);
+    return 0 if (! $crisis);
+    my $level = $crisis->get_crisis_level;
+
     if($self->army < MIN_ARMY_FOR_WAR)
     {
         return 0;

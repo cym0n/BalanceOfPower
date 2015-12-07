@@ -64,7 +64,7 @@ WELCOME
     {
         $self->set_player_nation("Italy");
         $self->world->player("PlayerOne");
-        $auto_years = 5;
+        $auto_years = 10;
     }
     else
     {
@@ -250,6 +250,11 @@ COMMANDS
     elsif($query eq "hotspots")
     {
         print $self->world->print_hotspots();
+        $result = { status => 1 };
+    }
+    elsif($query eq "war history")
+    {
+        print $self->world->print_war_history();
         $result = { status => 1 };
     }
 

@@ -39,9 +39,14 @@ has wars => (
                  add_war => 'add_link',
                  get_wars => 'links_for_node',
                  war_exists => 'exists_link',
-                 delete_war => 'delete_link',
+                 delete_war_link => 'delete_link',
                  get_attackers => 'links_for_node2'
                }
+);
+
+has memorial => (
+    is => 'ro',
+    default => sub { [] }
 );
 
 
@@ -244,11 +249,15 @@ sub create_war
         my %attacker_leaders;
         my $war_id = time;
         $self->add_war( BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
-                                                      node2 => $defender->name,
-                                                      attack_leader => $attacker->name,
-                                                      war_id => $war_id,
-                                                      node1_faction => 0,
-                                                      node2_faction => 1) );
+                                                            node2 => $defender->name,
+                                                            attack_leader => $attacker->name,
+                                                            war_id => $war_id,
+                                                            node1_faction => 0,
+                                                            node2_faction => 1,
+                                                            node1_starting_army => $attacker->army,
+                                                            node2_starting_army => $defender->army,
+                                                            start_date => $self->current_year
+                                                            ) );
         $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
         my $faction_counter = 0;
@@ -440,13 +449,33 @@ sub lose_war
             $conquerors_leader = $w->attack_leader;
             $winner_role = "[ATTACKER]";
         }
-        $self->broadcast_event("WAR BETWEEN $other AND $loser WON BY $other $winner_role", $other, $loser);
-        $self->delete_war($other, $loser);
+        my $ending_line = "WAR BETWEEN $other AND $loser WON BY $other $winner_role";
+        $self->broadcast_event($ending_line, $other, $loser);
+        my $history_line = "";
+        if($internal_disorder)
+        {
+            $history_line = "Civil war outbreaked in $loser.\n"; 
+        }
+        $history_line .= "$other $winner_role won the war";
+        $self->delete_war($other, $loser, $history_line);
     }
     if(@conquerors > 0)
     {
         $self->occupy($loser, \@conquerors, $conquerors_leader, $internal_disorder);  
     }
+}
+
+sub delete_war
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    my $ending_line = shift;
+    my $war = $self->war_exists($nation1, $nation2);
+    $war->end_date($self->current_year);
+    $war->ending_line($ending_line);
+    push @{$self->memorial}, $war;
+    $self->delete_war_link($nation1, $nation2);
 }
 
 sub print_wars
