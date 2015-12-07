@@ -31,6 +31,13 @@ use constant TRADING_QUOTE => 15;
 use constant AID_INSURGENTS_COST => 25;
 use constant ECONOMIC_AID_COST => 30;
 
+#prestige
+use constant INFLUENCE_PRESTIGE_BONUS => 3;
+use constant DIPLOMATIC_PRESSURE_PRESTIGE_COST => 6;
+use constant TREATY_PRESTIGE_COST => 7;
+use constant WAR_PRESTIGE_BONUS => 10;
+use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
+
 #domestic costs
 use constant RESOURCES_FOR_DISORDER => 20;
 use constant ARMY_COST => 20;
@@ -58,8 +65,6 @@ use constant DICTATORSHIP_BONUS_FOR_CIVIL_WAR => 10;
 use constant REBEL_ARMY_FOR_SUPPORT => 4;
 use constant SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
 use constant REBEL_SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
-use constant DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT => 3;
-use constant DIPLOMACY_MALUS_FOR_REBEL_CIVIL_WAR_SUPPORT => 4;
 use constant REBEL_SUPPORTER_WINNER_FRIENDSHIP => 90;
 
 #War & domination
@@ -72,13 +77,19 @@ use constant DOMINATION_LOOT_BY_TYPE => 20;
 use constant CONTROL_LOOT_BY_TYPE => 0;
 use constant DOMINATION_CLOCK_LIMIT => 5;
 use constant OCCUPATION_CLOCK_LIMIT => 1;
-use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
 
 #Diplomacy
 use constant HATE_LIMIT => 30;
 use constant LOVE_LIMIT => 70;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
 use constant PERMANENT_CRISIS_HATE_LIMIT => 10;
+use constant DIPLOMATIC_PRESSURE_FACTOR => -6;
+use constant DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT => 3;
+use constant DIPLOMACY_MALUS_FOR_REBEL_CIVIL_WAR_SUPPORT => 4;
+use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
+use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
+use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
+use constant DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT => -10;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -97,9 +108,6 @@ use constant MAX_ARMY_FOR_SIZE => [ 9, 12, 15];
 use constant ARMY_UNIT => 1;
 use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
 use constant CRISIS_MAX_FACTOR => 3;
-use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
-use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
-use constant DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT => -10;
 use constant EMERGENCY_PRODUCTION_LIMIT => 55;
 use constant BOOST_PRODUCTION_QUOTE => 5;
 use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
@@ -107,11 +115,7 @@ use constant ARMY_FOR_SUPPORT => 4;
 use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
 use constant INSURGENTS_AID => 15;
-use constant INFLUENCE_PRESTIGE_BONUS => 3;
 use constant BEST_WEALTH_FOR_PRESTIGE => 5;
-use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
-use constant WAR_PRESTIGE_BONUS => 10;
-use constant TREATY_PRESTIGE_COST => 7;
 use constant TREATY_TRADE_FACTOR => .5;
 use constant ECONOMIC_AID_QUOTE => 7;
 use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
@@ -210,5 +214,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'DIPLOMACY_MALUS_FOR_REBEL_CIVIL_WAR_SUPPORT',
                   'REBEL_SUPPORTER_WINNER_FRIENDSHIP',
                   'PERMANENT_CRISIS_HATE_LIMIT', 
+                  'DIPLOMATIC_PRESSURE_FACTOR',
+                  'DIPLOMATIC_PRESSURE_PRESTIGE_COST',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

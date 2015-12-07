@@ -128,12 +128,16 @@ sub print_borders_analysis
             $out .= as_subtitle("  Military support in the country:\n");
             my $supporter = $supps->start($b);
             my $sup_rel = $self->diplomacy_exists($nation, $supporter);
-            $out .= "    $supporter (" . $sup_rel->print_status();
-            if($sup_rel->is_crisis())
+            if($sup_rel)
             {
-                $out .= " " . $sup_rel->print_crisis_bar;
-            } 
-            $out .= ")\n";
+                $out .= "    $supporter (" . $sup_rel->print_status();
+                if($sup_rel->is_crisis())
+                {
+                    $out .= " " . $sup_rel->print_crisis_bar;
+                } 
+                $out .= ")";
+            }
+            $out .= "\n";
         }
     }
     return $out;

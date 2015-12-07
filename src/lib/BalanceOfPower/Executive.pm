@@ -23,6 +23,7 @@ use BalanceOfPower::Commands::AddRoute;
 use BalanceOfPower::Commands::EconomicAid;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::AidInsurgents;
+use BalanceOfPower::Commands::DiplomaticPressure;
 
 has actor => (
     is => 'rw',
@@ -39,7 +40,7 @@ sub init
     my $self = shift;
     $self->log_name("bop-IA.log");
     $self->delete_log();
-    $self->log_active(0);
+    $self->log_active(1);
     my $world = shift;
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
@@ -125,6 +126,12 @@ sub init
                                                              army_limit => { '>' => ARMY_FOR_SUPPORT }
                                                     );
     $self->commands->{"REBEL MILITARY SUPPORT"} = $command; 
+    $command =
+        BalanceOfPower::Commands::DiplomaticPressure->new( name => "DIPLOMATIC PRESSURE ON",
+                                                             world => $world,
+                                                             prestige_cost => DIPLOMATIC_PRESSURE_PRESTIGE_COST
+                                                    );
+    $self->commands->{"DIPLOMATIC PRESSURE ON"} = $command; 
 }
 
 

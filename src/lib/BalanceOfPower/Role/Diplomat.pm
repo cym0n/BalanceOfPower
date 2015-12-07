@@ -263,6 +263,21 @@ sub empire
     }
 }
 
+sub diplomatic_pressure
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    return if ($self->is_under_influence($nation1));
+    my @friends = $self->get_friends($nation1);
+    $self->broadcast_event("DIPLOMATIC PRESSURE OF $nation1 ON $nation2", $nation1, $nation2);
+    for(@friends)
+    {
+        my $f = $_;
+        $self->change_diplomacy($f, $nation2, DIPLOMATIC_PRESSURE_FACTOR);
+    }
+}
+
 
 #Functions to manage relationships as crises
 sub add_crisis

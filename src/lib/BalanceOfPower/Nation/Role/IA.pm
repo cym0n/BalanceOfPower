@@ -66,7 +66,8 @@ sub domestic_advisor
     my $self = shift;
     return $self->advisor("LOWER DISORDER", 
                           "BOOST PRODUCTION",
-                          "TREATY NAG WITH");
+                          "TREATY NAG WITH",
+                          "DIPLOMATIC PRESSURE ON");
 }
 
 sub economy_advisor
@@ -78,13 +79,6 @@ sub economy_advisor
                           "ECONOMIC AID");
 }
 
-### MILITARY ###
-# Orders:
-#   DECLARE WAR TO
-#   MILITARY SUPPORT
-#   RECALL MILITARY SUPPORT
-#   BUILD TROOPS
-#   AID INSURGENTS
 sub military_advisor
 {
     my $self = shift;

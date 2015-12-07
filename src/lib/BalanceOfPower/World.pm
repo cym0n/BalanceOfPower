@@ -546,6 +546,14 @@ sub execute_decisions
                 $self->start_rebel_military_support($nation1, $nation2);
             }
         }
+        elsif($d =~ /^(.*): DIPLOMATIC PRESSURE ON (.*)$/)
+        {
+            my $nation1 = $self->get_nation($1);
+            if($nation1->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
+            {
+                $self->diplomatic_pressure($1, $2);
+            }
+        }
     }
     $self->manage_route_adding(@route_adders);
 }
