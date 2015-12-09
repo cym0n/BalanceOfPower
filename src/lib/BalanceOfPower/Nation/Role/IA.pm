@@ -105,8 +105,7 @@ sub good_prey
     my $world = shift;
 
     my $crisis = $world->crisis_exists($self->name, $enemy->name);
-    return 0 if (! $crisis);
-    my $level = $crisis->get_crisis_level;
+    my $level = $crisis ? $crisis->get_crisis_level : ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT;
 
     if($self->army < MIN_ARMY_FOR_WAR)
     {
@@ -170,7 +169,6 @@ sub good_prey
     {
         $war_points += 1;
     }
-
     if($war_points + $level >= 4)
     {
         return 1;
