@@ -244,24 +244,7 @@ sub print_diplomacy
     }
     return $out;
 }
-sub empire
-{
-    my $self = shift;
-    my $n = shift;
-    if(my $domination = $self->is_under_influence($n))
-    {
-        my $dominator = $domination;
-        my @allies = $self->has_influence($dominator);
-        push @allies, $dominator;
-        return @allies;
-    }
-    else
-    {
-        my @allies = $self->has_influence($n);
-        push @allies, $n;
-        return @allies;
-    }
-}
+
 
 sub diplomatic_pressure
 {
