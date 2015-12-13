@@ -22,7 +22,8 @@ my $war1 = BalanceOfPower::Relations::War->new(node1 => 'Luksoberg',
                                                     war_id => 1000000,
                                                     node1_faction => 0,
                                                     node2_faction => 1,
-                                                    start_date => "1965/1");
+                                                    start_date => "1965/1",
+                                                    log_active => 0);
 $world->add_war($war1);
 $war1->register_event("Starting army for Luksoberg: 12");                                            
 $war1->register_event("Starting army for Reditrout: 7");                                            
@@ -35,7 +36,8 @@ $world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Germany',
                                                     war_id => 0000000,
                                                     node1_faction => 0,
                                                     node2_faction => 1,
-                                                    start_date => "1970/1"));
+                                                    start_date => "1970/1",
+                                                    log_active => 0));
 
 $world->autoplay(1);
 $world->elaborate_turn("1970/1");
