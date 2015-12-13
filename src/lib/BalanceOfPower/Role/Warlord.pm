@@ -6,7 +6,6 @@ use v5.10;
 use Moo::Role;
 
 use Term::ANSIColor;
-use Data::Dumper;
 
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( as_title );
@@ -248,16 +247,18 @@ sub create_war
         }
         my %attacker_leaders;
         my $war_id = time;
-        $self->add_war( BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
-                                                            node2 => $defender->name,
-                                                            attack_leader => $attacker->name,
-                                                            war_id => $war_id,
-                                                            node1_faction => 0,
-                                                            node2_faction => 1,
-                                                            node1_starting_army => $attacker->army,
-                                                            node2_starting_army => $defender->army,
-                                                            start_date => $self->current_year
-                                                            ) );
+        my $war = BalanceOfPower::Relations::War->new(node1 => $attacker->name, 
+                                                      node2 => $defender->name,
+                                                      attack_leader => $attacker->name,
+                                                      war_id => $war_id,
+                                                      node1_faction => 0,
+                                                      node2_faction => 1,
+                                                      start_date => $self->current_year,
+                                                      log_active => 0,
+                                                      );
+        $war->register_event("Starting army for " . $attacker->name . ": " . $attacker->army);                                            
+        $war->register_event("Starting army for " . $defender->name . ": " . $defender->army);                                            
+        $self->add_war($war); 
         $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
         my $faction_counter = 0;
@@ -285,12 +286,15 @@ sub create_war
                 $faction1 = 1;
                 $faction2 = 0;
             }
-            $self->add_war(BalanceOfPower::Relations::War->new(node1 => $c->[0], 
+            my $war = BalanceOfPower::Relations::War->new(node1 => $c->[0], 
                                                           node2 => $c->[1],
                                                           attack_leader => $leader,
                                                           war_id => $war_id,
                                                           node1_faction => $faction1,
-                                                          node2_faction => $faction2));
+                                                          node2_faction => $faction2,
+                                                          start_date => $self->current_year,
+                                                          log_active => 0);
+            $self->add_war($war);                                                  
             $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
         }
     }
@@ -359,6 +363,7 @@ sub fight_wars
     {
         #As Risiko
         $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
+        $w->current_year($self->current_year);
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
         my $attacker_army = $self->army_for_war($attacker);
@@ -473,7 +478,7 @@ sub delete_war
     my $ending_line = shift;
     my $war = $self->war_exists($nation1, $nation2);
     $war->end_date($self->current_year);
-    $war->ending_line($ending_line);
+    $war->register_event($ending_line);
     push @{$self->memorial}, $war;
     $self->delete_war_link($nation1, $nation2);
 }

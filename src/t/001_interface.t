@@ -16,12 +16,26 @@ $world->get_nation("Germany")->army(15);
 $world->get_nation("France")->army(15);
 $world->add_alliance('Italy', 'Russia');
 $world->add_crisis('Germany', 'France' );
+my $war1 = BalanceOfPower::Relations::War->new(node1 => 'Luksoberg', 
+                                                    node2 => 'Reditrout',
+                                                    attack_leader => 'Luksoberg',
+                                                    war_id => 1000000,
+                                                    node1_faction => 0,
+                                                    node2_faction => 1,
+                                                    start_date => "1965/1");
+$world->add_war($war1);
+$war1->register_event("Starting army for Luksoberg: 12");                                            
+$war1->register_event("Starting army for Reditrout: 7");                                            
+$world->current_year("1968/2");
+$world->delete_war('Luksoberg', 'Reditrout', "Fake war");
+
 $world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Germany', 
                                                     node2 => 'France',
                                                     attack_leader => 'Germany',
                                                     war_id => 0000000,
                                                     node1_faction => 0,
-                                                    node2_faction => 1));
+                                                    node2_faction => 1,
+                                                    start_date => "1970/1"));
 
 $world->autoplay(1);
 $world->elaborate_turn("1970/1");
@@ -35,7 +49,7 @@ my $result;
 $world->get_player_nation->production(1000);
 
 #Generic commands
-foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation") )
+foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history") )
 {
     $commands->query($c);
     $result = $commands->report_commands();

@@ -37,10 +37,35 @@ sub get_events
         return ();
     }
 }
+
+
 sub print_turn_events
 {
     my $self = shift;
     my $y = shift;
+    return $self->_print_turn_events($y, 1);
+}
+
+sub print_turn_events_notitle
+{
+    my $self = shift;
+    my $y = shift;
+    return $self->_print_turn_events($y, 0);
+}
+
+sub print_turn_events_inline_year
+{
+    my $self = shift;
+    my $y = shift;
+    return $self->_print_turn_events($y, 2);
+}
+
+
+sub _print_turn_events
+{
+    my $self = shift;
+    my $y = shift;
+    my $title = shift;
     my $out = "";
     my @to_print;
     if(! $y)
@@ -55,16 +80,22 @@ sub print_turn_events
     {
         @to_print = ($y);
     }
+    elsif($y eq 'START')
+    {
+        @to_print = ('START');
+    }
     else
     {
         return "";
     }
     foreach my $t (@to_print)
     {
-        $out .= as_title($self->name . " - $t\n");
+        $out .= as_title($self->name . " - $t\n") if $title == 1;
         foreach my $e (@{$self->events->{$t}})
         {
-            $out .= " " . $e . "\n";
+            $out .= " ";
+            $out .= $t . ": " if($title == 2);
+            $out .= $e . "\n";
         }
     }
     return $out; 
