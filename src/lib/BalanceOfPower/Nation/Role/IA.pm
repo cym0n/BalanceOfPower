@@ -95,6 +95,7 @@ sub accept_military_support
     my $other = shift;
     my $world = shift;
     return 0 if($world->already_in_military_support($self->name));
+    return 0 if($world->diplomacy_status($self->name, $other) eq 'HATE');
     return $self->army < ARMY_TO_ACCEPT_MILITARY_SUPPORT;
 }
 

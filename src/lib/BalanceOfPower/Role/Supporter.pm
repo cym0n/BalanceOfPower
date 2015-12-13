@@ -79,12 +79,16 @@ sub stop_military_support
     my $self = shift;
     my $node1 = shift;
     my $node2 = shift;
+    my $avoid_diplomacy = shift;
     my $milsup = $self->exists_military_support($node1->name, $node2->name);
     return if (! $milsup);
     $self->delete_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
     $self->broadcast_event("MILITARY SUPPORT FOR " . $node2->name . " STOPPED BY " . $node1->name, $node1->name, $node2->name);
-    $self->change_diplomacy($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT);
+    if(! $avoid_diplomacy)
+    {
+        $self->change_diplomacy($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT);
+    }
 }
 sub stop_rebel_military_support
 {

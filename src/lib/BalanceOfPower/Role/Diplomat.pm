@@ -25,7 +25,8 @@ has treaties => (
                  print_treaties => 'print_links',
                  exists_treaty => 'exists_link',
                  get_treaties_for_nation => 'links_for_node',
-                 reset_treaties => 'delete_link_for_node' }
+                 reset_treaties => 'delete_link_for_node',
+                 delete_treaty => 'delete_link', }
 );
 
 requires 'random';
@@ -143,7 +144,7 @@ sub get_friends
 {
     my $self = shift;
     my $nation = shift;
-    return $self->get_nations_with_status($nation, ['FRIENDSHIP', 'ALLIANCE']);
+    return $self->get_nations_with_status($nation, ['FRIENDSHIP', 'ALLIANCE', 'INFLUENCE PRESENT']);
 }
 sub set_diplomacy
 {
@@ -165,6 +166,7 @@ sub change_diplomacy
     my $dipl = shift;
     my $r = $self->diplomacy_exists($node1, $node2);
     return if(!$r ); #Should never happen
+    return if $r->status eq 'ALLIANCE' || $r->status eq 'INFLUENCE PRESENT';
     my $present_status = $r->status;
     $r->change_factor($dipl);
     my $actual_status = $r->status;
@@ -180,6 +182,20 @@ sub diplomacy_status
     my $n2 = shift;
     my $r = $self->diplomacy_exists($n1, $n2);
     return $r->status;
+}
+
+sub diplomatic_breakdown
+{
+    my $self = shift;
+    my $n1 = shift;
+    my $n2 = shift;
+    my $treaty = $self->exists_treaty($n1, $n2);
+    if($treaty)
+    {
+        $self->broadcast_event($treaty->short_tag . " TREATY BETWEEN $n1 AND $n2 BROKEN", $n1, $n2);
+    }
+    $self->stop_military_support($n1, $n2, 1);
+    $self->stop_military_support($n2, $n1, 1);
 }
 
 sub diplomacy_for_node

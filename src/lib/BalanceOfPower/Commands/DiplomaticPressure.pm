@@ -4,6 +4,16 @@ use Moo;
 
 extends 'BalanceOfPower::Commands::TargetNation';
 
+sub get_available_targets
+{
+    my $self = shift;
+    my @targets = $self->SUPER::get_available_targets();
+    my $nation = $self->actor;
+    @targets = grep { $self->world->is_under_influence($_) ne $nation } @targets;
+    return @targets;
+}
+
+
 sub IA
 {
     my $self = shift;
