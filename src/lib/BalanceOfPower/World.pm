@@ -548,10 +548,21 @@ sub execute_decisions
         }
         elsif($d =~ /^(.*): DIPLOMATIC PRESSURE ON (.*)$/)
         {
-            my $nation1 = $self->get_nation($1);
+            my $n1 = $1;
+            my $n2 = $2;
+            my $nation1 = $self->get_nation($n1);
             if($nation1->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
             {
-                $self->diplomatic_pressure($1, $2);
+                my $under_infl = $self->under_influence($n2); 
+                $under_infl ||= "";
+                if($under_infl ne $n1)
+                {
+                    $self->diplomatic_pressure($n1, $n2);
+                }
+                else
+                {
+                    $self->broadcast_event("DIPLOMATIC PRESSURE ON $n2 BY $n1 IMPOSSIBLE! $n2 IS UNDER INFLUENCE OF $n1", $n1, $n2);
+                }
             }
         }
     }
