@@ -102,42 +102,6 @@ sub reroll_diplomacy
         $_->factor($self->random(0 ,100, "Reroll diplomacy for " . $_->node1 . ", " . $_->node2));
     }
 }
-sub get_real_node
-{
-    my $self = shift;
-    my $node = shift;
-    my $domination = $self->is_under_influence($node);
-    return $domination ? $domination : $node;
-}
-sub get_diplomacy_relation
-{
-    my $self = shift;
-    my $node1 = shift;
-    my $node2 = shift;
-    my $real_node1 = $self->get_real_node($node1);
-    my $real_node2 = $self->get_real_node($node2);
-    my $factor;
-    my $crisis_level;
-    if($real_node1 eq $real_node2) 
-    {
-        $factor = 100;
-        $crisis_level = 0;
-    }
-    elsif($self->exists_alliance($real_node1, $real_node2))
-    {
-        $factor = ALLIANCE_FRIENDSHIP_FACTOR;
-        $crisis_level = 0;
-    }
-    else
-    {
-        my $r = $self->diplomacy_exists($real_node1, $real_node2);
-        $crisis_level = $self->diplomacy_exists($node1, $node2)->crisis_level();
-        $factor = $r->factor;
-    }
-    return BalanceOfPower::Relations::Friendship->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
-}
-
-
 sub get_hates
 {
     my $self = shift;
@@ -166,10 +130,10 @@ sub get_nations_with_status
     my @out = ();
     for(@relations)
     {
-        my $real_r = $self->get_diplomacy_relation($_->node1, $_->node2);
-        if(grep{ $_ eq $real_r->status } @st_array)
+        my $r = $_;
+        if(grep{ $_ eq $r->status } @st_array)
         {
-            push @out, $real_r->destination($nation);
+            push @out, $r->destination($nation);
         }
     }
     return @out;
@@ -181,13 +145,23 @@ sub get_friends
     my $nation = shift;
     return $self->get_nations_with_status($nation, ['FRIENDSHIP', 'ALLIANCE']);
 }
-
+sub set_diplomacy
+{
+    my $self = shift;
+    my $node1 = shift;
+    my $node2 = shift;
+    my $new_factor = shift;
+    my $r = $self->diplomacy_exists($node1, $node2);
+    return undef if(!$r ); #Should never happen
+    $r->factor($new_factor);
+    return $r;
+}
 
 sub change_diplomacy
 {
     my $self = shift;
-    my $node1 = $self->get_real_node( shift );
-    my $node2 = $self->get_real_node( shift );
+    my $node1 = shift;
+    my $node2 = shift;
     my $dipl = shift;
     my $r = $self->diplomacy_exists($node1, $node2);
     return if(!$r ); #Should never happen
@@ -204,7 +178,7 @@ sub diplomacy_status
     my $self = shift;
     my $n1 = shift;
     my $n2 = shift;
-    my $r = $self->get_diplomacy_relation($n1, $n2);
+    my $r = $self->diplomacy_exists($n1, $n2);
     return $r->status;
 }
 
@@ -217,7 +191,7 @@ sub diplomacy_for_node
     {
         if($n ne $node)
         {
-            my $real_r = $self->get_diplomacy_relation($node, $n);
+            my $real_r = $self->diplomacy_exists($node, $n);
             $relations{$n} = $real_r->factor;
         }
     }
@@ -233,7 +207,7 @@ sub print_diplomacy
     {
         if($f->has_node($n))
         {
-            my $real_r = $self->get_diplomacy_relation($n, $f->destination($n));
+            my $real_r = $self->diplomacy_exists($n, $f->destination($n));
             push @outnodes, $real_r;
         }
     }
@@ -369,6 +343,7 @@ sub add_alliance
     my $nation1 = shift;
     my $nation2 = shift;
     $self->create_treaty($nation1, $nation2, 'alliance');
+    $self->set_diplomacy($nation1, $nation2, ALLIANCE_FRIENDSHIP_FACTOR);
 }
 sub print_allies
 {

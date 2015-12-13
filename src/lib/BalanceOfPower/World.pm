@@ -553,7 +553,7 @@ sub execute_decisions
             my $nation1 = $self->get_nation($n1);
             if($nation1->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
             {
-                my $under_infl = $self->under_influence($n2); 
+                my $under_infl = $self->is_under_influence($n2); 
                 $under_infl ||= "";
                 if($under_infl ne $n1)
                 {

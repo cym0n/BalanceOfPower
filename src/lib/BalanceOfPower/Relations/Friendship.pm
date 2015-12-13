@@ -42,6 +42,10 @@ sub status
     {
         return 'ALLIANCE';
     }
+    elsif($self->factor == DOMINION_DIPLOMACY)
+    {
+        return 'INFLUENCE PRESENT';
+    }
     if($self->factor <= HATE_LIMIT)
     {
         return 'HATE';
@@ -59,7 +63,7 @@ sub status
 sub status_color
 {
     my $self = shift;
-    if($self->status eq 'ALLIANCE')
+    if($self->status eq 'ALLIANCE' || $self->status eq 'INFLUENCE PRESENT')
     {
         return color("cyan bold");
     }

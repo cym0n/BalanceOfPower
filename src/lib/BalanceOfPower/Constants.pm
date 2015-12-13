@@ -90,6 +90,8 @@ use constant DIPLOMACY_MALUS_FOR_SUPPORT => 2;
 use constant DIPLOMACY_FACTOR_BREAKING_SUPPORT => 12;
 use constant DIPLOMACY_FACTOR_STARTING_SUPPORT => 10;
 use constant DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT => -10;
+use constant DIPLOMACY_AFTER_OCCUPATION => 90;
+use constant DOMINION_DIPLOMACY => 110;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -216,5 +218,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'PERMANENT_CRISIS_HATE_LIMIT', 
                   'DIPLOMATIC_PRESSURE_FACTOR',
                   'DIPLOMATIC_PRESSURE_PRESTIGE_COST',
+                  'DIPLOMACY_AFTER_OCCUPATION',
+                  'DOMINION_DIPLOMACY', 
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

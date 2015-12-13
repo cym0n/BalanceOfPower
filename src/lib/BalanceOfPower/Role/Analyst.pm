@@ -103,7 +103,7 @@ sub print_nation_actual_situation
     $out .= "\n";
     if($self->player_nation ne $nation)
     {
-        $out .= "Relations with player: " . $self->get_diplomacy_relation($self->player_nation, $nation)->print() . "\n";
+        $out .= "Relations with player: " . $self->diplomacy_exists($self->player_nation, $nation)->print() . "\n";
         $out .= "\n";
     }
     return $out;
@@ -195,8 +195,8 @@ sub print_hotspots
         if(! $self->war_exists($c->node1, $c->node2))
         {
             $out .= as_subtitle($c->print_crisis()) . "\n";
-            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $c->node1)->print() . "\n" if($self->player_nation ne $c->node1);
-            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $c->node2)->print(). "\n" if($self->player_nation ne $c->node2);
+            $out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node1)->print() . "\n" if($self->player_nation ne $c->node1);
+            $out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node2)->print(). "\n" if($self->player_nation ne $c->node2);
             $out .= "\n";
         }
     }
@@ -207,8 +207,8 @@ sub print_hotspots
     {
         my $w = $_;
         $out .= $w->print() . "\n";
-        $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $w->node1)->print() . "\n" if($self->player_nation ne $w->node1);
-        $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $w->node2)->print(). "\n" if($self->player_nation ne $w->node2);
+        $out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node1)->print() . "\n" if($self->player_nation ne $w->node1);
+        $out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node2)->print(). "\n" if($self->player_nation ne $w->node2);
         $out .= "\n";
     }
     $out .= "\n";
@@ -218,7 +218,7 @@ sub print_hotspots
         if($self->at_civil_war($n))
         {
             $out .= "$n is fighting civil war\n";
-            $out .= "    " . $self->get_diplomacy_relation($self->player_nation, $n)->print() . "\n" if($self->player_nation ne $n);
+            $out .= "    " . $self->diplomacy_exists($self->player_nation, $n)->print() . "\n" if($self->player_nation ne $n);
         }
     }
     return $out;

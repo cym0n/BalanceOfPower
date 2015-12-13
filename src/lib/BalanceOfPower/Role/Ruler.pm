@@ -116,6 +116,7 @@ sub occupy
                                                                        status => 0,
                                                                        next => $internal_disorder ? 2 : 1,
                                                                        clock => 0 ));
+            $self->set_diplomacy($nation, $c, DOMINION_DIPLOMACY);
         }
         else
         {
@@ -123,6 +124,7 @@ sub occupy
                                                                        node2 => $nation,
                                                                        status => 0,
                                                                        clock => 0 ));
+            $self->set_diplomacy($nation, $c, DIPLOMACY_AFTER_OCCUPATION);
         }
         $self->broadcast_event("$c OCCUPIES $nation", $c, $nation);
     }
