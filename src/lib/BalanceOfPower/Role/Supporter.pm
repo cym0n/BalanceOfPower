@@ -43,7 +43,14 @@ sub start_military_support
     my $nation1 = shift;
     my $nation2 = shift;
     return 0 if($nation1->army < ARMY_FOR_SUPPORT);
-    return 0 if($self->supporter($nation2->name));
+    my $precedent_sup = $self->exists_military_support($nation1->name, $nation2->name);
+    if($precedent_sup)
+    {
+        $precedent_sup->casualities(-1 * ARMY_FOR_SUPPORT);
+        $self->broadcast_event("MILITARY SUPPORT TO " . $nation2->name . " INCREASED BY " . $nation1->name, $nation1->name, $nation2->name);
+        $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_INCREASING_SUPPORT);
+        return 1;
+    }
     my $supported = $self->supported($nation1->name);
     if($supported)
     {
@@ -65,6 +72,14 @@ sub start_rebel_military_support
     my $nation2 = shift;
     return 0 if($nation1->army < REBEL_ARMY_FOR_SUPPORT);
     return 0 if(! $self->at_civil_war($nation2->name));
+    my $precedent_sup = $self->exists_rebel_military_support($nation1->name, $nation2->name);
+    if($precedent_sup)
+    {
+        $precedent_sup->casualities(-1 * ARMY_FOR_SUPPORT);
+        $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " INCREASED BY " . $nation1->name, $nation1->name, $nation2->name);
+        $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_INCREASING_REBEL_SUPPORT);
+        return 1;
+    }
     $nation1->add_army(-1 * ARMY_FOR_SUPPORT);
     $self->add_rebel_military_support(
         BalanceOfPower::Relations::MilitarySupport->new(
@@ -72,7 +87,6 @@ sub start_rebel_military_support
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
     $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " STARTED BY " . $nation1->name, $nation1->name, $nation2->name);
-    $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT);
 }
 sub stop_military_support
 {
@@ -99,6 +113,7 @@ sub stop_rebel_military_support
     return if (! $milsup);
     $self->delete_rebel_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
+    $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $node2->name . " STOPPED BY " . $node1->name, $node1->name, $node2->name);
 }
 sub military_support_garbage_collector
 {

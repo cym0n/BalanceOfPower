@@ -14,7 +14,7 @@ has diplomatic_relations => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_diplomacy => 'add_link',
-                 diplomacy_exists => 'exists_link',
+                 _diplomacy_exists => 'exists_link',
                  update_diplomacy => 'update_link',
                  get_diplomatic_relations => 'links_for_node' }
 );
@@ -43,7 +43,7 @@ sub init_diplomacy
     {
         foreach my $n2 (@nations)
         {
-            if($n1 ne $n2 && ! $self->diplomacy_exists($n1, $n2))
+            if($n1 ne $n2 && ! $self->_diplomacy_exists($n1, $n2))
             {
                 my $minimum_friendship = 0;
                 my $rel = BalanceOfPower::Relations::Friendship->new( node1 => $n1,
@@ -103,6 +103,20 @@ sub reroll_diplomacy
         $_->factor($self->random(0 ,100, "Reroll diplomacy for " . $_->node1 . ", " . $_->node2));
     }
 }
+
+sub diplomacy_exists
+{
+    my $self = shift;
+    my $n1 = shift;
+    my $n2 = shift;
+    my $r = $self->_diplomacy_exists($n1, $n2);
+    if(! defined $r)
+    {
+        say "ERROR! $n1, $n2";
+    }
+    return $r;
+}
+
 sub get_hates
 {
     my $self = shift;
@@ -173,6 +187,10 @@ sub change_diplomacy
     if($present_status ne $actual_status)
     {
         $self->broadcast_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
+        if($actual_status eq 'HATE')
+        {
+            $self->diplomatic_breakdown($node1, $node2);
+        }
     }
 }
 sub diplomacy_status
@@ -194,8 +212,8 @@ sub diplomatic_breakdown
     {
         $self->broadcast_event($treaty->short_tag . " TREATY BETWEEN $n1 AND $n2 BROKEN", $n1, $n2);
     }
-    $self->stop_military_support($n1, $n2, 1);
-    $self->stop_military_support($n2, $n1, 1);
+    $self->stop_military_support($self->get_nation($n1), $self->get_nation($n2), 1);
+    $self->stop_military_support($self->get_nation($n2), $self->get_nation($n1), 1);
 }
 
 sub diplomacy_for_node
@@ -241,6 +259,7 @@ sub diplomatic_pressure
     my $nation1 = shift;
     my $nation2 = shift;
     my @friends = $self->get_friends($nation1);
+    $self->change_diplomacy($nation1, $nation2, DIPLOMATIC_PRESSURE_FACTOR);
     $self->broadcast_event("DIPLOMATIC PRESSURE OF $nation1 ON $nation2", $nation1, $nation2);
     for(@friends)
     {

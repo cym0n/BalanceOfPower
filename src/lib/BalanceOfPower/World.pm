@@ -500,7 +500,7 @@ sub execute_decisions
         {
             my $supporter = $self->get_nation($1);
             my $supported = $self->get_nation($2);
-            if($supported->accept_military_support($supporter, $self))
+            if($supported->accept_military_support($supporter->name, $self))
             {
                 $self->start_military_support($supporter, $supported);
             }
