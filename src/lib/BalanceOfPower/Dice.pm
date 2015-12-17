@@ -72,12 +72,21 @@ sub random_around_zero
     my $max = shift;
     my $divider = shift || 1;
     my $message = shift;
-    my $random_max = $max * 2;
-    my $r = $self->random(0, $random_max, "Internal, from random_around_zero");
-    $r = $r - $max;
-    $r = $r / $divider;
-    $self->write_log($message, $r, 0);
-    return $r;
+    my $out = $self->tricked($message);
+    if(defined $out)
+    {
+        $self->write_log($message, $out, 1);
+        return $out;
+    }
+    else
+    {
+        my $random_max = $max * 2;
+        my $r = $self->random(0, $random_max, "Inside dice, from random_around_zero");
+        $r = $r - $max;
+        $r = $r / $divider;
+        $self->write_log($message, $r, 0);
+        return $r;
+    }
 }
 sub shuffle_array
 {
