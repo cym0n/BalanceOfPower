@@ -12,20 +12,20 @@ Attività estere non sensibili
     * DELETE TRADEROUTE
     * ECONOMIC AID
     * COM TREATY
-    * NAG TREATY
+    * NAG TREATY [tested]
     * treaty all
 
 Attività estere sensibili
 ---
 
-    * DECLARE WAR TO
-    * MILITARY SUPPORT
-    * RECALL MILITARY SUPPORT
+    * DECLARE WAR TO [tested]
+    * MILITARY SUPPORT [tested]
+    * RECALL MILITARY SUPPORT [tested]
     * military aid
     * AID TO INSURGENTS
     * REBEL MILITARY SUPPORT
     * destabilize
     * stabilize
-    * DIPLOMATIC PRESSURE
+    * DIPLOMATIC PRESSURE [tested]
     * hijack/block traderoute
     * create crisis

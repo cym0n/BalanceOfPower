@@ -11,6 +11,11 @@ use Test::More;
 # Russia
 # Germany
 #
+# Orders tested here:
+#    * DIPLOMATIC PRESSURE
+#    * BUILD TROOPS
+
+
 my $first_year = 1970;
 
 
@@ -36,6 +41,7 @@ for(@diplomacies)
 $world->player_nation("Italy");
 $world->player("Tester");
 $world->forced_advisor("noone");
+
 $world->order("DIPLOMATIC PRESSURE ON France");
 $world->pre_decisions_elaborations('1970/1');
 $world->get_nation("Italy")->prestige(15);
@@ -44,5 +50,13 @@ is($world->diplomacy_exists("France", "Italy")->factor, 44, "France<->Italy: 44"
 is($world->diplomacy_exists("France", "Germany")->factor, 44, "France<->Germany: 44");
 is($world->diplomacy_exists("France", "United Kingdom")->factor, 44, "France<->United Kingdom: 44");
 is($world->diplomacy_exists("France", "Russia")->factor, 50, "France<->Russia: 50");
+
+$world->order("BUILD TROOPS");
+$world->pre_decisions_elaborations('1970/1');
+$world->get_nation("Italy")->army(5);
+$world->pre_decisions_elaborations('1970/2');
+$world->get_nation("Italy")->production(200);
+$world->post_decisions_elaborations();
+is($world->get_nation("Italy")->army, 6, "Italy created new troops");
 
 done_testing();
