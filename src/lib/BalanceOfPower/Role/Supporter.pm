@@ -87,6 +87,7 @@ sub start_rebel_military_support
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
     $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " STARTED BY " . $nation1->name, $nation1->name, $nation2->name);
+    $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT);
 }
 sub stop_military_support
 {

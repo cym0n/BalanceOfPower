@@ -23,8 +23,8 @@ Attività estere sensibili
     * RECALL MILITARY SUPPORT [tested]
     * military aid
     * AID TO INSURGENTS
-    * REBEL MILITARY SUPPORT
-    * RECALL REBEL MILITARY SUPPORT
+    * REBEL MILITARY SUPPORT [tested]
+    * RECALL REBEL MILITARY SUPPORT [tested]
     * destabilize
     * stabilize
     * DIPLOMATIC PRESSURE [tested]
