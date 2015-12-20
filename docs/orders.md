@@ -8,7 +8,7 @@ Attività interne
 Attività estere non sensibili
 ---
 
-    * ADD ROUTE
+    * ADD ROUTE [tested]
     * DELETE TRADEROUTE
     * ECONOMIC AID
     * COM TREATY

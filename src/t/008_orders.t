@@ -94,10 +94,22 @@ is($internal_event[0], "INTERNAL 80", "LOWER DISORDER: Cost for lowering disorde
 $world->pre_decisions_elaborations('1971/1');
 $world->get_nation("Italy")->production(200);
 $world->get_nation("Germany")->production(200);
+$world->set_diplomacy("Italy", "Germany", 80);
 $world->ia_orders( [ "Italy: ADD ROUTE", "Germany: ADD ROUTE" ] );
 $world->post_decisions_elaborations();
 my $route = $world->route_exists("Italy", "Germany");
 ok($route, "ADD ROUTE: Trade route Italy<->Germany created");
+is($world->diplomacy_exists("Italy", "Germany")->factor, 86, "ADD ROUTE: Italy<->Germany diplomacy: 86");
+
+$world->pre_decisions_elaborations('1971/2');
+$world->get_nation("Italy")->production(200);
+$world->get_nation("Germany")->production(200);
+$world->set_diplomacy("Italy", "Germany", 80);
+$world->ia_orders( [ "Italy: DELETE TRADEROUTE Italy->Germany" ] );
+$world->post_decisions_elaborations();
+$route = $world->route_exists("Italy", "Germany");
+ok(! $route, "DELETE TRADEROUTE: Trade route Italy<->Germany deleted");
+is($world->diplomacy_exists("Italy", "Germany")->factor, 74, "DELETE TRADEROUTE: Italy<->Germany diplomacy: 74");
 
 
 done_testing();

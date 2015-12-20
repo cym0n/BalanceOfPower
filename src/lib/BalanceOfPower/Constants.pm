@@ -81,6 +81,7 @@ use constant OCCUPATION_CLOCK_LIMIT => 1;
 #Diplomacy
 use constant HATE_LIMIT => 30;
 use constant LOVE_LIMIT => 70;
+use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
 use constant ALLIANCE_FRIENDSHIP_FACTOR => 200;
 use constant PERMANENT_CRISIS_HATE_LIMIT => 10;
 use constant DIPLOMATIC_PRESSURE_FACTOR => -6;
@@ -110,7 +111,6 @@ use constant MAX_DEBT => 3;
 use constant TURNS_FOR_YEAR => 4;
 use constant MAX_ARMY_FOR_SIZE => [ 9, 12, 15];
 use constant ARMY_UNIT => 1;
-use constant TRADEROUTE_DIPLOMACY_FACTOR => 6;
 use constant CRISIS_MAX_FACTOR => 3;
 use constant EMERGENCY_PRODUCTION_LIMIT => 55;
 use constant BOOST_PRODUCTION_QUOTE => 5;
