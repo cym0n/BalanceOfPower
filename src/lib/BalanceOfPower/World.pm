@@ -741,7 +741,7 @@ sub aid_insurgents
     my $self = shift;
     my $nation1 = shift;
     my $nation2 = shift;
-    if($nation1->production_for_export > AID_INSURGENTS_COST && $nation2->internal_disorder_status ne 'Civil war')
+    if($nation1->production_for_export >= AID_INSURGENTS_COST && $nation2->internal_disorder_status ne 'Civil war')
     {
         $self->broadcast_event("AIDS FOR INSURGENTS OF " . $nation2->name . " FROM " . $nation1->name, $nation1->name, $nation2->name);
         $nation1->subtract_production('export', AID_INSURGENTS_COST);
