@@ -39,6 +39,10 @@ has order => (
     is => 'rw',
     default => ""
 );
+has ia_orders => (
+    is => 'rw',
+    default => sub { [] }
+);
 has autoplay => (
     is => 'rw',
     default => 0
@@ -266,6 +270,7 @@ sub elaborate_turn
     my $self = shift;
     my $t = shift;
     $self->pre_decisions_elaborations($t);
+    $self->decisions();
     $self->post_decisions_elaborations();
 }
 
@@ -460,7 +465,7 @@ sub calculate_prestige
 sub execute_decisions
 {   
     my $self = shift;
-    my @decisions = $self->decisions();
+    my @decisions = @{$self->ia_orders};
     my @route_adders = ();
     foreach my $d (@decisions)
     {
@@ -638,7 +643,7 @@ sub decisions
             push @decisions, $decision;
         }
     }
-    return @decisions;
+    $self->ia_orders(\@decisions);
 }
 
 # DECISIONS END ###########################################################
