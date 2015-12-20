@@ -570,6 +570,13 @@ sub execute_decisions
                 }
             }
         }
+        elsif($d =~ /^(.*): RECALL REBEL MILITARY SUPPORT (.*)$/)
+        {
+           my $supporter = $self->get_nation($1);
+           my $supported = $self->get_nation($2);
+           $self->stop_rebel_military_support($supporter, $supported);
+        }
+
     }
     $self->manage_route_adding(@route_adders);
 }

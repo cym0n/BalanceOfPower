@@ -1,4 +1,4 @@
-package BalanceOfPower::Commands::RecallMilitarySupport;
+package BalanceOfPower::Commands::RecallRebelMilitarySupport;
 
 use Moo;
 
@@ -9,7 +9,7 @@ extends 'BalanceOfPower::Commands::TargetNation';
 sub get_available_targets
 {
     my $self = shift;
-    my @supported = $self->world->supporter($self->actor);
+    my @supported = $self->world->rebel_supporter($self->actor);
     my @out = ();
     for(@supported)
     {
@@ -28,7 +28,7 @@ sub IA
         if(@supports > 0)
         {
             @supports = $self->world->shuffle("Choosing support to recall", @supports);
-            return "RECALL MILITARY SUPPORT " . $supports[0];
+            return "RECALL REBEL MILITARY SUPPORT " . $supports[0];
         }
     }
     return undef;

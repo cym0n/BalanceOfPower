@@ -14,6 +14,7 @@ use BalanceOfPower::Commands::InMilitaryRange;
 use BalanceOfPower::Commands::DeleteRoute;
 use BalanceOfPower::Commands::MilitarySupport;
 use BalanceOfPower::Commands::RebelMilitarySupport;
+use BalanceOfPower::Commands::RecallRebelMilitarySupport;
 use BalanceOfPower::Commands::RecallMilitarySupport;
 use BalanceOfPower::Commands::ComTreaty;
 use BalanceOfPower::Commands::NagTreaty;
@@ -132,6 +133,12 @@ sub init
                                                              prestige_cost => DIPLOMATIC_PRESSURE_PRESTIGE_COST
                                                     );
     $self->commands->{"DIPLOMATIC PRESSURE ON"} = $command; 
+    $command =
+        BalanceOfPower::Commands::RecallRebelMilitarySupport->new( name => "RECALL REBEL MILITARY SUPPORT",
+                                                                   world => $world,
+                                                                 );
+    $self->commands->{"RECALL REBEL MILITARY SUPPORT"} = $command; 
+   
 }
 
 
