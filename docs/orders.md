@@ -9,9 +9,9 @@ Attività estere non sensibili
 ---
 
     * ADD ROUTE [tested]
-    * DELETE TRADEROUTE
-    * ECONOMIC AID
-    * COM TREATY
+    * DELETE TRADEROUTE [tested]
+    * ECONOMIC AID [tested]
+    * COM TREATY [tested]
     * NAG TREATY [tested]
     * treaty all
 

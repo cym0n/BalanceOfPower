@@ -14,6 +14,10 @@ use Test::More;
 # Orders tested here:
 #    * DIPLOMATIC PRESSURE
 #    * BUILD TROOPS
+#    * BOOST PRODUCTION
+#    * LOWER DISORDER
+#    * ADD ROUTE
+#    * DELETE TRADEROUTE
 
 
 my $first_year = 1970;
