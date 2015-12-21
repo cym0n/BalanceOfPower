@@ -576,7 +576,12 @@ sub execute_decisions
            my $supported = $self->get_nation($2);
            $self->stop_rebel_military_support($supporter, $supported);
         }
-
+        elsif($d =~ /^(.*): MILITARY AID FOR (.*)$/)
+        {
+            my $nation1 = $self->get_nation($1);
+            my $nation2 = $self->get_nation($2);
+            $self->military_aid($nation1, $nation2);
+        }
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -770,6 +775,17 @@ sub warfare
     {
         $self->set_statistics_value($n, 'army', $n->army);    
     }    
+}
+
+sub military_aid
+{
+    my $self = shift;
+    my $nation1 = shift;
+    my $nation2 = shift;
+    $nation1->subtract_production('export', MILITARY_AID_COST);
+    $nation2->add_army(ARMY_UNIT);
+    $self->broadcast_event("MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
+    $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR);
 }
 # WAR END ##################################################################
 

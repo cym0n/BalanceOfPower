@@ -72,6 +72,29 @@ sub print_nation_statistics
     }
     return $out;
 }
+sub print_nation_factor
+{
+    my $self = shift;
+    my $nation = shift;
+    my $factor = shift;
+    my $first_turn = shift;
+    my $last_turn = shift;
+    my $out = as_title($nation . "\n===\n");
+    foreach my $t (from_to_turns($first_turn, $last_turn))
+    {
+        if(defined $self->get_statistics_value($t, $nation, $factor))
+        {
+            $out .=  $self->get_statistics_value($t, $nation, $factor) . "\n";
+        }
+        else
+        {
+            $out .= "*** UNAVAILABLE ***" . "\n";
+        }
+    }
+    return $out;
+}
+
+
 sub print_nation_statistics_header
 {
     if(DEBT_ALLOWED)

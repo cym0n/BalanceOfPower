@@ -67,7 +67,8 @@ sub domestic_advisor
     return $self->advisor("LOWER DISORDER", 
                           "BOOST PRODUCTION",
                           "TREATY NAG WITH",
-                          "DIPLOMATIC PRESSURE ON");
+                          "DIPLOMATIC PRESSURE ON",
+                          "MILITARY AID FOR");
 }
 
 sub economy_advisor

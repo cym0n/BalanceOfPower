@@ -390,7 +390,21 @@ COMMANDS
         {
             $self->nation($self->world->player_nation);
         }
-        print $self->world->print_nation_statistics($self->nation, $self->world->first_year, $self->world->current_year);
+        print $self->world->print_nation_statistics($self->nation, $self->world->first_year, prev_turn($self->world->current_year));
+        $result = { status => 1 };
+    }
+    elsif($query =~ /^((.*) )?history (.*)$/)
+    {
+        my $input_nation = $self->world->correct_nation_name($2);
+        if($input_nation)
+        {
+            $self->nation($input_nation);
+        }
+        if(! $self->nation)
+        {
+            $self->nation($self->world->player_nation);
+        }
+        print $self->world->print_nation_factor($self->nation, $3, $self->world->first_year, prev_turn($self->world->current_year));
         $result = { status => 1 };
     }
     else
@@ -463,6 +477,7 @@ sub interact
         if($result->{status} == 1)
         {
             say "Elaborating " . $self->world->current_year . "...\n";
+            $self->world->decisions();
             $self->world->post_decisions_elaborations();
             say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
             $self->world->pre_decisions_elaborations();

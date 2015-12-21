@@ -25,6 +25,7 @@ use BalanceOfPower::Commands::EconomicAid;
 use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::AidInsurgents;
 use BalanceOfPower::Commands::DiplomaticPressure;
+use BalanceOfPower::Commands::MilitaryAid;
 
 has actor => (
     is => 'rw',
@@ -138,6 +139,12 @@ sub init
                                                                    world => $world,
                                                                  );
     $self->commands->{"RECALL REBEL MILITARY SUPPORT"} = $command; 
+    $command =
+        BalanceOfPower::Commands::MilitaryAid->new( name => "MILITARY AID FOR",
+                                                    world => $world,
+                                                    export_cost => MILITARY_AID_COST,
+                                                  );
+    $self->commands->{"MILITARY AID FOR"} = $command;
    
 }
 

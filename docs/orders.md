@@ -21,8 +21,8 @@ Attività estere sensibili
     * DECLARE WAR TO [tested]
     * MILITARY SUPPORT [tested]
     * RECALL MILITARY SUPPORT [tested]
-    * military aid
-    * AID TO INSURGENTS
+    * MILITARY AID
+    * AID TO INSURGENTS [tested]
     * REBEL MILITARY SUPPORT [tested]
     * RECALL REBEL MILITARY SUPPORT [tested]
     * destabilize

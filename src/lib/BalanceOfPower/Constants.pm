@@ -16,8 +16,10 @@ use constant MAX_GOVERNMENT_STRENGTH => 100;
 use constant STARTING_ALLIANCES => 7;
 
 #Random parameters 
-use constant MIN_DELTA_PRODUCTION => -10;
-use constant MAX_DELTA_PRODUCTION => 10;
+#use constant MIN_DELTA_PRODUCTION => -10;
+use constant MIN_DELTA_PRODUCTION => -3;
+#use constant MAX_DELTA_PRODUCTION => 10;
+use constant MAX_DELTA_PRODUCTION => 3;
 use constant MAX_PRODUCTION => 50;
 use constant MIN_ADDED_DISORDER => -2;
 use constant MAX_ADDED_DISORDER => 2;
@@ -30,6 +32,11 @@ use constant TRADEROUTE_COST => 10;
 use constant TRADING_QUOTE => 15;
 use constant AID_INSURGENTS_COST => 25;
 use constant ECONOMIC_AID_COST => 30;
+use constant MILITARY_AID_COST => 20;
+
+#domestic costs
+use constant RESOURCES_FOR_DISORDER => 20;
+use constant ARMY_COST => 20;
 
 #prestige
 use constant INFLUENCE_PRESTIGE_BONUS => 3;
@@ -38,9 +45,6 @@ use constant TREATY_PRESTIGE_COST => 7;
 use constant WAR_PRESTIGE_BONUS => 10;
 use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 
-#domestic costs
-use constant RESOURCES_FOR_DISORDER => 20;
-use constant ARMY_COST => 20;
 
 #IA Thresholds
 use constant WORRYING_LIMIT => 30;
@@ -54,6 +58,7 @@ use constant MIN_INFERIOR_ARMY_RATIO_FOR_WAR => 1.2;
 use constant MIN_ARMY_TO_EXPORT => 12;
 use constant ARMY_TO_RECALL_SUPPORT => 3;
 use constant ALLY_CONFLICT_LEVEL_FOR_INVOLVEMENT => 2;
+use constant MINIMUM_ARMY_FOR_AID => 4;
 
 #Civil war
 use constant STARTING_REBEL_PROVINCES => [1, 1, 2];
@@ -95,6 +100,8 @@ use constant DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT => -10;
 use constant DIPLOMACY_FACTOR_INCREASING_REBEL_SUPPORT => -2;
 use constant DIPLOMACY_AFTER_OCCUPATION => 90;
 use constant DOMINION_DIPLOMACY => 110;
+use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
+use constant MILITARY_AID_DIPLOMACY_FACTOR => 7;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -122,7 +129,6 @@ use constant INSURGENTS_AID => 15;
 use constant BEST_WEALTH_FOR_PRESTIGE => 5;
 use constant TREATY_TRADE_FACTOR => .5;
 use constant ECONOMIC_AID_QUOTE => 7;
-use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -224,5 +230,8 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'DOMINION_DIPLOMACY', 
                   'DIPLOMACY_FACTOR_INCREASING_SUPPORT',
                   'DIPLOMACY_FACTOR_INCREASING_REBEL_SUPPORT',
+                  'MINIMUM_ARMY_FOR_AID',
+                  'MILITARY_AID_COST',
+                  'MILITARY_AID_DIPLOMACY_FACTOR',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
