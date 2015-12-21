@@ -15,6 +15,7 @@ use Test::More;
 #   * ECONOMIC AID
 #   * TREATY COM
 #   * AID INSURGENTS IN
+#   * MILITARY AID FOR 
 
 
 my $first_year = 1970;
@@ -73,6 +74,18 @@ is($remain_event[0], "REMAIN 75", "AID INSURGENTS: Italy paid the cost to aid in
 $change = $disorder_event[0];
 $change =~ s/DISORDER CHANGE: //;
 is($world->get_nation("France")->internal_disorder, 45 + $change, "AID INSURGENTS: internal disorder raised in France");
+
+$world->pre_decisions_elaborations('1970/4');
+$world->set_diplomacy("Italy", "Germany", 80);
+$world->get_nation("Italy")->production(200);
+$world->get_nation("Germany")->army(2);
+$world->ia_orders( [ "Italy: MILITARY AID FOR Germany" ] );
+$world->post_decisions_elaborations();
+@remain_event = $world->get_nation("Italy")->get_events("REMAIN", "1970/4");
+is($remain_event[0], "REMAIN 80", "MILITARY AID: Italy paid the cost to military aid Germany");
+is($world->get_nation("Germany")->army, 3, "MILITARY AID: Germany has new soldiers");
+
+
 
 done_testing();
 
