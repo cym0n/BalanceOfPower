@@ -256,8 +256,7 @@ sub create_war
                                                       start_date => $self->current_year,
                                                       log_active => 0,
                                                       );
-        $war->register_event("Starting army for " . $attacker->name . ": " . $attacker->army);                                            
-        $war->register_event("Starting army for " . $defender->name . ": " . $defender->army);                                            
+        $war = $self->war_starting_report($war);
         $self->add_war($war); 
         $attacker_leaders{$defender->name} = $attacker->name;                                              
         $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
@@ -286,18 +285,41 @@ sub create_war
                 $faction1 = 1;
                 $faction2 = 0;
             }
-            my $war = BalanceOfPower::Relations::War->new(node1 => $c->[0], 
-                                                          node2 => $c->[1],
+            my $node1 = $c->[0];
+            my $node2 = $c->[1];
+            my $war = BalanceOfPower::Relations::War->new(node1 => $node1, 
+                                                          node2 => $node2,
                                                           attack_leader => $leader,
                                                           war_id => $war_id,
                                                           node1_faction => $faction1,
                                                           node2_faction => $faction2,
                                                           start_date => $self->current_year,
                                                           log_active => 0);
+            $war = $self->war_starting_report($war);
             $self->add_war($war);                                                  
-            $self->broadcast_event("WAR BETWEEN " . $c->[0] . " AND " . $c->[1] . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $c->[0], $c->[1]);
+            $self->broadcast_event("WAR BETWEEN " . $node1 . " AND " . $node2 . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $node1, $node2);
         }
     }
+}
+sub war_starting_report
+{
+    my $self = shift;
+    my $war = shift;
+    my $node1 = $war->node1;
+    my $node2 = $war->node2;
+    $war->register_event("Starting army for " . $node1 . ": " . $self->get_nation($node1)->army);
+    my $sup1 = $self->supported($node1);
+    if($sup1)
+    {
+        $war->register_event("$node1 is supported by " . $sup1->node1 . ": " . $sup1->army);
+    }
+    $war->register_event("Starting army for " . $node2 . ": " . $self->get_nation($node2)->army);
+    my $sup2 = $self->supported($node2);
+    if($sup2)
+    {
+        $war->register_event("$node2 is supported by " . $sup2->node1 . ": " . $sup2->army);
+    }
+    return $war;
 }
 
 sub army_for_war
