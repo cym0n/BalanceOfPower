@@ -4,6 +4,7 @@ use v5.10;
 use strict;
 use Moo::Role;
 use Term::ANSIColor;
+use List::Util qw( min max );
 
 use BalanceOfPower::Utils qw( get_year_turns as_title from_to_turns );
 use BalanceOfPower::Constants ':all';
@@ -16,6 +17,7 @@ has statistics => (
 );
 
 requires 'get_nation';
+requires 'get_wars';
 
 
 
@@ -79,7 +81,7 @@ sub print_nation_factor
     my $factor = shift;
     my $first_turn = shift;
     my $last_turn = shift;
-    my $out = as_title($nation . "\n===\n");
+    my $out = as_title($nation . " - " . $factor . " - column of values" . "\n===\n");
     foreach my $t (from_to_turns($first_turn, $last_turn))
     {
         if(defined $self->get_statistics_value($t, $nation, $factor))
@@ -92,6 +94,65 @@ sub print_nation_factor
         }
     }
     return $out;
+}
+
+sub plot_nation_factor
+{
+    my $self = shift;
+    my $nation = shift;
+    my $factor = shift;
+    my $first_turn = shift;
+    my $last_turn = shift;
+    
+    my $graph_height = 12;
+
+    my @data = ();
+    foreach my $t (from_to_turns($first_turn, $last_turn))
+    {
+        if(defined $self->get_statistics_value($t, $nation, $factor))
+        {
+            push @data, $self->get_statistics_value($t, $nation, $factor);
+        }
+        else
+        {
+            push @data, undef;
+        }
+    }
+    return "" if(@data == 0);
+    my $min = min @data;
+    my $max = max @data;
+    my $step = ($max - $min) / $graph_height;
+    my @lines = ();
+    my $out = as_title($nation . " - " . $factor . " - graph " . "\n===\n");
+    $out .= "Min. value: $min   Max. value: $max\n\n";
+    for(my $i = 0; $i <= $graph_height; $i++)
+    {
+        $lines[$i] = "";
+        my $level =  $step * ( $graph_height - $i);
+        for(@data)
+        {
+            my $v = $_;
+            if(! $v)
+            {
+                $lines[$i] .= " ";
+            }
+            else
+            {
+                #if(($v - $min) < $step * ( $graph_height - ($i-1)) && 
+                if(($v - $min) >= $level)
+                {
+                    $lines[$i] .= "o";
+                }
+                else
+                {
+                    $lines[$i] .= " ";
+                }
+            }
+        }
+        my $level_label = int($level * 100) / 100 + $min;
+        $out .= $lines[$i] . "...$level_label" ."\n";
+    }
+    return $out . "\n";
 }
 
 
@@ -286,8 +347,8 @@ sub print_defcon_statistics
         }
     }
     return $out;
-       
 }
+
 
 1;
 

@@ -7,6 +7,8 @@ __???__
  * It's now impossible to start military support with a nation that hates you
  * RECALL REBEL MILITARY SUPPORT command
  * MILITARY AID command
+ * history command to plot a single attribute of a nation as a graph
+ * Better war history
 
 0.131000
 ===
