@@ -90,7 +90,14 @@ sub in_military_range
     return 0;
 }
 
-
+sub war_current_year
+{
+    my $self = shift;
+    for($self->wars->all)
+    {
+        $_->current_year($self->current_year);
+    }
+}
 
 sub create_war
 {
@@ -372,6 +379,7 @@ sub damage_from_battle
         if($supported->army <= 0)
         {
             $self->broadcast_event("MILITARY SUPPORT TO " . $supported->node2 . " BY " . $supported->node1 . " DESTROYED", $supported->node1, $supported->node2);
+            $self->war_report("Military support to ". $supported->node2 . " by " . $supported->node1 . " destroyed", $supported->node2);
         }
     }
     $self->military_support_garbage_collector();
@@ -385,7 +393,6 @@ sub fight_wars
     {
         #As Risiko
         $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
-        $w->current_year($self->current_year);
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
         my $attacker_army = $self->army_for_war($attacker);
@@ -541,4 +548,6 @@ sub print_wars
     }
     return $out;
 }
+
+
 1;

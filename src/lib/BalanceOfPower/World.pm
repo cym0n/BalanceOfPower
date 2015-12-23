@@ -249,6 +249,7 @@ sub pre_decisions_elaborations
     my $self = shift;
     my $t = shift;
     $self->init_year($t);
+    $self->war_current_year();
     $self->war_debts();
     $self->crisis_generator();
 }
@@ -787,6 +788,20 @@ sub military_aid
     $self->broadcast_event("MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR);
 }
+
+sub war_report
+{
+    my $self = shift;
+    my $message = shift;
+    my $nation = shift;
+    my @wars = $self->get_wars($nation);
+    for(@wars)
+    {
+         $_->register_event($message);
+    }
+}
+
+
 # WAR END ##################################################################
 
 # TREATIES #################################################################
