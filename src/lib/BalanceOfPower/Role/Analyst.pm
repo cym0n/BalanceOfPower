@@ -49,16 +49,17 @@ sub print_nation_actual_situation
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    my $allies_support_title = sprintf "%-40s %-40s", "TREATIES", "SUPPORTS";
+    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES", "SUPPORTS";
     $allies_support_title .="\n";
-    $allies_support_title .= sprintf "%-40s %-40s", "---", "---";
+    $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
     $allies_support_title .="\n";
     $out .= as_title($allies_support_title);
     my @allies = $self->get_treaties_for_nation($nation);
     my @supports = $self->supports($nation);
+    my @rebel_supports = $self->rebel_supports($nation);
     for(my $i = 0; ;$i++)
     {
-        last if(@allies == 0 && @supports == 0);
+        last if(@allies == 0 && @supports == 0 && @rebel_supports == 0);
         my $allies_text = "";
         if(@allies)
         {
@@ -71,13 +72,21 @@ sub print_nation_actual_situation
             my $s = shift @supports;
             $support_text = $s->print;
         }
-        $out .= sprintf "%-40s %-40s", $allies_text, $support_text;
+        else
+        {
+            if(@rebel_supports)
+            {
+                my $rs = shift @rebel_supports;
+                $support_text = "REB: " . $rs->print;
+            }
+        }
+        $out .= sprintf "%-35s %-35s", $allies_text, $support_text;
         $out .="\n";
     }
     $out .= "\n";
-    my $crises_wars_title = sprintf "%-40s %-40s", "CRISES", "WARS";
+    my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
     $crises_wars_title .="\n";
-    $crises_wars_title .= sprintf "%-40s %-40s", "---", "---";
+    $crises_wars_title .= sprintf "%-35s %-35s", "---", "---";
     $crises_wars_title .="\n";
     $out .= as_title($crises_wars_title);
     my @crises = $self->get_crises($nation);
@@ -97,7 +106,7 @@ sub print_nation_actual_situation
             my $w = shift @wars;
             $war_text = $w->print;
         }
-        $out .= sprintf "%-40s %-40s", $crisis_text, $war_text;
+        $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
         $out .="\n";
     }
     $out .= "\n";

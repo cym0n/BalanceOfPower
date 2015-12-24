@@ -406,6 +406,15 @@ sub win_civil_war
             $world->broadcast_event($self->name . " AND " . $rebel_supporter->name . " ARE NOW ALLIES. " . $rebel_supporter->name . " HELPED " . $self->name . " REVOLUTION", $self->name, $rebel_supporter->name);
         }
     }
+    elsif($winner eq 'government')
+    {
+        my $rebsup = $world->rebel_supported($self->name);
+        if($rebsup)
+        {
+            my $rebel_supporter = $world->get_nation($rebsup->node1);
+            $world->stop_rebel_military_support($rebel_supporter, $self) if $rebel_supporter;
+        }
+    }  
 }
 
 sub new_government

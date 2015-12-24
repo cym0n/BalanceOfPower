@@ -31,6 +31,7 @@ has rebel_military_supports => (
     handles => { add_rebel_military_support => 'add_link',
                  delete_rebel_military_support => 'delete_link',
                  exists_rebel_military_support => 'exists_link',
+                 rebel_supports => 'links_for_node',
                  rebel_supporter => 'links_for_node1',
                  rebel_supported => 'first_link_for_node2',
                  print_rebel_military_supports => 'print_links',
