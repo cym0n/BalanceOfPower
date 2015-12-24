@@ -87,9 +87,9 @@ sub start_rebel_military_support
         $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_INCREASING_REBEL_SUPPORT);
         return 1;
     }
-    if($self->supported($nation2->name))
+    if($self->rebel_supported($nation2->name))
     {
-        $self->broadcast_event("REBEL IN " . $nation2->name . " ALREADY SUPPORTED. REBEL MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event("REBELS IN " . $nation2->name . " ALREADY SUPPORTED. REBEL MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, $nation1->name, $nation2->name);
         return 0;
     }
     $nation1->add_army(-1 * ARMY_FOR_SUPPORT);

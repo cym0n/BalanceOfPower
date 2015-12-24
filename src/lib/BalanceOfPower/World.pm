@@ -543,7 +543,8 @@ sub execute_decisions
         {
             my $nation1 = $self->get_nation($1);
             my $nation2 = $self->get_nation($2);
-            if($self->rebel_supported($nation2->name))
+            my $rebsup = $self->rebel_supported($nation2->name);
+            if($rebsup && $rebsup->node1 ne $nation1->name)
             {
                 $self->broadcast_event("REBEL SUPPORT IN " . $nation2->name . " IMPOSSIBLE FOR " . $nation1->name, $nation1->name, $nation2->name);
             }
@@ -723,6 +724,7 @@ sub internal_conflict
         #This should happen only if status changed during this iteration
         if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')
         {
+            $self->war_report("Civil war in " . $n->name . "!", $n->name);
             $self->lose_war($n->name, 1);
         }
         

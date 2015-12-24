@@ -122,6 +122,7 @@ use constant CRISIS_MAX_FACTOR => 3;
 use constant EMERGENCY_PRODUCTION_LIMIT => 55;
 use constant BOOST_PRODUCTION_QUOTE => 5;
 use constant ARMY_TO_ACCEPT_MILITARY_SUPPORT => 10;
+use constant ARMY_TO_GIVE_MILITARY_SUPPORT => 6;
 use constant ARMY_FOR_SUPPORT => 4;
 use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
@@ -233,5 +234,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MINIMUM_ARMY_FOR_AID',
                   'MILITARY_AID_COST',
                   'MILITARY_AID_DIPLOMACY_FACTOR',
+                  'ARMY_TO_GIVE_MILITARY_SUPPORT'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

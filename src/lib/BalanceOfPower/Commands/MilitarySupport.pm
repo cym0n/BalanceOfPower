@@ -1,6 +1,8 @@
 package BalanceOfPower::Commands::MilitarySupport;
 
+use BalanceOfPower::Constants ":all";
 use Moo;
+use Array::Utils qw(intersect);
 
 extends 'BalanceOfPower::Commands::TargetNation';
 
@@ -15,9 +17,12 @@ sub IA
 {
     my $self = shift;
     my $actor = $self->get_nation();
+    return undef if($actor->army < ARMY_TO_GIVE_MILITARY_SUPPORT);
 
     my @crises = $self->world->get_crises($actor->name);
     my @friends = $self->world->shuffle("Choosing friend to support for " . $actor->name, $self->world->get_friends($actor->name));
+    my @targets = $self->get_available_targets();
+    @friends = $self->world->shuffle("Mixing friends for military support for " . $actor->name, intersect(@friends, @targets));
     if(@crises > 0)
     {
         foreach my $c ($self->world->shuffle("Mixing crisis for war for " . $actor->name, @crises))
@@ -36,10 +41,7 @@ sub IA
     if(@friends)
     {
         my $f = $friends[0];
-        if($self->world->get_nation($f)->accept_military_support($actor->name, $self->world))
-        {
-            return "MILITARY SUPPORT " . $f;
-        }
+        return "MILITARY SUPPORT " . $f;
     }
     return undef;
 }

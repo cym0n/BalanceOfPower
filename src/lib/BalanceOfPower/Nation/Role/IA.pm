@@ -98,7 +98,7 @@ sub accept_military_support
     if($world->already_in_military_support($self->name))
     {
        my $supd = $world->supported($self->name);
-       if($supd && $supd->node1 ne $other)
+       if($supd && $supd->node1 eq $other)
        {
             return 1; 
        }
