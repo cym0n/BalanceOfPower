@@ -119,22 +119,32 @@ sub print_status
 sub print_crisis
 {
     my $self = shift;
+    my $color = shift;
+    $color = 1 if(! defined $color);
     if($self->get_crisis_level > 0)
     {
-        return $self->node1 . " <-> " . $self->node2 . " " . $self->print_crisis_bar();
+        my $out = $self->node1 . " <-> " . $self->node2;
+        if($color)
+        {
+            return $out . " " . $self->print_crisis_bar();
+        }
+        else
+        {
+            return $out . " " . $self->print_grey_crisis_bar();
+        }
     }
     else
     {
         return "";
     }
 }
-sub print_crisis_bar
+sub print_grey_crisis_bar
 {
     my $self = shift;
     my $out = "";
     if($self->get_crisis_level > 0)
     {
-        $out .= $self->status_color . "[";
+        $out .= "[";
         for(my $i = 0; $i < CRISIS_MAX_FACTOR; $i++)
         {
             if($i < $self->get_crisis_level)
@@ -146,11 +156,15 @@ sub print_crisis_bar
                 $out .= " ";
             }
         }
-        $out .= "]" . color("reset");
+        $out .= "]";
     }
     return $out;
 }
-
+sub print_crisis_bar
+{
+    my $self = shift;
+    return $self->status_color . $self->print_grey_crisis_bar . color("reset");
+}
 
 sub change_factor
 {

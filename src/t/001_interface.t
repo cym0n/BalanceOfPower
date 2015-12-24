@@ -38,6 +38,7 @@ $world->add_war(BalanceOfPower::Relations::War->new(node1 => 'Germany',
                                                     node2_faction => 1,
                                                     start_date => "1970/1",
                                                     log_active => 0));
+$world->start_military_support($world->get_nation("Germany"), $world->get_nation("Russia"));
 
 $world->autoplay(1);
 $world->elaborate_turn("1970/1");

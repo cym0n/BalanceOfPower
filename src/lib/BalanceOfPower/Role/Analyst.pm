@@ -49,9 +49,9 @@ sub print_nation_actual_situation
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES", "SUPPORTS";
+    my $allies_support_title = sprintf "%-40s %-40s", "TREATIES", "SUPPORTS";
     $allies_support_title .="\n";
-    $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
+    $allies_support_title .= sprintf "%-40s %-40s", "---", "---";
     $allies_support_title .="\n";
     $out .= as_title($allies_support_title);
     my @allies = $self->get_treaties_for_nation($nation);
@@ -71,13 +71,13 @@ sub print_nation_actual_situation
             my $s = shift @supports;
             $support_text = $s->print;
         }
-        $out .= sprintf "%-35s %-35s", $allies_text, $support_text;
+        $out .= sprintf "%-40s %-40s", $allies_text, $support_text;
         $out .="\n";
     }
     $out .= "\n";
-    my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
+    my $crises_wars_title = sprintf "%-40s %-40s", "CRISES", "WARS";
     $crises_wars_title .="\n";
-    $crises_wars_title .= sprintf "%-35s %-35s", "---", "---";
+    $crises_wars_title .= sprintf "%-40s %-40s", "---", "---";
     $crises_wars_title .="\n";
     $out .= as_title($crises_wars_title);
     my @crises = $self->get_crises($nation);
@@ -89,7 +89,7 @@ sub print_nation_actual_situation
         if(@crises)
         {
             my $c = shift @crises;
-            $crisis_text = $c->print_crisis;
+            $crisis_text = $c->print_crisis(0);
         }
         my $war_text = "";
         if(@wars)
@@ -97,7 +97,7 @@ sub print_nation_actual_situation
             my $w = shift @wars;
             $war_text = $w->print;
         }
-        $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
+        $out .= sprintf "%-40s %-40s", $crisis_text, $war_text;
         $out .="\n";
     }
     $out .= "\n";
