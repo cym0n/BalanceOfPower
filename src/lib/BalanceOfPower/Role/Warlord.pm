@@ -457,7 +457,8 @@ sub lose_war
 {
     my $self = shift;
     my $loser = shift;
-    my $internal_disorder ||= 0;
+    my $internal_disorder = shift;
+    $internal_disorder ||= 0;
     my @wars = $self->get_wars($loser);
     my $retreat_penality = 0;
     my @conquerors = ();
@@ -482,14 +483,11 @@ sub lose_war
             $self->delete_crisis($loser, $other);
             $conquerors_leader = $w->attack_leader;
             $winner_role = "[ATTACKER]";
+            $self->get_nation($loser)->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
         }
         my $ending_line = "WAR BETWEEN $other AND $loser WON BY $other $winner_role";
         $self->broadcast_event($ending_line, $other, $loser);
         my $history_line = "";
-        if($internal_disorder)
-        {
-            $history_line = "Civil war outbreaked in $loser.\n"; 
-        }
         $history_line .= "$other $winner_role won the war";
         $self->delete_war($other, $loser, $history_line);
     }
