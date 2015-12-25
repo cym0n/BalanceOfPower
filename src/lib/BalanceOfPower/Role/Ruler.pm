@@ -117,6 +117,7 @@ sub occupy
                                                                        next => $internal_disorder ? 2 : 1,
                                                                        clock => 0 ));
             $self->set_diplomacy($nation, $c, DOMINION_DIPLOMACY);
+            $self->copy_diplomacy($c, $nation);
         }
         else
         {

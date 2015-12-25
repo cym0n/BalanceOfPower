@@ -171,6 +171,24 @@ sub set_diplomacy
     $r->factor($new_factor);
     return $r;
 }
+sub copy_diplomacy
+{
+    my $self = shift;
+    my $nation_from = shift;
+    my $nation_to = shift;
+    my @relations = $self->get_diplomatic_relations($nation_from);
+    for(@relations)
+    {
+        my $r = $_;
+        my $other = $r->destination($nation_from);
+        if($other ne $nation_to)
+        {
+            $self->set_diplomacy($nation_to, $other, $r->factor);
+        }
+    }
+
+
+}
 
 sub change_diplomacy
 {
