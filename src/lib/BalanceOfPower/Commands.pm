@@ -172,7 +172,7 @@ With a nation selected you can use:
 <events>
 <status>
 <history>
-<history %attribute%>
+<plot %attribute%>
 [year/turn]
 You can also say one of those commands as: [nation name] [command]
 
@@ -182,7 +182,7 @@ say <years> for available range of years
 
 say <wars> for a list of wars, <crises> for all the ongoing crises
 
-say <wars history> for a list of finished wars
+say <war history> for a list of finished wars
 
 say <hotspots> gives you wars and crises with also your diplomatic relationship with countries involved
 
@@ -403,7 +403,7 @@ COMMANDS
         print $self->world->print_nation_statistics($self->nation, $self->world->first_year, prev_turn($self->world->current_year));
         $result = { status => 1 };
     }
-    elsif($query =~ /^((.*) )?history (.*)$/)
+    elsif($query =~ /^((.*) )?plot (.*)$/)
     {
         my $input_nation = $self->world->correct_nation_name($2);
         if($input_nation)
@@ -414,8 +414,6 @@ COMMANDS
         {
             $self->nation($self->world->player_nation);
         }
-        print $self->world->print_nation_factor($self->nation, $3, $self->world->first_year, prev_turn($self->world->current_year));
-        print "\n";
         print $self->world->plot_nation_factor($self->nation, $3, $self->world->first_year, prev_turn($self->world->current_year));
         $result = { status => 1 };
     }
