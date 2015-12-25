@@ -96,7 +96,7 @@ sub run_scenario
     my $france = $world->get_nation('France');
     my $russia = $world->get_nation('Russia');
     $italy->army($data{army});
-    $italy->add_internal_disorder(90);
+    $italy->add_internal_disorder(90, $world);
     if($data{'military support'})
     {
         $france->army(15);

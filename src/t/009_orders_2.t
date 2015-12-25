@@ -66,14 +66,13 @@ $world->pre_decisions_elaborations('1970/3');
 $world->set_diplomacy("Italy", "France", 50);
 $world->get_nation("Italy")->production(200);
 $world->get_nation("France")->internal_disorder(30);
+$world->get_nation("France")->frozen_disorder(1);
 $world->ia_orders( [ "Italy: AID INSURGENTS IN France" ] );
 $world->post_decisions_elaborations();
 @remain_event = $world->get_nation("Italy")->get_events("REMAIN", "1970/3");
 is($remain_event[0], "REMAIN 75", "AID INSURGENTS: Italy paid the cost to aid insurgents");
-@disorder_event = $world->get_nation("France")->get_events("DISORDER CHANGE", "1970/3");
-$change = $disorder_event[0];
-$change =~ s/DISORDER CHANGE: //;
-is($world->get_nation("France")->internal_disorder, 45 + $change, "AID INSURGENTS: internal disorder raised in France");
+is($world->get_nation("France")->internal_disorder, 45, "AID INSURGENTS: internal disorder raised in France");
+$world->get_nation("France")->frozen_disorder(0);
 
 $world->pre_decisions_elaborations('1970/4');
 $world->set_diplomacy("Italy", "Germany", 80);

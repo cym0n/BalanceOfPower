@@ -75,6 +75,11 @@ has army => (
     is => 'rw'
 );
 
+has frozen_disorder => (
+    default => 0,
+    is => 'rw'
+);
+
 sub production
 {
     my $self = shift;
@@ -196,6 +201,7 @@ sub calculate_disorder
     my $self = shift;
     my $world = shift;
     return if($self->internal_disorder_status eq 'Civil war');
+    return if($self->frozen_disorder);
 
     #Variables
     my $wd = $self->wealth / PRODUCTION_UNITS->[$self->size];

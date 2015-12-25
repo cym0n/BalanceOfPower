@@ -4,6 +4,7 @@
 __???__
 
  * Relations are no more calculated considering influence
+ * Conquered nation has diplomacy copied from conqueror
  * It's now impossible to start military support with a nation that hates you
  * RECALL REBEL MILITARY SUPPORT command
  * MILITARY AID command

@@ -37,7 +37,7 @@ $world->pre_decisions_elaborations('1970/1');
 $world->get_nation("Germany")->production(100);
 $world->post_decisions_elaborations();
 
-$world->get_nation("Germany")->add_internal_disorder(85);
+$world->get_nation("Germany")->add_internal_disorder(85, $world);
 $world->pre_decisions_elaborations('1970/2');
 $world->post_decisions_elaborations();
 is($world->get_nation("Germany")->rebel_provinces, 2, "Stalled civil war with no external intervention");

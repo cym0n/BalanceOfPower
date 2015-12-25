@@ -86,14 +86,13 @@ $world->order("LOWER DISORDER");
 $world->pre_decisions_elaborations('1970/4');
 $world->get_nation("Italy")->production(200);
 $world->get_nation("Italy")->internal_disorder(50);
+$world->get_nation("Italy")->frozen_disorder(1);
 $world->decisions();
 $world->post_decisions_elaborations();
-@disorder_event = $world->get_nation("Italy")->get_events("DISORDER CHANGE", "1970/4");
-$change = $disorder_event[0];
-$change =~ s/DISORDER CHANGE: //;
-is($world->get_nation("Italy")->internal_disorder, 40 + $change, "LOWER DISORDER: Disorder lowered");
+is($world->get_nation("Italy")->internal_disorder, 40, "LOWER DISORDER: Disorder lowered");
 @internal_event = $world->get_nation("Italy")->get_events("INTERNAL", "1970/4");
 is($internal_event[0], "INTERNAL 80", "LOWER DISORDER: Cost for lowering disorder payer");
+$world->get_nation("Italy")->frozen_disorder(0);
 
 $world->pre_decisions_elaborations('1971/1');
 $world->get_nation("Italy")->production(200);

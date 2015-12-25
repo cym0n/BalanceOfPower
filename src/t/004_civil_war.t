@@ -25,10 +25,12 @@ $commands->init();
 $commands->init_game(1);
 
 $world->forced_advisor("Noone");
-$world->get_nation("Italy")->internal_disorder(79);
+$world->get_nation("Italy")->internal_disorder(10);
 $world->get_nation("Italy")->army(2);
-$world->elaborate_turn("1970/1");
-is($world->get_events("Italy: CIVIL WAR OUTBREAK", "1970/1"), 1, "Civil war in Italy starts");
+$world->pre_decisions_elaborations("1970/1");
+$world->get_nation("Italy")->add_internal_disorder(70, $world);
+$world->post_decisions_elaborations();
+is($world->get_events("CIVIL WAR OUTBREAK IN Italy", "1970/1"), 1, "Civil war in Italy starts");
 is($world->get_nation("Italy")->rebel_provinces(), 1.5, "Government wins first battle with army help");
 is($world->get_nation("Italy")->army(), 0, "Army decreased for civil war");
 $world->elaborate_turn("1970/2");
