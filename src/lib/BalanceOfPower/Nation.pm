@@ -217,7 +217,7 @@ sub calculate_disorder
                    $world->random_around_zero($random_factor_max, 100, "Internal disorder random factor for " . $self->name);
     $disorder = int ($disorder * 100) / 100;
     $self->register_event("DISORDER CHANGE: " . $disorder);
-    $self->add_internal_disorder($disorder);
+    $self->add_internal_disorder($disorder, $world);
 }
 
 sub subtract_production
@@ -247,10 +247,15 @@ sub add_wealth
 sub lower_disorder
 {
     my $self = shift;
+    my $world = shift;
+    if($world->at_civil_war($self->name))
+    {
+        return; 
+    }
     if($self->production_for_domestic > RESOURCES_FOR_DISORDER)
     {
         $self->subtract_production('domestic', RESOURCES_FOR_DISORDER);
-        $self->add_internal_disorder(-1 * DISORDER_REDUCTION);
+        $self->add_internal_disorder(-1 * DISORDER_REDUCTION, $world);
         $self->register_event("DISORDER LOWERED TO " . $self->internal_disorder);
     }
 }
@@ -259,6 +264,7 @@ sub add_internal_disorder
 {
     my $self = shift;
     my $disorder = shift;
+    my $world = shift;
     my $actual_disorder = $self->internal_disorder_status;
     my $new_disorder_data = $self->internal_disorder + $disorder;
     $new_disorder_data = int($new_disorder_data * 100) / 100;
@@ -277,8 +283,7 @@ sub add_internal_disorder
         $self->register_event("INTERNAL DISORDER LEVEL FROM $actual_disorder TO $new_disorder");
         if($new_disorder eq "Civil war")
         {
-            $self->register_event("CIVIL WAR OUTBREAK");
-            $self->rebel_provinces(STARTING_REBEL_PROVINCES->[$self->size]);
+            $world->start_civil_war($self);
         }
     }
 }

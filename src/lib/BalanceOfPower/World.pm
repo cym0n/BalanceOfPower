@@ -481,7 +481,7 @@ sub execute_decisions
         elsif($d =~ /^(.*): LOWER DISORDER$/)
         {
            my $nation = $self->get_nation($1);
-           $nation->lower_disorder();
+           $nation->lower_disorder($self);
         }
         elsif($d =~ /^(.*): BUILD TROOPS$/)
         {
@@ -721,14 +721,6 @@ sub internal_conflict
 
         $n->calculate_disorder($self);
         
-        #This should happen only if status changed during this iteration
-        if($n->internal_disorder_status eq 'Civil war' && $present_status ne 'Civil war')
-        {
-            $self->war_report("Civil war in " . $n->name . "!", $n->name);
-            $self->lose_war($n->name, 1);
-        }
-        
-        #my $winner = $n->fight_civil_war($self->random(0, 100, "Civil war " . $n->name . ": government fight result"), $self->random(0, 100, "Civil war " . $n->name . ": rebels fight result"));
         my $winner = $n->fight_civil_war($self);
         if($winner && $winner eq 'rebels')
         {
@@ -753,7 +745,7 @@ sub aid_insurgents
     {
         $self->broadcast_event("AIDS FOR INSURGENTS OF " . $nation2->name . " FROM " . $nation1->name, $nation1->name, $nation2->name);
         $nation1->subtract_production('export', AID_INSURGENTS_COST);
-        $nation2->add_internal_disorder(INSURGENTS_AID);
+        $nation2->add_internal_disorder(INSURGENTS_AID, $self);
     }
 }
 
@@ -765,6 +757,15 @@ sub at_civil_war
     return $nation->internal_disorder_status eq 'Civil war';
 }
 
+sub start_civil_war
+{
+    my $self = shift;
+    my $nation = shift;
+    $self->broadcast_event("CIVIL WAR OUTBREAK", $nation->name);
+    $nation->rebel_provinces(STARTING_REBEL_PROVINCES->[$nation->size]);
+    $self->war_report("Civil war in " . $nation->name . "!", $nation->name);
+    $self->lose_war($nation->name, 1);
+}
 
 # INTERNAL DISORDER END ######################################################
 
@@ -877,7 +878,6 @@ sub collect_events
     my $self = shift;
     my @events_to_collect = ("DISORDER LOWERED TO",
                              "INTERNAL DISORDER LEVEL FROM",
-                             "CIVIL WAR OUTBREAK",
                              "THE GOVERNMENT WON THE CIVIL WAR",
                              "THE REBELS WON THE CIVIL WAR",
                              "NEW GOVERNMENT CREATED",
