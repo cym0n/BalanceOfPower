@@ -188,6 +188,8 @@ say <hotspots> gives you wars and crises with also your diplomatic relationship 
 
 say <supports> for military supports
 
+say <rebel supports> for rebel military supports
+
 say <distance NATION1-NATION2> for distance between nations
 
 say <turn> to elaborate events for a new turn
@@ -270,6 +272,11 @@ COMMANDS
     elsif($query eq "supports")
     {
         say $self->world->print_military_supports();  
+        $result = { status => 1 };
+    }
+    elsif($query eq "rebel supports")
+    {
+        say $self->world->print_rebel_military_supports();  
         $result = { status => 1 };
     }
     elsif($query =~ /^distance (.*)-(.*)$/)
