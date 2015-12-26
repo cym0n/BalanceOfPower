@@ -1,7 +1,7 @@
 0.140000
 ===
 
-__???__
+__Sat 26 Dec 2015__
 
  * Relations are no more calculated considering influence
  * Conquered nation has diplomacy copied from conqueror
@@ -10,6 +10,7 @@ __???__
  * MILITARY AID command
  * history command to plot a single attribute of a nation as a graph
  * Better war history
+ * plot attribute command
  * Bugfix
 
 0.131000
