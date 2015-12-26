@@ -1,6 +1,7 @@
 package BalanceOfPower::Constants;
 
 use strict;
+use warnings;
 
 use base 'Exporter';
 
