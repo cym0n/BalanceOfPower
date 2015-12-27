@@ -68,8 +68,13 @@ sub print_history
 {
     my $self = shift;
     my $out = "";
-    $out .= "### WAR " .  $self->war_id . "\n";
-    $out .= $self->node1 . " => " . $self->node2 . "\n";
+    #$out .= "### WAR " .  $self->war_id . "\n";
+    $out .= $self->node1;
+    if($self->attack_leader && $self->attack_leader ne $self->node1)
+    {
+        $out .= " (" . $self->attack_leader . ")";
+    }
+    $out .= " => " . $self->node2 . "\n";
     $out .= "*** War started in " . $self->start_date . " ***\n";
     $out .= $self->print_turn_events_notitle("START");
     for(from_to_turns($self->start_date, $self->end_date))

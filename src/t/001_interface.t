@@ -52,7 +52,7 @@ my $result;
 $world->get_player_nation->production(1000);
 
 #Generic commands
-foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history") )
+foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history", "influences") )
 {
     $commands->query($c);
     $result = $commands->report_commands();

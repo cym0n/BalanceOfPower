@@ -190,6 +190,8 @@ say <supports> for military supports
 
 say <rebel supports> for rebel military supports
 
+say <influences> for influences
+
 say <distance NATION1-NATION2> for distance between nations
 
 say <turn> to elaborate events for a new turn
@@ -250,6 +252,11 @@ COMMANDS
     elsif($query eq "alliances")
     {
         print $self->world->print_allies();
+        $result = { status => 1 };
+    }
+    elsif($query eq "influences")
+    {
+        print $self->world->print_influences();
         $result = { status => 1 };
     }
     elsif($query eq "hotspots")

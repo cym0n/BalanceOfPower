@@ -5,7 +5,7 @@ use v5.10;
 use Moo::Role;
 use Term::ANSIColor;
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle );
+use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle compare_turns);
 
 requires 'diplomacy_exists';
 requires 'get_borders';
@@ -256,12 +256,30 @@ sub print_war_history
 {
     my $self = shift;
     my $out .= as_title("WAR HISTORY\n\n");
+    my %wars;
+    my @war_names;
     foreach my $w (@{$self->memorial})
     {
-        $out .= $w->print_history;
-        $out .= "\n";
+        if(exists $wars{$w->war_id})
+        {
+           $wars{$w->war_id} .=  $w->print_history . "\n";
+        }
+        else
+        {
+           $wars{$w->war_id} =  $w->print_history . "\n";
+           push @war_names, { name => $w->war_id,
+                              start => $w->start_date  };
+        }
+    }
+    sub comp
+    {
+        compare_turns($a->{start}, $b->{start});
+    }
+    for(sort comp @war_names)
+    {
+        $out .= "### WAR " . $_->{name} . "\n";
+        $out .= $wars{$_->{name}};
     }
     return $out;
-
 }
 1;

@@ -14,6 +14,7 @@ has influences => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { reset_influences => 'delete_link_for_node',
+                 print_influences => 'print_links', 
                  add_influence => 'add_link' }
 );
 sub influences_garbage_collector
@@ -49,12 +50,10 @@ sub print_nation_situation
     my @influence = $self->has_influence($nation);
     if(@influence > 0)
     {
-        my $out = "$nation has influence on";
+        my $out = "";
         for(@influence)
         {
-            my $i = shift @influence;
-            $out .= " " . $i;
-            $out .= "," if(@influence > 0);
+            $out .= "$nation has influence on $_\n";
         }
         return $out;
     }
@@ -107,7 +106,16 @@ sub occupy
     my $leader = shift;
     my $internal_disorder = shift || 0;
     $self->get_nation($nation)->occupation($self);
-    foreach my $c (@{$occupiers})
+
+    my @occupiers_array = @{$occupiers};
+    my $real_leader = $self->is_under_influence($leader);
+    if($real_leader)
+    {
+        @occupiers_array = grep { $_ ne $real_leader } @occupiers_array;
+        push @occupiers_array, $real_leader;
+        $leader = $real_leader;
+    }
+    foreach my $c (@occupiers_array)
     {
         if($c eq $leader)
         {

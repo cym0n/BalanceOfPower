@@ -9,7 +9,8 @@ sub get_available_targets
     my $self = shift;
     my @targets = $self->SUPER::get_available_targets();
     my $nation = $self->actor;
-    @targets = grep { $self->world->is_under_influence($_) ne $nation } @targets;
+    @targets = grep { (! $self->world->is_under_influence($_) 
+                      || $self->world->is_under_influence($_) ne $nation) } @targets;
     return @targets;
 }
 

@@ -1,3 +1,10 @@
+0.150000
+===
+
+__???__
+
+ * influences command
+
 0.140000
 ===
 
@@ -8,9 +15,8 @@ __Sat 26 Dec 2015__
  * It's now impossible to start military support with a nation that hates you
  * RECALL REBEL MILITARY SUPPORT command
  * MILITARY AID command
- * history command to plot a single attribute of a nation as a graph
+ * plot command to plot a single attribute of a nation as a graph
  * Better war history
- * plot attribute command
  * Bugfix
 
 0.131000
