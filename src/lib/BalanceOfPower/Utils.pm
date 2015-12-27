@@ -4,6 +4,7 @@ use BalanceOfPower::Constants ':all';
 use Term::ANSIColor;
 
 use strict;
+use warnings;
 
 use base 'Exporter';
 
