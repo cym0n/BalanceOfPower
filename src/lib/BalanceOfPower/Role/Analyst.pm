@@ -49,7 +49,7 @@ sub print_nation_actual_situation
         $out .= $tr->print($nation) . "\n";
     }
     $out .= "\n";
-    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES", "SUPPORTS";
+    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES [" . $nation_obj->treaty_limit . "]" , "SUPPORTS";
     $allies_support_title .="\n";
     $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
     $allies_support_title .="\n";
@@ -279,6 +279,24 @@ sub print_war_history
     {
         $out .= "### WAR " . $_->{name} . "\n";
         $out .= $wars{$_->{name}};
+    }
+    return $out;
+}
+sub print_treaties_table
+{
+    my $self = shift;
+    my $out = sprintf "%-20s %-6s %-5s %-5s %-5s", "Nation", "LIMIT", "ALL", "NAG", "COM";
+    $out .= "\n";
+    my @nations = @{$self->nation_names};
+    for(@nations)
+    {
+        my $n = $_;
+        my $limit = $self->get_nation($n)->treaty_limit;
+        my $alls = $self->get_treaties_for_nation_by_type($n, 'alliance');
+        my $coms = $self->get_treaties_for_nation_by_type($n, 'commercial');
+        my $nags = $self->get_treaties_for_nation_by_type($n, 'no aggression');
+        $out .= sprintf "%-20s %-6s %-5s %-5s %-5s", $n, $limit, $alls, $nags, $coms;
+        $out .= "\n";
     }
     return $out;
 }

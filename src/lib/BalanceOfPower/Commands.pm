@@ -269,7 +269,11 @@ COMMANDS
         print $self->world->print_war_history();
         $result = { status => 1 };
     }
-
+    elsif($query eq "treaties")
+    {
+        print $self->world->print_treaties_table();
+        $result = { status => 1 };
+    }
     elsif($query =~ /^situation( (.*))?$/)
     {
         my $order = $2;
