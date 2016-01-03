@@ -48,7 +48,6 @@ use constant WAR_PRESTIGE_BONUS => 10;
 use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
 use constant BEST_PROGRESS_FOR_PRESTIGE_BONUS => 3;
 
-
 #IA Thresholds
 use constant WORRYING_LIMIT => 30;
 use constant DOMESTIC_BUDGET => 50;
@@ -136,6 +135,8 @@ use constant BEST_PROGRESS_FOR_PRESTIGE => 5;
 use constant TREATY_TRADE_FACTOR => .5;
 use constant ECONOMIC_AID_QUOTE => 7;
 use constant PROGRESS_INCREMENT => .1;
+use constant TREATY_LIMIT_PROGRESS_STEP => 0.4;
+use constant TREATIES_FOR_PROGRESS_STEP => 5;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -245,6 +246,8 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'PROGRESS_COST',
                   'BEST_PROGRESS_FOR_PRESTIGE',
                   'BEST_PROGRESS_FOR_PRESTIGE_BONUS',
-                  'PROGRESS_BATTLE_FACTOR'
+                  'PROGRESS_BATTLE_FACTOR',
+                  'TREATY_LIMIT_PROGRESS_STEP',
+                  'TREATIES_FOR_PROGRESS_STEP'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

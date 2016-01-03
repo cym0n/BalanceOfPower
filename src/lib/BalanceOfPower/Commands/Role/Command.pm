@@ -44,6 +44,10 @@ has army_limit => (
     is => 'ro',
     default => sub { {} }
 );
+has treaty_limit => (
+    is => 'ro',
+    default => 0
+);
 
 sub get_nation
 {
@@ -91,6 +95,13 @@ sub allowed
     if($nation->prestige < $self->prestige_cost)
     {
         return 0;
+    }
+    if($self->treaty_limit == 1)
+    {
+       if($self->world->get_treaties_for_nation($nation->name) >= $nation->treaty_limit)
+       {
+           return 0;
+       }
     }
     return 1;
 }

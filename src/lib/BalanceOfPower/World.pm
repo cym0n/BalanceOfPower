@@ -841,6 +841,12 @@ sub stipulate_treaty
         $self->broadcast_event("TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE OF HATE", $nation1->name, $nation2->name);
         return;
     }
+    if($self->get_treaties_for_nation($nation1->name) >= $nation1->treaty_limit ||
+       $self->get_treaties_for_nation($nation2->name) >= $nation2->treaty_limit)
+    {
+        $self->broadcast_event("TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE ONE NATION HAS ALREADY REACHED MAXIMUM ALLOWED TREATIES", $nation1->name, $nation2->name);
+        return;
+    }
     if($nation1->prestige >= TREATY_PRESTIGE_COST)
     {
         if($type eq 'COM')

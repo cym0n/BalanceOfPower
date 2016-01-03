@@ -103,7 +103,8 @@ sub init
                                                                           "TREATY COM",
                                                              ],
                                                              world => $world,
-                                                             prestige_cost => TREATY_PRESTIGE_COST 
+                                                             prestige_cost => TREATY_PRESTIGE_COST,
+                                                             treaty_limit => 1,
                                                             );
     $self->commands->{"TREATY COM WITH"} = $command; 
     $command =
@@ -114,6 +115,7 @@ sub init
                                                                          ],
                                                              world => $world,
                                                              prestige_cost => TREATY_PRESTIGE_COST,
+                                                             treaty_limit => 1,
                                                             );
     $self->commands->{"TREATY NAG WITH"} = $command; 
     $command =

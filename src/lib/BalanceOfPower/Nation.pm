@@ -510,6 +510,13 @@ sub grow
     $self->register_event("GROW. NEW PROGRESS: $new_progress");
 }
 
+sub treaty_limit
+{
+    my $self = shift;
+    my $progress_step = int($self->progress / TREATY_LIMIT_PROGRESS_STEP) + 1;
+    return $progress_step * TREATIES_FOR_PROGRESS_STEP;
+}   
+
 sub print_attributes
 {
     my $self = shift;

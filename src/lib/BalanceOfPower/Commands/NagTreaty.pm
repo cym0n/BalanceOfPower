@@ -4,6 +4,7 @@ use Moo;
 use Array::Utils qw(intersect);
 
 extends 'BalanceOfPower::Commands::TargetNation';
+with 'BalanceOfPower::Commands::Role::TreatiesUnderLimit';
 
 sub get_available_targets
 {
@@ -12,7 +13,7 @@ sub get_available_targets
     my $nation = $self->actor;
     @targets = grep {! $self->world->exists_treaty($nation, $_) } @targets;
     @targets = grep { $self->world->diplomacy_status($nation, $_) ne 'HATE' } @targets;
-    return @targets;
+    return $self->nations_under_treaty_limit(@targets);
 }
 
 sub IA
