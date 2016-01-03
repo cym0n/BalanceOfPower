@@ -436,19 +436,32 @@ sub calculate_prestige
     $prestige += @supported;
     my @influenced = $self->has_influence($nation_name);
     $prestige += @influenced * INFLUENCE_PRESTIGE_BONUS;
-    my @ordered_best = $self->order_statistics(prev_turn($nation->current_year), 'w/d');
     my $bonus = 0;
-    if(@ordered_best >= BEST_WEALTH_FOR_PRESTIGE)
+    my @ordered_best_w = $self->order_statistics(prev_turn($nation->current_year), 'w/d');
+    if(@ordered_best_w >= BEST_WEALTH_FOR_PRESTIGE)
     {
         for(my $i = 0; $i < BEST_WEALTH_FOR_PRESTIGE; $i++)
         {
-            if($ordered_best[$i]->{nation} eq $nation_name)
+            if($ordered_best_w[$i]->{nation} eq $nation_name)
             {
-                $bonus = BEST_WEALTH_FOR_PRESTIGE_BONUS;
+                $bonus += BEST_WEALTH_FOR_PRESTIGE_BONUS;
                 $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, $nation_name);
             }
         }
     }
+    my @ordered_best_p = $self->order_statistics(prev_turn($nation->current_year), 'progress');
+    if(@ordered_best_p >= BEST_PROGRESS_FOR_PRESTIGE)
+    {
+        for(my $i = 0; $i < BEST_PROGRESS_FOR_PRESTIGE; $i++)
+        {
+            if($ordered_best_p[$i]->{nation} eq $nation_name)
+            {
+                $bonus += BEST_PROGRESS_FOR_PRESTIGE_BONUS;
+                $self->broadcast_event("ONE OF THE FIRST " . BEST_PROGRESS_FOR_PRESTIGE . " NATIONS FOR PROGRESS WAS " . $nation_name, $nation_name);
+            }
+        }
+    }
+   
     $prestige += $bonus;
     my @wins = $nation->get_events("WAR BETWEEN .* AND .* WON BY ". $nation_name, prev_turn($nation->current_year));
     if(@wins > 0)
@@ -583,6 +596,12 @@ sub execute_decisions
             my $nation1 = $self->get_nation($1);
             my $nation2 = $self->get_nation($2);
             $self->military_aid($nation1, $nation2);
+        }
+        elsif($d =~ /^(.*): PROGRESS$/)
+        {
+            my $nation =  $self->get_nation($1);
+            $nation->grow();
+            $self->broadcast_event("INVESTMENT IN PROGRESS FOR " . $nation->name, $nation->name);
         }
     }
     $self->manage_route_adding(@route_adders);
@@ -893,7 +912,7 @@ sub collect_events
        {
             $self->register_event($n->name . ": ". $c);
        }
-       
+       $self->set_statistics_value($n, 'progress', $n->progress);
    }
 }
 

@@ -38,6 +38,7 @@ use constant MILITARY_AID_COST => 20;
 #domestic costs
 use constant RESOURCES_FOR_DISORDER => 20;
 use constant ARMY_COST => 20;
+use constant PROGRESS_COST => 30;
 
 #prestige
 use constant INFLUENCE_PRESTIGE_BONUS => 3;
@@ -45,6 +46,7 @@ use constant DIPLOMATIC_PRESSURE_PRESTIGE_COST => 6;
 use constant TREATY_PRESTIGE_COST => 7;
 use constant WAR_PRESTIGE_BONUS => 10;
 use constant BEST_WEALTH_FOR_PRESTIGE_BONUS => 5;
+use constant BEST_PROGRESS_FOR_PRESTIGE_BONUS => 3;
 
 
 #IA Thresholds
@@ -83,6 +85,7 @@ use constant DOMINATION_LOOT_BY_TYPE => 20;
 use constant CONTROL_LOOT_BY_TYPE => 0;
 use constant DOMINATION_CLOCK_LIMIT => 5;
 use constant OCCUPATION_CLOCK_LIMIT => 1;
+use constant PROGRESS_BATTLE_FACTOR => 10;
 
 #Diplomacy
 use constant HATE_LIMIT => 30;
@@ -129,8 +132,10 @@ use constant DICTATORSHIP_PRODUCTION_MALUS => 15;
 use constant DICTATORSHIP_BONUS_FOR_ARMY_CONSTRUCTION => 5;
 use constant INSURGENTS_AID => 15;
 use constant BEST_WEALTH_FOR_PRESTIGE => 5;
+use constant BEST_PROGRESS_FOR_PRESTIGE => 5;
 use constant TREATY_TRADE_FACTOR => .5;
 use constant ECONOMIC_AID_QUOTE => 7;
+use constant PROGRESS_INCREMENT => .1;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -235,6 +240,11 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MINIMUM_ARMY_FOR_AID',
                   'MILITARY_AID_COST',
                   'MILITARY_AID_DIPLOMACY_FACTOR',
-                  'ARMY_TO_GIVE_MILITARY_SUPPORT'
+                  'ARMY_TO_GIVE_MILITARY_SUPPORT',
+                  'PROGRESS_INCREMENT',
+                  'PROGRESS_COST',
+                  'BEST_PROGRESS_FOR_PRESTIGE',
+                  'BEST_PROGRESS_FOR_PRESTIGE_BONUS',
+                  'PROGRESS_BATTLE_FACTOR'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

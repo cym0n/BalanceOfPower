@@ -75,6 +75,11 @@ has army => (
     is => 'rw'
 );
 
+has progress => (
+    default => 0,
+    is => 'rw'
+);
+
 has frozen_disorder => (
     default => 0,
     is => 'rw'
@@ -203,10 +208,13 @@ sub calculate_disorder
     return if($self->internal_disorder_status eq 'Civil war');
     return if($self->frozen_disorder);
 
+    my @ordered_best = $world->order_statistics(prev_turn($self->current_year), 'progress');
+    
     #Variables
     my $wd = $self->wealth / PRODUCTION_UNITS->[$self->size];
     my $d = $self->internal_disorder;
     my $g = $self->government_strength;
+    my $prg = $ordered_best[0] ? $ordered_best[0]->{'value'} - $self->progress : 0;
 
     #Constants
     my $wd_middle = 30;
@@ -216,11 +224,12 @@ sub calculate_disorder
     my $government_strength_divider = 40;
     my $random_factor_max = 15;
     
-    
     my $disorder = ( ($wd_middle - $wd) / $wd_divider ) +
                    ( $d / $disorder_divider           ) +
                    ( ($government_strength_minimum - $g) / $government_strength_divider ) +
-                   $world->random_around_zero($random_factor_max, 100, "Internal disorder random factor for " . $self->name);
+                   $world->random_around_zero($random_factor_max, 100, "Internal disorder random factor for " . $self->name) +
+                   $prg;
+
     $disorder = int ($disorder * 100) / 100;
     $self->register_event("DISORDER CHANGE: " . $disorder);
     $self->add_internal_disorder($disorder, $world);
@@ -489,6 +498,15 @@ sub add_army
         $self->army(0);
     }
 
+}
+
+sub grow
+{
+    my $self = shift;
+    return if($self->production_for_domestic < PROGRESS_COST);
+    my $new_progress = $self->progress + PROGRESS_INCREMENT;
+    $self->progress($new_progress);
+    $self->subtract_production('domestic', PROGRESS_COST);
 }
 
 sub print_attributes

@@ -21,7 +21,6 @@ use Test::More;
 my $first_year = 1970;
 
 
-#Scenario: a neighbor has military support from an enemy nation
 my $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 $world->tricks( { "Export quote Italy" => [50],
                   "Export quote Germany" => [50],
