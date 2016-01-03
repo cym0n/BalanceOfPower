@@ -106,6 +106,7 @@ sub occupy
     my $leader = shift;
     my $internal_disorder = shift || 0;
     $self->get_nation($nation)->occupation($self);
+    my $occupied_progress = $self->get_nation($nation)->progress;
 
     my @occupiers_array = @{$occupiers};
     my $real_leader = $self->is_under_influence($leader);
@@ -126,6 +127,11 @@ sub occupy
                                                                        clock => 0 ));
             $self->set_diplomacy($nation, $c, DOMINION_DIPLOMACY);
             $self->copy_diplomacy($c, $nation);
+            if($self->get_nation($c)->progress < $occupied_progress)
+            {
+                $self->get_nation($c)->progress($occupied_progress);
+                $self->broadcast_event("$c ACQUIRES PROGRESS FROM $nation: $occupied_progress", $c, $nation);
+            }
         }
         else
         {
@@ -134,6 +140,7 @@ sub occupy
                                                                        status => 0,
                                                                        clock => 0 ));
             $self->set_diplomacy($nation, $c, DIPLOMACY_AFTER_OCCUPATION);
+            $self->get_nation($c)->grow();
         }
         $self->broadcast_event("$c OCCUPIES $nation", $c, $nation);
     }

@@ -507,6 +507,7 @@ sub grow
     my $new_progress = $self->progress + PROGRESS_INCREMENT;
     $self->progress($new_progress);
     $self->subtract_production('domestic', PROGRESS_COST);
+    $self->register_event("GROW. NEW PROGRESS: $new_progress");
 }
 
 sub print_attributes
