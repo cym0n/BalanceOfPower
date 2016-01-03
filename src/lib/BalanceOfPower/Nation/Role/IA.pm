@@ -165,12 +165,24 @@ sub good_prey
         $war_points += -1;
     }
 
-    #WEALTH EVALUATION
+    #WEALTH EVALUATION/PROGRES EVALUATION
     my $wealth = $world->get_statistics_value(prev_turn($self->current_year), $self->name, 'wealth');
     my $enemy_wealth = $world->get_statistics_value(prev_turn($self->current_year), $enemy->name, 'wealth');
+    my $progress_delta = $enemy->progress - $self->progress;
     if($wealth && $enemy_wealth)
     {
-        $war_points += 1 if($enemy_wealth > $wealth);
+        if($enemy_wealth > $wealth)
+        {
+            $war_points += 1 
+        }
+        else
+        {
+            if($progress_delta > 0 && $progress_delta < MAX_AFFORDABLE_PROGRESS)
+            {
+                $war_points += 1 
+            }
+            
+        }
     }
     else
     {

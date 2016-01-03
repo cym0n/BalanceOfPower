@@ -137,6 +137,7 @@ use constant ECONOMIC_AID_QUOTE => 7;
 use constant PROGRESS_INCREMENT => .1;
 use constant TREATY_LIMIT_PROGRESS_STEP => 0.4;
 use constant TREATIES_FOR_PROGRESS_STEP => 5;
+use constant MAX_AFFORDABLE_PROGRESS => 0.8;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -248,6 +249,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'BEST_PROGRESS_FOR_PRESTIGE_BONUS',
                   'PROGRESS_BATTLE_FACTOR',
                   'TREATY_LIMIT_PROGRESS_STEP',
-                  'TREATIES_FOR_PROGRESS_STEP'
+                  'TREATIES_FOR_PROGRESS_STEP',
+                  'MAX_AFFORDABLE_PROGRESS',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
