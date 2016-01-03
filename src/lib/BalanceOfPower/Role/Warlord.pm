@@ -415,9 +415,8 @@ sub fight_wars
         else
         {
             $attacker_progress_bonus = 0;
-            $defender_progress_bonus = $progress_delta * PROGRESS_BATTLE_FACTOR;
+            $defender_progress_bonus = $progress_delta * PROGRESS_BATTLE_FACTOR * -1;
         }
-
         for(my $i = 0; $i < $counter; $i++)
         {
             my $att = int(($self->random(1, 60, "War risiko: throw for attacker " . $attacker->name) + $attacker_progress_bonus) / 10) + 1;
