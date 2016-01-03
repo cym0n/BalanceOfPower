@@ -26,6 +26,7 @@ use BalanceOfPower::Commands::DeclareWar;
 use BalanceOfPower::Commands::AidInsurgents;
 use BalanceOfPower::Commands::DiplomaticPressure;
 use BalanceOfPower::Commands::MilitaryAid;
+use BalanceOfPower::Commands::Progress;
 
 has actor => (
     is => 'rw',
@@ -145,7 +146,12 @@ sub init
                                                     export_cost => MILITARY_AID_COST,
                                                   );
     $self->commands->{"MILITARY AID FOR"} = $command;
-   
+    $command =
+        BalanceOfPower::Commands::Progress->new( name => "PROGRESS",
+                                                    world => $world,
+                                                    domestic_cost => PROGRESS_COST,
+                                                  );
+    $self->commands->{"PROGRESS"} = $command;
 }
 
 

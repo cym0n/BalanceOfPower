@@ -68,7 +68,8 @@ sub domestic_advisor
                           "BOOST PRODUCTION",
                           "TREATY NAG WITH",
                           "DIPLOMATIC PRESSURE ON",
-                          "MILITARY AID FOR");
+                          "MILITARY AID FOR",
+                          "PROGRESS");
 }
 
 sub economy_advisor
