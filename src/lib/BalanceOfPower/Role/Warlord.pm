@@ -315,12 +315,14 @@ sub war_starting_report
     my $node1 = $war->node1;
     my $node2 = $war->node2;
     $war->register_event("Starting army for " . $node1 . ": " . $self->get_nation($node1)->army);
+    $war->register_event("Progress of " . $node1 . ": " . $self->get_nation($node1)->progress);
     my $sup1 = $self->supported($node1);
     if($sup1)
     {
         $war->register_event("$node1 is supported by " . $sup1->node1 . ": " . $sup1->army);
     }
     $war->register_event("Starting army for " . $node2 . ": " . $self->get_nation($node2)->army);
+    $war->register_event("Progress of " . $node2 . ": " . $self->get_nation($node2)->progress);
     my $sup2 = $self->supported($node2);
     if($sup2)
     {
@@ -402,10 +404,25 @@ sub fight_wars
         my $attacker_damage = 0;
         my $defender_damage = 0;
         my $counter = $attack < $defence ? $attack : $defence;
+        my $progress_delta = $attacker->progress - $defender->progress;
+        my $attacker_progress_bonus;
+        my $defender_progress_bonus;
+        if($progress_delta > 0)
+        {
+            $attacker_progress_bonus = $progress_delta * PROGRESS_BATTLE_FACTOR;
+            $defender_progress_bonus = 0;
+        }
+        else
+        {
+            $attacker_progress_bonus = 0;
+            $defender_progress_bonus = $progress_delta * PROGRESS_BATTLE_FACTOR;
+        }
+
         for(my $i = 0; $i < $counter; $i++)
         {
-            my $att = $self->random(1, 6, "War risiko: throw for attacker " . $attacker->name);
-            my $def = $self->random(1, 6, "War risiko: throw for defender " . $defender->name);
+            my $att = int(($self->random(1, 60, "War risiko: throw for attacker " . $attacker->name) + $attacker_progress_bonus) / 10) + 1;
+            my $def = int(($self->random(1, 60, "War risiko: throw for defender " . $defender->name) + $defender_progress_bonus) / 10) + 1;
+
             if($att > $def)
             {
                 $defender_damage++;
