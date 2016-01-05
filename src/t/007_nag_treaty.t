@@ -68,6 +68,7 @@ $world = BalanceOfPower::World->new( first_year => $first_year, silent => 1 );
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 $world->current_year('1970/1');
+$world->init_year('1970/1');
 $world->add_crisis('Italy', 'United Kingdom' );
 $world->change_diplomacy('Italy', 'Germany', 100);
 $world->change_diplomacy('Italy', 'France', 100);
