@@ -36,7 +36,7 @@ $world->get_nation("Germany")->army(7);
 $world->get_nation("France")->army(10);
 $world->player_nation("France");
 $world->order("DECLARE WAR TO Germany");
-$world->tricks( { "War risiko: throw for attacker France" => [6, 6, 6],
+$world->tricks( { "War risiko: throw for attacker France" => [60, 60, 60],
                   "War risiko: throw for defender Germany" => [1, 1, 1]
               });  
 my $france_diplomacy = $world->diplomacy_exists("Italy", "France");
