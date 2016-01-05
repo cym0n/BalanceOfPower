@@ -15,7 +15,8 @@ use Test::More;
 #   * ECONOMIC AID
 #   * TREATY COM
 #   * AID INSURGENTS IN
-#   * MILITARY AID FOR 
+#   * MILITARY AID FOR
+#   * PROGRESS 
 
 
 my $first_year = 1970;
@@ -83,6 +84,16 @@ $world->post_decisions_elaborations();
 is($remain_event[0], "REMAIN 80", "MILITARY AID: Italy paid the cost to military aid Germany");
 is($world->get_nation("Germany")->army, 3, "MILITARY AID: Germany has new soldiers");
 is($world->diplomacy_exists("Italy", "Germany")->factor, 87, "MILITARY AID: Italy<->Germany diplomacy: 87");
+
+
+$world->pre_decisions_elaborations('1971/1');
+$world->get_nation("Italy")->production(200);
+$world->get_nation("Italy")->progress(0);
+$world->ia_orders( [ "Italy: PROGRESS" ] );
+$world->post_decisions_elaborations();
+@remain_event = $world->get_nation("Italy")->get_events("INTERNAL", "1971/1");
+is($remain_event[0], "INTERNAL 70", "PROGRESS: Italy paid the cost for progress");
+is($world->get_nation("Italy")->progress, 0.1, "PROGRESS: Italy progress is now 0.1");
 
 
 
