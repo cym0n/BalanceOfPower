@@ -1041,6 +1041,10 @@ sub load_world
             {
                 $world->wars->load_pack("BalanceOfPower::Relations::War", $data);
             }
+            elsif($target eq 'MEMORIAL')
+            {
+                $world->memorial($world->load_memorial($data));
+            }
             $data = "";
             $target = $next;
         }

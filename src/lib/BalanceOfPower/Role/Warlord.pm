@@ -44,7 +44,7 @@ has wars => (
 );
 
 has memorial => (
-    is => 'ro',
+    is => 'rw',
     default => sub { [] }
 );
 
@@ -571,6 +571,35 @@ sub dump_memorial
     {
         print {$io} $w->dump($io, $indent);
     }
+}
+sub load_memorial
+{
+    my $self = shift;
+    my $data = shift;
+    my $war_data = "";
+    my @memorial;
+    my @lines = split "\n", $data;
+    foreach my $l (@lines)
+    {
+        say $l;
+        if($l !~ /^\s/)
+        {
+            if($war_data)
+            {
+                push @memorial, BalanceOfPower::Relations::War->load($war_data);
+                $war_data = $l . "\n";
+            }
+            else
+            {
+                $war_data = $l . "\n";
+            }
+        }
+        else
+        {
+            $war_data .= $l . "\n";
+        }
+    }
+    return \@memorial;
 }
 
 
