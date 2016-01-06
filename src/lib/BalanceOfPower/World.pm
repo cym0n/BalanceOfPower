@@ -944,13 +944,17 @@ sub load
 {
     my $self = shift;
     my $data = shift;
-    $data =~ s/^\s//;
-    chomp $data;
+    my $world_line = ( split /\n/, $data )[0];
+    $world_line =~ s/^\s+//;
+    chomp $world_line;
     my ($name, $first_year, $current_year, $player, $player_nation) =
-        split ";", $data;
+        split ";", $world_line;
+    $data =~ s/^.*?\n//;
+    my $events = $self->load_events($data);
     return BalanceOfPower::World->new(name => $name, 
                                       first_year => $first_year, current_year => $current_year,
-                                      player => $player, player_nation => $player_nation);
+                                      player => $player, player_nation => $player_nation,
+                                      events => $events);
 }
 
 sub dump_all
@@ -1000,11 +1004,45 @@ sub load_world
         my $line = $_;
         if($line =~ /^### (.*)$/)
         {
+            my $next = $1;
             if($target eq 'WORLD')
             {
-                say "Building world from $data";
                 $world = $self->load($data);
             }
+            elsif($target eq 'DIPLOMATIC RELATIONS')
+            {
+                $world->diplomatic_relations->load_pack("BalanceOfPower::Relations::Friendship", $data);
+            }
+            elsif($target eq 'TREATIES')
+            {
+                $world->treaties->load_pack("BalanceOfPower::Relations::Treaty", $data);
+            }
+            elsif($target eq 'BORDERS')
+            {
+                $world->borders->load_pack("BalanceOfPower::Relations::Border", $data);
+            }
+            elsif($target eq 'TRADEROUTES')
+            {
+                $world->trade_routes->load_pack("BalanceOfPower::Relations::TradeRoute", $data);
+            }
+            elsif($target eq 'INFLUENCES')
+            {
+                $world->trade_routes->load_pack("BalanceOfPower::Relations::Influence", $data);
+            }
+            elsif($target eq 'SUPPORTS')
+            {
+                $world->military_supports->load_pack("BalanceOfPower::Relations::MilitarySupport", $data);
+            }
+            elsif($target eq 'REBEL SUPPORTS')
+            {
+                $world->rebel_military_supports->load_pack("BalanceOfPower::Relations::MilitarySupport", $data);
+            }
+            elsif($target eq 'WARS')
+            {
+                $world->wars->load_pack("BalanceOfPower::Relations::War", $data);
+            }
+            $data = "";
+            $target = $next;
         }
         else
         {

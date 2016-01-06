@@ -4,6 +4,7 @@ use strict;
 use v5.10;
 
 use Moo;
+use Module::Load;
 
 has links => (
     is => 'rw',
@@ -390,12 +391,13 @@ sub dump
         $l->dump($io, $indent);
     }
 }
-sub load
+sub load_pack
 {
     my $self = shift;
     my $class = shift;
     my $data = shift;
     my @lines = split "\n", $data;
+    load $class;
     my $rel_data = "";
     foreach my $l (@lines)
     {
