@@ -44,6 +44,14 @@ sub print
         return $from . " -[x" . $self->factor2 . "]-> " . $self->node1;
     }
 }
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . join(";", $self->node1, $self->node2, $self->factor1, $self->factor2) . "\n";
+}
+
 
 
 

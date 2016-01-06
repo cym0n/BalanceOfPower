@@ -112,7 +112,13 @@ sub actual_influence
         return 0;
     }
 }
-
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . join(";", $self->node1, $self->node2, $self->status, $self->next, $self->clock) . "\n";
+}
 
 
 1;

@@ -31,6 +31,13 @@ sub print
     my $self = shift;
     return $self->node1 . " --> " . $self->node2 . " [" . $self->army . "]";
 }
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift;
+    print {$io} $indent . join(";", $self->node1, $self->node2, $self->army) . "\n";
+}
 
 
 

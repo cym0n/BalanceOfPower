@@ -932,6 +932,15 @@ sub build_commands
     return $commands;
 }
 
+sub dump_all
+{
+    my $self = shift;
+    open(my $io, "> test.dmp");
+    $self->influences->dump($io);
+    $self->dump_memorial($io);
+    close($io);
+    return "Dumped to test.dmp";
+}   
 
 
 1;

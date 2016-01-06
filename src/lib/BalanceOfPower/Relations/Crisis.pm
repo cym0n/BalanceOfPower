@@ -1,5 +1,7 @@
 package BalanceOfPower::Relations::Crisis;
 
+#DEPRECATED
+
 use strict;
 use v5.10;
 

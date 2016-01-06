@@ -201,6 +201,13 @@ sub is_max_crisis
     my $self = shift;
     return $self->get_crisis_level() == CRISIS_MAX_FACTOR;
 }
+sub dump
+{
+    my $self = shift;
+    my $indent = shift || "";
+    my $io = shift;
+    print {$io} $indent . join(";", $self->node1, $self->node2, $self->factor, $self->crisis_level) . "\n";
+}
 
 
 1;

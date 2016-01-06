@@ -380,5 +380,15 @@ sub near
     my $nodes = shift;
     return grep { $self->exists_link($node, $_) && $node ne $_ } @{$nodes};
 }
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    foreach my $l (@{$self->links})
+    {
+        $l->dump($io, $indent);
+    }
+}
 
 1;

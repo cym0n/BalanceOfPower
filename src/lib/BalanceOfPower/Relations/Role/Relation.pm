@@ -104,4 +104,11 @@ sub print
         }
     }
 }
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . $self->node1 . ";" . $self->node2 . "\n";
+}
 1;

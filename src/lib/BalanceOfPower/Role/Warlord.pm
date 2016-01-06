@@ -562,6 +562,16 @@ sub print_wars
     }
     return $out;
 }
+sub dump_memorial
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift;
+    foreach my $w (@{$self->memorial})
+    {
+        print {$io} $w->dump($io, $indent);
+    }
+}
 
 
 1;

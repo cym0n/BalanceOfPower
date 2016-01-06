@@ -31,13 +31,16 @@ has node2_faction => (
     default => ""
 );
 has start_date => (
-    is => 'ro'
+    is => 'ro',
+    default => ""
 );
 has end_date => (
-    is => 'rw'
+    is => 'rw',
+    default => ""
 );
 has current_year => (
-    is => 'rw'
+    is => 'rw',
+    default => ""
 );
 
 
@@ -87,6 +90,19 @@ sub print_history
     }
     $out .= "*** War ended in " . $self->end_date . " ***\n";
     return $out;
+}
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . join(";", $self->node1, $self->node2, $self->attack_leader,
+                                    $self->war_id, $self->name, $self->node1_faction, $self->node2_faction, 
+                                    $self->start_date, $self->end_date, $self->current_year ). "\n";
+    if($self->events)
+    {    
+        $self->dump_events($io, $indent . " ");
+    }
 }
 
 
