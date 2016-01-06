@@ -390,5 +390,29 @@ sub dump
         $l->dump($io, $indent);
     }
 }
+sub load
+{
+    my $self = shift;
+    my $class = shift;
+    my $data = shift;
+    my @lines = split "\n", $data;
+    my $rel_data = "";
+    foreach my $l (@lines)
+    {
+        if($l !~ /^\s/)
+        {
+            if($rel_data)
+            {
+                my $rel = $class->load($rel_data);
+                $self->add_link($rel);
+            }
+            $rel_data = $l . "\n";
+        }
+        else
+        {
+            $rel_data .= $l . "\n";
+        }
+    }
+}
 
 1;

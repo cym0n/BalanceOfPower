@@ -932,15 +932,88 @@ sub build_commands
     return $commands;
 }
 
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year, $self->player, $self->player_nation) . "\n";
+    $self->dump_events($io, " " . $indent);
+}
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    $data =~ s/^\s//;
+    chomp $data;
+    my ($name, $first_year, $current_year, $player, $player_nation) =
+        split ";", $data;
+    return BalanceOfPower::World->new(name => $name, 
+                                      first_year => $first_year, current_year => $current_year,
+                                      player => $player, player_nation => $player_nation);
+}
+
 sub dump_all
 {
     my $self = shift;
     open(my $io, "> test.dmp");
+    $self->dump($io);
+    print {$io} "### NATIONS\n";
+    for(@{$self->nations})
+    {
+        $_->dump($io);
+    }
+    print {$io} "### DIPLOMATIC RELATIONS\n";
+    $self->diplomatic_relations->dump($io);
+    print {$io} "### TREATIES\n";
+    $self->treaties->dump($io);
+    print {$io} "### BORDERS\n";
+    $self->borders->dump($io);
+    print {$io} "### TRADEROUTES\n";
+    $self->trade_routes->dump($io);
+    print {$io} "### INFLUENCES\n";
     $self->influences->dump($io);
+    print {$io} "### SUPPORTS\n";
+    $self->military_supports->dump($io);
+    print {$io} "### REBEL SUPPORTS\n";
+    $self->rebel_military_supports->dump($io);
+    print {$io} "### WARS\n";
+    $self->wars->dump($io);
+    print {$io} "### MEMORIAL\n";
     $self->dump_memorial($io);
+    print {$io} "### STATISTICS\n";
+    $self->dump_statistics($io);
     close($io);
     return "Dumped to test.dmp";
 }   
+
+sub load_world
+{
+    my $self = shift;
+    my $file = shift;
+    open(my $dump, "<", $file) or die "Problems opening $file: $!";
+    my $world;
+    my $target = "WORLD";
+    my $data = "";
+    for(<$dump>)
+    {
+        my $line = $_;
+        if($line =~ /^### (.*)$/)
+        {
+            if($target eq 'WORLD')
+            {
+                say "Building world from $data";
+                $world = $self->load($data);
+            }
+        }
+        else
+        {
+            $data .= $line;
+        }
+    }
+    close($dump);
+    return $world;
+}
 
 
 1;

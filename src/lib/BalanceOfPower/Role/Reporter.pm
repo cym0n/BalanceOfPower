@@ -122,6 +122,29 @@ sub dump_events
         }
     }
 }
+sub load_events
+{
+    my $self = shift;
+    my $data = shift;
+    my @lines = split "\n", $data;
+    my $year = "";
+    my %events;
+    foreach my $l (@lines)
+    {
+        $l =~ s/^\s//;
+        chomp $l;
+        if($l =~ /### (.*)$/)
+        {
+            $year = $1;
+            $events{$year} = [];
+        }
+        else
+        {
+            push @{$events{$year}}, $l;
+        }
+    }
+    return \%events;
+}
 
 
 1;

@@ -46,5 +46,14 @@ sub dump
     my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->type) . "\n";
 }
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    $data =~ s/^\s+//;
+    chomp $data;
+    my ($node1, $node2, $type) = split ";", $data;
+    return $self->new(node1 => $node1, node2 => $node2, type => $type);
+}
 
 1;

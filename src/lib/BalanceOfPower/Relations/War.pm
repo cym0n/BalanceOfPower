@@ -104,6 +104,23 @@ sub dump
         $self->dump_events($io, $indent . " ");
     }
 }
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    my $war_line = ( split /\n/, $data )[0];
+    $war_line =~ s/^\s+//;
+    chomp $war_line;
+    my ($node1, $node2, $attack_leader, $war_id, $name, $node1_faction, $node2_faction, $start_date, $end_date, $current_year) = split ";", $war_line;
+    $data =~ s/^.*?\n//;
+    my $events = $self->load_events($data);
+    return $self->new(node1 => $node1, node2 => $node2, 
+                         attack_leader => $attack_leader, 
+                         war_id => $war_id, name => $name, 
+                         node1_faction => $node1_faction, node2_faction => $node2_faction, 
+                         start_date => $start_date, end_date => $end_date, current_year => $current_year,
+                         events => $events);
+}
 
 
 

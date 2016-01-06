@@ -204,9 +204,18 @@ sub is_max_crisis
 sub dump
 {
     my $self = shift;
-    my $indent = shift || "";
     my $io = shift;
+    my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->factor, $self->crisis_level) . "\n";
+}
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    $data =~ s/^\s+//;
+    chomp $data;
+    my ($node1, $node2, $factor, $crisis_level) = split ";", $data;
+    return $self->new(node1 => $node1, node2 => $node2, factor => $factor, crisis_level => $crisis_level);
 }
 
 
