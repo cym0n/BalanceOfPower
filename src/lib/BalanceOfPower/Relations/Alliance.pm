@@ -1,5 +1,7 @@
 package BalanceOfPower::Relations::Alliance;
 
+#DEPRECATED
+
 use strict;
 use v5.10;
 

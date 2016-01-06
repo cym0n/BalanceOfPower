@@ -546,4 +546,14 @@ sub print
     return $out;
 }
 
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . 
+                join(";", $self->name, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->rebel_provinces, $self->current_year, $self->army, $self->progress) . "\n";
+    $self->dump_events($io, " " . $indent);
+}
+
 1;
