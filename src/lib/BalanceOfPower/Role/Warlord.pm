@@ -581,7 +581,6 @@ sub load_memorial
     my @lines = split "\n", $data;
     foreach my $l (@lines)
     {
-        say $l;
         if($l !~ /^\s/)
         {
             if($war_data)

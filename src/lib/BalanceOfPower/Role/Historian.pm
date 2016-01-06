@@ -360,6 +360,14 @@ sub dump_statistics
     $dump->Indent(0);
     print {$io} $indent . $dump->Dump . "\n";
 }
+sub load_statistics
+{
+    my $self = shift;
+    my $data = shift;
+    my $VAR1;
+    eval ( $data );
+    $self->statistics($VAR1);
+}
 
 
 1;

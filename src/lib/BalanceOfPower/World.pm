@@ -987,6 +987,7 @@ sub dump_all
     $self->dump_memorial($io);
     print {$io} "### STATISTICS\n";
     $self->dump_statistics($io);
+    print {$io} "### EOF\n";
     close($io);
     return "Dumped to test.dmp";
 }   
@@ -1044,6 +1045,10 @@ sub load_world
             elsif($target eq 'MEMORIAL')
             {
                 $world->memorial($world->load_memorial($data));
+            }
+            elsif($target eq 'STATISTICS')
+            {
+                $world->load_statistics($data);
             }
             $data = "";
             $target = $next;
