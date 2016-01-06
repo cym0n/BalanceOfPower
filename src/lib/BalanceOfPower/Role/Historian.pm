@@ -5,6 +5,7 @@ use strict;
 use Moo::Role;
 use Term::ANSIColor;
 use List::Util qw( min max );
+use Data::Dumper;
 
 use BalanceOfPower::Utils qw( get_year_turns as_title from_to_turns );
 use BalanceOfPower::Constants ':all';
@@ -348,6 +349,16 @@ sub print_defcon_statistics
         }
     }
     return $out;
+}
+
+sub dump_statistics
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    my $dump = Data::Dumper->new([$self->statistics]);
+    $dump->Indent(0);
+    print {$io} $indent . $dump->Dump . "\n";
 }
 
 
