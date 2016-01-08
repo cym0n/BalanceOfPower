@@ -7,10 +7,17 @@ use IO::Prompter;
 use Term::ANSIColor;
 use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn);
 use BalanceOfPower::World;
+use Data::Dumper;
 
 
 my $stubbed_player = 0;
 my $logs = 0;
+my $new = 1;
+
+my $first_year = 1970;
+
+my $world;
+my $commands;
 
 my $mode = shift @ARGV;
 if($mode eq 'devel')
@@ -25,30 +32,41 @@ elsif($mode eq 'fastdev')
    $stubbed_player = 1;
    $logs = 0;
 }
-my $world;
-my $commands;
-my $first_year;
-my $auto_years;
-
-
-$first_year = 1970;
-$world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
-$world->dice_log($logs);
-$world->init_random("nations-v2.txt", "borders-v2.txt");
-
-$commands = $world->build_commands();
-$auto_years = $commands->init_game($stubbed_player);
-if($auto_years >= 0)
+elsif($mode eq 'load')
 {
-    $world->autopilot($first_year, $first_year+$auto_years);
+    my $file = shift @ARGV;
+    $world = BalanceOfPower::World->load_world($file);
+    $world->savefile($file);
+    $new = 0;
+}
+
+if(! $world)
+{
+    my $auto_years;
+    $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
+    $world->init_random("nations-v2.txt", "borders-v2.txt");
+}
+$world->dice_log($logs);
+$commands = $world->build_commands();
+if($new)
+{
+    my $auto_years = $commands->init_game($stubbed_player);
+    if($auto_years >= 0)
+    {
+        $world->autopilot($first_year, $first_year+$auto_years);
+    }
+    else
+    {
+        $world->current_year(prev_turn($first_year));  
+    }
+
+    $commands->welcome_player();
+    $commands->interact();
 }
 else
 {
-    $world->current_year(prev_turn($first_year));  
+    $commands->interact(0);
 }
-
-$commands->welcome_player();
-$commands->interact();
 
 
 

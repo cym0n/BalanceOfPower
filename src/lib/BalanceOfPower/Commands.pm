@@ -290,6 +290,13 @@ COMMANDS
         say $self->world->print_rebel_military_supports();  
         $result = { status => 1 };
     }
+    elsif($query =~ /save( (.*))?$/)
+    {
+        my $savefile = $2;
+        $savefile ||= $self->world->savefile;
+        say $self->world->dump_all($savefile);  
+        $result = { status => 1 };
+    }
     elsif($query =~ /^distance (.*)-(.*)$/)
     {
         my $n1 = $self->world->correct_nation_name($1);
@@ -488,7 +495,9 @@ sub orders
 sub interact
 {
     my $self = shift;
-    $self->world->pre_decisions_elaborations();
+    my $pre_decisions = shift;
+    $pre_decisions = 1 if(! defined $pre_decisions);
+    $self->world->pre_decisions_elaborations() if $pre_decisions;
     while($self->active)
     {
         my $result = undef;
