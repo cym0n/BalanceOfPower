@@ -9,7 +9,7 @@ use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn );
 
 has executive => (
-    is => 'ro',
+    is => 'rw',
     handles => { decide => 'decide' }
     
 );

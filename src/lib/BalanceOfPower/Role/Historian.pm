@@ -108,18 +108,20 @@ sub plot_nation_factor
     my $graph_height = 12;
 
     my @data = ();
+    my $valid = 0;
     foreach my $t (from_to_turns($first_turn, $last_turn))
     {
         if(defined $self->get_statistics_value($t, $nation, $factor))
         {
             push @data, $self->get_statistics_value($t, $nation, $factor);
+            $valid = 1;
         }
         else
         {
             push @data, undef;
         }
     }
-    return "" if(@data == 0);
+    return "" if(! $valid);
     my $min = min @data;
     my $max = max @data;
     my $step = ($max - $min) / $graph_height;

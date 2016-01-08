@@ -70,6 +70,10 @@ has dice => (
                  dice_log => 'log_active'
                }
 );
+has savefile => (
+    is => 'rw',
+    default => ""
+);
 
 
 with 'BalanceOfPower::Role::Player';
@@ -88,6 +92,11 @@ sub get_nation
 {
     my $self = shift;
     my $nation = shift;
+    if(! $nation)
+    {
+        say "Nation is undef";
+        return undef;
+    }
     my @nations = grep { $_->name eq $nation } @{$self->nations};
     if(@nations > 0)
     {
@@ -95,6 +104,7 @@ sub get_nation
     }
     else
     {
+        say "Cannot found $nation";
         return undef;
     }
 }
@@ -961,6 +971,7 @@ sub load_nations
 {
     my $self = shift;
     my $data = shift;
+    $data .= "EOF\n";
     my $nation_data = "";
     foreach my $l (split "\n", $data)
     {
@@ -970,6 +981,9 @@ sub load_nations
             if($nation_data)
             {
                 my $nation = BalanceOfPower::Nation->load($nation_data);
+                my $executive = BalanceOfPower::Executive->new( actor => $nation->name );
+                $executive->init($self);
+                $nation->executive($executive);
                 push @{$self->nations}, $nation;
                 push @{$self->nation_names}, $nation->name;
             }
@@ -985,7 +999,9 @@ sub load_nations
 sub dump_all
 {
     my $self = shift;
-    open(my $io, "> test.dmp");
+    my $file = shift;
+    return "No file provided" if ! $file;
+    open(my $io, "> $file");
     $self->dump($io);
     print {$io} "### NATIONS\n";
     for(@{$self->nations})
@@ -1014,7 +1030,7 @@ sub dump_all
     $self->dump_statistics($io);
     print {$io} "### EOF\n";
     close($io);
-    return "Dumped to test.dmp";
+    return "World saved to $file";
 }   
 
 sub load_world
@@ -1057,7 +1073,7 @@ sub load_world
             }
             elsif($target eq 'INFLUENCES')
             {
-                $world->trade_routes->load_pack("BalanceOfPower::Relations::Influence", $data);
+                $world->influences->load_pack("BalanceOfPower::Relations::Influence", $data);
             }
             elsif($target eq 'SUPPORTS')
             {

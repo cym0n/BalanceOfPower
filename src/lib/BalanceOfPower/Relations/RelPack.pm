@@ -396,6 +396,7 @@ sub load_pack
     my $self = shift;
     my $class = shift;
     my $data = shift;
+    $data .= "EOF\n";
     my @lines = split "\n", $data;
     load $class;
     my $rel_data = "";
