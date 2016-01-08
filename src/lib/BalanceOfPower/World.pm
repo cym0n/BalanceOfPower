@@ -957,6 +957,31 @@ sub load
                                       events => $events);
 }
 
+sub load_nations
+{
+    my $self = shift;
+    my $data = shift;
+    my $nation_data = "";
+    foreach my $l (split "\n", $data)
+    {
+
+        if($l !~ /^\s/)
+        {
+            if($nation_data)
+            {
+                my $nation = BalanceOfPower::Nation->load($nation_data);
+                push @{$self->nations}, $nation;
+                push @{$self->nation_names}, $nation->name;
+            }
+            $nation_data = $l . "\n";
+        }
+        else
+        {
+            $nation_data .= $l . "\n";
+        }
+    }
+}
+
 sub dump_all
 {
     my $self = shift;
@@ -1009,6 +1034,10 @@ sub load_world
             if($target eq 'WORLD')
             {
                 $world = $self->load($data);
+            }
+            elsif($target eq 'NATIONS')
+            {
+                $world->load_nations($data);
             }
             elsif($target eq 'DIPLOMATIC RELATIONS')
             {

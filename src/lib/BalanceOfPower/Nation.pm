@@ -556,4 +556,25 @@ sub dump
     $self->dump_events($io, " " . $indent);
 }
 
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    my $nation_line = ( split /\n/, $data )[0];
+    $nation_line =~ s/^\s+//;
+    chomp $nation_line;
+    my ($name, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $rebel_provinces, $current_year, $army, $progress) = split ";", $nation_line;
+    $data =~ s/^.*?\n//;
+    my $events = $self->load_events($data);
+    return $self->new(name => $name, area => $area, size => $size,
+                      export_quote => $export_quote, government => $government, government_strength => $government_strength,
+                      internal_disorder => $internal_disorder, 
+                      production_for_domestic => $production_for_domestic, production_for_export => $production_for_export,
+                      prestige => $prestige, wealth => $wealth, debt => $debt,
+                      rebel_provinces => $rebel_provinces, army => $army,
+                      current_year => $current_year,
+                      progress => $progress,
+                      events => $events);
+}
+
 1;
