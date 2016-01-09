@@ -52,12 +52,17 @@ my $result;
 $world->get_player_nation->production(1000);
 
 #Generic commands
-foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history", "influences") )
+foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history", "influences", "treaties") )
 {
     $commands->query($c);
     $result = $commands->report_commands();
     is($result->{status}, 1, "Command elaborated: $c");
 }
+
+#Bad command
+$commands->query("wrong");
+$result = $commands->report_commands();
+is($result->{status}, 0, "Bad command returns 0");
 
 #Nation configured
 $commands->query('Germany');
@@ -65,14 +70,14 @@ $result = $commands->report_commands();
 is($result->{status}, 1, "Command elaborated: Germany");
 
 #Commands for nation
-foreach my $c ( ("borders", "relations", "events", "status", "history") )
+foreach my $c ( ("borders", "relations", "events", "status", "history", "plot internal disorder") )
 {
     $commands->query($c);
     $result = $commands->report_commands();
     is($result->{status}, 1, "Command elaborated: $c");
 }
 
-foreach my $c ( ("Germany borders", "Germany relations", "Germany events", "Germany status", "Germany history") )
+foreach my $c ( ("Germany borders", "Germany relations", "Germany events", "Germany status", "Germany history", "Germany plot internal disorder") )
 {
     $commands->query($c);
     $result = $commands->report_commands();
