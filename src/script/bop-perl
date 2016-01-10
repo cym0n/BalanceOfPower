@@ -50,7 +50,18 @@ $world->dice_log($logs);
 $commands = $world->build_commands();
 if($new)
 {
-    my $auto_years = $commands->init_game($stubbed_player);
+    my $auto_years;
+    if($stubbed_player)
+    {
+        $auto_years = 10;
+        $commands->set_player("Player One");
+    }
+    else
+    {
+        $commands->welcome();
+        $auto_years = $commands->set_auto_years();
+        $commands->input_player();
+    }
     if($auto_years >= 0)
     {
         $world->autopilot($first_year, $first_year+$auto_years);

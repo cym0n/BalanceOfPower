@@ -76,7 +76,8 @@ has savefile => (
 );
 
 
-with 'BalanceOfPower::Role::Player';
+
+with 'BalanceOfPower::Role::GameMaster';
 with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Mapmaker';
@@ -118,11 +119,6 @@ sub correct_nation_name
         return $_ if(uc $_ eq uc $nation);
     }
     return undef;
-}
-sub get_player_nation
-{
-    my $self = shift;
-    return $self->get_nation($self->player_nation);
 }
 sub check_nation_name
 {
@@ -669,18 +665,7 @@ sub decisions
     foreach my $nation (@{$self->nations})
     {
         my $decision;
-        if($nation->name eq $self->player_nation && ! $self->autoplay)
-        {
-            if($self->order)
-            {
-                $decision = $nation->name . ": " . $self->order;
-                $self->order(undef);
-            }
-        }
-        else
-        {
-            $decision = $nation->decision($self);
-        }
+        $decision = $nation->decision($self);
         if($decision)
         {
             push @decisions, $decision;
@@ -938,7 +923,6 @@ sub build_commands
 {
     my $self = shift;
     my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active );
-    $commands->init($self);
     return $commands;
 }
 
@@ -947,7 +931,7 @@ sub dump
     my $self = shift;
     my $io = shift;
     my $indent = shift || "";
-    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year, $self->player, $self->player_nation) . "\n";
+    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 sub load
@@ -957,13 +941,12 @@ sub load
     my $world_line = ( split /\n/, $data )[0];
     $world_line =~ s/^\s+//;
     chomp $world_line;
-    my ($name, $first_year, $current_year, $player, $player_nation) =
+    my ($name, $first_year, $current_year) =
         split ";", $world_line;
     $data =~ s/^.*?\n//;
     my $events = $self->load_events($data);
     return BalanceOfPower::World->new(name => $name, 
                                       first_year => $first_year, current_year => $current_year,
-                                      player => $player, player_nation => $player_nation,
                                       events => $events);
 }
 

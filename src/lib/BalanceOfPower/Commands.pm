@@ -4,6 +4,7 @@ use v5.10;
 use Moo;
 use IO::Prompter;
 use Term::ANSIColor;
+use BalanceOfPower::Player;
 use BalanceOfPower::Executive;
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn prev_turn get_year_turns compare_turns evidence_text);
@@ -12,13 +13,6 @@ with 'BalanceOfPower::Role::Logger';
 
 has world => (
     is => 'ro'
-);
-has executive => (
-    is => 'ro',
-    default => sub { BalanceOfPower::Executive->new; },           
-    handles => { recognize_command => 'recognize_command',
-                 print_orders => 'print_orders'
-               }
 );
 has query => (
     is => 'rw',
@@ -37,71 +31,61 @@ has active => (
     default => 1
 );
 
-sub init
+has active_player => (
+    is => 'rw',
+    default => ""
+);
+
+sub welcome
 {
     my $self = shift;
-    $self->executive->init($self->world);
-}
-
-
-
-
-
-
-sub init_game
-{
-    my $self = shift;
-    my $stubbed = shift;
-
     my $welcome_message = <<'WELCOME';
 Welcome to Balance of Power, simulation of a real dangerous world!
 
-Take the control of a country and try to make it the most powerful of the planet! 
+Hide in the darkness to gain power and richness while the world burn
 WELCOME
+    say $welcome_message;
+}
 
-    my $auto_years;
-    if($stubbed)
+sub set_auto_years
+{
+    my $self = shift;
+    my $auto_years = prompt "Tell a number of years to generate before game start: ", -i;
+    return $auto_years;
+}
+sub input_player
+{
+    my $self = shift;
+    my $player = prompt "Say your name, player: ";
+    if($player)
     {
-        $self->set_player_nation("Italy");
-        $self->world->player("PlayerOne");
-        $auto_years = 10;
+        $self->set_player($player);
     }
     else
     {
-        say $welcome_message;
-        my $player = prompt "Say your name, player: ";
-        my $player_nation = prompt "Select the nation you want to control: ", -menu=>$self->world->nation_names;
-        $self->world->player($player);
-        $self->set_player_nation($player_nation);
-        $auto_years = prompt "Tell a number of years to generate before game start: ", -i;
+        say "Bad entry";
     }
-    return $auto_years;
-}
-sub set_player_nation
-{
-    my $self = shift;
-    my $player_nation = shift;
-    $self->world->player_nation($player_nation);
-    $self->executive->actor($player_nation);
 }
 
+sub set_player
+{
+    my $self = shift;
+    my $player = shift;
+    $self->world->add_player(BalanceOfPower::Player->new(name => $player));
+    $self->active_player($player);
+}
 
 sub welcome_player
 {
     my $self = shift;
-    print $self->world->print_nation_actual_situation($self->world->player_nation);
-    print "\n";
+    #TODO: wallet situation will be printed
 }
 sub get_prompt_text
 {
     my $self = shift;
-    my $prompt_text = "[" . $self->world->player . ", leader of " . $self->world->player_nation . ". Turn is " . $self->world->current_year . "]\n";
-    my $nation  = $self->world->get_player_nation();
-    $prompt_text .= "Int:" . $nation->production_for_domestic . "    Exp:" . $nation->production_for_export . "    Prtg:" . $nation->prestige . "    Army:" . $nation->army . "\n";
-    if($self->world->order)
-    {
-        $prompt_text .= "=== ORDER SELECTED: " . $self->world->order . "\n";
-    }
+    my $prompt_text = "";
+    $prompt_text = "[" . $self->active_player . ". Turn is " . $self->world->current_year . "]\n";
+    #TODO: informations about the player will be displayed
     $prompt_text .= $self->nation ? "(" . $self->nation . ") ?" : "?";
     return $prompt_text;
 }
@@ -487,8 +471,10 @@ sub verify_nation
 sub orders
 {
     my $self = shift;
-    return $self->recognize_command($self->nation,
-                                    $self->query);
+    #TODO: general executive that control any nation
+    return { status => -50 };
+    #return $self->recognize_command($self->nation,
+    #                                $self->query);
     
 }
 
@@ -531,7 +517,6 @@ sub interact
         elsif($result->{status} == 1)
         {
             say "Order selected: " . $result->{command};
-            $self->world->order($result->{command});
         } 
     }
 }

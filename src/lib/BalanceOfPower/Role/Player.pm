@@ -1,5 +1,7 @@
 package BalanceOfPower::Role::Player;
 
+#DEPRECATED
+
 use strict;
 use v5.10;
 
