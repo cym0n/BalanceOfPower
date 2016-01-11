@@ -19,6 +19,7 @@ requires 'get_wars';
 requires 'print_nation_situation';
 requires 'print_nation_statistics_header';
 requires 'print_nation_statistics_line';
+requires 'get_player';
 
 sub print_nation_actual_situation
 {
@@ -110,11 +111,8 @@ sub print_nation_actual_situation
         $out .="\n";
     }
     $out .= "\n";
-    if($self->player_nation ne $nation)
-    {
-        $out .= "Relations with player: " . $self->diplomacy_exists($self->player_nation, $nation)->print() . "\n";
-        $out .= "\n";
-    }
+    my $order = $self->get_statistics_value($turn, $nation, 'order') ? $self->get_statistics_value($turn, $nation, 'order') : 'NONE';
+    $out .= "Latest given order: $order\n";
     return $out;
 }
 
@@ -144,7 +142,14 @@ sub print_borders_analysis
                 {
                     $out .= " " . $sup_rel->print_crisis_bar;
                 } 
-                $out .= ")";
+             sub war_current_year
+{
+    my $self = shift;
+    for($self->wars->all)
+    {
+        $_->current_year($self->current_year);
+    }
+}   $out .= ")";
             }
             $out .= "\n";
         }
@@ -204,8 +209,8 @@ sub print_hotspots
         if(! $self->war_exists($c->node1, $c->node2))
         {
             $out .= as_subtitle($c->print_crisis()) . "\n";
-            $out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node1)->print() . "\n" if($self->player_nation ne $c->node1);
-            $out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node2)->print(). "\n" if($self->player_nation ne $c->node2);
+            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node1)->print() . "\n" if($self->player_nation ne $c->node1);
+            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node2)->print(). "\n" if($self->player_nation ne $c->node2);
             $out .= "\n";
         }
     }
@@ -216,8 +221,8 @@ sub print_hotspots
     {
         my $w = $_;
         $out .= $w->print() . "\n";
-        $out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node1)->print() . "\n" if($self->player_nation ne $w->node1);
-        $out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node2)->print(). "\n" if($self->player_nation ne $w->node2);
+        #$out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node1)->print() . "\n" if($self->player_nation ne $w->node1);
+        #$out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node2)->print(). "\n" if($self->player_nation ne $w->node2);
         $out .= "\n";
     }
     $out .= "\n";
@@ -227,7 +232,7 @@ sub print_hotspots
         if($self->at_civil_war($n))
         {
             $out .= "$n is fighting civil war\n";
-            $out .= "    " . $self->diplomacy_exists($self->player_nation, $n)->print() . "\n" if($self->player_nation ne $n);
+            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $n)->print() . "\n" if($self->player_nation ne $n);
         }
     }
     return $out;
@@ -296,6 +301,55 @@ sub print_treaties_table
         my $coms = $self->get_treaties_for_nation_by_type($n, 'commercial');
         my $nags = $self->get_treaties_for_nation_by_type($n, 'no aggression');
         $out .= sprintf "%-20s %-6s %-5s %-5s %-5s", $n, $limit, $alls, $nags, $coms;
+        $out .= "\n";
+    }
+    return $out;
+}
+sub print_stocks
+{
+    my $self = shift;
+    my $player = shift;
+    my $player_obj = $self->get_player($player);
+    my $stock_value = 0;
+    my $out = "";
+    $out .= as_title(sprintf "%-20s %-10s %-10s %-10s", "NATION", "Q", "VALUE", "INFLUENCE");
+    $out .= "\n";
+    foreach my $nation(keys %{$player_obj->wallet})
+    {
+        if( $player_obj->wallet->{$nation}->{stocks} > 0)
+        {
+            $out .= sprintf "%-20s %-10s %-10s %-10s", $nation, $player_obj->wallet->{$nation}->{stocks}, $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"), $player_obj->wallet->{$nation}->{influence} ;
+            $out .= "\n";
+            $stock_value += $player_obj->wallet->{$nation}->{stocks} * $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d");
+        }
+    }
+    $out .= "\n";
+    $out .= "Stock value: " . $stock_value . "\n";
+    $out .= "Money: " . $player_obj->money . "\n";
+    my $total_value = $stock_value + $player_obj->money;
+    $out .= "Total value: " . $total_value . "\n";
+    return $out;
+}
+sub print_market
+{
+    my $self = shift;
+    my $out = "";
+    $out .= as_title(sprintf "%-20s %-10s %-10s %-10s", "NATION", "STOCK", "VALUE", "STATUS");
+    $out .= "\n";
+    my @ordered = $self->order_statistics(prev_turn($self->current_year), 'w/d');
+    foreach my $stats (@ordered)
+    {
+        my $nation = $self->get_nation($stats->{nation});
+        my $status = "";
+        if($self->at_war($nation->name))
+        {
+            $status = "WAR";
+        }
+        elsif($self->at_civil_war($nation->name))
+        {
+            $status = "CIVILW";
+        }
+        $out .= sprintf "%-20s %-10s %-10s %-10s", $nation->name, $nation->available_stocks, $stats->{value}, $status;
         $out .= "\n";
     }
     return $out;

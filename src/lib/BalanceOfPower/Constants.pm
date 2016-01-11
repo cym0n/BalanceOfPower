@@ -106,6 +106,13 @@ use constant DOMINION_DIPLOMACY => 110;
 use constant ECONOMIC_AID_DIPLOMACY_FACTOR => 9;
 use constant MILITARY_AID_DIPLOMACY_FACTOR => 7;
 
+#Stock exchange
+use constant STOCK_INFLUENCE_FACTOR => .5;
+use constant START_STOCKS => [ 8, 10, 12 ];
+use constant START_PLAYER_MONEY => 1000;
+use constant WAR_BOND_COST => 10;
+use constant WAR_BOND_GAIN => 20;
+
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
@@ -251,5 +258,10 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'TREATY_LIMIT_PROGRESS_STEP',
                   'TREATIES_FOR_PROGRESS_STEP',
                   'MAX_AFFORDABLE_PROGRESS',
+                  'STOCK_INFLUENCE_FACTOR',
+                  'START_STOCKS',
+                  'START_PLAYER_MONEY',
+                  'WAR_BOND_COST',
+                  'WAR_BOND_GAIN',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

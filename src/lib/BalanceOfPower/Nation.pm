@@ -10,6 +10,7 @@ use BalanceOfPower::Constants ':all';
 
 with 'BalanceOfPower::Role::Reporter';
 with 'BalanceOfPower::Nation::Role::IA';
+with 'BalanceOfPower::Nation::Role::Shareholder';
 
 has name => (
     is => 'ro',
