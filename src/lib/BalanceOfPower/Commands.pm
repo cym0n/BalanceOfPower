@@ -71,7 +71,7 @@ sub set_player
 {
     my $self = shift;
     my $player = shift;
-    $self->world->add_player(BalanceOfPower::Player->new(name => $player));
+    $self->world->add_player(BalanceOfPower::Player->new(name => $player, money => START_PLAYER_MONEY));
     $self->active_player($player);
 }
 
@@ -83,10 +83,12 @@ sub welcome_player
 sub get_prompt_text
 {
     my $self = shift;
+    my $player = $self->world->get_player($self->active_player);
     my $prompt_text = "";
-    $prompt_text = "[" . $self->active_player . ". Turn is " . $self->world->current_year . "]\n";
+    $prompt_text = "[" . $player->name . ". Turn is " . $self->world->current_year . "]\n";
     #TODO: informations about the player will be displayed
-    $prompt_text .= $self->nation ? "(" . $self->nation . ") ?" : "?";
+    $prompt_text .= "Money: " . $player->money . "\n";
+    $prompt_text .= $self->nation ? "(" . $self->nation . " [" . $player->influence($self->nation) .  "]) ?" : "?";
     return $prompt_text;
 }
 
@@ -121,6 +123,15 @@ sub clear_query
     {
         $self->query(undef);
     }
+}
+
+sub verify_nation
+{
+    my $self = shift;
+    my $query = shift;
+    return 0 if (! $query);
+    my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
+    return @good_nation > 0;
 }
 
 sub turn_command
@@ -218,11 +229,11 @@ COMMANDS
         print $commands;
         $result = { status => 1 };
     }
-     elsif($query eq "orders")
-    {
-        print $self->print_orders($self->world->player_nation);;
-        $result = { status => 1 };
-    }
+#     elsif($query eq "orders")
+#    {
+#        print $self->print_orders($self->world->player_nation);;
+#        $result = { status => 1 };
+#    }
     elsif($query eq "wars")
     {
         print $self->world->print_wars();
@@ -298,13 +309,15 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if(! $self->nation)
+        if($self->nation)
         {
-            $self->nation($self->world->player_nation);
+            print $self->world->print_borders_analysis($self->nation);
+            $result = { status => 1 };
         }
-        #print $self->world->print_borders($self->nation);
-        print $self->world->print_borders_analysis($self->nation);
-        $result = { status => 1 };
+        else
+        {
+            $result = { status => 0 };
+        }
     }
     elsif($query =~ /^((.*) )?near$/)
     {
@@ -313,13 +326,15 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if(! $self->nation)
+        if($self->nation)
         {
-            $self->nation($self->world->player_nation);
+            print $self->world->print_near_analysis($self->nation);
+            $result = { status => 1 };
         }
-        #print $self->world->print_near_nations($self->nation);
-        print $self->world->print_near_analysis($self->nation);
-        $result = { status => 1 };
+        else
+        {
+            $result = { status => 0 };
+        }
     }
     elsif($query =~ /^((.*) )?relations$/)
     {
@@ -328,12 +343,15 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if(! $self->nation)
+        if($self->nation)
         {
-            $self->nation($self->world->player_nation);
+            print $self->world->print_diplomacy($self->nation);
+            $result = { status => 1 };
         }
-        print $self->world->print_diplomacy($self->nation);
-        $result = { status => 1 };
+        else
+        {
+            $result = { status => 0 };
+        }
     }
     elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
     {
@@ -343,10 +361,6 @@ COMMANDS
         if($input_nation)
         {
             $self->nation($input_nation);
-        }
-        if(! $self->nation)
-        {
-            $self->nation($self->world->player_nation);
         }
         if($self->nation)
         {
@@ -374,6 +388,10 @@ COMMANDS
                 $self->keep_query(1);
                 $result = { status => 1 };
             } 
+            else
+            {
+                $result = { status => 1 };
+            }
         }
     }
     elsif($query =~ /^((.*) )?status$/)
@@ -398,12 +416,15 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if(! $self->nation)
+        if($self->nation)
         {
-            $self->nation($self->world->player_nation);
+            print $self->world->print_nation_statistics($self->nation, $self->world->first_year, prev_turn($self->world->current_year));
+            $result = { status => 1 };
         }
-        print $self->world->print_nation_statistics($self->nation, $self->world->first_year, prev_turn($self->world->current_year));
-        $result = { status => 1 };
+        else
+        {
+            $result = { status => 0 };
+        }
     }
     elsif($query =~ /^((.*) )?plot (.*)$/)
     {
@@ -412,12 +433,15 @@ COMMANDS
         {
             $self->nation($input_nation);
         }
-        if(! $self->nation)
+        if($self->nation)
         {
-            $self->nation($self->world->player_nation);
+            print $self->world->plot_nation_factor($self->nation, $3, $self->world->first_year, prev_turn($self->world->current_year));
+            $result = { status => 1 };
         }
-        print $self->world->plot_nation_factor($self->nation, $3, $self->world->first_year, prev_turn($self->world->current_year));
-        $result = { status => 1 };
+        else
+        {
+            $result = { status => 0 };
+        }
     }
     else
     {
@@ -460,14 +484,7 @@ COMMANDS
     $self->query($query);
     return $result;
 }
-sub verify_nation
-{
-    my $self = shift;
-    my $query = shift;
-    return 0 if (! $query);
-    my @good_nation = grep { $query  =~ /^$_$/ } @{$self->world->nation_names};
-    return @good_nation > 0;
-}
+
 sub orders
 {
     my $self = shift;
@@ -477,6 +494,45 @@ sub orders
     #                                $self->query);
     
 }
+
+sub stock_commands
+{
+    my $self = shift;
+    my $query = $self->query;
+    my $result = { status => 0 };
+    $query = lc $query;
+    if($query =~ /^buy\s+(\d+)\s+(.*)$/)
+    {
+        my $stock_nation = $self->world->correct_nation_name($2);
+        my $q = $1;
+        if($stock_nation)
+        {
+            return $self->world->buy_stock($self->active_player, $stock_nation, $q);
+        }
+    } 
+    if($query =~ /^sell\s+(\d+)\s+(.*)$/)
+    {
+        my $stock_nation = $self->world->correct_nation_name($2);
+        my $q = $1;
+        if($stock_nation)
+        {
+            return $self->world->sell_stock($self->active_player, $stock_nation, $q);
+        }
+    } 
+    elsif($query eq 'market')
+    {
+        say $self->world->print_market;
+        $result = { status => 1 };
+    }
+    elsif($query eq 'show stocks')
+    {
+        say $self->world->print_stocks($self->active_player);
+        $result = { status => 1 };
+    }
+    return $result;
+}
+
+
 
 sub interact
 {
@@ -495,12 +551,25 @@ sub interact
             say "Elaborating " . $self->world->current_year . "...\n";
             $self->world->decisions();
             $self->world->post_decisions_elaborations();
-            say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
+            #say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
+            say $self->world->print_formatted_turn_events($self->world->current_year);
             $self->world->pre_decisions_elaborations();
             next;
         }
         $result = $self->report_commands();
         next if($result->{status} == 1);
+        $result = $self->stock_commands();
+        if($result->{status} == -11)
+        {
+            say "Requested stock quantity not available";
+            next;
+        }
+        elsif($result->{status} == -12)
+        {
+            say "Not enough money";
+            next;
+        }
+
         $result = $self->orders();
         if($result->{status} == -1)
         {
