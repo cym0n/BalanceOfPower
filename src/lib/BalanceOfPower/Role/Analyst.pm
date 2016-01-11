@@ -312,13 +312,13 @@ sub print_stocks
     my $player_obj = $self->get_player($player);
     my $stock_value = 0;
     my $out = "";
-    $out .= as_title(sprintf "%-20s %-10s %-10s %-10s", "NATION", "Q", "VALUE", "INFLUENCE");
+    $out .= as_title(sprintf "%-15s %-10s %-10s %-10s %-10s", "NATION", "Q", "VALUE", "INFLUENCE", "WAR BONDS");
     $out .= "\n";
     foreach my $nation(keys %{$player_obj->wallet})
     {
-        if( $player_obj->wallet->{$nation}->{stocks} > 0)
+        if( $player_obj->stocks($nation) > 0 || $player_obj->influence($nation) > 0)
         {
-            $out .= sprintf "%-20s %-10s %-10s %-10s", $nation, $player_obj->wallet->{$nation}->{stocks}, $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"), $player_obj->wallet->{$nation}->{influence} ;
+            $out .= sprintf "%-15s %-10s %-10s %-10s %-10s", $nation, $player_obj->wallet->{$nation}->{stocks}, $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"), $player_obj->wallet->{$nation}->{influence}, $player_obj->wallet->{$nation}->{'war bonds'} ;
             $out .= "\n";
             $stock_value += $player_obj->wallet->{$nation}->{stocks} * $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d");
         }
