@@ -18,9 +18,6 @@ has statistics => (
 );
 
 requires 'get_nation';
-requires 'get_wars';
-
-
 
 sub get_statistics_value
 {

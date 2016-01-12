@@ -78,18 +78,18 @@ has savefile => (
 
 
 with 'BalanceOfPower::Role::GameMaster';
+with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Ruler';
 with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
+with 'BalanceOfPower::Role::Broker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::CrisisManager';
-with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Analyst';
 with 'BalanceOfPower::Role::Recorder';
-with 'BalanceOfPower::Role::Broker';
 
 sub get_nation
 {
@@ -262,7 +262,6 @@ sub pre_decisions_elaborations
     $self->player_current_year();
     $self->war_debts();
     $self->crisis_generator();
-    $self->issue_war_bonds();
 }
 sub post_decisions_elaborations
 {

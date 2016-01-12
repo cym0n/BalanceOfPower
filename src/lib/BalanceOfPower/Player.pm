@@ -100,7 +100,7 @@ sub add_war_bonds
     my $nation = shift;
     $self->add_wallet_element('war bonds', $nation, 1);
 }
-sub get_war_bonds
+sub war_bonds
 {
     my $self = shift;
     my $nation = shift;    
@@ -128,7 +128,29 @@ sub issue_war_bonds
         $self->register_event("WAR BOND FOR $nation NOT ISSUED. NOT ENOUGH MONEY");
     }
 }
+sub discard_war_bonds
+{
+    my $self = shift;
+    my $nation = shift;
+    if($self->war_bonds($nation) > 0)
+    {
+        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->register_event("WAR LOST FOR $nation! WAR BONDS FROM $nation HAVE NOW NO VALUE");
+    }
+}
+sub cash_war_bonds
+{
+    my $self = shift;
+    my $nation = shift;
+    if($self->war_bonds($nation) > 0)
+    {
+        my $gain = $self->wallet->{$nation}->{'war bonds'} * WAR_BOND_GAIN;
+        $self->add_money($gain);
+        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->register_event("WAR WON FOR $nation! GAINES $gain FROM WAR BONDS");
 
+    }
+}
 
 
 

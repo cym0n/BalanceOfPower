@@ -9,7 +9,6 @@ use BalanceOfPower::Utils qw( prev_turn );
 requires 'get_player';
 requires 'get_nation';
 requires 'get_statistics_value';
-requires 'at_war';
 
 sub buy_stock
 {
@@ -61,15 +60,28 @@ sub sell_stock
 sub issue_war_bonds
 {
     my $self = shift;
-    foreach my $n (@{$self->nation_names})
+    my $n = shift;
+    for(@{$self->players})
     {
-        if($self->at_war($n))
-        {
-            for(@{$self->players})
-            {
-                $_->issue_war_bonds($n);
-            }
-        }    
+        $_->issue_war_bonds($n);
+    }
+}
+sub discard_war_bonds
+{
+    my $self = shift;
+    my $nation = shift;
+    for(@{$self->players})
+    {
+        $_->discard_war_bonds($nation);
+    }
+}
+sub cash_war_bonds
+{
+    my $self = shift;
+    my $nation = shift;
+    for(@{$self->players})
+    {
+        $_->cash_war_bonds($nation);
     }
 }
 

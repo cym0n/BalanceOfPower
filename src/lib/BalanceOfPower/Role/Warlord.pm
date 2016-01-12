@@ -30,6 +30,8 @@ requires 'change_diplomacy';
 requires 'get_crises';
 requires 'delete_crisis';
 requires 'at_civil_war';
+requires 'discard_war_bonds';
+requires 'cash_war_bonds';
 
 has wars => (
     is => 'ro',
@@ -391,8 +393,20 @@ sub fight_wars
 {
     my $self = shift;
     my %losers;
+    my %war_bonds_issued = ();
     foreach my $w ($self->wars->all())
     {
+        if(! exists $war_bonds_issued{$w->node1})
+        {
+            $self->issue_war_bonds($w->node1);
+            $war_bonds_issued{$w->node1} = 1;
+        }
+        if(! exists $war_bonds_issued{$w->node2})
+        {
+            $self->issue_war_bonds($w->node2);
+            $war_bonds_issued{$w->node2} = 1;
+        }
+
         #As Risiko
         $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
         my $attacker = $self->get_nation($w->node1);
@@ -502,8 +516,11 @@ sub lose_war
             $self->get_nation($loser)->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
         }
         my $ending_line = "WAR BETWEEN $other AND $loser WON BY $other $winner_role";
+
         $self->broadcast_event($ending_line, $other, $loser);
         my $history_line = "";
+        $self->cash_war_bonds($other);
+        $self->discard_war_bonds($loser);
         $history_line .= "$other $winner_role won the war";
         $self->delete_war($other, $loser, $history_line);
     }
