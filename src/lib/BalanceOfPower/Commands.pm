@@ -316,7 +316,7 @@ COMMANDS
         }
         else
         {
-            $result = { status => 0 };
+            $result = { status => -1 };
         }
     }
     elsif($query =~ /^((.*) )?near$/)
@@ -333,7 +333,7 @@ COMMANDS
         }
         else
         {
-            $result = { status => 0 };
+            $result = { status => -1 };
         }
     }
     elsif($query =~ /^((.*) )?relations$/)
@@ -350,7 +350,7 @@ COMMANDS
         }
         else
         {
-            $result = { status => 0 };
+            $result = { status => -1 };
         }
     }
     elsif($query =~ /^((.*) )?events( ((\d+)(\/\d+)?))?$/)
@@ -423,7 +423,7 @@ COMMANDS
         }
         else
         {
-            $result = { status => 0 };
+            $result = { status => -1 };
         }
     }
     elsif($query =~ /^((.*) )?plot (.*)$/)
@@ -440,7 +440,7 @@ COMMANDS
         }
         else
         {
-            $result = { status => 0 };
+            $result = { status => -1 };
         }
     }
     else
@@ -545,48 +545,107 @@ sub interact
         my $result = undef;
         $self->clear_query();
         $self->get_query();
+
         $result = $self->turn_command();
+        next if($self->handle_result('turn', $result));
+        $result = $self->report_commands();
+        next if($self->handle_result('report', $result));
+        $result = $self->stock_commands();
+        next if($self->handle_result('stock', $result));
+        $result = $self->orders();
+        next if($self->handle_result('orders', $result));
+        say "Bad command";
+    }
+}
+
+sub handle_result
+{
+    my $self = shift;
+    my $type = shift;
+    my $result = shift;
+    if($type eq 'turn')
+    {
         if($result->{status} == 1)
         {
             say "Elaborating " . $self->world->current_year . "...\n";
             $self->world->decisions();
             $self->world->post_decisions_elaborations();
-            #say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->world->player_nation);
             say $self->world->print_formatted_turn_events($self->world->current_year);
             $self->world->pre_decisions_elaborations();
-            next;
+            return 1;
         }
-        $result = $self->report_commands();
-        next if($result->{status} == 1);
-        $result = $self->stock_commands();
+        else
+        {
+            return 0;
+        }
+    }
+    elsif($type eq 'report')
+    {
+        if($result->{status} == 1) 
+        {
+            return 1;
+        }
+        elsif($result->{status} == -1)
+        {
+            say "No nation selected";
+            return 1;
+        } 
+        else
+        {
+            return 0;
+        }
+    }
+    elsif($type eq 'stock')
+    {
         if($result->{status} == -11)
         {
             say "Requested stock quantity not available";
-            next;
+            return 1;
         }
         elsif($result->{status} == -12)
         {
             say "Not enough money";
-            next;
+            return 1;
         }
-
-        $result = $self->orders();
+        elsif($result->{status} == -13)
+        {
+            say "You haven't that quantity"
+        }
+        elsif($result->{status} == 1)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    elsif($type eq 'orders')
+    {
         if($result->{status} == -1)
         {
             say "Command not allowed";
+            return 1;
         }
         elsif($result->{status} == -2)
         {
             say "No options available";
+            return 1;
         }
         elsif($result->{status} == -3)
         {
             say "Command aborted";
+            return 1;
         }
         elsif($result->{status} == 1)
         {
             say "Order selected: " . $result->{command};
+            return 1;
         } 
+        else
+        {
+            return 0;
+        }
     }
 }
 
