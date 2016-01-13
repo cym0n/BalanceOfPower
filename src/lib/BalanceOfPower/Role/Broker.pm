@@ -22,6 +22,10 @@ sub buy_stock
     {
         return { status => -11 };
     }
+    if($self->at_civil_war($nation))
+    {
+        return { status => -14 };
+    }
     my $unit_cost = $self->get_statistics_value(prev_turn($self->current_year), $nation, 'w/d');
     my $global_cost = $unit_cost * $q;
     my $influence = $q * STOCK_INFLUENCE_FACTOR;
@@ -48,6 +52,10 @@ sub sell_stock
     if($player_obj->stocks($nation) < $q)
     {
         return { status => -13 };
+    }
+    if($self->at_civil_war($nation))
+    {
+        return { status => -14 };
     }
     my $unit_cost = $self->get_statistics_value(prev_turn($self->current_year), $nation, 'w/d');
     my $global_cost = $unit_cost * $q;

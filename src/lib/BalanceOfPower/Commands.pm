@@ -611,6 +611,10 @@ sub handle_result
         {
             say "You haven't that quantity"
         }
+        elsif($result->{status} == -14)
+        {
+            say "You can't trade during civil war"
+        }
         elsif($result->{status} == 1)
         {
             return 1;
