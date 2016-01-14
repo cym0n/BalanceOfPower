@@ -83,6 +83,15 @@ sub discard_war_bonds
         $_->discard_war_bonds($nation);
     }
 }
+sub empty_stocks
+{
+    my $self = shift;
+    my $nation = shift;
+    for(@{$self->players})
+    {
+        $_->empty_stocks($nation);
+    }
+}
 sub cash_war_bonds
 {
     my $self = shift;

@@ -140,7 +140,7 @@ sub turn_command
     my $query = $self->query;
     if($query eq "turn")
     {
-        $self->nation(undef);
+        #$self->nation(undef);
         $self->query(undef);
         return { status => 1 };
     }
@@ -570,7 +570,14 @@ sub handle_result
             say "Elaborating " . $self->world->current_year . "...\n";
             $self->world->decisions();
             $self->world->post_decisions_elaborations();
-            say $self->world->print_formatted_turn_events($self->world->current_year);
+            if($self->nation)
+            {
+                say evidence_text($self->world->print_formatted_turn_events($self->world->current_year), $self->nation);
+            }
+            else
+            {
+                say $self->world->print_formatted_turn_events($self->world->current_year);
+            }
             $self->world->pre_decisions_elaborations();
             return 1;
         }

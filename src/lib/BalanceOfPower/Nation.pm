@@ -426,6 +426,8 @@ sub win_civil_war
             $world->create_treaty($self->name, $rebel_supporter->name, 'alliance');
             $world->broadcast_event($self->name . " AND " . $rebel_supporter->name . " ARE NOW ALLIES. " . $rebel_supporter->name . " HELPED " . $self->name . " REVOLUTION", $self->name, $rebel_supporter->name);
         }
+        $world->empty_stocks($self->name);
+        $self->available_stocks(START_STOCKS->[$self->size]);
     }
     elsif($winner eq 'government')
     {

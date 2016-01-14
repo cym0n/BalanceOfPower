@@ -151,6 +151,18 @@ sub cash_war_bonds
 
     }
 }
+sub empty_stocks
+{
+    my $self = shift;
+    my $nation = shift;
+    if($self->stocks($nation) > 0)
+    {
+        $self->wallet->{$nation}->{'stocks'} = 0;
+        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->wallet->{$nation}->{'influence'} = 0;
+    }
+    $self->register_event("INVESTMENTS IN $nation LOST BECAUSE OF REVOLUTION!");
+}
 
 
 
