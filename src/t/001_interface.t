@@ -46,13 +46,11 @@ $world->autoplay(0);
 
 #Initialization of commands
 my $commands = $world->build_commands();
-$commands->init_game(1);
 my $result;
 
-$world->get_player_nation->production(1000);
 
 #Generic commands
-foreach my $c ( ("years", "commands", "orders", "wars", "crises", "alliances", "situation", "war history", "influences", "treaties") )
+foreach my $c ( ("years", "commands", "wars", "crises", "alliances", "situation", "war history", "influences", "treaties") )
 {
     $commands->query($c);
     $result = $commands->report_commands();
@@ -106,20 +104,6 @@ is($result->{status}, 1, "Command elaborated: 1970/1");
 $commands->query("turn");
 $result = $commands->turn_command();
 is($result->{status}, 1, "Command elaborated: turn");
-
-$commands->query("BUILD TROOPS");
-$result = $commands->orders();
-is($result->{status}, 1, "Command elaborated: BUILD TROOPS");
-
-$world->get_player_nation->production(100);
-$commands->query("BUILD TROOPS");
-$result = $commands->orders();
-is($result->{status}, 1, "Command elaborated: BUILD TROOPS (allowed)");
-
-$world->get_player_nation->production(10);
-$commands->query("BUILD TROOPS");
-$result = $commands->orders();
-is($result->{status}, -1, "Command elaborated: BUILD TROOPS (not allowed)");
 
 done_testing;
 
