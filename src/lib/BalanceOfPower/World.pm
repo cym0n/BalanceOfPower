@@ -266,6 +266,7 @@ sub pre_decisions_elaborations
 sub post_decisions_elaborations
 {
     my $self = shift;
+    $self->execute_stock_orders();
     $self->execute_decisions();
     $self->economy();
     $self->warfare();

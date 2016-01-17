@@ -10,6 +10,23 @@ requires 'get_player';
 requires 'get_nation';
 requires 'get_statistics_value';
 
+sub manage_stock
+{
+    my $self = shift;
+    my $command = shift;
+    my $player = shift;
+    my $nation = shift;
+    my $q = shift;
+    if($command eq 'buy')
+    {
+        return $self->buy_stock($player, $nation, $q);
+    }
+    elsif($command eq 'sell')
+    {
+        return $self->sell_stock($player, $nation, $q);
+    }
+}
+
 sub buy_stock
 {
     my $self = shift;
@@ -21,10 +38,14 @@ sub buy_stock
     my $nation_obj = $self->get_nation($nation);
     if($nation_obj->available_stocks < $q)
     {
+        $player_obj->register_event("STOCKS IN QUANTITY $q FOR $nation NOT AVAILABLE")
+            if(! $dry_run);
         return { status => -11 };
     }
     if($self->at_civil_war($nation))
     {
+        $player_obj->register_event("NO STOCK TRANSATION WITH $nation. $nation IS IN CIVIL WAR")
+            if(! $dry_run);
         return { status => -14 };
     }
     return { status => 1,
@@ -34,6 +55,8 @@ sub buy_stock
     my $influence = $q * STOCK_INFLUENCE_FACTOR;
     if($player_obj->money < $global_cost)
     {
+        $player_obj->register_event("NOT ENOUGH MONEY TO BUY STOCKS OF $nation FOR $global_cost")
+            if(! $dry_run);
         return { status => -12 };
     }
     $player_obj->add_money(-1 * $global_cost);
@@ -55,10 +78,14 @@ sub sell_stock
     my $nation_obj = $self->get_nation($nation);
     if($player_obj->stocks($nation) < $q)
     {
+        $player_obj->register_event("THERE AREN'T $q STOCKS OF $nation TO SELL")
+            if(! $dry_run);
         return { status => -13 };
     }
     if($self->at_civil_war($nation))
     {
+        $player_obj->register_event("NO STOCK TRANSATION WITH $nation. $nation IS IN CIVIL WAR")
+            if(! $dry_run);
         return { status => -14 };
     }
     return { status => 1,
@@ -105,6 +132,23 @@ sub cash_war_bonds
     for(@{$self->players})
     {
         $_->cash_war_bonds($nation);
+    }
+}
+sub execute_stock_orders
+{
+    my $self = shift;
+    foreach my $player ($self->shuffle("shuffle players to execute stock orders", @{$self->players}))
+    {
+        foreach my $order (@{$player->stock_orders})
+        {
+            say "Elaborating $order";
+            $order =~ /^(.*)\s(\d)\s(.*)$/;
+            my $command = $1;
+            my $q = $2;
+            my $nation = $3;
+            say "Executing $order ($command)";
+            $self->manage_stock($command, $player->name, $nation, $q);
+        }
     }
 }
 

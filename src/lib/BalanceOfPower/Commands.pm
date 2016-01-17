@@ -752,6 +752,7 @@ sub handle_result
         }
         elsif($result->{status} == 1)
         {
+            say "Stock order registered";
             return 1;
         }
         else
