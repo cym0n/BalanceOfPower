@@ -149,6 +149,7 @@ sub execute_stock_orders
             say "Executing $order ($command)";
             $self->manage_stock($command, $player->name, $nation, $q);
         }
+        $player->empty_stock_orders();
     }
 }
 

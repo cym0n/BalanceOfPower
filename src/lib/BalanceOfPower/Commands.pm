@@ -660,7 +660,7 @@ sub control_commands
     }
     elsif($query =~ /^uncontrol$/)
     {
-        $self->exec(undef);
+        $self->executive(undef);
         $result = { status => 1 };
     }
     return $result;

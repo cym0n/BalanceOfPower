@@ -201,6 +201,44 @@ sub print_stock_orders
     return $out;
 }
 
+sub add_control_order
+{
+    my $self = shift;
+    my $nation = shift;
+    my $order = shift;
+    $self->control_orders->{$nation} = $order;
+}
+sub get_control_order
+{
+    my $self = shift;
+    my $nation = shift;
+    if(exists $self->control_orders->{$nation})
+    {
+        return $self->control_orders->{$nation};
+    }
+    else
+    {
+        return undef;
+    }
+}
+sub remove_control_order
+{
+    my $self = shift;
+    my $nation = shift;
+    $self->control_orders->{$nation} = undef;
+}
+sub print_control_orders
+{
+    my $self = shift;
+    my $out = as_title("CONTROL ORDERS");
+    $out .= "\n\n";
+    for(keys %{$self->control_orders})
+    {
+        my $n = $_;
+        $out .= $n . ": " . $self->get_control_orders($n) . "\n";
+    }
+}
+
 
 
 1;
