@@ -8,7 +8,7 @@ use Moo;
 with 'BalanceOfPower::Role::Logger';
 
 use BalanceOfPower::Constants ":all";
-use BalanceOfPower::Utils qw(as_active);
+use BalanceOfPower::Utils qw(as_active as_title);
 use BalanceOfPower::Commands::BuildTroops;
 use BalanceOfPower::Commands::InMilitaryRange;
 use BalanceOfPower::Commands::DeleteRoute;
@@ -144,6 +144,7 @@ sub init
     $self->commands->{"RECALL REBEL MILITARY SUPPORT"} = $command; 
     $command =
         BalanceOfPower::Commands::MilitaryAid->new( name => "MILITARY AID FOR",
+                                                    synonyms => ["MILITARY AID"],
                                                     world => $world,
                                                     export_cost => MILITARY_AID_COST,
                                                   );
@@ -210,7 +211,8 @@ sub decide
 sub print_orders
 {
     my $self = shift;
-    my $out = "";
+    my $out = as_title("ORDERS FOR " . $self->actor);
+    $out .= "\n\n";
     for(keys %{$self->commands})
     {
         my $c = $self->commands->{$_};

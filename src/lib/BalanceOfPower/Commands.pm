@@ -256,11 +256,14 @@ COMMANDS
         print $commands;
         $result = { status => 1 };
     }
-#     elsif($query eq "orders")
-#    {
-#        print $self->print_orders($self->world->player_nation);;
-#        $result = { status => 1 };
-#    }
+    elsif($query eq "orders")
+    {
+        if($self->executive)
+        {
+            say $self->executive->print_orders();;
+            $result = { status => 1 };
+        }
+    }
     elsif($query eq "wars")
     {
         print $self->world->print_wars();
@@ -515,10 +518,15 @@ COMMANDS
 sub orders
 {
     my $self = shift;
-    #TODO: general executive that control any nation
-    return { status => -50 };
-    #return $self->recognize_command($self->nation,
-    #                                $self->query);
+    if($self->executive)
+    {
+        return $self->executive->recognize_command($self->nation,
+                                                   $self->query);
+    }
+    else
+    {
+        return { status => 0 };
+    }
     
 }
 
@@ -795,7 +803,9 @@ sub handle_result
         }
         elsif($result->{status} == 1)
         {
-            say "Order selected: " . $result->{command};
+            say "Order selected for " .
+                $self->executive->actor .  
+                ": " . $result->{command};
             return 1;
         } 
         else
