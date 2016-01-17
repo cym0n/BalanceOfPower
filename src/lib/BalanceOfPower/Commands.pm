@@ -36,6 +36,9 @@ has active_player => (
     default => ""
 );
 
+has executive => (
+    is => 'rw',
+);
 sub welcome
 {
     my $self = shift;
@@ -75,6 +78,13 @@ sub set_player
     $self->active_player($player);
 }
 
+sub get_active_player
+{
+    my $self = shift;
+    return $self->world->get_player($self->active_player);
+}
+
+
 sub welcome_player
 {
     my $self = shift;
@@ -85,9 +95,26 @@ sub get_prompt_text
     my $self = shift;
     my $player = $self->world->get_player($self->active_player);
     my $prompt_text = "";
-    $prompt_text = "[" . $player->name . ". Turn is " . $self->world->current_year . "]\n";
-    #TODO: informations about the player will be displayed
-    $prompt_text .= "Money: " . $player->money . "\n";
+    my $controlled = undef;
+    my $ctrl_n = undef;
+    my $influence = undef;
+    if($self->executive)
+    {
+        $controlled = $self->executive->actor;
+        $ctrl_n = $self->world->get_nation($controlled);
+        $influence = $player->influence($controlled);
+    }
+     
+    $prompt_text = "[" . $player->name . ", Money: " . $player->money;
+    if($controlled)
+    {
+        $prompt_text .= ", Influence: $influence";
+    }
+    $prompt_text .= ". Turn is " . $self->world->current_year . "]\n";
+    if($controlled)
+    {
+        $prompt_text .= "Controlling $controlled (" . "Int:" . $ctrl_n->production_for_domestic . "    Exp:" . $ctrl_n->production_for_export . "    Prtg:" . $ctrl_n->prestige . "    Army:" . $ctrl_n->army . ")\n";
+    }
     $prompt_text .= $self->nation ? "(" . $self->nation . " [" . $player->influence($self->nation) .  "]) ?" : "?";
     return $prompt_text;
 }
@@ -218,12 +245,12 @@ COMMANDS
         $self->nation(undef);
         $result = { status => 1 };
     }
-    elsif($query eq "clearorders")
-    {
-        $self->nation(undef);
-        $self->world->order(undef);
-        $result = { status => 1 };
-    }
+#    elsif($query eq "clearorders")
+#    {
+#        $self->nation(undef);
+#        $self->world->order(undef);
+#        $result = { status => 1 };
+#    }
     elsif($query eq "commands")
     {
         print $commands;
@@ -501,22 +528,46 @@ sub stock_commands
     my $query = $self->query;
     my $result = { status => 0 };
     $query = lc $query;
-    if($query =~ /^buy\s+(\d+)\s+(.*)$/)
+    if($query =~ /^buy\s+(\d+)(\s+(.*))?$/)
     {
-        my $stock_nation = $self->world->correct_nation_name($2);
+        my $stock_nation = $3;
+        if($stock_nation)
+        {
+            $stock_nation = $self->world->correct_nation_name($stock_nation);
+        }
+        else
+        {
+            $stock_nation = $self->nation;
+        }
         my $q = $1;
         if($stock_nation)
         {
-            return $self->world->buy_stock($self->active_player, $stock_nation, $q);
+            $result = $self->world->buy_stock($self->active_player, $stock_nation, $q, 1);
+            if($result->{ status } == 1)
+            {
+                $self->get_active_player()->add_stock_order($result->{ command });
+            }
         }
     } 
-    if($query =~ /^sell\s+(\d+)\s+(.*)$/)
+    if($query =~ /^sell\s+(\d+)(\s+(.*))?$/)
     {
-        my $stock_nation = $self->world->correct_nation_name($2);
+        my $stock_nation = $3;
+        if($stock_nation)
+        {
+            $stock_nation = $self->world->correct_nation_name($stock_nation);
+        }
+        else
+        {
+            $stock_nation = $self->nation;
+        }
         my $q = $1;
         if($stock_nation)
         {
-            return $self->world->sell_stock($self->active_player, $stock_nation, $q);
+            $result = $self->world->sell_stock($self->active_player, $stock_nation, $q, 1);
+            if($result->{ status } == 1)
+            {
+                $self->get_active_player()->add_stock_order($result->{ command });
+            }
         }
     } 
     elsif($query eq 'market')
@@ -527,6 +578,81 @@ sub stock_commands
     elsif($query eq 'show stocks')
     {
         say $self->world->print_stocks($self->active_player);
+        $result = { status => 1 };
+    }
+    elsif($query eq 'show stock orders')
+    {
+        my $player = $self->get_active_player;
+        say $player->print_stock_orders();
+        $result = { status => 1 };
+    }
+    elsif($query eq 'empty stock orders')
+    {
+        my $player = $self->get_active_player;
+        $player->empty_stock_orders();
+        $result = { status => 1 };
+    }
+    elsif($query =~ /^remove stock orders( (.*))?/)
+    {
+        my $stock_nation = $2;
+        if($stock_nation)
+        {
+            $stock_nation = $self->world->correct_nation_name($stock_nation);
+        }
+        else
+        {
+            $stock_nation = $self->nation;
+        }
+        if($stock_nation)
+        {
+            my $player = $self->get_active_player;
+            $player->remove_stock_orders($stock_nation);
+            $result = { status => 1 };
+        }
+    }
+
+    return $result;
+}
+
+sub control_commands
+{
+    my $self = shift;
+    my $query = $self->query;
+    my $result = { status => 0 };
+    $query = lc $query;
+    if($query =~ /^control( (.*))$/)
+    {
+        my $input_nation = $self->world->correct_nation_name($2);
+        my $controlled_nation = undef;
+        if($input_nation)
+        {
+            $controlled_nation = $input_nation;
+        }
+        if(! $controlled_nation)
+        {
+            $controlled_nation = $self->nation;
+        }
+        if($controlled_nation)
+        {
+            my $player = $self->get_active_player();
+            if($player->influence($controlled_nation) > 0)
+            {
+                my $exec = BalanceOfPower::Executive->new;
+                $exec->init($self->world);
+                $exec->actor($controlled_nation);
+                $self->executive($exec);
+                say $self->world->print_nation_actual_situation($controlled_nation, 1);
+                $result = { status => 1 };
+            }
+            else
+            {
+                $result = { status => -1 };
+            }
+        }
+    }
+    elsif($query =~ /^uncontrol$/)
+    {
+        $self->exec(undef);
         $result = { status => 1 };
     }
     return $result;
@@ -552,6 +678,8 @@ sub interact
         next if($self->handle_result('report', $result));
         $result = $self->stock_commands();
         next if($self->handle_result('stock', $result));
+        $result = $self->control_commands();
+        next if($self->handle_result('control', $result));
         $result = $self->orders();
         next if($self->handle_result('orders', $result));
         say "Bad command";
@@ -624,6 +752,22 @@ sub handle_result
         }
         elsif($result->{status} == 1)
         {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    elsif($type eq 'control')
+    {
+        if($result->{status} == 1)
+        {
+            return 1;
+        }
+        elsif($result->{status} == -1)
+        {
+            say "No influence on requested nation";
             return 1;
         }
         else

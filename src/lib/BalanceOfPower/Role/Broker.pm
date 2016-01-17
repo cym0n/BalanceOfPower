@@ -16,6 +16,7 @@ sub buy_stock
     my $player = shift;
     my $nation = shift;
     my $q = shift;
+    my $dry_run = shift || 0;
     my $player_obj = $self->get_player($player);
     my $nation_obj = $self->get_nation($nation);
     if($nation_obj->available_stocks < $q)
@@ -26,6 +27,8 @@ sub buy_stock
     {
         return { status => -14 };
     }
+    return { status => 1,
+             command => "buy $q $nation" } if $dry_run;
     my $unit_cost = $self->get_statistics_value(prev_turn($self->current_year), $nation, 'w/d');
     my $global_cost = $unit_cost * $q;
     my $influence = $q * STOCK_INFLUENCE_FACTOR;
@@ -47,6 +50,7 @@ sub sell_stock
     my $player = shift;
     my $nation = shift;
     my $q = shift;
+    my $dry_run = shift || 0;
     my $player_obj = $self->get_player($player);
     my $nation_obj = $self->get_nation($nation);
     if($player_obj->stocks($nation) < $q)
@@ -57,6 +61,8 @@ sub sell_stock
     {
         return { status => -14 };
     }
+    return { status => 1,
+             command => "sell $q $nation" } if $dry_run;
     my $unit_cost = $self->get_statistics_value(prev_turn($self->current_year), $nation, 'w/d');
     my $global_cost = $unit_cost * $q;
     $player_obj->add_money($global_cost);

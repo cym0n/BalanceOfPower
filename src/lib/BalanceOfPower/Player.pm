@@ -28,6 +28,14 @@ has wallet => (
 has current_year => (
     is => 'rw'
 );
+has stock_orders => (
+    is => 'rw',
+    default => sub { [] }
+);
+has control_orders => (
+    is => 'rw',
+    default => sub { {} }
+);
 
 sub init_nation_wallet
 {
@@ -162,6 +170,35 @@ sub empty_stocks
         $self->wallet->{$nation}->{'influence'} = 0;
     }
     $self->register_event("INVESTMENTS IN $nation LOST BECAUSE OF REVOLUTION!");
+}
+sub add_stock_order
+{
+    my $self = shift;
+    my $order = shift;
+    push @{$self->stock_orders}, $order;
+}
+sub remove_stock_orders
+{
+    my $self = shift;
+    my $nation = shift;
+    my @ords = grep { $_ !~ /$nation/ } @{$self->stock_orders}; 
+    $self->stock_orders(\@ords);
+}
+sub empty_stock_orders
+{
+    my $self = shift;
+    $self->stock_orders([]);
+}
+sub print_stock_orders
+{
+    my $self = shift;
+    my $out = as_title("STOCK ORDERS");
+    $out .= "\n\n";
+    foreach my $ord (@{$self->stock_orders})
+    {
+        $out .= $ord . "\n";
+    }
+    return $out;
 }
 
 
