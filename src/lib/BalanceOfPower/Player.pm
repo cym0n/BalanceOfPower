@@ -4,7 +4,6 @@ use strict;
 use v5.10;
 
 use Moo;
-
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(as_title);
 
@@ -235,8 +234,9 @@ sub print_control_orders
     for(keys %{$self->control_orders})
     {
         my $n = $_;
-        $out .= $n . ": " . $self->get_control_orders($n) . "\n";
+        $out .= $n . ": " . $self->get_control_order($n) . "\n";
     }
+    return $out;
 }
 
 

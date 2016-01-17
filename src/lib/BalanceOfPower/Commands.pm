@@ -663,6 +663,11 @@ sub control_commands
         $self->executive(undef);
         $result = { status => 1 };
     }
+    elsif($query =~ /^show control orders/)
+    {
+        say $self->get_active_player->print_control_orders();
+        $result = { status => 1 }
+    }
     return $result;
 }
 
@@ -806,6 +811,8 @@ sub handle_result
             say "Order selected for " .
                 $self->executive->actor .  
                 ": " . $result->{command};
+            my $player = $self->get_active_player();
+            $player->add_control_order($self->executive->actor, $result->{command});
             return 1;
         } 
         else
