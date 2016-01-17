@@ -494,49 +494,42 @@ sub execute_decisions
     my @route_adders = ();
     foreach my $d (@decisions)
     {
-        if($d =~ /^(.*): DELETE TRADEROUTE (.*)->(.*)$/)
+        $d =~ /^(.*): (.*)$/;
+        my $nation = $self->get_nation($1);
+        my $command = $2;
+        if($command =~ /^DELETE TRADEROUTE (.*)->(.*)$/)
         {
-            $self->delete_route($2, $3);
-            $self->set_statistics_value($self->get_nation($1), 'order', "DELETE TRADEROUTE $2->$3");
+            $self->delete_route($1, $2);
         }
-        elsif($d =~ /^(.*): ADD ROUTE$/)
+        elsif($command =~ /^ADD ROUTE$/)
         {
-            push @route_adders, $1;
-            $self->set_statistics_value($self->get_nation($1), 'order', 'ADD ROUTE');
+            push @route_adders, $nation->name;
         }
-        elsif($d =~ /^(.*): LOWER DISORDER$/)
+        elsif($command =~ /^LOWER DISORDER$/)
         {
-           my $nation = $self->get_nation($1);
            $nation->lower_disorder($self);
-           $self->set_statistics_value($nation, 'order', 'LOWER DISORDER');
         }
-        elsif($d =~ /^(.*): BUILD TROOPS$/)
+        elsif($command =~ /^BUILD TROOPS$/)
         {
-           my $nation = $self->get_nation($1);
            $nation->build_troops();
-           $self->set_statistics_value($nation, 'order', 'BUILD TROOPS');
         }
-        elsif($d =~ /^(.*): BOOST PRODUCTION$/)
+        elsif($command =~ /^BOOST PRODUCTION$/)
         {
-           my $nation = $self->get_nation($1);
            $nation->boost_production();
-           $self->set_statistics_value($nation, 'order', 'BOOST PRODUCTION');
         }
-        elsif($d =~ /^(.*): DECLARE WAR TO (.*)$/)
+        elsif($command =~ /DECLARE WAR TO (.*)$/)
         {
-            my $attacker = $self->get_nation($1);
-            my $defender = $self->get_nation($2);
-            $self->set_statistics_value($attacker, 'order', "DECLARE WAR TO $2");
+            my $attacker = $nation;
+            my $defender = $self->get_nation($1);
             if(! $self->at_war($attacker->name) && ! $self->at_war($defender->name))
             {
                 $self->create_war($attacker, $defender);
             }
         }
-        elsif($d =~ /^(.*): MILITARY SUPPORT (.*)$/)
+        elsif($command =~ /^MILITARY SUPPORT (.*)$/)
         {
-            my $supporter = $self->get_nation($1);
-            my $supported = $self->get_nation($2);
-            $self->set_statistics_value($supporter, 'order', "MILITARY SUPPORT $2");
+            my $supporter = $nation;
+            my $supported = $self->get_nation($1);
             if($supported->accept_military_support($supporter->name, $self))
             {
                 $self->start_military_support($supporter, $supported);
@@ -546,90 +539,73 @@ sub execute_decisions
                 $self->broadcast_event($supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name);
             }
         }
-        elsif($d =~ /^(.*): RECALL MILITARY SUPPORT (.*)$/)
+        elsif($command =~ /^RECALL MILITARY SUPPORT$/)
         {
-           my $supporter = $self->get_nation($1);
-           my $supported = $self->get_nation($2);
-           $self->set_statistics_value($supporter, 'order', "RECALL MILITARY SUPPORT $2");
+           my $supporter = $nation;
+           my $supported = $self->get_nation($1);
            $self->stop_military_support($supporter, $supported);
         }
-        elsif($d =~ /^(.*): AID INSURGENTS IN (.*)$/)
+        elsif($command =~ /^AID INSURGENTS IN (.*)$/)
         {
-            my $attacker = $self->get_nation($1);
-            my $victim = $self->get_nation($2);
-            $self->set_statistics_value($attacker, 'order', "AID INSURGENTS IN $2");
-            $self->aid_insurgents($attacker, $victim);
+            my $victim = $self->get_nation($1);
+            $self->aid_insurgents($nation, $victim);
         }
-        elsif($d =~ /^(.*): TREATY (.*) WITH (.*)$/)
+        elsif($command =~ /^TREATY (.*) WITH (.*)$/)
         {
-            my $nation1 = $self->get_nation($1);
-            my $nation2 = $self->get_nation($3);
-            $self->set_statistics_value($nation1, 'order', "TREATY $1 WITH $2");
-            $self->stipulate_treaty($nation1, $nation2, $2);
-        }
-        elsif($d =~ /^(.*): ECONOMIC AID FOR (.*)$/)
-        {
-            my $nation1 = $self->get_nation($1);
             my $nation2 = $self->get_nation($2);
-            $self->set_statistics_value($nation1, 'order', "ECONOMIC AID FOR $2");
-            $self->economic_aid($nation1, $nation2);
+            $self->stipulate_treaty($nation, $nation2, $1);
         }
-        elsif($d =~ /^(.*): REBEL MILITARY SUPPORT (.*)$/)
+        elsif($command =~ /^ECONOMIC AID FOR (.*)$/)
         {
-            my $nation1 = $self->get_nation($1);
+            my $nation2 = $self->get_nation($1);
+            $self->economic_aid($nation, $nation2);
+        }
+        elsif($command =~ /^REBEL MILITARY SUPPORT (.*)$/)
+        {
             my $nation2 = $self->get_nation($2);
-            $self->set_statistics_value($nation1, 'order', "REBEL MILITARY SUPPORT $2");
             my $rebsup = $self->rebel_supported($nation2->name);
-            if($rebsup && $rebsup->node1 ne $nation1->name)
+            if($rebsup && $rebsup->node1 ne $nation->name)
             {
-                $self->broadcast_event("REBEL SUPPORT IN " . $nation2->name . " IMPOSSIBLE FOR " . $nation1->name, $nation1->name, $nation2->name);
+                $self->broadcast_event("REBEL SUPPORT IN " . $nation2->name . " IMPOSSIBLE FOR " . $nation->name, $nation->name, $nation2->name);
             }
             else
             {
-                $self->start_rebel_military_support($nation1, $nation2);
+                $self->start_rebel_military_support($nation, $nation2);
             }
         }
-        elsif($d =~ /^(.*): DIPLOMATIC PRESSURE ON (.*)$/)
+        elsif($command =~ /^DIPLOMATIC PRESSURE ON (.*)$/)
         {
-            my $n1 = $1;
             my $n2 = $2;
-            my $nation1 = $self->get_nation($n1);
-            $self->set_statistics_value($nation1, 'order', "DIPLOMATIC PRESSURE ON $2");
-            if($nation1->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
+            if($nation->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
             {
                 my $under_infl = $self->is_under_influence($n2); 
                 $under_infl ||= "";
-                if($under_infl ne $n1)
+                if($under_infl ne $nation->name)
                 {
-                    $self->diplomatic_pressure($n1, $n2);
+                    $self->diplomatic_pressure($nation->name, $n2);
                 }
                 else
                 {
-                    $self->broadcast_event("DIPLOMATIC PRESSURE ON $n2 BY $n1 IMPOSSIBLE! $n2 IS UNDER INFLUENCE OF $n1", $n1, $n2);
+                    $self->broadcast_event("DIPLOMATIC PRESSURE ON $n2 BY " . $nation->name . " IMPOSSIBLE! $n2 IS UNDER INFLUENCE OF " . $nation->name, $nation->name, $n2);
                 }
             }
         }
-        elsif($d =~ /^(.*): RECALL REBEL MILITARY SUPPORT (.*)$/)
+        elsif($command =~ /^RECALL REBEL MILITARY SUPPORT (.*)$/)
         {
-           my $supporter = $self->get_nation($1);
-           my $supported = $self->get_nation($2);
-           $self->set_statistics_value($supporter, 'order', "RECALL REBEL MILITARY SUPPORT $2");
-           $self->stop_rebel_military_support($supporter, $supported);
+           my $supported = $self->get_nation($1);
+           $self->stop_rebel_military_support($nation, $supported);
         }
-        elsif($d =~ /^(.*): MILITARY AID FOR (.*)$/)
+        elsif($command =~ /^MILITARY AID FOR (.*)$/)
         {
-            my $nation1 = $self->get_nation($1);
-            my $nation2 = $self->get_nation($2);
-            $self->set_statistics_value($nation1, 'order', "MILITARY AID FOR $2");
-            $self->military_aid($nation1, $nation2);
+            my $nation2 = $self->get_nation($1);
+            $self->military_aid($nation, $nation2);
         }
-        elsif($d =~ /^(.*): PROGRESS$/)
+        elsif($command =~ /^PROGRESS$/)
         {
-            my $nation =  $self->get_nation($1);
             $nation->grow();
-            $self->set_statistics_value($nation, 'order', "PROGRESS");
             $self->broadcast_event("INVESTMENT IN PROGRESS FOR " . $nation->name, $nation->name);
         }
+        $self->set_statistics_value($nation, 'order', $command);
     }
     $self->manage_route_adding(@route_adders);
 }
@@ -693,6 +669,10 @@ sub decisions
         }
     }
     $self->ia_orders(\@decisions);
+}
+sub override_decision
+{
+    my $self =  shift;
 }
 
 # DECISIONS END ###########################################################
