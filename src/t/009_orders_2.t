@@ -29,9 +29,6 @@ $world->tricks( { "Export quote Italy" => [50],
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 
-$world->player_nation("Italy");
-$world->player("Tester");
-$world->forced_advisor("noone");
 
 my @internal_event;
 my @remain_event;

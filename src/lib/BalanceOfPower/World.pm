@@ -575,7 +575,7 @@ sub execute_decisions
         }
         elsif($command =~ /^DIPLOMATIC PRESSURE ON (.*)$/)
         {
-            my $n2 = $2;
+            my $n2 = $1;
             if($nation->prestige >= DIPLOMATIC_PRESSURE_PRESTIGE_COST)
             {
                 my $under_infl = $self->is_under_influence($n2); 
