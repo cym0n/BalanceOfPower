@@ -40,11 +40,7 @@ $world->tricks( { "Export quote Italy" => [30],
               });  
 $world->init_random("nations-test2.txt", "borders-test2.txt", 
                     { alliances => 0, trades => 0 });
-$world->forced_advisor("Noone");
-$commands = $world->build_commands();
-$commands->init_game(1);
 my $result;
-
 $world->add_crisis('Italy', 'France');
 $world->get_nation("Italy")->army(6);
 $world->get_nation("Italy")->internal_disorder(0);
@@ -60,10 +56,16 @@ $world->occupy("Germany", [ "Italy" ], "Italy", 1);
 $world->occupy("Russia", [ "France" ], "France", 1);
 $world->situation_clock();
 $world->order("DECLARE WAR TO France");
-$world->elaborate_turn("1970/1");
+$world->pre_decisions_elaborations('1970/1');
+$world->get_nation("Italy")->production(200);
+$world->get_nation("Germany")->production(200);
+$world->set_diplomacy("Italy", "Germany", 80);
+$world->ia_orders( [ "Italy: DECLARE WAR TO France" ] );
+$world->post_decisions_elaborations();
 ok($world->war_exists("Italy", "France"), "Italy attacked France");
 ok($world->war_exists("Russia", "Germany"), "Russia attacked Germany");
-$world->elaborate_turn("1970/2");
+$world->pre_decisions_elaborations('1970/2');
+$world->post_decisions_elaborations();
 is($world->get_events("Italy OCCUPIES France", "1970/2"), 1, "Italy occupies France");
 is($world->get_nation("Italy")->progress, 0.1, "Italy acquired France progress");
 is($world->get_events("WAR BETWEEN Germany AND Russia WON BY Germany", "1970/2"), 1, "WAR BETWEEN Germany AND Russia WON BY Germany");
