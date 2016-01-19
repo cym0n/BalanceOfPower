@@ -73,6 +73,7 @@ use constant REBEL_ARMY_FOR_SUPPORT => 4;
 use constant SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
 use constant REBEL_SUPPORT_HELP_FOR_CIVIL_WAR => 7; 
 use constant REBEL_SUPPORTER_WINNER_FRIENDSHIP => 90;
+use constant CIVIL_WAR_WEALTH_MALUS => 20;
 
 #War & domination
 use constant ARMY_FOR_BATTLE => 3;
@@ -263,5 +264,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'START_PLAYER_MONEY',
                   'WAR_BOND_COST',
                   'WAR_BOND_GAIN',
+                  'CIVIL_WAR_WEALTH_MALUS',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

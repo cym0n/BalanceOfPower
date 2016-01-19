@@ -124,15 +124,18 @@ sub issue_war_bonds
 {
     my $self = shift;
     my $nation = shift;
-    if($self->stocks($nation) > 0 && $self->money > WAR_BOND_COST)
+    if($self->stocks($nation) > 0) 
     {
-        $self->add_money(-1 * WAR_BOND_COST);
-        $self->add_war_bonds($nation);
-        $self->register_event("WAR BOND FOR $nation ISSUED. PAYED " . WAR_BOND_COST);
-    }
-    else
-    {
-        $self->register_event("WAR BOND FOR $nation NOT ISSUED. NOT ENOUGH MONEY");
+        if($self->money > WAR_BOND_COST)
+        {
+            $self->add_money(-1 * WAR_BOND_COST);
+            $self->add_war_bonds($nation);
+            $self->register_event("WAR BOND FOR $nation ISSUED. PAYED " . WAR_BOND_COST);
+        }
+        else
+        {
+            $self->register_event("WAR BOND FOR $nation NOT ISSUED. NOT ENOUGH MONEY");
+        }
     }
 }
 sub discard_war_bonds
@@ -167,8 +170,8 @@ sub empty_stocks
         $self->wallet->{$nation}->{'stocks'} = 0;
         $self->wallet->{$nation}->{'war bonds'} = 0;
         $self->wallet->{$nation}->{'influence'} = 0;
+        $self->register_event("INVESTMENTS IN $nation LOST BECAUSE OF REVOLUTION!");
     }
-    $self->register_event("INVESTMENTS IN $nation LOST BECAUSE OF REVOLUTION!");
 }
 sub add_stock_order
 {

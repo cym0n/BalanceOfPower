@@ -174,6 +174,12 @@ sub war_cost
     $self->add_wealth(-1 * WAR_WEALTH_MALUS);
     $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
 }
+sub civil_war_cost
+{
+    my $self = shift;
+    $self->add_wealth(-1 * CIVIL_WAR_WEALTH_MALUS);
+    $self->register_event("CIVIL WAR COST PAYED: " . CIVIL_WAR_WEALTH_MALUS);
+}
 
 sub boost_production
 {

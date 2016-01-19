@@ -745,6 +745,10 @@ sub economy
         {
             $n->war_cost();
         }
+        if($self->at_civil_war($n->name))
+        {
+            $n->civil_war_cost();
+        }
 
         my $wealth = $n->wealth;
         my $pu = PRODUCTION_UNITS->[$n->size];
