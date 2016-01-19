@@ -492,11 +492,23 @@ sub execute_decisions
     my $self = shift;
     my @decisions = @{$self->ia_orders};
     my @route_adders = ();
-    foreach my $d (@decisions)
+    #foreach my $d (@decisions)
+    foreach my $n (@{$self->nation_names})
     {
-        $d =~ /^(.*): (.*)$/;
-        my $nation = $self->get_nation($1);
-        my $command = $2;
+        my $command = $self->control($n);
+        if(! $command)
+        {
+            my @nation_orders = grep { $_ =~ /^$n: / } @decisions;           if(@nation_orders > 0)
+            {
+                $nation_orders[0] =~ /^(.*): (.*)$/;
+                $command = $2;
+            }
+            else
+            {
+                next;
+            }
+        }
+        my $nation = $self->get_nation($n);
         if($command =~ /^DELETE TRADEROUTE (.*)->(.*)$/)
         {
             $self->delete_route($1, $2);
@@ -670,9 +682,48 @@ sub decisions
     }
     $self->ia_orders(\@decisions);
 }
-sub override_decision
+sub control
 {
     my $self =  shift;
+    my $nation = shift;
+    my $quote = -1;
+    my $winner = undef;
+    my @losers = ();
+    my $winner_command;
+    foreach my $player (@{$self->players})
+    {
+        my $player_command = $player->get_control_order($nation);
+        if($player_command)
+        {
+            if($player->stocks($nation) > $quote)
+            {
+                if($winner)
+                {
+                    push @losers, $winner;
+                }
+                $winner = $player;
+                $quote = $player->stocks($nation);
+                $winner_command = $player_command;
+            }
+            else
+            {
+                push @losers, $player;
+            }
+        }
+    }
+    if($winner)
+    {
+        $winner->register_event("ORDER FOR $nation IS EXECUTED: $winner_command");
+        for(@losers)
+        {
+            $_->register_event("ORDER FOR $nation NOT EXECUTED! " . $winner->name . " MORE POWERFUL");
+        }
+        return $winner_command;
+    }
+    else
+    {
+        return undef;
+    }
 }
 
 # DECISIONS END ###########################################################

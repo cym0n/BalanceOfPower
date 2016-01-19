@@ -642,6 +642,14 @@ sub control_commands
         }
         if($controlled_nation)
         {
+            if($self->world->at_war($controlled_nation))
+            {
+                return { status => -2 };
+            }
+            if($self->world->at_civil_war($controlled_nation))
+            {
+                return { status => -3 };
+            }
             my $player = $self->get_active_player();
             if($player->influence($controlled_nation) > 0)
             {
@@ -720,6 +728,7 @@ sub handle_result
                 say $self->world->print_formatted_turn_events($self->world->current_year);
             }
             $self->world->pre_decisions_elaborations();
+            $self->executive(undef);
             return 1;
         }
         else
@@ -784,6 +793,15 @@ sub handle_result
             say "No influence on requested nation";
             return 1;
         }
+        elsif($result->{status} == -2)
+        {
+            say "No control during war";
+        }
+        elsif($result->{status} == -3)
+        {
+            say "No control during civil war";
+        }
+
         else
         {
             return 0;
