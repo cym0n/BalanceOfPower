@@ -197,8 +197,9 @@ sub decide
     $c->actor($self->actor);
     if($c->allowed())
     {
-        $self->log($self->actor . ": executing $order");
         my $command = $c->IA();
+        my $exit_log = $command ? $command : "KO";
+        $self->log($self->actor . ": executing $order: $exit_log");
         return $command;  
     }
     else

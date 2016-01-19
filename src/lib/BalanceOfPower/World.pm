@@ -539,7 +539,7 @@ sub execute_decisions
                 $self->broadcast_event($supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name);
             }
         }
-        elsif($command =~ /^RECALL MILITARY SUPPORT$/)
+        elsif($command =~ /^RECALL MILITARY SUPPORT (.*)$/)
         {
            my $supporter = $nation;
            my $supported = $self->get_nation($1);
