@@ -51,9 +51,6 @@ $world->init_random("nations-test1.txt", "borders-test1.txt",
 
 $world->forced_advisor("military");
 $world->autoplay(1);
-my $commands = BalanceOfPower::Commands->new( world => $world );
-$commands->init();
-$commands->init_game(1);
 $world->add_crisis('Italy', 'United Kingdom' );
 $world->get_nation("Italy")->army(15);
 $world->get_nation("United Kingdom")->army(3);

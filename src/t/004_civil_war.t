@@ -20,10 +20,6 @@ $world->init_random("nations-test-single.txt", "borders-test-single.txt",
                     { alliances => 0,
                       trades => 0 });
 
-my $commands = BalanceOfPower::Commands->new( world => $world );
-$commands->init();
-$commands->init_game(1);
-
 $world->forced_advisor("Noone");
 $world->get_nation("Italy")->internal_disorder(10);
 $world->get_nation("Italy")->army(2);

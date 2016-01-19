@@ -4,18 +4,6 @@ use BalanceOfPower::World;
 use BalanceOfPower::Commands;
 use Test::More;
 
-#Initialization of test scenario
-# Italy
-# France
-# United Kingdom
-# Russia
-# Germany
-#
-# Orders tested here:
-#   * ECONOMIC AID
-#   * TREATY COM
-
-
 my $first_year = 1970;
 
 
@@ -29,8 +17,6 @@ $world->tricks( { "Export quote Italy" => [50],
 $world->init_random("nations-test1.txt", "borders-test1.txt", 
                     { alliances => 0, trades => 0 });
 
-$world->player_nation("Italy");
-$world->player("Tester");
 $world->forced_advisor("noone");
 
 $world->pre_decisions_elaborations('1970/1');

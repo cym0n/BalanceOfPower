@@ -562,7 +562,7 @@ sub execute_decisions
         }
         elsif($command =~ /^REBEL MILITARY SUPPORT (.*)$/)
         {
-            my $nation2 = $self->get_nation($2);
+            my $nation2 = $self->get_nation($1);
             my $rebsup = $self->rebel_supported($nation2->name);
             if($rebsup && $rebsup->node1 ne $nation->name)
             {
