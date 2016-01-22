@@ -153,4 +153,13 @@ sub execute_stock_orders
     }
 }
 
+sub print_stock_events
+{
+    my $self = shift;
+    my $player = shift;
+    my $player_obj = $self->get_player($player);
+    my $y = shift;
+    return $player_obj->print_turn_events($y);
+}
+
 1;

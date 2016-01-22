@@ -212,7 +212,6 @@ sub print_nation_events
     my $nation_name = shift;
     my $y = shift;
     my $nation = $self->get_nation($nation_name);
-    my $turn = shift;
     return $nation->print_turn_events($y);
 }
 

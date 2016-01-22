@@ -487,7 +487,7 @@ COMMANDS
         else
         {
             my @good_year = ();
-            if($query =~ /(\d+)(\/\d+)?/) #it's an year or a turn
+            if($query =~ /^(\d+)(\/\d+)?/) #it's an year or a turn
             {
                 if((compare_turns($query, $self->world->current_year) == 0 || compare_turns($query, $self->world->current_year) == -1) &&
                     compare_turns($query, $self->world->first_year) >= 0)
@@ -583,18 +583,18 @@ sub stock_commands
     elsif($query eq 'market')
     {
         say $self->world->print_market;
-        $result = { status => 1 };
+        $result = { status => 2 };
     }
     elsif($query eq 'show stocks')
     {
         say $self->world->print_stocks($self->active_player);
-        $result = { status => 1 };
+        $result = { status => 2 };
     }
     elsif($query eq 'show stock orders')
     {
         my $player = $self->get_active_player;
         say $player->print_stock_orders();
-        $result = { status => 1 };
+        $result = { status => 2 };
     }
     elsif($query eq 'empty stock orders')
     {
@@ -619,6 +619,19 @@ sub stock_commands
             $player->remove_stock_orders($stock_nation);
             $result = { status => 1 };
         }
+    }
+    elsif($query =~ /^stockevents( ((\d+)(\/\d+)?))?$/)
+    {
+        my $input_year = $2;
+        $input_year ||= prev_turn($self->world->current_year);
+        my @turns = get_year_turns($input_year); 
+        foreach my $t (@turns)
+        {
+            print $self->world->print_stock_events($self->active_player, $t);
+            my $wait = prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
+        }
+        print "\n";
+        $result = { status => 2 };
     }
 
     return $result;
@@ -777,6 +790,10 @@ sub handle_result
         elsif($result->{status} == 1)
         {
             say "Stock order registered";
+            return 1;
+        }
+        elsif($result->{status} == 2)
+        {
             return 1;
         }
         else
