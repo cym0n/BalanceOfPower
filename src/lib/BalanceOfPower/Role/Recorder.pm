@@ -54,6 +54,7 @@ sub load_nations
                 $nation->executive($executive);
                 push @{$self->nations}, $nation;
                 push @{$self->nation_names}, $nation->name;
+                $self->nation_codes->{$nation->code} = $nation->name;
             }
             $nation_data = $l . "\n";
         }

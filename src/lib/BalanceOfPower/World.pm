@@ -217,6 +217,7 @@ sub init_random
         $executive->init($self);
         push @{$self->nations}, BalanceOfPower::Nation->new( 
             name => $n, 
+            code => $nations_data{$n}->{code},
             executive => $executive,
             area => $nations_data{$n}->{area}, 
             size => $nations_data{$n}->{size},
