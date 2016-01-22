@@ -1,5 +1,5 @@
 # Test World
-Italy,2,d
-France,2,d
-Russia,2,D
-Germany,2,d
+Italy,ITA;2,d
+France,FRA,2,d
+Russia,RUS,2,D
+Germany,GER,2,d

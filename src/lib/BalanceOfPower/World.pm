@@ -35,6 +35,10 @@ has nation_names => (
     is => 'rw',
     default => sub { [] }
 );
+has nation_codes => (
+    is => 'rw',
+    default => sub { {} }
+);
 has order => (
     is => 'rw',
     default => ""
@@ -116,6 +120,7 @@ sub correct_nation_name
     my $self = shift;
     my $nation = shift;
     return undef if(! $nation);
+    $nation = $self->nation_codes->{uc $nation} if(exists $self->nation_codes->{uc $nation});
     for(@{$self->nation_names})
     {
         return $_ if(uc $_ eq uc $nation);
@@ -148,7 +153,7 @@ sub load_nations_data
         chomp $n;
         if(! ($n =~ /^#/))
         {
-            my ($name, $size, $government) = split(',', $n);
+            my ($name, $code, $size, $government) = split(',', $n);
             if($government eq 'd')
             {
                 $government = 'democracy';
@@ -157,7 +162,8 @@ sub load_nations_data
             {
                 $government = 'dictatorship';
             }
-            $nations_data{$name} = { area => $area,
+            $nations_data{$name} = { code => $code,
+                                     area => $area,
                                      size => $size,
                                      government => $government ,
                                    }
@@ -220,6 +226,7 @@ sub init_random
             available_stocks => START_STOCKS->[$nations_data{$n}->{size}],
             log_name => $self->log_name,
             log_on_stdout => $self->log_on_stdout);
+        $self->nation_codes->{$nations_data{$n}->{code}} = $n;
     }
     $self->nation_names(\@nation_names);
     $self->load_borders($bordersfile);

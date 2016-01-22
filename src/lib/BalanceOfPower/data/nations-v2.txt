@@ -1,69 +1,69 @@
 # North America
-Canada,2,d
-Cuba,0,D
-Honduras,0,D
-Mexico,1,d
-Nicaragua,0,D
-Panama,0,d
-USA,2,d
+Canada,CAN,2,d
+Cuba,CUB,0,D
+Honduras,HON,0,D
+Mexico,MEX,1,d
+Nicaragua,NIC,0,D
+Panama,PAN,0,d
+USA,USA,2,d
 # South America
-Argentina,2,D
-Brazil,2,d
-Chile,1,D
-Colombia,0,D
-Peru,1,d
-Venezuela,0,d
+Argentina,ARG,2,D
+Brazil,BRA,2,d
+Chile,CHI,1,D
+Colombia,COL,0,D
+Peru,PER,1,d
+Venezuela,VEN,0,d
 # Europe
-United Kingdom,2,d
-France,2,d
-Italy,2,d
-Spain,2,d
-Sweden,1,d
-West Germany,1,d
-Czechoslovakia,0,D
-East Germany,1,D
-Greece,0,D
-Poland,0,D
-Romania,0,D
-USSR,2,D
-Yugoslavia,1,D
+United Kingdom,GBR,2,d
+France,FRA,2,d
+Italy,ITA,2,d
+Spain,SPA,2,d
+Sweden,SWE,1,d
+West Germany,BRD,1,d
+Czechoslovakia,CZE,0,D
+East Germany,DDR,1,D
+Greece,GRE,0,D
+Poland,POL,0,D
+Romania,ROM,0,D
+USSR,URS,2,D
+Yugoslavia,YUG,1,D
 # Africa
-Algeria,1,D
-Egypt,2,d
-Ethiopia,1,d
-Libya,1,D
-Mali,0,D
-Morocco,0,d
-Nigeria,2,d
-Sudan,1,d
-Tunisia,0,d
-Angola,2,d
-Kenya,2,d
-Mozambique,0,d
-South Africa,2,d
-Tanzania,1,d
-Zaire,1,D
-Zimbabwe,0,D
+Algeria,ALG,1,D
+Egypt,EGY,2,d
+Ethiopia,ETH,1,d
+Libya,LIB,1,D
+Mali,MAL,0,D
+Morocco,MOR,0,d
+Nigeria,NIG,2,d
+Sudan,SUD,1,d
+Tunisia,TUN,0,d
+Angola,ANG,2,d
+Kenya,KEN,2,d
+Mozambique,MOZ,0,d
+South Africa,RSA,2,d
+Tanzania,TAN,1,d
+Zaire,ZAI,1,D
+Zimbabwe,ZIM,0,D
 # Middle East
-Afghanistan,2,D
-Israel,1,d
-Iran,1,D
-Iraq,1,D
-Pakistan,1,D
-Saudi Arabia,2,D
-Syria,0,D
-Turkey,2,d
+Afghanistan,AFG,2,D
+Israel,ISR,1,d
+Iran,IRI,1,D
+Iraq,IRQ,1,D
+Pakistan,PAK,1,D
+Saudi Arabia,KSA,2,D
+Syria,SYR,0,D
+Turkey,TUR,2,d
 # Far East
-Burma,0,D
-China,2,D
-India,2,d
-North Korea,1,D
-South Korea,1,d
-Thailand,0,d
-Vietnam,1,D
+Burma,BIR,0,D
+China,CHN,2,D
+India,IND,2,d
+North Korea,PRK,1,D
+South Korea,KOR,1,d
+Thailand,THA,0,d
+Vietnam,VIE,1,D
 # Pacific
-Australia,2,d
-Indonesia,0,d
-Japan,1,d
-Philippines,0,d
-Taiwan,0,D
+Australia,AUS,2,d
+Indonesia,INA,0,d
+Japan,JAP,1,d
+Philippines,PHI,0,d
+Taiwan,TWN,0,D
