@@ -64,6 +64,31 @@ sub load_nations
         }
     }
 }
+sub load_players
+{
+    my $self = shift;
+    my $data = shift;
+    $data .= "EOF\n";
+    my $player_data = "";
+    foreach my $l (split "\n", $data)
+    {
+
+        if($l !~ /^\s/)
+        {
+            if($player_data)
+            {
+                my $player = BalanceOfPower::Player->load($player_data);
+                push @{$self->players}, $player;
+            }
+            $player_data = $l . "\n";
+        }
+        else
+        {
+            $player_data .= $l . "\n";
+        }
+    }
+}
+
 
 sub dump_all
 {
@@ -74,6 +99,11 @@ sub dump_all
     $self->dump($io);
     print {$io} "### NATIONS\n";
     for(@{$self->nations})
+    {
+        $_->dump($io);
+    }
+    print {$io} "### PLAYERS\n";
+    for(@{$self->players})
     {
         $_->dump($io);
     }
@@ -123,6 +153,10 @@ sub load_world
             elsif($target eq 'NATIONS')
             {
                 $world->load_nations($data);
+            }
+            elsif($target eq 'PLAYERS')
+            {
+                $world->load_players($data);
             }
             elsif($target eq 'DIPLOMATIC RELATIONS')
             {

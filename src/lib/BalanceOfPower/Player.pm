@@ -241,6 +241,84 @@ sub print_control_orders
     }
     return $out;
 }
+sub dump_wallet
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift;
+    foreach my $nation(keys %{$self->wallet})
+    {
+        print {$io} $indent . join(";", $nation, $self->stocks($nation), $self->war_bonds($nation), $self->influence($nation));
+    }
+}
+sub load_wallet
+{
+    my $self = shift;
+    my $data = shift;
+    my @lines = split /\n/, $data;
+    my %wallet;
+    foreach my $line (@lines)
+    {
+        $line =~ s/^\s+//;
+        chomp $line;
+        my ($nation, $stocks, $war_bonds, $influence) = split ";", $line;
+        $wallet{$nation}->{'stocks'} = $stocks;
+        $wallet{$nation}->{'war bonds'} = $war_bonds;
+        $wallet{$nation}->{'influence'} = $influence;
+    }    
+    return \%wallet;
+}
+
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . 
+                join(";", $self->name, $self->money, $self->current_year) . "\n";
+    print {$io} $indent . " " . "### WALLET\n";
+    $self->dump_wallet($io, " " . $indent);            
+    print {$io} "\n";
+    print {$io} $indent . " " . "### EVENTS\n";
+    $self->dump_events($io, " " . $indent);
+}
+
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    my @player_lines =  split /\n/, $data;
+    my $player_line = shift @player_lines;
+    $player_line =~ s/^\s+//;
+    chomp $player_line;
+    my ($name, $money, $current_year) = split ";", $player_line;
+    my $what = '';
+    my $extracted_data;
+    my $wallet;
+    foreach my $line (@player_lines)
+    {
+        $line =~ s/^\s+//;
+        chomp $line;
+        if($line eq '### WALLET')
+        {
+            $what = 'wallet';
+        }
+        elsif($line eq '### EVENTS')
+        {
+            $what = 'events';
+            $wallet = $self->load_wallet($extracted_data);
+            $extracted_data = "";
+        }
+        else
+        {
+            $extracted_data .= $line;
+        }
+    }
+    my $events = $self->load_events($data);
+    return $self->new(name => $name, money => $money, current_year => $current_year,
+                      wallet => $wallet,
+                      events => $events);
+}
 
 
 

@@ -53,7 +53,7 @@ if($new)
     my $auto_years;
     if($stubbed_player)
     {
-        $auto_years = 10;
+        $auto_years = 5;
         $commands->set_player("Player One");
     }
     else
@@ -76,6 +76,8 @@ if($new)
 }
 else
 {
+    my $active_player = $world->players->[0];
+    $commands->set_player($active_player->name);
     $commands->interact(0);
 }
 
