@@ -55,7 +55,6 @@ $world->get_nation("Italy")->progress(0);
 $world->occupy("Germany", [ "Italy" ], "Italy", 1);
 $world->occupy("Russia", [ "France" ], "France", 1);
 $world->situation_clock();
-$world->order("DECLARE WAR TO France");
 $world->pre_decisions_elaborations('1970/1');
 $world->get_nation("Italy")->production(200);
 $world->get_nation("Germany")->production(200);

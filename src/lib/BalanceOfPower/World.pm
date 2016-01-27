@@ -627,7 +627,16 @@ sub execute_decisions
         }
         $self->set_statistics_value($nation, 'order', $command);
     }
+    $self->empty_control_orders();
     $self->manage_route_adding(@route_adders);
+}
+sub empty_control_orders
+{
+    my $self = shift;
+    foreach my $p (@{$self->players})
+    {
+       $p->empty_control_orders(); 
+    }
 }
 
 sub manage_route_adding

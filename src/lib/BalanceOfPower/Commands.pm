@@ -39,6 +39,11 @@ has active_player => (
 has executive => (
     is => 'rw',
 );
+
+has latest_result => (
+    is => 'rw',
+);
+
 sub welcome
 {
     my $self = shift;
@@ -76,7 +81,9 @@ sub set_player
     my $player = shift;
     my $log_name = $player . ".log";
     $log_name =~ s/ /_/g;
-    $self->world->add_player(BalanceOfPower::Player->new(name => $player, money => START_PLAYER_MONEY, log_name => $log_name));
+    my $pl = BalanceOfPower::Player->new(name => $player, money => START_PLAYER_MONEY, log_name => $log_name);
+    $pl->delete_log();
+    $self->world->add_player($pl);
     $self->active_player($player);
 }
 
@@ -520,16 +527,22 @@ COMMANDS
 sub orders
 {
     my $self = shift;
-    if($self->executive)
+    if($self->executive->actor)
     {
-        return $self->executive->recognize_command($self->nation,
-                                                   $self->query);
+        if($self->get_active_player->influence($self->executive->actor) >= INFLUENCE_COST)
+        {
+            return $self->executive->recognize_command($self->nation,
+                                                       $self->query);
+        }
+        else
+        {
+            return { status => -4 };
+        }
     }
     else
     {
         return { status => 0 };
     }
-    
 }
 
 sub stock_commands
@@ -694,7 +707,42 @@ sub control_commands
     return $result;
 }
 
-
+sub commands
+{
+    my $self = shift;
+    my $result;
+    $result = $self->turn_command();
+    if($self->handle_result('turn', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->report_commands();
+    if($self->handle_result('report', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->stock_commands();
+    if($self->handle_result('stock', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->control_commands();
+    if($self->handle_result('control', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->orders();
+    if($self->handle_result('orders', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    return 0;
+}
 
 sub interact
 {
@@ -707,18 +755,11 @@ sub interact
         my $result = undef;
         $self->clear_query();
         $self->get_query();
-
-        $result = $self->turn_command();
-        next if($self->handle_result('turn', $result));
-        $result = $self->report_commands();
-        next if($self->handle_result('report', $result));
-        $result = $self->stock_commands();
-        next if($self->handle_result('stock', $result));
-        $result = $self->control_commands();
-        next if($self->handle_result('control', $result));
-        $result = $self->orders();
-        next if($self->handle_result('orders', $result));
-        say "Bad command";
+        if(! $self->commands())
+        {
+            $self->latest_result(undef);
+            say "Bad command";
+        }
     }
 }
 
@@ -843,12 +884,18 @@ sub handle_result
             say "Command aborted";
             return 1;
         }
+        elsif($result->{status} == -4)
+        {
+            say "Not enough influence";
+            return 1;
+        }
         elsif($result->{status} == 1)
         {
             say "Order selected for " .
                 $self->executive->actor .  
                 ": " . $result->{command};
             my $player = $self->get_active_player();
+            $player->add_influence(-1 * INFLUENCE_COST, $self->executive->actor);
             $player->add_control_order($self->executive->actor, $result->{command});
             return 1;
         } 

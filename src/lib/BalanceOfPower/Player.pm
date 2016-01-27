@@ -229,6 +229,11 @@ sub remove_control_order
     my $nation = shift;
     $self->control_orders->{$nation} = undef;
 }
+sub empty_control_orders
+{
+    my $self = shift;
+    $self->control_orders({});
+}
 sub print_control_orders
 {
     my $self = shift;

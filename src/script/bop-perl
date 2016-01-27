@@ -60,16 +60,10 @@ if($new)
     {
         $commands->welcome();
         $auto_years = $commands->set_auto_years();
+        $auto_years = 0 if($auto_years < 0);
         $commands->input_player();
     }
-    if($auto_years >= 0)
-    {
-        $world->autopilot($first_year, $first_year+$auto_years);
-    }
-    else
-    {
-        $world->current_year(prev_turn($first_year));  
-    }
+    $world->autopilot($first_year, $first_year+$auto_years);
 
     $commands->welcome_player();
     $commands->interact();

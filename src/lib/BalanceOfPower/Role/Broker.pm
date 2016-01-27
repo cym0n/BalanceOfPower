@@ -141,12 +141,10 @@ sub execute_stock_orders
     {
         foreach my $order (@{$player->stock_orders})
         {
-            say "Elaborating $order";
             $order =~ /^(.*)\s(\d)\s(.*)$/;
             my $command = $1;
             my $q = $2;
             my $nation = $3;
-            say "Executing $order ($command)";
             $self->manage_stock($command, $player->name, $nation, $q);
         }
         $player->empty_stock_orders();
