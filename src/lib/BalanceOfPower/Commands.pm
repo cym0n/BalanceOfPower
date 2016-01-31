@@ -123,6 +123,7 @@ sub get_prompt_text
     if($controlled)
     {
         $prompt_text .= "Controlling $controlled (" . "Int:" . $ctrl_n->production_for_domestic . "    Exp:" . $ctrl_n->production_for_export . "    Prtg:" . $ctrl_n->prestige . "    Army:" . $ctrl_n->army . ")\n";
+        $prompt_text .= "Control orders: " .  $player->get_control_order($controlled) . "\n" if $player->get_control_order($controlled);
     }
     $prompt_text .= $self->nation ? "(" . $self->nation . " [" . $player->influence($self->nation) .  "]) ?" : "?";
     return $prompt_text;
@@ -704,6 +705,14 @@ sub control_commands
         say $self->get_active_player->print_control_orders();
         $result = { status => 1 }
     }
+    elsif($query eq 'clearorders')
+    {
+        if($self->executive)
+        {
+            $self->get_active_player->add_control_order($self->executive->actor, undef);
+            $result = { status => 2 };
+        }
+    }
     return $result;
 }
 
@@ -848,6 +857,11 @@ sub handle_result
         {
             return 1;
         }
+        if($result->{status} == 2)
+        {
+            say "Order revoked";
+            return 1;
+        }
         elsif($result->{status} == -1)
         {
             say "No influence on requested nation";
@@ -895,7 +909,7 @@ sub handle_result
                 $self->executive->actor .  
                 ": " . $result->{command};
             my $player = $self->get_active_player();
-            $player->add_influence(-1 * INFLUENCE_COST, $self->executive->actor);
+            #$player->add_influence(-1 * INFLUENCE_COST, $self->executive->actor);
             $player->add_control_order($self->executive->actor, $result->{command});
             return 1;
         } 

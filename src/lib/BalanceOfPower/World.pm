@@ -712,6 +712,7 @@ sub control
         my $player_command = $player->get_control_order($nation);
         if($player_command)
         {
+            $player->add_influence(-1 * INFLUENCE_COST, $nation);
             if($player->stocks($nation) > $quote)
             {
                 if($winner)
