@@ -255,24 +255,10 @@ COMMANDS
         $self->nation(undef);
         $result = { status => 1 };
     }
-#    elsif($query eq "clearorders")
-#    {
-#        $self->nation(undef);
-#        $self->world->order(undef);
-#        $result = { status => 1 };
-#    }
     elsif($query eq "commands")
     {
         print $commands;
         $result = { status => 1 };
-    }
-    elsif($query eq "orders")
-    {
-        if($self->executive)
-        {
-            say $self->executive->print_orders();;
-            $result = { status => 1 };
-        }
     }
     elsif($query eq "wars")
     {
