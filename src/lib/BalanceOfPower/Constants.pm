@@ -114,6 +114,7 @@ use constant START_PLAYER_MONEY => 1000;
 use constant WAR_BOND_COST => 10;
 use constant WAR_BOND_GAIN => 20;
 use constant INFLUENCE_COST => 1;
+use constant MAX_BUY_STOCK => 4;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -267,5 +268,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'WAR_BOND_GAIN',
                   'CIVIL_WAR_WEALTH_MALUS',
                   'INFLUENCE_COST',
+                  'MAX_BUY_STOCK',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

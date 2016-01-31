@@ -165,6 +165,8 @@ You can select a nation naming it. Then you can retrieve many reports about it. 
     history
     plot [VARIABLE]
 
+If you want to cancel nation selection type B<clear>.
+
 =head1 TURN
 
 When you have finished with stock orders and control orders just type B<turn>. This way a new turn will be elaborated, your orders executed (if possible) and all the values of the stocks will change, with profit or loss for your wallet.

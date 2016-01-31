@@ -42,6 +42,10 @@ sub buy_stock
             if(! $dry_run);
         return { status => -11 };
     }
+    if($q > MAX_BUY_STOCK)
+    {
+        return { status => -15 };
+    }
     if($self->at_civil_war($nation))
     {
         $player_obj->register_event("NO STOCK TRANSATION WITH $nation. $nation IS IN CIVIL WAR")

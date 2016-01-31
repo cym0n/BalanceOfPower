@@ -416,6 +416,8 @@ COMMANDS
             } 
             else
             {
+                $query = prev_turn($self->world->current_year);
+                $self->keep_query(1);
                 $result = { status => 1 };
             }
         }
@@ -817,11 +819,18 @@ sub handle_result
         }
         elsif($result->{status} == -13)
         {
-            say "You haven't that quantity"
+            say "You haven't that quantity";
+            return 1;
         }
         elsif($result->{status} == -14)
         {
-            say "You can't trade during civil war"
+            say "You can't trade during civil war";
+            return 1;
+        }
+        elsif($result->{status} == -15)
+        {
+            say "You can't buy more than " . MAX_BUY_STOCK .  " stocks";
+            return 1;
         }
         elsif($result->{status} == 1)
         {
