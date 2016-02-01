@@ -5,6 +5,8 @@ use v5.10;
 
 use Moo;
 use BalanceOfPower::Constants ':all';
+use BalanceOfPower::Utils qw( as_html_dangerous );
+
 use Term::ANSIColor;
 use HTML::Entities;
 
@@ -82,10 +84,24 @@ sub status_color
     }
 }
 
+sub html
+{
+    my $self = shift;
+    my $from = shift;
+    my $link = encode_entities($self->print($from, 0));
+    if($self->status eq 'HATE')
+    {
+        $link = as_html_dangerous($link);
+    }
+    return $link;
+}
+
 sub print 
 {
     my $self = shift;
     my $from = shift;
+    my $color = shift;
+    $color = 1 if(! defined $color);
     my $second_node;
     my $out;
     if($from)
@@ -104,12 +120,20 @@ sub print
         $from = $self->node1;
         $second_node = $self->node2;
     }
-    $out = $self->status_color . $from . " <--> " . $second_node . " [" . $self->factor . " " . $self->status . "]";
+    $out = $self->status_color if $color;
+    $out .=  $from . " <--> " . $second_node . " [" . $self->factor . " " . $self->status . "]";
     if($self->get_crisis_level > 0)
     {
-        $out .= " " . $self->print_crisis_bar();
+        if($color)
+        {
+            $out .= " " . $self->print_crisis_bar();
+        }
+        else
+        {
+            $out .= " " . $self->print_grey_crisis_bar();
+        }
     }
-    $out .= color("reset");
+    $out .= color("reset") if $color;
     return $out;
 }
 sub print_status

@@ -249,10 +249,26 @@ sub diplomacy_for_node
     }
     return %relations;;
 }
+
 sub print_diplomacy
 {
     my $self = shift;
     my $n = shift;
+    return $self->output_diplomacy($n, 'print');
+}
+sub html_diplomacy
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->output_diplomacy($n, 'html');
+}
+
+
+sub output_diplomacy
+{
+    my $self = shift;
+    my $n = shift;
+    my $mode = shift || "print";
     my $out;
     my @outnodes;
     foreach my $f ($self->diplomatic_relations->all())
@@ -263,11 +279,21 @@ sub print_diplomacy
             push @outnodes, $real_r;
         }
     }
+    $out .= as_main_title("RELATIONS", $mode);
+    my $box = "";
     foreach my $rr (sort { $a->factor <=> $b->factor} @outnodes)
     {
-        $out .= $rr->print($n) . "\n";
+        if($mode eq 'print')
+        {
+            $box .= $rr->print($n) . br($mode);
+        }
+        elsif($mode eq 'html')
+        {
+            $box .= $rr->html($n) . br($mode);
+        }
     }
-    return $out;
+    $box = as_html_box($box) if($mode eq 'html');
+    return $out . $box;
 }
 
 

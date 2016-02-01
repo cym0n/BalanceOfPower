@@ -6,18 +6,45 @@ use Moo::Role;
 
 use BalanceOfPower::Relations::Border;
 use BalanceOfPower::Relations::RelPack;
+use BalanceOfPower::Utils qw( as_main_title);
+
 
 has borders => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_border => 'add_link',
                  border_exists => 'exists_link',
-                 print_borders => 'print_links',
                  get_borders => 'links_for_node',
                  near_on_the_map => 'near',
                  distance_on_the_map => 'distance'
                }
 );
+
+sub print_borders
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->output_borders("BORDERS", $n, 'print');
+}
+sub html_borders
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->output_borders("BORDERS", $n, 'html');
+}
+
+
+sub output_borders
+{
+    my $self = shift;
+    my $title = shift;
+    my $n = shift;
+    my $mode = shift;
+    my $out = "";
+    $out .= as_main_title($title, $mode);
+    $out .= $self->borders->output_links($n, $mode);
+    return $out;
+}
 
 
 sub load_borders
