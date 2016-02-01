@@ -23,7 +23,6 @@ has treaties => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { add_treaty => 'add_link',
-                 print_treaties => 'print_links',
                  exists_treaty => 'exists_link',
                  get_treaties_for_nation => 'links_for_node',
                  reset_treaties => 'delete_link_for_node',
@@ -402,26 +401,38 @@ sub add_alliance
 sub print_allies
 {
     my $self = shift;
-    return $self->output_allies('print');
+    return $self->output_treaties("ALLIANCES", 'alliance', 'print');
 }
 sub html_allies
 {
     my $self = shift;
-    return $self->output_allies('html');
+    return $self->output_treaties("ALLIANCES", 'alliance', 'html');
+}
+sub print_treaties
+{
+    my $self = shift;
+    return $self->output_treaties("TREATIES", undef, 'print');
+}
+sub html_treaties
+{
+    my $self = shift;
+    return $self->output_treaties("TREATIES", undef, 'html');
 }
 
 
-sub output_allies
+sub output_treaties
 {
     my $self = shift;
+    my $title = shift;
+    my $treaty = shift;
     my $mode = shift;
     my @treaties = $self->treaties->all();
     my $out = "";
-    $out .= as_main_title("ALLIANCES", $mode);
+    $out .= as_main_title($title, $mode);
     my $box = "";
     for(@treaties)
     {
-        if($_->type eq 'alliance')
+        if(($treaty && $_->type eq $treaty) || ! $treaty)
         {
             $box .= $_->output($mode);
             $box .= br($mode);

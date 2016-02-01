@@ -265,6 +265,20 @@ sub query
     }
     return @out;
 }
+sub output_links
+{
+    my $self = shift;
+    my $n = shift;
+    my $mode = shift || 'print';
+    if($mode eq 'print')
+    {
+        return $self->print_links($n);
+    }
+    elsif($mode eq 'html')
+    {
+        return $self->html_links($n);
+    }
+}
 
 sub print_links
 {
@@ -286,6 +300,27 @@ sub print_links
         }
     }
     return $out;
+}
+sub html_links
+{
+    my $self = shift;
+    my $n = shift;
+    my $out = "";
+    foreach my $b (@{$self->links})
+    {
+        if($n)
+        {
+            if($b->has_node($n))
+            {
+                $out .= $b->html($n) . "<br />";
+            }
+        }
+        else
+        {
+            $out .= $b->html($n) . "<br />";
+        }
+    }
+    return "<p>$out</p>";
 }
 
 #BFS implementation

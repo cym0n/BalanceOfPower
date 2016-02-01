@@ -20,6 +20,8 @@ requires 'print_nation_situation';
 requires 'print_nation_statistics_header';
 requires 'print_nation_statistics_line';
 requires 'get_player';
+requires 'output_all_crises';
+requires 'output_wars';
 
 sub print_nation_actual_situation
 {
@@ -196,46 +198,24 @@ sub print_near_analysis
     }
     return $out;
 }
-
 sub print_hotspots
 {
     my $self = shift;
-    my $out = "";
-    my @crises = $self->get_all_crises();
-    $out .= as_title("CRISES") . "\n";
-    for(@crises)
-    {
-        my $c = $_;
-        if(! $self->war_exists($c->node1, $c->node2))
-        {
-            $out .= as_subtitle($c->print_crisis()) . "\n";
-            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node1)->print() . "\n" if($self->player_nation ne $c->node1);
-            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $c->node2)->print(). "\n" if($self->player_nation ne $c->node2);
-            $out .= "\n";
-        }
-    }
-    $out .= "\n";
-    $out .= as_title("WARS") . "\n";
-    my @wars = $self->wars->all();
-    for(@wars)
-    {
-        my $w = $_;
-        $out .= $w->print() . "\n";
-        #$out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node1)->print() . "\n" if($self->player_nation ne $w->node1);
-        #$out .= "    " . $self->diplomacy_exists($self->player_nation, $w->node2)->print(). "\n" if($self->player_nation ne $w->node2);
-        $out .= "\n";
-    }
-    $out .= "\n";
-    $out .= as_title("CIVIL WARS") . "\n";
-    foreach my $n (@{$self->nation_names})
-    {
-        if($self->at_civil_war($n))
-        {
-            $out .= "$n is fighting civil war\n";
-            #$out .= "    " . $self->diplomacy_exists($self->player_nation, $n)->print() . "\n" if($self->player_nation ne $n);
-        }
-    }
-    return $out;
+    return $self->output_hotspots('print');
+}
+sub html_hotspots
+{
+    my $self = shift;
+    return $self->output_hotspots('html');
+}
+sub output_hotspots
+{
+     my $self = shift;
+     my $mode = shift;
+     my $out = "";
+     $out .= $self->output_all_crises(undef, $mode);
+     $out .= $self->output_wars($mode);
+     return $out;
 }
 
 sub print_civil_war_report

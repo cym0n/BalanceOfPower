@@ -6,6 +6,7 @@ use Moo::Role;
 use BalanceOfPower::Constants ':all';
 
 use BalanceOfPower::Relations::Influence;
+use BalanceOfPower::Utils qw( as_main_title);
 
 requires 'broadcast_event';
 requires 'get_nation';
@@ -14,7 +15,6 @@ has influences => (
     is => 'ro',
     default => sub { BalanceOfPower::Relations::RelPack->new() },
     handles => { reset_influences => 'delete_link_for_node',
-                 print_influences => 'print_links', 
                  add_influence => 'add_link' }
 );
 sub influences_garbage_collector
@@ -165,6 +165,28 @@ sub situation_clock
         }
     }
     $self->influences_garbage_collector();
+}
+
+sub output_influences
+{
+    my $self = shift;
+    my $n = shift;
+    my $mode = shift || 'print';
+    my $out = "";
+    $out .= as_main_title("INFLUENCES", $mode);
+    $out .= $self->influences->output_links($n, $mode);
+    return $out;
+}
+sub print_influences
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->output_influences($n, 'print');
+}
+sub html_influences
+{
+    my $self = shift;
+    return $self->output_influences(undef, 'html');
 }
 
 1;

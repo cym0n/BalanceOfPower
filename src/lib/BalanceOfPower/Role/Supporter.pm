@@ -6,6 +6,7 @@ use Moo::Role;
 
 use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Constants ':all';
+use BalanceOfPower::Utils qw( as_main_title);
 
 requires 'get_nation';
 requires 'at_civil_war';
@@ -21,7 +22,6 @@ has military_supports => (
                  supports => 'links_for_node',
                  supporter => 'links_for_node1',
                  supported => 'first_link_for_node2',
-                 print_military_supports => 'print_links',
                  reset_supports => 'delete_link_for_node'
                }
 );
@@ -34,7 +34,6 @@ has rebel_military_supports => (
                  rebel_supports => 'links_for_node',
                  rebel_supporter => 'links_for_node1',
                  rebel_supported => 'first_link_for_node2',
-                 print_rebel_military_supports => 'print_links',
                  reset_rebel_supports => 'delete_link_for_node'
                }
 );
@@ -141,4 +140,44 @@ sub rebel_military_support_garbage_collector
     $self->rebel_military_supports->garbage_collector(sub { my $rel = shift; return $rel->army <= 0 });
 }
 
+sub print_military_supports
+{
+    my $self = shift;
+    return $self->output_military_supports("MILITARY SUPPORTS", 0, 'print');
+}
+sub html_military_supports
+{
+    my $self = shift;
+    return $self->output_military_supports("MILITARY SUPPORTS", 0, 'html');
+}
+sub print_rebel_military_supports
+{
+    my $self = shift;
+    return $self->output_military_supports("REBEL MILITARY SUPPORTS", 1, 'print');
+}
+sub html_rebel_military_supports
+{
+    my $self = shift;
+    return $self->output_military_supports("REBEL MILITARY SUPPORTS", 1, 'html');
+}
+
+
+sub output_military_supports
+{
+    my $self = shift;
+    my $title = shift;
+    my $rebel = shift;
+    my $mode = shift;
+    my $out = "";
+    $out .= as_main_title($title, $mode);
+    if($rebel)
+    {
+        $out .= $self->rebel_military_supports->output_links(undef, $mode);
+    }
+    else
+    {
+        $out .= $self->military_supports->output_links(undef, $mode);
+    }
+    return $out;
+}
 1;
