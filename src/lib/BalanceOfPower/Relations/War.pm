@@ -4,8 +4,9 @@ use strict;
 use v5.10;
 
 use Moo;
-use BalanceOfPower::Utils qw( from_to_turns );
+use BalanceOfPower::Utils qw( from_to_turns as_html_evidenced );
 use Term::ANSIColor;
+use HTML::Entities;
 
 with 'BalanceOfPower::Relations::Role::Relation';
 with 'BalanceOfPower::Role::Reporter';
@@ -48,24 +49,61 @@ sub bidirectional
 {
     return 0;
 }
-sub print 
+
+sub print
 {
     my $self = shift;
     my $army_node1 = shift;
     my $army_node2 = shift;
+    return $self->output($army_node1, $army_node2, 'print');
+}
+sub html
+{
+    my $self = shift;
+    my $army_node1 = shift;
+    my $army_node2 = shift;
+    return $self->output($army_node1, $army_node2, 'html');
+}
+
+
+
+sub output 
+{
+    my $self = shift;
+    my $army_node1 = shift;
+    my $army_node2 = shift;
+    my $mode = shift;
     my $army_node1_label = $army_node1 ? "[".$army_node1."] " : "";
     my $army_node2_label = $army_node2 ? " [".$army_node2."]" : "";
     my $node1 = $army_node1_label . $self->node1;
     my $node2 = $self->node2 . $army_node2_label;
-    if($self->node1_faction == 0)
+    if($mode eq 'print')
     {
-        $node1 = color("bold") . $node1 . color("reset");
+        if($self->node1_faction == 0)
+        {
+            $node1 = color("bold") . $node1 . color("reset");
+        }
+        else
+        {
+            $node2 = color("bold") . $node2 . color("reset");
+        }
+        return  $node1 . " -> " . $node2;
     }
-    else
+    elsif($mode eq 'html')
     {
-        $node2 = color("bold") . $node2 . color("reset");
+        if($self->node1_faction == 0)
+        {
+            $node1 = as_html_evidenced($node1);
+        }
+        else
+        {
+            $node2 = as_html_evidenced($node2);
+        }
+        return  $node1 . " -&gt; " . $node2;
     }
-    return  $node1 . " -> " . $node2;
+        
+    
+    
 }
 sub print_history
 {

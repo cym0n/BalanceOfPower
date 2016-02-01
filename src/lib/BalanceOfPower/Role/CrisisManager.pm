@@ -5,7 +5,7 @@ use Moo::Role;
 use Term::ANSIColor;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(as_title);
+use BalanceOfPower::Utils qw(as_main_title as_html_box as_html_dangerous);
 
 requires 'get_all_crises';
 requires 'get_hates';
@@ -140,25 +140,63 @@ sub cool_down
         }
     }
 }
-
 sub print_all_crises
 {
     my $self = shift;
     my $n = shift;
+    return $self->output_all_crises($n, 'print');
+}
+sub html_all_crises
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->output_all_crises($n, 'html');
+}
+
+
+sub output_all_crises
+{
+    my $self = shift;
+    my $n = shift;
+    my $mode = shift;
     my $out;
-    $out .= as_title("CRISES\n===\n");
+
+    $out .= as_main_title("CRISES", $mode);
+    my $box = "";
     foreach my $b ($self->get_all_crises())
     {
         if($self->war_exists($b->node1, $b->node2))
         {
-            $out .= color("red bold") . $b->print_crisis() . color("reset") . "\n";
+            if($mode eq 'print')
+            {
+                $box .= color("red bold") . $b->print_crisis() . color("reset") . "\n";
+            }
+            elsif($mode eq 'html')
+            {
+                $box .= as_html_dangerous($b->html_crisis()) . "<br />";
+            }
         }
         else
         {
-            $out .= $b->print_crisis() . "\n";
+            if($mode eq 'print')
+            {
+                $box .= $b->print_crisis() . "\n";
+            }
+            elsif($mode eq 'html')
+            {
+                $box .= $b->html_crisis() . "<br />";
+            }
+            
         }
     }
-    return $out;
+    if($mode eq 'print')
+    {
+        return $out . $box;
+    }
+    elsif($mode eq 'html')
+    {
+        return $out . as_html_box($box);
+    }
 }
 
 1;

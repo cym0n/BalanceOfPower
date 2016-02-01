@@ -9,6 +9,7 @@ use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Relations::Friendship;
 use BalanceOfPower::Relations::Treaty;
 use BalanceOfPower::Relations::RelPack;
+use BalanceOfPower::Utils qw( as_main_title as_html_box br);
 
 has diplomatic_relations => (
     is => 'ro',
@@ -401,16 +402,33 @@ sub add_alliance
 sub print_allies
 {
     my $self = shift;
+    return $self->output_allies('print');
+}
+sub html_allies
+{
+    my $self = shift;
+    return $self->output_allies('html');
+}
+
+
+sub output_allies
+{
+    my $self = shift;
+    my $mode = shift;
     my @treaties = $self->treaties->all();
     my $out = "";
+    $out .= as_main_title("ALLIANCES", $mode);
+    my $box = "";
     for(@treaties)
     {
         if($_->type eq 'alliance')
         {
-            $out .= $_->print . "\n";
+            $box .= $_->output($mode);
+            $box .= br($mode);
         }
     }
-    return $out;
+    $box = as_html_box($box) if($mode eq 'html');
+    return $out . $box;
 }
 
 sub exists_alliance

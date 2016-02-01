@@ -2,6 +2,7 @@ package BalanceOfPower::Relations::Role::Relation;
 
 use strict;
 use Moo::Role;
+use HTML::Entities;
 
 has node1 => (
     is => 'ro'
@@ -73,6 +74,21 @@ sub start
         return undef;
     }
 }
+sub output
+{
+    my $self = shift;
+    my $mode = shift;
+    if($mode eq 'print')
+    {
+        return $self->print;
+    }
+    elsif($mode eq 'html')
+    {
+        return $self->html;
+    }
+}
+
+
 sub print 
 {
     my $self = shift;
@@ -103,6 +119,11 @@ sub print
             return $self->node1 . " -> " . $self->node2;
         }
     }
+}
+sub html
+{
+    my $self = shift;
+    return encode_entities($self->print);
 }
 sub dump
 {

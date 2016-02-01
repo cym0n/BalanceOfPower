@@ -6,6 +6,7 @@ use v5.10;
 use Moo;
 use BalanceOfPower::Constants ':all';
 use Term::ANSIColor;
+use HTML::Entities;
 
 has factor => (
     is => 'rw'
@@ -137,6 +138,11 @@ sub print_crisis
     {
         return "";
     }
+}
+sub html_crisis
+{
+    my $self = shift;
+    return encode_entities($self->print_crisis(0));
 }
 sub print_grey_crisis_bar
 {

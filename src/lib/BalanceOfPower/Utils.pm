@@ -132,10 +132,57 @@ sub evidence_text
     return $text;
 }
 
+sub as_main_title
+{
+    my $text = shift;
+    my $mode = shift;
+    if($mode eq 'print')
+    {
+        return as_title("$text\n===\n");
+    }
+    elsif($mode eq 'html')
+    {
+        return as_html_title($text);
+    }
+}
+sub as_main_subtitle
+{
+    my $text = shift;
+    my $mode = shift;
+    if($mode eq 'print')
+    {
+        return "### $text\n";
+    }
+    elsif($mode eq 'html')
+    {
+        return "<h4>$text</h4>";
+    }
+}
+
 sub as_title
 {
     my $text = shift;
     return color("yellow bold") . $text . color("reset");
+}
+sub as_html_title
+{
+    my $text = shift;
+    return "<h3>$text</h3>";
+}
+sub as_html_dangerous
+{
+    my $text = shift;
+    return '<span class="dangerous">' . $text . '</span>';
+}
+sub as_html_evidenced
+{
+    my $text = shift;
+    return '<span class="evidenced">' . $text . '</span>';
+}
+sub as_html_box
+{
+    my $text = shift;
+    return "<p>$text</p>";
 }
 sub as_subtitle
 {
@@ -152,7 +199,19 @@ sub as_active
     my $text = shift;
     return color("bold white") . $text . color("reset");
 }
+sub br
+{
+    my $mode = shift;
+    if($mode eq 'print')
+    {
+        return "\n";
+    }
+    elsif($mode eq 'html')
+    {
+        return "<br />";
+    }
+}
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active', 'as_html_title', 'as_html_box', 'as_html_dangerous', 'as_html_evidenced', 'as_main_title', 'as_main_subtitle', 'br');
 
 1;
