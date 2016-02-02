@@ -275,6 +275,29 @@ COMMANDS
         print $self->world->print_allies();
         $result = { status => 1 };
     }
+    elsif($query eq "static")
+    {
+        open(my $html, "> report.html");
+        print {$html} "<html><head></head><body>\n";
+        print {$html} $self->world->html_hotspots();
+        print {$html} "\n";
+        print {$html} $self->world->html_allies();
+        print {$html} "\n";
+        print {$html} $self->world->html_influences();
+        print {$html} "\n";
+        print {$html} $self->world->html_treaties();
+        print {$html} "\n";
+        print {$html} $self->world->html_military_supports();
+        print {$html} "\n";
+        print {$html} $self->world->html_rebel_military_supports();
+        print {$html} "\n";
+        print {$html} $self->world->html_borders("Italy");
+        print {$html} "\n";
+        print {$html} $self->world->html_diplomacy("Italy");
+        print {$html} "</body></html>";
+        close($html);
+        $result = { status => 1 };
+    }
     elsif($query eq "influences")
     {
         print $self->world->print_influences();
@@ -516,7 +539,7 @@ COMMANDS
 sub orders
 {
     my $self = shift;
-    if($self->executive->actor)
+    if($self->executive && $self->executive->actor)
     {
         if($self->get_active_player->influence($self->executive->actor) >= INFLUENCE_COST)
         {
@@ -692,6 +715,14 @@ sub control_commands
     {
         say $self->get_active_player->print_control_orders();
         $result = { status => 1 }
+    }
+    elsif($query eq "orders")
+    {
+        if($self->executive)
+        {
+           say $self->executive->print_orders();;
+           $result = { status => 1 };
+        }
     }
     elsif($query eq 'clearorders')
     {

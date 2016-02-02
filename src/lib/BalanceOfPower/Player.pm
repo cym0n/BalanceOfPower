@@ -253,7 +253,7 @@ sub dump_wallet
     my $indent = shift;
     foreach my $nation(keys %{$self->wallet})
     {
-        print {$io} $indent . join(";", $nation, $self->stocks($nation), $self->war_bonds($nation), $self->influence($nation));
+        print {$io} $indent . join(";", $nation, $self->stocks($nation), $self->war_bonds($nation), $self->influence($nation)) . "\n";
     }
 }
 sub load_wallet
