@@ -1,0 +1,6 @@
+<h3>INFLUENCES</h3>
+<p>
+[% FOREACH i IN influences %]
+[% i.print %]<br />
+[% END %]
+</p>

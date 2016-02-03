@@ -12,4 +12,9 @@
 [% END %]
 </p>
 [% END %]
+<p>
+[% FOREACH cw IN civil_wars %][% cw %] is fighting civil war<br />
+[% END %]
+
+
 

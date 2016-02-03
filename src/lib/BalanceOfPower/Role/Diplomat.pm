@@ -427,45 +427,31 @@ sub add_alliance
 sub print_allies
 {
     my $self = shift;
-    return $self->output_treaties("ALLIANCES", 'alliance', 'print');
-}
-sub html_allies
-{
-    my $self = shift;
-    return $self->output_treaties("ALLIANCES", 'alliance', 'html');
+    my $nation = shift;
+    my $mode = shift;
+    return $self->print_treaties($nation, "ALLIANCES", 'alliance', $mode);
 }
 sub print_treaties
 {
     my $self = shift;
-    return $self->output_treaties("TREATIES", undef, 'print');
-}
-sub html_treaties
-{
-    my $self = shift;
-    return $self->output_treaties("TREATIES", undef, 'html');
-}
-
-
-sub output_treaties
-{
-    my $self = shift;
-    my $title = shift;
-    my $treaty = shift;
-    my $mode = shift;
+    my $nation = shift;
+    my $title = shift || "TREATIES";
+    my $treaty = shift || undef;
+    my $mode = shift || 'print';
     my @treaties = $self->treaties->all();
-    my $out = "";
-    $out .= as_main_title($title, $mode);
-    my $box = "";
+    my @to_print;
     for(@treaties)
     {
-        if(($treaty && $_->type eq $treaty) || ! $treaty)
+        if((($treaty && $_->type eq $treaty) || ! $treaty) &&
+          (($nation && $_->involve($nation)) || ! $nation))  
         {
-            $box .= $_->output($mode);
-            $box .= br($mode);
+            push @to_print, $_;
         }
     }
-    $box = as_html_box($box) if($mode eq 'html');
-    return $out . $box;
+    return BalanceOfPower::Printer::print($mode, 'print_treaties', 
+                                   { title => $title,
+                                     treaties => \@to_print,
+                                   } );
 }
 
 sub exists_alliance

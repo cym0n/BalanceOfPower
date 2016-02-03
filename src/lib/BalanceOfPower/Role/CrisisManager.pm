@@ -147,12 +147,14 @@ sub print_all_crises
 {
     my $self = shift;
     my $n = shift;
+    my $level = shift || 0;
     my $mode = shift || 'print';
     my @crises;
     my @war_signal;
     foreach my $b ($self->get_all_crises())
     {
-        if( ($n && $b->involve($n) || ! $n))
+        if(( ($n && $b->involve($n) || ! $n)) &&
+          ( $b->get_crisis_level > $level))
         {
             push @crises, $b;
             if($self->war_exists($b->node1, $b->node2))

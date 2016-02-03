@@ -272,28 +272,19 @@ COMMANDS
     }
     elsif($query eq "alliances")
     {
-        print $self->world->print_allies();
+        print $self->world->print_allies(undef, 'print');
         $result = { status => 1 };
     }
     elsif($query eq "static")
     {
         open(my $html, "> report.html");
         print {$html} "<html><head></head><body>\n";
-        print {$html} $self->world->html_hotspots();
+        print {$html} $self->world->print_hotspots('html');
         print {$html} "\n";
-        print {$html} $self->world->html_allies();
+        print {$html} $self->world->print_allies(undef, 'html');
         print {$html} "\n";
-        print {$html} $self->world->html_influences();
+        print {$html} $self->world->print_influences(undef, 'html');
         print {$html} "\n";
-        print {$html} $self->world->html_treaties();
-        print {$html} "\n";
-        print {$html} $self->world->html_military_supports();
-        print {$html} "\n";
-        print {$html} $self->world->html_rebel_military_supports();
-        print {$html} "\n";
-        print {$html} $self->world->html_borders("Italy");
-        print {$html} "\n";
-        print {$html} $self->world->html_diplomacy("Italy");
         print {$html} "</body></html>";
         close($html);
         $result = { status => 1 };

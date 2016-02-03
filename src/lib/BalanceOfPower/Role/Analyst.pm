@@ -200,20 +200,10 @@ sub print_near_analysis
 }
 sub print_hotspots
 {
-    my $self = shift;
-    return $self->output_hotspots('print');
-}
-sub html_hotspots
-{
-    my $self = shift;
-    return $self->output_hotspots('html');
-}
-sub output_hotspots
-{
      my $self = shift;
-     my $mode = shift;
+     my $mode = shift || 'print';
      my $out = "";
-     $out .= $self->print_all_crises(undef, $mode);
+     $out .= $self->print_all_crises(undef, 1, $mode);
      $out .= $self->print_wars(undef, $mode);
      return $out;
 }
