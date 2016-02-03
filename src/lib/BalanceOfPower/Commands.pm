@@ -285,6 +285,10 @@ COMMANDS
         print {$html} "\n";
         print {$html} $self->world->print_influences(undef, 'html');
         print {$html} "\n";
+        print {$html} $self->world->print_military_supports(undef, 'html');
+        print {$html} "\n";
+        print {$html} $self->world->print_rebel_military_supports(undef, 'html');
+        print {$html} "\n";
         print {$html} "</body></html>";
         close($html);
         $result = { status => 1 };

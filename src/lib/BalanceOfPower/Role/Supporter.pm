@@ -143,41 +143,39 @@ sub rebel_military_support_garbage_collector
 sub print_military_supports
 {
     my $self = shift;
-    return $self->output_military_supports("MILITARY SUPPORTS", 0, 'print');
-}
-sub html_military_supports
-{
-    my $self = shift;
-    return $self->output_military_supports("MILITARY SUPPORTS", 0, 'html');
+    my $n = shift;
+    my $mode = shift || 'print';
+    return $self->print_supports($n, "MILITARY SUPPORTS", 0, $mode);
 }
 sub print_rebel_military_supports
 {
     my $self = shift;
-    return $self->output_military_supports("REBEL MILITARY SUPPORTS", 1, 'print');
-}
-sub html_rebel_military_supports
-{
-    my $self = shift;
-    return $self->output_military_supports("REBEL MILITARY SUPPORTS", 1, 'html');
+    my $n = shift;
+    my $mode = shift || 'print';
+    return $self->print_supports($n, "REBEL MILITARY SUPPORTS", 1, $mode);
 }
 
 
-sub output_military_supports
+sub print_supports
 {
     my $self = shift;
-    my $title = shift;
+    my $n = shift;
+    my $title = shift || "MILITARY SUPPORTS";
     my $rebel = shift;
-    my $mode = shift;
-    my $out = "";
-    $out .= as_main_title($title, $mode);
+    my $mode = shift || 'print';
+    my @sups;
     if($rebel)
     {
-        $out .= $self->rebel_military_supports->output_links(undef, $mode);
+        @sups = $self->rebel_military_supports->links_for_node($n);
     }
     else
     {
-        $out .= $self->military_supports->output_links(undef, $mode);
+        @sups = $self->military_supports->links_for_node($n);
     }
-    return $out;
+    return BalanceOfPower::Printer::print($mode, 'print_supports', 
+                                   {   title => $title,
+                                       supports => \@sups,
+                                   } );
+
 }
 1;
