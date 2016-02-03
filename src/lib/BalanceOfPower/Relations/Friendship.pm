@@ -224,7 +224,7 @@ sub cooldown_crisis
 sub is_crisis
 {
     my $self = shift;
-    return $self->crisis_level > 0;
+    return $self->get_crisis_level() > 0;
 }
 sub is_max_crisis
 {

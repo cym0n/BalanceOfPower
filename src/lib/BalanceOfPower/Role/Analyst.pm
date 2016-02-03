@@ -20,8 +20,8 @@ requires 'print_nation_situation';
 requires 'print_nation_statistics_header';
 requires 'print_nation_statistics_line';
 requires 'get_player';
-requires 'output_all_crises';
-requires 'output_wars';
+requires 'print_all_crises';
+requires 'print_wars';
 
 sub print_nation_actual_situation
 {
@@ -213,8 +213,8 @@ sub output_hotspots
      my $self = shift;
      my $mode = shift;
      my $out = "";
-     $out .= $self->output_all_crises(undef, $mode);
-     $out .= $self->output_wars($mode);
+     $out .= $self->print_all_crises(undef, $mode);
+     $out .= $self->print_wars(undef, $mode);
      return $out;
 }
 

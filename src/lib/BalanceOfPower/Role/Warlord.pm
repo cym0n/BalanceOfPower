@@ -8,7 +8,7 @@ use Moo::Role;
 use Term::ANSIColor;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw( as_main_title as_main_subtitle br as_html_box);
+use BalanceOfPower::Printer;
 use BalanceOfPower::Relations::Crisis;
 use BalanceOfPower::Relations::War;
 
@@ -547,21 +547,9 @@ sub delete_war
 sub print_wars
 {
     my $self = shift;
-    return $self->output_wars('print');
-}
-sub html_wars
-{
-    my $self = shift;
-    return $self->output_wars('html');
-}
-
-sub output_wars
-{
-    my $self = shift;
-    my $mode = shift;
+    my $nation = shift;
+    my $mode = shift || 'print';
     my %grouped_wars;
-    my $out = "";
-    $out .= as_main_title("WARS", $mode);
     foreach my $w ($self->wars->all())
     {
         if(! exists $grouped_wars{$w->war_id})
@@ -570,44 +558,38 @@ sub output_wars
         }
         push @{$grouped_wars{$w->war_id}}, $w; 
     }
+    my @wars;
     foreach my $k (keys %grouped_wars)
     {
-        $out .= as_main_subtitle("WAR $k", $mode);
+        my %war;
+        $war{'name'} = $k;
+        $war{'conflicts'} = [];
         foreach my $w ( @{$grouped_wars{$k}})
         {
+            my %subwar;
+            $subwar{'node1'} = $w->node1;
+            $subwar{'node2'} = $w->node2;
             my $nation1 = $self->get_nation($w->node1);
             my $nation2 = $self->get_nation($w->node2);
-            if($mode eq 'print')
-            {
-                $out .= $w->print($nation1->army, $nation2->army);
-                $out .= "\n";
-            }
-            elsif($mode eq 'html')
-            {
-                $out .= $w->html($nation1->army, $nation2->army);
-                $out .= "<br />";
-            }
+            $subwar{'army1'} = $nation1->army;
+            $subwar{'army2'} = $nation2->army;
+            $subwar{'node1_faction'} = $w->node1_faction;
+            $subwar{'node2_faction'} = $w->node2_faction;
+            push @{$war{'conflicts'}}, \%subwar;
         }
-        $out .= "---\n" if $mode eq 'print';
+        push @wars, \%war;
     }
-    $out .= "\n" if $mode eq 'print';
-    my $civil_war_box = "";
+    my @civil_wars;
     foreach my $n (@{$self->nation_names})
     {
         if($self->at_civil_war($n))
         {
-            $civil_war_box .= "$n is fighting civil war" . br($mode);
-            
+            push @civil_wars, $n;
         }
     }
-    if($mode eq 'print')
-    {
-        return $out . $civil_war_box;
-    }
-    elsif($mode eq 'html')
-    {
-        return $out . as_html_box($civil_war_box);
-    }
+    return BalanceOfPower::Printer::print($mode, 'print_wars', 
+                                   { wars => \@wars,
+                                     civil_wars => \@civil_wars } );
 }
 sub dump_memorial
 {

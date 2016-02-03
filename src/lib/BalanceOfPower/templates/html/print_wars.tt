@@ -1,0 +1,15 @@
+<h3>WARS</h3>
+[% FOREACH w IN wars %]
+<h4>WAR [% w.name %]</h4>
+<p>
+[% FOREACH sw IN w.conflicts %]
+[% IF sw.node1_faction == 0 %]
+<span class="evidenced">[[% sw.army1 %]] [% sw.node1 %]</span> --&gt; [% sw.node2 %] [[% sw.army2 %]]
+[% ELSE %]
+[[% sw.army1 %]] [% sw.node1 %] --&gt; <span class="evidenced">[% sw.node2 %] [[% sw.army2 %]]</span>
+[% END %]
+<br />
+[% END %]
+</p>
+[% END %]
+

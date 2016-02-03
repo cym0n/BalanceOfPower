@@ -1,11 +1,13 @@
 package BalanceOfPower::Role::CrisisManager;
 
 use strict;
+use v5.10;
 use Moo::Role;
+use Template;
 use Term::ANSIColor;
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(as_main_title as_html_box as_html_dangerous);
+use BalanceOfPower::Printer;
 
 requires 'get_all_crises';
 requires 'get_hates';
@@ -140,64 +142,32 @@ sub cool_down
         }
     }
 }
+
 sub print_all_crises
 {
     my $self = shift;
     my $n = shift;
-    return $self->output_all_crises($n, 'print');
-}
-sub html_all_crises
-{
-    my $self = shift;
-    my $n = shift;
-    return $self->output_all_crises($n, 'html');
-}
-
-
-sub output_all_crises
-{
-    my $self = shift;
-    my $n = shift;
-    my $mode = shift;
-    my $out;
-
-    $out .= as_main_title("CRISES", $mode);
-    my $box = "";
+    my $mode = shift || 'print';
+    my @crises;
+    my @war_signal;
     foreach my $b ($self->get_all_crises())
     {
-        if($self->war_exists($b->node1, $b->node2))
+        if( ($n && $b->involve($n) || ! $n))
         {
-            if($mode eq 'print')
+            push @crises, $b;
+            if($self->war_exists($b->node1, $b->node2))
             {
-                $box .= color("red bold") . $b->print_crisis() . color("reset") . "\n";
+                push @war_signal, 1;
             }
-            elsif($mode eq 'html')
+            else
             {
-                $box .= as_html_dangerous($b->html_crisis()) . "<br />";
+                push @war_signal, 0;
             }
         }
-        else
-        {
-            if($mode eq 'print')
-            {
-                $box .= $b->print_crisis() . "\n";
-            }
-            elsif($mode eq 'html')
-            {
-                $box .= $b->html_crisis() . "<br />";
-            }
-            
-        }
     }
-    if($mode eq 'print')
-    {
-        return $out . $box;
-    }
-    elsif($mode eq 'html')
-    {
-        return $out . as_html_box($box);
-    }
+    return BalanceOfPower::Printer::print($mode, 'print_all_crises',
+                                          { crises => \@crises,
+                                            wars => \@war_signal });
 }
-
 1;
 
