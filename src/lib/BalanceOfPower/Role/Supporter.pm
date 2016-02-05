@@ -6,7 +6,6 @@ use Moo::Role;
 
 use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw( as_main_title);
 
 requires 'get_nation';
 requires 'at_civil_war';

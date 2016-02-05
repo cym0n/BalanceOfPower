@@ -100,11 +100,9 @@ sub _print_turn_events
     }
     return $out; 
 }
-sub dump_events
+sub get_turn_tags
 {
     my $self = shift;
-    my $io = shift;
-    my $indent = shift || "";
     sub sort_start
     {
         return 0 if($a eq $b);
@@ -113,7 +111,18 @@ sub dump_events
         return 1 if($a gt $b);
         return -1 if($b gt $a);
     }
-    foreach my $y (sort sort_start keys %{$self->events})
+    return sort sort_start keys %{$self->events};
+}
+
+
+
+sub dump_events
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+  
+    foreach my $y ($self->get_turn_tags())
     {
         print {$io} $indent . "### $y\n";
         foreach my $e (@{$self->events->{$y}})

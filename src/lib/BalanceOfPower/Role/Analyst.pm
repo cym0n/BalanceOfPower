@@ -6,6 +6,7 @@ use Moo::Role;
 use Term::ANSIColor;
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle compare_turns);
+use BalanceOfPower::Printer;
 
 requires 'diplomacy_exists';
 requires 'get_borders';
@@ -230,18 +231,18 @@ sub print_civil_war_report
 sub print_war_history
 {
     my $self = shift;
-    my $out .= as_title("WAR HISTORY\n\n");
+    my $mode = shift || 'print';
     my %wars;
     my @war_names;
     foreach my $w (@{$self->memorial})
     {
         if(exists $wars{$w->war_id})
         {
-           $wars{$w->war_id} .=  $w->print_history . "\n";
+           push @{$wars{$w->war_id}}, $w;
         }
         else
         {
-           $wars{$w->war_id} =  $w->print_history . "\n";
+           $wars{$w->war_id} =  [ $w ];
            push @war_names, { name => $w->war_id,
                               start => $w->start_date  };
         }
@@ -250,12 +251,10 @@ sub print_war_history
     {
         compare_turns($a->{start}, $b->{start});
     }
-    for(sort comp @war_names)
-    {
-        $out .= "### WAR " . $_->{name} . "\n";
-        $out .= $wars{$_->{name}};
-    }
-    return $out;
+    @war_names = sort comp @war_names;
+    return BalanceOfPower::Printer::print($mode, 'print_war_history', 
+                                   { wars => \%wars,
+                                     war_names => \@war_names } );
 }
 sub print_treaties_table
 {
