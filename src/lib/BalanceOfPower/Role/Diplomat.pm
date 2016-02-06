@@ -112,7 +112,7 @@ sub diplomacy_exists
     my $r = $self->_diplomacy_exists($n1, $n2);
     if(! defined $r)
     {
-        say "ERROR! $n1, $n2";
+        say "ERROR! No diplomacy between $n1, $n2";
     }
     return $r;
 }
@@ -341,7 +341,7 @@ sub crisis_exists
     my $rel =  $self->diplomacy_exists($nation1, $nation2);
     if(! $rel)
     {
-        say "ERROR: $nation1 <-> $nation2";
+        say "ERROR: no diplomacy between $nation1, $nation2";
         return undef;
     }
     if($rel->get_crisis_level > 0)

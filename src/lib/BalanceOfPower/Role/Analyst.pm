@@ -145,14 +145,7 @@ sub print_borders_analysis
                 {
                     $out .= " " . $sup_rel->print_crisis_bar;
                 } 
-             sub war_current_year
-{
-    my $self = shift;
-    for($self->wars->all)
-    {
-        $_->current_year($self->current_year);
-    }
-}   $out .= ")";
+                $out .= ")";
             }
             $out .= "\n";
         }
@@ -182,7 +175,7 @@ sub print_near_analysis
                 {
                     my $other_n = $fb->destination($b);
                     my $sups = $self->supported($other_n);
-                    for($sups)
+                    if($sups)
                     {
                         if($sups->start($other_n) eq $nation)
                         {
