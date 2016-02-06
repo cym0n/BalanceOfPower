@@ -5,6 +5,7 @@ use strict;
 use Moo::Role;
 use Term::ANSIColor;
 use List::Util qw( min max );
+use BalanceOfPower::Printer;
 use Data::Dumper;
 
 use BalanceOfPower::Utils qw( get_year_turns as_title from_to_turns );
@@ -167,6 +168,20 @@ sub print_nation_statistics_header
         return "Size\tProd.\tWealth\tW/D\tGrowth\tDisor.\tArmy\tProg.\tPstg.";
     }
 }
+sub get_nation_statistics_line
+{
+    my $self = shift;
+    my $nation = shift;
+    my $y = shift;
+    my $characteristics = shift;
+    my @out = ();
+    push @out, $self->get_nation($nation)->size;
+    for(@{$characteristics})
+    {
+        push @out, $self->get_statistics_value($y, $nation, $_);
+    }
+    return @out;
+}
 sub print_nation_statistics_line
 {
     my $self = shift;
@@ -220,27 +235,35 @@ sub print_turn_statistics
     my $self = shift;
     my $y = shift;
     my $order = shift;
+    my $mode = shift || 'print';
     my @nations = @{$self->nation_names};
-    my $out = "";
-    $out .= as_title(sprintf "%-16s %-16s", "Nation" , $self->print_nation_statistics_header() . "\n");
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
+    my %data = ();
+    my @names;
     if($order)
     {
         my @ordered = $self->order_statistics($y, lc $order);
         for(@ordered)
         {
-            my $n = $_->{nation};
-            $out .= sprintf "%-16s %-16s", $n , $self->print_nation_statistics_line($n, $y) . "\n";
+            push @names, $_->{nation};
         } 
     }
     else
     {
-        for(@nations)
-        {
-            $out .= sprintf "%-16s %-16s", $_ , $self->print_nation_statistics_line($_, $y) . "\n";
-        }
+        @names = @nations;
     }
-    $out .= "\n";
-    return $out;
+    for(@names)
+    {
+        my @ndata = $self->get_nation_statistics_line($_, $y, $attributes);
+        $data{$_} = \@ndata;
+    }
+    return BalanceOfPower::Printer::print($mode, 'print_turn_statistics', 
+                                   { year => $y,
+                                     order => $order,
+                                     attributes => $attributes_names,
+                                     statistics => \%data,
+                                     names => \@names } );
 }
 
 sub print_overall_statistics

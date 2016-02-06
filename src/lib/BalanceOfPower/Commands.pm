@@ -291,6 +291,8 @@ COMMANDS
         print {$html} "\n";
         print {$html} $self->world->print_war_history('html');
         print {$html} "\n";
+        print {$html} $self->world->print_turn_statistics($self->world->get_prev_year(), undef, 'html');  
+        print {$html} "\n";
         print {$html} "</body></html>";
         close($html);
         $result = { status => 1 };

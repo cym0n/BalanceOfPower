@@ -1,0 +1,11 @@
+<h3>YEAR [% year %]</h3>
+<table>
+<tr>
+    <th>Nation</th>
+    [% FOREACH a IN attributes %]<th>[% a %]</th>[% END %]
+</tr>
+[% FOREACH n IN names %]
+<tr>
+<td>[% n %]</td>
+[% FOREACH d IN statistics.$n %]<td>[% d %]</td>[% END %]
+[% END %]

@@ -1,0 +1,7 @@
+[% USE ANSIColor 'color' %]
+[% "YEAR $year" | color 'yellow' 'bold' %]
+[% "===" | color 'yellow' 'bold' %]
+
+[% FILTER color 'yellow' %][% FILTER format('%-16s') %]Nation[% END %][% FOREACH a IN attributes %][% FILTER format('%-7s') %][% a %][% END %][% END %][% END %]
+[% FOREACH n IN names %][% FILTER format('%-16s') %][% n %][% END %][% FOREACH d IN statistics.$n %][% FILTER format('%-7s') %][% d %][% END %][% END %]
+[% END %]
