@@ -1,0 +1,26 @@
+<h3>DIPLOMACY FOR [% nation %]</h3>
+<div>
+<div style="float: left; padding-right: 25px">
+[% FOREACH r IN relationships %]
+[% IF r.status == 'HATE' %]
+[% IF r.node1 == nation %][% r.node2 %][% ELSE %][% r.node1 %]
+[% END %]: <span class="[% r.html_class_status %]">[% r.status %]</span><br />
+[% END %]
+[% END %]
+</div>
+<div style="float: left; padding-right: 25px">
+[% FOREACH r IN relationships %]
+[% IF r.status == 'NEUTRAL' %]
+[% IF r.node1 == nation %][% r.node2 %][% ELSE %][% r.node1 %]
+[% END %]: <span class="[% r.html_class_status %]">[% r.status %]</span><br />
+[% END %]
+[% END %]
+</div>
+<div style="float: left; padding-right: 25px">
+[% FOREACH r IN relationships %]
+[% IF r.status != 'NEUTRAL' AND r.status != 'HATE' %]
+[% IF r.node1 == nation %][% r.node2 %][% ELSE %][% r.node1 %]
+[% END %]: <span class="[% r.html_class_status %]">[% r.status %]</span><br />
+[% END %]
+[% END %]
+</div>

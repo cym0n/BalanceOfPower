@@ -1,0 +1,8 @@
+<h3>MILITARY RANGE ANALYSIS FOR [% nation %]</h3>
+[% FOREACH n IN near %]
+<h4>[% n.nation %]</h4>
+<p>
+   Relations: <span class="[% n.relation.status_html_class %]">[% n.relation.status %]</span><br />
+   In range because: [% n.how %]
+</p>
+[% END %]

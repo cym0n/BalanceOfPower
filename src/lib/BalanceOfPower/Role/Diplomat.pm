@@ -254,46 +254,14 @@ sub print_diplomacy
 {
     my $self = shift;
     my $n = shift;
-    return $self->output_diplomacy($n, 'print');
-}
-sub html_diplomacy
-{
-    my $self = shift;
-    my $n = shift;
-    return $self->output_diplomacy($n, 'html');
-}
-
-
-sub output_diplomacy
-{
-    my $self = shift;
-    my $n = shift;
     my $mode = shift || "print";
     my $out;
-    my @outnodes;
-    foreach my $f ($self->diplomatic_relations->all())
-    {
-        if($f->has_node($n))
-        {
-            my $real_r = $self->diplomacy_exists($n, $f->destination($n));
-            push @outnodes, $real_r;
-        }
-    }
-    $out .= as_main_title("RELATIONS", $mode);
-    my $box = "";
-    foreach my $rr (sort { $a->factor <=> $b->factor} @outnodes)
-    {
-        if($mode eq 'print')
-        {
-            $box .= $rr->print($n) . br($mode);
-        }
-        elsif($mode eq 'html')
-        {
-            $box .= $rr->html($n) . br($mode);
-        }
-    }
-    $box = as_html_box($box) if($mode eq 'html');
-    return $out . $box;
+    my @outnodes = sort { $a->factor <=> $b->factor} $self->get_diplomatic_relations($n);
+    return BalanceOfPower::Printer::print($mode, 'print_diplomacy', 
+                                   { nation => $n,
+                                     relationships => \@outnodes,
+                                   } );
+
 }
 
 

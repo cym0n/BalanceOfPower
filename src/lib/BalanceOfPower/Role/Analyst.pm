@@ -150,20 +150,22 @@ sub print_near_analysis
 {
     my $self = shift;
     my $nation = shift;
+    my $mode = shift || 'print';
+    my @data = ();
     my @near = $self->near_nations($nation, 0);
-    my $out = "";
     foreach my $b (@near)
     {
-        $out .= as_title($b) . " " . $self->diplomacy_exists($nation, $b)->print_status();
+        my $rel = $self->diplomacy_exists($nation, $b);
         if(! $self->border_exists($nation, $b))
         {
             if($self->exists_military_support($nation, $b))
             {
-                $out .= " (supported)\n";
+                push @data, { nation => $b,
+                              relation => $rel,
+                              how => 'Supported' };
             }
             else
             {
-                $out .= "\n";
                 my @foreign_borders = $self->get_borders($b);
                 foreach my $fb (@foreign_borders)
                 {
@@ -173,7 +175,9 @@ sub print_near_analysis
                     {
                         if($sups->start($other_n) eq $nation)
                         {
-                            $out .= "    Military support from: $other_n\n";   
+                            push @data, { nation => $b,
+                                          relation => $rel,
+                                          how => "Military support from $other_n" };
                         }
                     }
                 }
@@ -181,10 +185,15 @@ sub print_near_analysis
         }
         else
         {
-            $out .= "\n";
+            push @data, { nation => $b,
+                          relation => $rel,
+                          how => "border" };
         }
     }
-    return $out;
+    BalanceOfPower::Printer::print($mode, 'print_near_analysis', 
+                                           { nation => $nation,
+                                             near => \@data } );
+
 }
 sub print_hotspots
 {

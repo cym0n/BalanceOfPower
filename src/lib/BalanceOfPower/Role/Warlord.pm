@@ -65,7 +65,10 @@ sub in_military_range
     my $nation1 = shift;
     my $nation2 = shift;
     my $hostile = shift || 1;
-    return 1 if($self->border_exists($nation1, $nation2));
+    if($self->border_exists($nation1, $nation2))
+    {
+        return 1;
+    }
     my @supported = $self->supporter($nation1);
     for(@supported)
     {
@@ -75,8 +78,17 @@ sub in_military_range
         {
             if(! $self->war_busy($nation_supported))
             {
-                return 1 if $nation_supported eq $nation2 ||
-                            $self->border_exists($nation_supported, $nation2);
+                if($nation_supported eq $nation2)
+                {
+                    return 1;
+                }
+                if($self->border_exists($nation_supported, $nation2))
+                {
+                    return 1;
+                }
+            }
+            else
+            {
             }
         }
     }

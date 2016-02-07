@@ -295,6 +295,10 @@ COMMANDS
         print {$html} "\n";
         print {$html} $self->world->print_borders_analysis('Italy', 'html');  
         print {$html} "\n";
+        print {$html} $self->world->print_near_analysis('Italy', 'html');  
+        print {$html} "\n";
+        print {$html} $self->world->print_diplomacy('Italy', 'html');  
+        print {$html} "\n";
         print {$html} "</body></html>";
         close($html);
         $result = { status => 1 };
