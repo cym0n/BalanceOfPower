@@ -9,3 +9,4 @@
 <td>[% n %]</td>
 [% FOREACH d IN statistics.$n %]<td>[% d %]</td>[% END %]
 [% END %]
+</table>

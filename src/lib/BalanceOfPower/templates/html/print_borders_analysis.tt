@@ -1,0 +1,8 @@
+<h3>BORDERS ANALYSIS FOR [% nation %]<h3>
+[% FOREACH b IN borders.keys %]
+<h4>[% b %]</h4>
+<p>
+   Relations: <span class="[% borders.$b.relation.status_html_class %]">[% borders.$b.relation.status %]</span><br />
+[% IF borders.$b.support %]   Military support in the country: [% borders.$b.support.nation %] <span class="[% borders.$b.support.relation.status_html_class %]">[% borders.$b.support.relation.status %]</span>[% END %]
+</p>
+[% END %]

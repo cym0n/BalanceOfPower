@@ -123,34 +123,28 @@ sub print_borders_analysis
 {
     my $self = shift;
     my $nation = shift;
+    my $mode = shift || 'print';
     my @borders = $self->near_nations($nation, 1);
+    my %data;
 
-    my $out = "";
     foreach my $b (@borders)
     {
-        $out .= as_title("# " . $b  . " #") . "\n";
         my $rel = $self->diplomacy_exists($nation, $b);
-        $out .= "  Relations: " . $rel->print_status() . " " . 
-                                  $rel->print_crisis_bar() . "\n";
+        $data{$b}->{'relation'} = $rel;
+
         my $supps = $self->supported($b);
         if($supps)
         {
-            $out .= as_subtitle("  Military support in the country:\n");
             my $supporter = $supps->start($b);
+            $data{$b}->{'support'}->{nation} = $supporter;
             my $sup_rel = $self->diplomacy_exists($nation, $supporter);
-            if($sup_rel)
-            {
-                $out .= "    $supporter (" . $sup_rel->print_status();
-                if($sup_rel->is_crisis())
-                {
-                    $out .= " " . $sup_rel->print_crisis_bar;
-                } 
-                $out .= ")";
-            }
-            $out .= "\n";
+            $data{$b}->{'support'}->{relation} = $sup_rel;
         }
     }
-    return $out;
+    return BalanceOfPower::Printer::print($mode, 'print_borders_analysis', 
+                                   { nation => $nation,
+                                     borders => \%data } );
+
 }
 sub print_near_analysis
 {

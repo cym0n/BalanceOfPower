@@ -62,6 +62,37 @@ sub status
         return 'NEUTRAL';
     }
 }
+sub status_html_class
+{
+    my $self = shift;
+    if($self->factor == ALLIANCE_FRIENDSHIP_FACTOR)
+    {
+        return 'rel-alliance';
+    }
+    elsif($self->factor == DOMINION_DIPLOMACY)
+    {
+        return 'rel-influence';
+    }
+    if($self->factor <= HATE_LIMIT)
+    {
+        return 'rel-hate';
+    }
+    elsif($self->factor >= LOVE_LIMIT)
+    {
+        return 'rel-friendship';
+    }
+    else
+    {
+        return 'rel-neutral';
+    }
+}
+
+
+sub colored_status
+{
+    my $self = shift;
+    return $self->status_color . $self->status . color("reset");
+}
 
 sub status_color
 {
@@ -83,6 +114,7 @@ sub status_color
         return "";
     }
 }
+
 
 sub html
 {
