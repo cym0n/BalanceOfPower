@@ -15,6 +15,7 @@ $world->get_nation("Italy")->army(15);
 $world->diplomacy_exists("Italy", "Germany")->factor(90);
 $world->start_military_support($world->get_nation("Italy"), $world->get_nation("Germany"));
 is($world->near_nations("Italy"), 3, "Through support, Italy has tre nations in military range");
+is($world->near_nations("Italy", 1), 2, "Nations on borders are still 2");
 
 
 
