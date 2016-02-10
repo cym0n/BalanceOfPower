@@ -215,9 +215,10 @@ sub print_formatted_turn_events
 {
     my $self = shift;
     my $y = shift;
+    my $title = shift;
+    my $mode = shift || 'print';
     my $out = "";
-    $out .= as_title("\nEvents:\n");
-    $out .= $self->print_turn_events($y);
+    $out .= $self->print_turn_events($y, $title, $mode);
     return $out;
 }
 
@@ -226,8 +227,10 @@ sub print_nation_events
     my $self = shift;
     my $nation_name = shift;
     my $y = shift;
+    my $title = shift;
+    my $mode = shift || 'print';
     my $nation = $self->get_nation($nation_name);
-    return $nation->print_turn_events($y);
+    return $nation->print_turn_events($y, $title, $mode);
 }
 
 sub print_turn_statistics

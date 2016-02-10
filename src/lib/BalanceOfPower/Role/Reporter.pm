@@ -4,6 +4,7 @@ use strict;
 use v5.10;
 use Moo::Role;
 use BalanceOfPower::Utils qw( get_year_turns as_title );
+use BalanceOfPower::Printer;
 
 with "BalanceOfPower::Role::Logger";
 
@@ -43,29 +44,8 @@ sub print_turn_events
 {
     my $self = shift;
     my $y = shift;
-    return $self->_print_turn_events($y, 1);
-}
-
-sub print_turn_events_notitle
-{
-    my $self = shift;
-    my $y = shift;
-    return $self->_print_turn_events($y, 0);
-}
-
-sub print_turn_events_inline_year
-{
-    my $self = shift;
-    my $y = shift;
-    return $self->_print_turn_events($y, 2);
-}
-
-
-sub _print_turn_events
-{
-    my $self = shift;
-    my $y = shift;
     my $title = shift;
+    my $mode = shift || 'print';
     my $out = "";
     my @to_print;
     if(! $y)
@@ -74,7 +54,7 @@ sub _print_turn_events
     }
     if($y =~ /\d\d\d\d/)
     {
-        @to_print = get_year_turns($y)
+        @to_print = get_year_turns($y);
     }
     elsif($y =~ /\d\d\d\d\/\d+/)
     {
@@ -88,6 +68,11 @@ sub _print_turn_events
     {
         return "";
     }
+    return BalanceOfPower::Printer::print($mode, 'print_turn_events', 
+                                   { title => $title,
+                                     turns => \@to_print,
+                                     events => $self->events } );
+
     foreach my $t (@to_print)
     {
         $out .= as_title($self->name . " - $t\n") if $title == 1;

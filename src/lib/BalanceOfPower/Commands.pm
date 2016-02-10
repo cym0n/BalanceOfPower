@@ -299,6 +299,10 @@ COMMANDS
         print {$html} "\n";
         print {$html} $self->world->print_diplomacy('Italy', 'html');  
         print {$html} "\n";
+        print {$html} $self->world->print_formatted_turn_events('1975', undef, 'html');  
+        print {$html} "\n";
+        print {$html} $self->world->print_nation_events('Italy', '1975', undef, 'html');  
+        print {$html} "\n";
         print {$html} "</body></html>";
         close($html);
         $result = { status => 1 };
