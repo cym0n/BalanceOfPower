@@ -64,14 +64,21 @@ sub print_nation_statistics
     my $nation = shift;
     my $first_turn = shift;
     my $last_turn = shift;
-    my $out = as_title($nation . "\n===\n");
-    
-    $out .= "Year\t" . $self->print_nation_statistics_header() . "\n";
+    my $mode = shift || 'print';
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
+    my %data = ();
+
     foreach my $t (from_to_turns($first_turn, $last_turn))
     {
-        $out .= $t . "\t" . $self->print_nation_statistics_line($nation, $t) . "\n";
+        my @ndata = $self->get_nation_statistics_line($nation, $t, $attributes);
+        $data{$t} = \@ndata;
     }
-    return $out;
+    return BalanceOfPower::Printer::print($mode, 'print_nation_statistics', 
+                                   { nation => $nation,
+                                     attributes => $attributes_names,
+                                     statistics => \%data,
+                                   } );
 }
 sub print_nation_factor
 {
