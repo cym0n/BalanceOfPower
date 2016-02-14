@@ -29,7 +29,11 @@ sub print_nation_actual_situation
     my $self = shift;
     my $nation = shift;
     my $in_the_middle = shift;
-    my $turn = shift;
+    my $mode = shift || 'print';
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
+
+    my $turn;
     if($in_the_middle)
     {
         $turn = prev_turn($self->current_year);
@@ -39,84 +43,50 @@ sub print_nation_actual_situation
         $turn = $self->current_year;
     }
     my $nation_obj = $self->get_nation($nation);
-    my $out = as_title("$nation\n===\n");
-    $out .= $nation_obj->print_attributes();
-    $out .= "\n";
-    $out .= $self->print_nation_situation($nation);
-    $out .= "\n";
-    $out .= "\n";
-    $out .= $self->print_nation_statistics_header() . "\n";
-    $out .= $self->print_nation_statistics_line($nation, $turn) . "\n\n";
-    $out .= as_title("TRADEROUTES\n---\n");
-    foreach my $tr ($self->routes_for_node($nation))
-    {
-        $out .= $tr->print($nation) . "\n";
-    }
-    $out .= "\n";
-    my $allies_support_title = sprintf "%-35s %-35s", "TREATIES [" . $nation_obj->treaty_limit . "]" , "SUPPORTS";
-    $allies_support_title .="\n";
-    $allies_support_title .= sprintf "%-35s %-35s", "---", "---";
-    $allies_support_title .="\n";
-    $out .= as_title($allies_support_title);
-    my @allies = $self->get_treaties_for_nation($nation);
+    my $under_influence = $self->is_under_influence($nation);
+    my @influence = $self->has_influence($nation);
+    my @ndata = $self->get_nation_statistics_line($nation, $turn, $attributes);
+    my @routes = $self->routes_for_node($nation);
+    my @treaties = $self->get_treaties_for_nation($nation);
     my @supports = $self->supports($nation);
     my @rebel_supports = $self->rebel_supports($nation);
-    for(my $i = 0; ;$i++)
+    my $first_row_height;
+    if(@treaties > @supports + @rebel_supports)
     {
-        last if(@allies == 0 && @supports == 0 && @rebel_supports == 0);
-        my $allies_text = "";
-        if(@allies)
-        {
-            my $a = shift @allies;
-            $allies_text = $a->print;
-        }
-        my $support_text = "";
-        if(@supports)
-        {
-            my $s = shift @supports;
-            $support_text = $s->print;
-        }
-        else
-        {
-            if(@rebel_supports)
-            {
-                my $rs = shift @rebel_supports;
-                $support_text = "REB: " . $rs->print;
-            }
-        }
-        $out .= sprintf "%-35s %-35s", $allies_text, $support_text;
-        $out .="\n";
+        $first_row_height = @treaties;
     }
-    $out .= "\n";
-    my $crises_wars_title = sprintf "%-35s %-35s", "CRISES", "WARS";
-    $crises_wars_title .="\n";
-    $crises_wars_title .= sprintf "%-35s %-35s", "---", "---";
-    $crises_wars_title .="\n";
-    $out .= as_title($crises_wars_title);
+    else
+    {
+        $first_row_height = @supports + @rebel_supports;
+    }
     my @crises = $self->get_crises($nation);
     my @wars = $self->get_wars($nation);
-    for(my $i = 0; ;$i++)
+    my $second_row_height;
+    if(@crises > @wars)
     {
-        last if(@crises == 0 && @wars == 0);
-        my $crisis_text = "";
-        if(@crises)
-        {
-            my $c = shift @crises;
-            $crisis_text = $c->print_crisis(0);
-        }
-        my $war_text = "";
-        if(@wars)
-        {
-            my $w = shift @wars;
-            $war_text = $w->print;
-        }
-        $out .= sprintf "%-35s %-35s", $crisis_text, $war_text;
-        $out .="\n";
+        $second_row_height = @crises;
     }
-    $out .= "\n";
-    my $order = $self->get_statistics_value($turn, $nation, 'order') ? $self->get_statistics_value($turn, $nation, 'order') : 'NONE';
-    $out .= "Latest given order: $order\n";
-    return $out;
+    else
+    {
+        $second_row_height = @wars;
+    }
+    my $latest_order = $self->get_statistics_value($turn, $nation, 'order') ? $self->get_statistics_value($turn, $nation, 'order') : 'NONE';
+    return BalanceOfPower::Printer::print($mode, 'print_actual_nation_situation', 
+                                   { nation => $nation_obj,
+                                     under_influence => $under_influence,
+                                     influence => \@influence,
+                                     attributes => $attributes_names,
+                                     nationstats => \@ndata,
+                                     traderoutes => \@routes,
+                                     treaties => \@treaties,
+                                     supports => \@supports,
+                                     rebel_supports => \@rebel_supports,
+                                     first_row_height => $first_row_height,
+                                     crises => \@crises,
+                                     wars => \@wars,
+                                     second_row_height => $second_row_height,
+                                     latest_order => $latest_order,
+                                   } );
 }
 
 sub print_borders_analysis

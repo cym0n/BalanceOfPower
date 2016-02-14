@@ -14,10 +14,10 @@ sub print
     $root_path =~ s/Printer\.pm//;
     $root_path .= "templates";
 
-    my $tt = Template->new({INCLUDE_PATH => $root_path,
+    my $tt = Template->new({INCLUDE_PATH => "$root_path/$mode",
                             PLUGIN_BASE => 'Template::Plugin::Filter'});
     my $output;
-    $tt->process("$mode/$template.tt", $vars, \$output) || die $tt->error . "\n";
+    $tt->process("$template.tt", $vars, \$output) || die $tt->error . "\n";
     return $output;
 }
 
