@@ -5,7 +5,7 @@ use strict;
 
 use IO::Prompter;
 use Term::ANSIColor;
-use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn);
+use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
 use BalanceOfPower::World;
 use Data::Dumper;
 
@@ -15,45 +15,42 @@ my $logs = 0;
 my $new = 1;
 
 my $first_year = 1970;
+my $init_years_web = 10;
 
 my $world;
 my $commands;
 
 my $mode = shift @ARGV;
-if($mode eq 'devel')
+
+if(! $mode)
+{
+    $mode = 'new';
+}
+elsif($mode eq 'devel')
 {
    say "DEVELOPEMENT MODE";
    $stubbed_player = 1;
    $logs = 1;
+   $mode = 'new';
 }
 elsif($mode eq 'fastdev')
 {
    say "DEVELOPEMENT MODE";
    $stubbed_player = 1;
    $logs = 0;
-}
-elsif($mode eq 'load')
-{
-    my $file = shift @ARGV;
-    $world = BalanceOfPower::World->load_world($file);
-    $world->savefile($file);
-    $new = 0;
+   $mode = 'new';
 }
 
-if(! $world)
+if($mode eq 'new')
 {
-    my $auto_years;
     $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
     $world->init_random("nations-v2.txt", "borders-v2.txt");
-}
-$world->dice_log($logs);
-$commands = $world->build_commands();
-if($new)
-{
+    $world->dice_log($logs);
+    $commands = $world->build_commands();
     my $auto_years;
     if($stubbed_player)
     {
-        $auto_years = 5;
+        $auto_years = 10;
         $commands->set_player("Player One");
     }
     else
@@ -64,17 +61,50 @@ if($new)
         $commands->input_player();
     }
     $world->autopilot($first_year, $first_year+$auto_years);
-
     $commands->welcome_player();
     $commands->interact();
 }
-else
+elsif($mode eq 'load')
 {
+    my $file = shift @ARGV;
+    $world = BalanceOfPower::World->load_world($file);
+    $world->dice_log($logs);
+    $commands = $world->build_commands();
+    $world->savefile($file);
     my $active_player = $world->players->[0];
     $commands->set_player($active_player->name);
     $commands->interact(0);
 }
-
-
-
-
+elsif($mode eq 'webgen')
+{
+    my $game = shift @ARGV;
+    my $site_root = shift @ARGV;
+    #TODO allow gen_dir to be an environment variable
+    my $file = "$game.dmp";
+    if(-e $file)
+    {
+        $world = BalanceOfPower::World->load_world($file);
+    }
+    else
+    {
+        $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
+        $world->init_random("nations-v2.txt", "borders-v2.txt");
+        $world->dice_log($logs);
+        $commands = $world->build_commands();
+        say "Initialization: first year: $first_year";
+        foreach my $y ( $first_year ..  $first_year + $init_years_web)
+        {
+            foreach my $t (get_year_turns($y))
+            {
+                $world->generate_whole_turn($game, $t, $site_root);
+                say "Initialization: $t generated";
+            }
+        }
+        $world->pre_decisions_elaborations(next_turn($world->current_year));
+    }
+    say "Elaborating... " . $world->current_year;
+    $world->generate_web_interactive_turn($game, $site_root);
+    $world->build_meta_statics($game, $site_root);
+    say $world->current_year . " ready to be played";
+    $world->dump_all($file);
+}

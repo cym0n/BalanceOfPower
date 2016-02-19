@@ -1,5 +1,5 @@
 <h3>YEAR [% year %]</h3>
-<table>
+<table class="table">
 <tr>
     <th>Nation</th>
     [% FOREACH a IN attributes %]<th>[% a %]</th>[% END %]
