@@ -15,7 +15,7 @@ my $logs = 0;
 my $new = 1;
 
 my $first_year = 1970;
-my $init_years_web = 10;
+my $init_years_web = 1;
 
 my $world;
 my $commands;
@@ -107,4 +107,23 @@ elsif($mode eq 'webgen')
     $world->build_meta_statics($game, $site_root);
     say $world->current_year . " ready to be played";
     $world->dump_all($file);
+}
+elsif($mode eq 'refresh')
+{
+    my $game = shift @ARGV;
+    my $site_root = shift @ARGV;
+    my $file = "$game.dmp";
+    if(-e $file)
+    {
+        $world = BalanceOfPower::World->load_world($file);
+    }
+    else
+    {
+        die "Nothing to refresh";
+    }
+    say "Refreshing... " . $world->current_year;
+    $world->build_pre_statics($game, $site_root);
+    $world->build_post_statics($game, $site_root, prev_turn($world->current_year));
+    $world->build_meta_statics($game, $site_root);
+    say $world->current_year . " refreshed";
 }

@@ -1,0 +1,107 @@
+<h3>[% nation.name%]</h3>
+<div class="well">
+<p>
+Area: [% nation.area %]<br />
+Export quote: [% nation.export_quote %]<br />
+Government strength: [% nation.government_strength %]<br />
+Internal situation:  [% nation.internal_disorder_status %]<br />
+<br />
+[% IF under_influence -%]
+[% nation.name %] is under influence of [% under_influence %]<br />
+[%- ELSE -%]
+[%- IF influence.size > 0 -%]
+[%- FOR i IN influence -%]
+[% nation.name %] as influence on [% i %]<br />
+[% END -%]
+[%- ELSE -%]
+[% nation.name %] is free<br />
+[%- END -%]
+[%- END -%]
+<br />
+</div>
+<table class="table">
+[% INCLUDE 'fragments/nation_attributes_header.tt' %]
+<tr>
+[% INCLUDE 'fragments/nation_attributes.tt' %]
+</tr>
+</table>
+<div class="well">
+<h4>TRADEROUTES</h4>
+<p>
+[%- FOREACH t IN traderoutes -%]
+=> [%- t.destination(nation.name) %] [x[% t.factor_for_node(nation.name) -%]]<br />
+[% END %]
+</p>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="well">
+          <h4>TREATIES</h4>
+          [% first_row_counter = 0 %]
+          [% WHILE first_row_counter < first_row_height %]
+          [% treaty = treaties.$first_row_counter %]
+          [% IF treaty %][% treaty.short_tag %]: [% treaty.destination(nation.name) %][% END -%]<br />
+          [% first_row_counter = first_row_counter + 1 -%]
+          [% END %]
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="well">
+          <h4>SUPPORTS</h4>
+          [% first_row_counter = 0 %]
+          [% WHILE first_row_counter < first_row_height %]
+          [%- IF supports.$first_row_counter -%]
+          [%- support = supports.$first_row_counter -%]
+          [%- suptag = "" %]
+          [%- ELSE -%]
+          [%- support = rebel_supports.$first_row_counter -%]
+          [%- suptag = "REB: " %]
+          [% END %]
+          [%- IF support %][% suptag %][% support.print %][% END %]<br />
+          [% first_row_counter = first_row_counter + 1 -%]
+          [%- END -%]
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="well">
+          <h4>CRISES</h4>
+          [%- second_row_counter = 0 -%]
+          [%- WHILE second_row_counter < second_row_height -%]
+          [%- crisis = crises.$second_row_counter -%]
+          [%- IF crisis %][% crisis.destination(nation.name) %] [% crisis.print_grey_crisis_bar %][% END -%]<br />
+          [% second_row_counter = second_row_counter + 1 -%]
+          [% END %]
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="well">
+          <h4>WARS</h4>
+          [%- second_row_counter = 0 -%]
+          [%- WHILE second_row_counter < second_row_height -%]
+          [%- war = wars.$second_row_counter -%]
+          [%- IF war %][% war.node1 %] -> [% war.node2 %][% END %]<br />
+          [% second_row_counter = second_row_counter + 1 -%]
+          [% END %]
+        </div>
+      </div>
+    </div>
+  </div>
+</div>    
+<div>
+<p>
+Latest given order: [% latest_order %]
+</p>
+</div>
+
+
+
+

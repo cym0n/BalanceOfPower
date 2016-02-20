@@ -1053,6 +1053,7 @@ sub build_pre_statics
     open(my $whistory, "> $dest_dir/war-history.tt");
     print {$whistory} $self->print_war_history('html');
     close($whistory);
+    $self->build_nations_statics($game, $site_root);
 }
 
 sub build_post_statics
@@ -1060,11 +1061,15 @@ sub build_post_statics
     my $self = shift;
     my $game = shift;
     my $site_root = shift;
-    my $dest_dir = "$site_root/views/generated/$game/" . next_turn($self->current_year());
+    my $year = shift || $self->current_year;
+    my $dest_dir = "$site_root/views/generated/$game/" . next_turn($year);
     make_path $dest_dir;
     open(my $situation, "> $dest_dir/situation.tt");
-    print {$situation} $self->print_turn_statistics($self->current_year(), undef, 'html');  
+    print {$situation} $self->print_turn_statistics($year, undef, 'html');  
     close($situation);
+    open(my $events, "> $dest_dir/events.tt"); 
+    print {$events} $self->print_formatted_turn_events($year, undef, 'html');  
+    close($events);
 }
 
 sub build_meta_statics
@@ -1074,10 +1079,51 @@ sub build_meta_statics
     my $site_root = shift;
     my $dest_dir = "$site_root/metadata";
     make_path $dest_dir;
-    my %data = ( current_year => $self->current_year );
+    my %nations_to_dump;
+    foreach my $n (@{$self->nations})
+    {
+        $nations_to_dump{$n->name} = {
+                                 code => $n->code,
+                                 area => $n->area };
+    }
+    my %data = ( current_year => $self->current_year,
+                 nations => \%nations_to_dump );
     open(my $meta, "> $dest_dir/$game.meta");
     print {$meta} Dumper(\%data);
     close($meta);
+}
+
+sub build_nations_statics
+{
+    my $self = shift;
+    my $game = shift;
+    my $site_root = shift;
+    foreach my $code (keys $self->nation_codes)
+    {
+        my $nation = $self->nation_codes->{$code};
+        my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . "/$code";
+        make_path($dest_dir);
+        open(my $status, "> $dest_dir/actual.tt");
+        print {$status} $self->print_nation_actual_situation($nation, 1, 'html');
+        close($status);
+        open(my $borders, "> $dest_dir/borders.tt");
+        print {$borders} $self->print_borders_analysis($nation, 'html');  
+        close($borders);
+        open(my $near, "> $dest_dir/near.tt");
+        print {$near} $self->print_near_analysis($nation, 'html');  
+        close($near);
+        open(my $diplomacy, "> $dest_dir/diplomacy.tt");
+        print {$diplomacy} $self->print_diplomacy($nation, 'html');  
+        close($diplomacy);
+        open(my $events, "> $dest_dir/events.tt");
+        print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
+        close($events);
+
+        
+    }
+
+
+
 }
 
 1;

@@ -2,11 +2,12 @@
 <table class="table">
 <tr>
     <th>Nation</th>
-    [% FOREACH a IN attributes %]<th>[% a %]</th>[% END %]
+    [% INCLUDE 'fragments/nation_attributes_header.tt' -%]
 </tr>
 [% FOREACH n IN names %]
 <tr>
 <td>[% n %]</td>
-[% FOREACH d IN statistics.$n %]<td>[% d %]</td>[% END %]
+[%- nationstats = statistics.$n -%] 
+[% INCLUDE 'fragments/nation_attributes.tt' -%]
 [% END %]
 </table>
