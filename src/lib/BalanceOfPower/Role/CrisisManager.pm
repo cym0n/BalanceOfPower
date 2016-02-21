@@ -167,9 +167,12 @@ sub print_all_crises
             }
         }
     }
-    return BalanceOfPower::Printer::print($mode, 'print_all_crises',
+    my %nation_codes = reverse %{$self->nation_codes};
+    return BalanceOfPower::Printer::print($mode, $self, 'print_all_crises',
                                           { crises => \@crises,
-                                            wars => \@war_signal });
+                                            wars => \@war_signal,
+                                            nation_codes => \%nation_codes,
+                                           });
 }
 1;
 

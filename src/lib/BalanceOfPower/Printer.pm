@@ -6,6 +6,7 @@ use Cwd 'abs_path';
 sub print
 {
     my $mode = shift;
+    my $world = shift;
     my $template = shift;
     my $vars = shift;
 
@@ -16,6 +17,12 @@ sub print
 
     my $tt = Template->new({INCLUDE_PATH => "$root_path/$mode",
                             PLUGIN_BASE => 'Template::Plugin::Filter'});
+
+    if(ref $world eq 'BalanceOfPower::World')
+    {
+        my %nation_codes = reverse %{$world->nation_codes};
+        $vars->{'nation_codes'} = \%nation_codes;
+    }
     my $output;
     $tt->process("$template.tt", $vars, \$output) || die $tt->error . "\n";
     return $output;

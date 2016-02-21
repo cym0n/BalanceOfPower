@@ -6,7 +6,7 @@
         <div class="well">
         [% FOREACH r IN relationships %]
         [% IF r.status == 'HATE' %]
-        [% r.destination( nation ) %]: [% r.status %]<br />
+        [% INCLUDE fragments/linked_nation.tt n = r.destination( nation ) %]: [% r.status %]<br />
         [% END %]
         [% END %]
         </div>
@@ -15,7 +15,7 @@
         <div class="well">
         [% FOREACH r IN relationships %]
         [% IF r.status == 'NEUTRAL' %]
-        [% r.destination( nation ) %]: [% r.status %]<br />
+        [% INCLUDE fragments/linked_nation.tt n = r.destination( nation ) %]: [% r.status %]<br />
         [% END %]
         [% END %]
         </div>
@@ -24,7 +24,7 @@
         <div class="well">
         [% FOREACH r IN relationships %]
         [% IF r.status != 'NEUTRAL' AND r.status != 'HATE' %]
-        [% r.destination( nation ) %]: [% r.status %]<br />
+        [% INCLUDE fragments/linked_nation.tt n = r.destination( nation ) %]: [% r.status %]<br />
         [% END %]
         [% END %]
         </div>

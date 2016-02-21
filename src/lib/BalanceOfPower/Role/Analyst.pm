@@ -71,7 +71,7 @@ sub print_nation_actual_situation
         $second_row_height = @wars;
     }
     my $latest_order = $self->get_statistics_value($turn, $nation, 'order') ? $self->get_statistics_value($turn, $nation, 'order') : 'NONE';
-    return BalanceOfPower::Printer::print($mode, 'print_actual_nation_situation', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_actual_nation_situation', 
                                    { nation => $nation_obj,
                                      under_influence => $under_influence,
                                      influence => \@influence,
@@ -111,7 +111,7 @@ sub print_borders_analysis
             $data{$b}->{'support'}->{relation} = $sup_rel;
         }
     }
-    return BalanceOfPower::Printer::print($mode, 'print_borders_analysis', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_borders_analysis', 
                                    { nation => $nation,
                                      borders => \%data } );
 
@@ -160,7 +160,7 @@ sub print_near_analysis
                           how => "border" };
         }
     }
-    BalanceOfPower::Printer::print($mode, 'print_near_analysis', 
+    BalanceOfPower::Printer::print($mode, $self, 'print_near_analysis', 
                                            { nation => $nation,
                                              near => \@data } );
 
@@ -218,7 +218,7 @@ sub print_war_history
         compare_turns($a->{start}, $b->{start});
     }
     @war_names = sort comp @war_names;
-    return BalanceOfPower::Printer::print($mode, 'print_war_history', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_war_history', 
                                    { wars => \%wars,
                                      war_names => \@war_names } );
 }

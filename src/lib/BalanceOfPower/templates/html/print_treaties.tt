@@ -1,6 +1,6 @@
 <h3>[% title %]</h3>
 <p>
 [% FOREACH t IN treaties %]
-[% t.node1 %] <-> [% t.node2 %]<br />
+[% INCLUDE fragments/linked_nation.tt n = t.node1 %] <-> [% INCLUDE fragments/linked_nation.tt n = t.node2 %]<br />
 [% END %]
 </p>

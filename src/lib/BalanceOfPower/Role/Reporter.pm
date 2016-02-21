@@ -68,7 +68,7 @@ sub print_turn_events
     {
         return "";
     }
-    return BalanceOfPower::Printer::print($mode, 'print_turn_events', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_turn_events', 
                                    { title => $title,
                                      turns => \@to_print,
                                      events => $self->events } );

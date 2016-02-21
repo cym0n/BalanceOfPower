@@ -29,7 +29,7 @@ Internal situation:  [% nation.internal_disorder_status %]<br />
 <h4>TRADEROUTES</h4>
 <p>
 [%- FOREACH t IN traderoutes -%]
-=> [%- t.destination(nation.name) %] [x[% t.factor_for_node(nation.name) -%]]<br />
+=> [% INCLUDE fragments/linked_nation.tt n = t.destination(nation.name) %] [x[% t.factor_for_node(nation.name) -%]]<br />
 [% END %]
 </p>
 </div>
@@ -43,7 +43,7 @@ Internal situation:  [% nation.internal_disorder_status %]<br />
           [% first_row_counter = 0 %]
           [% WHILE first_row_counter < first_row_height %]
           [% treaty = treaties.$first_row_counter %]
-          [% IF treaty %][% treaty.short_tag %]: [% treaty.destination(nation.name) %][% END -%]<br />
+          [% IF treaty %][% treaty.short_tag %]: [% INCLUDE fragments/linked_nation.tt n = treaty.destination(nation.name) %][% END -%]<br />
           [% first_row_counter = first_row_counter + 1 -%]
           [% END %]
         </div>
@@ -60,7 +60,7 @@ Internal situation:  [% nation.internal_disorder_status %]<br />
           [%- support = rebel_supports.$first_row_counter -%]
           [%- suptag = "REB: " %]
           [% END %]
-          [%- IF support %][% suptag %][% support.print %][% END %]<br />
+          [%- IF support %][% suptag %][% INCLUDE fragments/support.tt s = support %][% END %]<br />
           [% first_row_counter = first_row_counter + 1 -%]
           [%- END -%]
         </div>
@@ -77,7 +77,7 @@ Internal situation:  [% nation.internal_disorder_status %]<br />
           [%- second_row_counter = 0 -%]
           [%- WHILE second_row_counter < second_row_height -%]
           [%- crisis = crises.$second_row_counter -%]
-          [%- IF crisis %][% crisis.destination(nation.name) %] [% crisis.print_grey_crisis_bar %][% END -%]<br />
+          [%- IF crisis %][% INCLUDE fragments/linked_nation.tt n = crisis.destination(nation.name) %] [% crisis.print_grey_crisis_bar %][% END -%]<br />
           [% second_row_counter = second_row_counter + 1 -%]
           [% END %]
         </div>
@@ -88,7 +88,7 @@ Internal situation:  [% nation.internal_disorder_status %]<br />
           [%- second_row_counter = 0 -%]
           [%- WHILE second_row_counter < second_row_height -%]
           [%- war = wars.$second_row_counter -%]
-          [%- IF war %][% war.node1 %] -> [% war.node2 %][% END %]<br />
+          [%- IF war %][% INCLUDE fragments/linked_nation.tt n = war.node1 %] -> [% INCLUDE fragments/linked_nation.tt n = war.node2 %][% END %]<br />
           [% second_row_counter = second_row_counter + 1 -%]
           [% END %]
         </div>

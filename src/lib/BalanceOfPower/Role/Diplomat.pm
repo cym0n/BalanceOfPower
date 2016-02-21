@@ -257,7 +257,7 @@ sub print_diplomacy
     my $mode = shift || "print";
     my $out;
     my @outnodes = sort { $a->factor <=> $b->factor} $self->get_diplomatic_relations($n);
-    return BalanceOfPower::Printer::print($mode, 'print_diplomacy', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_diplomacy', 
                                    { nation => $n,
                                      relationships => \@outnodes,
                                    } );
@@ -416,7 +416,7 @@ sub print_treaties
             push @to_print, $_;
         }
     }
-    return BalanceOfPower::Printer::print($mode, 'print_treaties', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_treaties', 
                                    { title => $title,
                                      treaties => \@to_print,
                                    } );

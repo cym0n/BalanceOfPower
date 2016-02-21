@@ -3,9 +3,9 @@
 [% i = 0 %]
 [% FOREACH c IN crises %]
 [% IF wars.$i == 1 %]
-<span class="dangerous">[% c.node1 %] &lt;-&gt; [% c.node2 %] [% c.print_grey_crisis_bar %]</span> 
+[% INCLUDE fragments/crisis.tt %]
 [% ELSE %]
-[% c.node1 %] <-> [% c.node2 %] [% c.print_grey_crisis_bar %]
+[% INCLUDE fragments/crisis.tt %]
 [% END %][% i = i + 1 %]
 <br />
 [% END %]

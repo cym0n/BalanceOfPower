@@ -171,7 +171,7 @@ sub print_supports
     {
         @sups = $self->military_supports->links_for_node($n);
     }
-    return BalanceOfPower::Printer::print($mode, 'print_supports', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_supports', 
                                    {   title => $title,
                                        supports => \@sups,
                                    } );

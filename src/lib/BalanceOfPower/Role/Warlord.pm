@@ -599,7 +599,7 @@ sub print_wars
             push @civil_wars, $n;
         }
     }
-    return BalanceOfPower::Printer::print($mode, 'print_wars', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_wars', 
                                    { wars => \@wars,
                                      civil_wars => \@civil_wars } );
 }

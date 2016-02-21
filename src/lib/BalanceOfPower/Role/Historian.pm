@@ -74,7 +74,7 @@ sub print_nation_statistics
         my @ndata = $self->get_nation_statistics_line($nation, $t, $attributes);
         $data{$t} = \@ndata;
     }
-    return BalanceOfPower::Printer::print($mode, 'print_nation_statistics', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_nation_statistics', 
                                    { nation => $nation,
                                      attributes => $attributes_names,
                                      statistics => \%data,
@@ -247,8 +247,8 @@ sub print_turn_statistics
     my $order = shift;
     my $mode = shift || 'print';
     my @nations = @{$self->nation_names};
-    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
-    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "internal disorder", "army", "progress", "prestige"];
     my %data = ();
     my @names;
     if($order)
@@ -268,12 +268,12 @@ sub print_turn_statistics
         my @ndata = $self->get_nation_statistics_line($_, $y, $attributes);
         $data{$_} = \@ndata;
     }
-    return BalanceOfPower::Printer::print($mode, 'print_turn_statistics', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_turn_statistics', 
                                    { year => $y,
                                      order => $order,
                                      attributes => $attributes_names,
                                      statistics => \%data,
-                                     names => \@names } );
+                                     names => \@names, });
 }
 
 sub print_overall_statistics
