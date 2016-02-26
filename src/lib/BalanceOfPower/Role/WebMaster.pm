@@ -137,8 +137,8 @@ sub generate_whole_turn
     my $game = shift;
     my $turn = shift;
     my $site_root = shift;
-    $self->manage_web_players($game);
     $self->pre_decisions_elaborations($turn);
+    $self->manage_web_players($game);
     $self->build_pre_statics($game, $site_root);
     $self->decisions();
     $self->post_decisions_elaborations();
@@ -152,8 +152,8 @@ sub generate_web_interactive_turn
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
-    $self->manage_web_players($game);
     $self->pre_decisions_elaborations(next_turn($self->current_year));
+    $self->manage_web_players($game);
     $self->build_pre_statics($game, $site_root);
 }
 
@@ -161,9 +161,15 @@ sub manage_web_players
 {
     my $self = shift;
     my $game = shift;
-    say "Managing web players";
     my $players = $self->get_web_data("/api/$game/users");
-    say Dumper($players);
+    if($players)
+    {
+        for(@{$players})
+        {
+            $self->create_player($_);
+        }
+    }
+
 }
 
 sub get_web_data

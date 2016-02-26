@@ -79,11 +79,7 @@ sub set_player
 {
     my $self = shift;
     my $player = shift;
-    my $log_name = $player . ".log";
-    $log_name =~ s/ /_/g;
-    my $pl = BalanceOfPower::Player->new(name => $player, money => START_PLAYER_MONEY, log_name => $log_name);
-    $pl->delete_log();
-    $self->world->add_player($pl);
+    $self->world->create_player($player);
     $self->active_player($player);
 }
 

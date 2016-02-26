@@ -73,7 +73,7 @@ sub load_players
     foreach my $l (split "\n", $data)
     {
 
-        if($l !~ /^\s/)
+        if($l !~ /^\s/ && $l !~ /^$/)
         {
             if($player_data)
             {

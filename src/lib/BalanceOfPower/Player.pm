@@ -261,7 +261,7 @@ sub load_wallet
     my $self = shift;
     my $data = shift;
     my @lines = split /\n/, $data;
-    my %wallet;
+    my %wallet = ();
     foreach my $line (@lines)
     {
         $line =~ s/^\s+//;
