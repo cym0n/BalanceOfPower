@@ -565,8 +565,14 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . 
-                join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->rebel_provinces, $self->current_year, $self->army, $self->progress) . "\n";
+                join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->rebel_provinces, $self->current_year, $self->army, $self->progress, $self->available_stocks) . "\n";
     $self->dump_events($io, " " . $indent);
+}
+#TODO finish this
+sub dump_resources
+{
+    my $self = shift;
+    my %data = shift;
 }
 
 sub load
@@ -576,7 +582,7 @@ sub load
     my $nation_line = ( split /\n/, $data )[0];
     $nation_line =~ s/^\s+//;
     chomp $nation_line;
-    my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $rebel_provinces, $current_year, $army, $progress) = split ";", $nation_line;
+    my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $rebel_provinces, $current_year, $army, $progress, $available_stocks) = split ";", $nation_line;
     $data =~ s/^.*?\n//;
     my $events = $self->load_events($data);
     return $self->new(name => $name, code => $code, area => $area, size => $size,
@@ -587,7 +593,8 @@ sub load
                       rebel_provinces => $rebel_provinces, army => $army,
                       current_year => $current_year,
                       progress => $progress,
-                      events => $events);
+                      events => $events,
+                      available_stocks => $available_stocks);
 }
 
 1;
