@@ -1,4 +1,4 @@
-<h3>[% nation.name%]</h3>
+<h3>STATUS</h3>
 <div class="well">
 <p>
 Area: [% nation.area %]<br />
@@ -7,11 +7,11 @@ Government strength: [% nation.government_strength %]<br />
 Internal situation:  [% nation.internal_disorder_status %]<br />
 <br />
 [% IF under_influence -%]
-[% nation.name %] is under influence of [% under_influence %]<br />
+[% nation.name %] is under influence of [% INCLUDE fragments/linked_nation.tt n = under_influence %]<br />
 [%- ELSE -%]
 [%- IF influence.size > 0 -%]
 [%- FOR i IN influence -%]
-[% nation.name %] as influence on [% i %]<br />
+[% nation.name %] as influence on [% INCLUDE fragments/linked_nation.tt n = i %]<br />
 [% END -%]
 [%- ELSE -%]
 [% nation.name %] is free<br />

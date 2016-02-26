@@ -1,4 +1,4 @@
-<h3>BORDERS ANALYSIS FOR [% nation %]<h3>
+<h3>BORDERS ANALYSIS<h3>
 [% FOREACH b IN borders.keys %]
 <h4>[% INCLUDE fragments/linked_nation.tt n = b %]</h4>
 <p>
