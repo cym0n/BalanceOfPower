@@ -84,10 +84,14 @@ elsif($mode eq 'webgen')
     if(-e $file)
     {
         $world = BalanceOfPower::World->load_world($file);
+        $world->site_root($site_root);
+        $world->api_url('http://localhost:3000');
     }
     else
     {
         $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
+        $world->site_root($site_root);
+        $world->api_url('http://localhost:3000');
         $world->init_random("nations-v2.txt", "borders-v2.txt");
         $world->dice_log($logs);
         $commands = $world->build_commands();
@@ -96,15 +100,15 @@ elsif($mode eq 'webgen')
         {
             foreach my $t (get_year_turns($y))
             {
-                $world->generate_whole_turn($game, $t, $site_root);
+                $world->generate_whole_turn($game, $t);
                 say "Initialization: $t generated";
             }
         }
         $world->pre_decisions_elaborations(next_turn($world->current_year));
     }
     say "Elaborating... " . $world->current_year;
-    $world->generate_web_interactive_turn($game, $site_root);
-    $world->build_meta_statics($game, $site_root);
+    $world->generate_web_interactive_turn($game);
+    $world->build_meta_statics($game);
     say $world->current_year . " ready to be played";
     $world->dump_all($file);
 }
@@ -116,14 +120,16 @@ elsif($mode eq 'refresh')
     if(-e $file)
     {
         $world = BalanceOfPower::World->load_world($file);
+        $world->site_root($site_root);
+        $world->api_url('http://localhost:3000');
     }
     else
     {
         die "Nothing to refresh";
     }
     say "Refreshing... " . $world->current_year;
-    $world->build_pre_statics($game, $site_root);
-    $world->build_post_statics($game, $site_root, prev_turn($world->current_year));
-    $world->build_meta_statics($game, $site_root);
+    $world->build_pre_statics($game);
+    $world->build_post_statics($game, prev_turn($world->current_year));
+    $world->build_meta_statics($game);
     say $world->current_year . " refreshed";
 }
