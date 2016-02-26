@@ -268,13 +268,14 @@ sub print_stocks
 sub print_market
 {
     my $self = shift;
-    my $out = "";
-    $out .= as_title(sprintf "%-20s %-10s %-10s %-10s", "NATION", "STOCK", "VALUE", "STATUS");
-    $out .= "\n";
+    my $mode = shift || 'print';
     my @ordered = $self->order_statistics(prev_turn($self->current_year), 'w/d');
+    my %data = ();
+    my @nations = ();
     foreach my $stats (@ordered)
     {
         my $nation = $self->get_nation($stats->{nation});
+        push @nations, $stats->{nation};
         my $status = "";
         if($self->at_war($nation->name))
         {
@@ -284,9 +285,12 @@ sub print_market
         {
             $status = "CIVILW";
         }
-        $out .= sprintf "%-20s %-10s %-10s %-10s", $nation->name, $nation->available_stocks, $stats->{value}, $status;
-        $out .= "\n";
+        $data{$nation->name} = {  stocks => $nation->available_stocks,
+                                  wd => $stats->{value},
+                                  status => $status };
     }
-    return $out;
+    return BalanceOfPower::Printer::print($mode, $self, 'print_market', 
+                                          { market_data => \%data,
+                                            nations => \@nations } );
 }
 1;

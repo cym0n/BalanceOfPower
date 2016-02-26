@@ -35,6 +35,7 @@ requires 'print_nation_events';
 requires 'pre_decisions_elaborations';
 requires 'decisions';
 requires 'post_decisions_elaborations';
+requires 'print_market';
 
 
 
@@ -63,6 +64,9 @@ sub build_pre_statics
     open(my $whistory, "> $dest_dir/war-history.tt");
     print {$whistory} $self->print_war_history('html');
     close($whistory);
+    open(my $market, "> $dest_dir/market.tt");
+    print {$market} $self->print_market('html');
+    close($market);
     $self->build_nations_statics($game, $site_root);
 }
 
@@ -138,7 +142,6 @@ sub generate_whole_turn
     my $turn = shift;
     my $site_root = shift;
     $self->pre_decisions_elaborations($turn);
-    $self->manage_web_players($game);
     $self->build_pre_statics($game, $site_root);
     $self->decisions();
     $self->post_decisions_elaborations();
