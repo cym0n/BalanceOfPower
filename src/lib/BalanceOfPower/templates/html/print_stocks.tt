@@ -1,0 +1,31 @@
+<h3>WALLET</h3>
+<div class="row">
+<table class="table table-striped table-bordered" cellspacing="0" width="100%">
+<thead>
+<tr>
+    <th>Nation</th>
+    <th>Q</th>
+    <th>Value</th>
+    <th>Influence</th>
+    <th>War Bonds</th>
+</tr>
+</thead>
+<tbody>
+[% FOREACH n IN market_data.keys %]
+<tr>
+<td>[% INCLUDE fragments/linked_nation.tt %]</span></td>
+<td>[% market_data.$n.stocks %]</td>
+<td>[% market_data.$n.value %]</td>
+<td>[% market_data.$n.influence %]</td>
+<td>[% market_data.$n.war_bonds %]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="row">
+<p>
+<strong>Stock value</strong>: [% stock_value %]<br />
+<strong>Money</strong>: [% money %]<br />
+<strong>Total value</strong>: [% total_value %]<br />
+</p>
+</div>

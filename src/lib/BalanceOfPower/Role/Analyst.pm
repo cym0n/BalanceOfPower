@@ -8,6 +8,8 @@ use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn as_title as_title as_subtitle compare_turns);
 use BalanceOfPower::Printer;
 
+use Data::Dumper;
+
 requires 'diplomacy_exists';
 requires 'get_borders';
 requires 'supported';
@@ -244,26 +246,32 @@ sub print_stocks
 {
     my $self = shift;
     my $player = shift;
+    my $mode = shift || 'print';
     my $player_obj = $self->get_player($player);
     my $stock_value = 0;
-    my $out = "";
-    $out .= as_title(sprintf "%-15s %-10s %-10s %-10s %-10s", "NATION", "Q", "VALUE", "INFLUENCE", "WAR BONDS");
-    $out .= "\n";
+    say Dumper($player_obj->wallet);
+    say Dumper($player_obj->events);
+    my %market_data = ();
     foreach my $nation(keys %{$player_obj->wallet})
     {
         if( $player_obj->stocks($nation) > 0 || $player_obj->influence($nation) > 0)
         {
-            $out .= sprintf "%-15s %-10s %-10s %-10s %-10s", $nation, $player_obj->wallet->{$nation}->{stocks}, $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"), $player_obj->wallet->{$nation}->{influence}, $player_obj->wallet->{$nation}->{'war bonds'} ;
-            $out .= "\n";
+            $market_data{$nation} = { 'stocks' => $player_obj->wallet->{$nation}->{stocks},
+                                      'value'  => $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"),
+                                      'influence' => $player_obj->wallet->{$nation}->{influence},
+                                      'war_bonds' => $player_obj->wallet->{$nation}->{'war bonds'},
+                                    };
             $stock_value += $player_obj->wallet->{$nation}->{stocks} * $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d");
         }
     }
-    $out .= "\n";
-    $out .= "Stock value: " . $stock_value . "\n";
-    $out .= "Money: " . $player_obj->money . "\n";
     my $total_value = $stock_value + $player_obj->money;
-    $out .= "Total value: " . $total_value . "\n";
-    return $out;
+    return BalanceOfPower::Printer::print($mode, $self, 'print_stocks', 
+                                          { market_data => \%market_data,
+                                            stock_value => $stock_value,
+                                            money => $player_obj->money,
+                                            total_value => $total_value    
+                                          } );
+
 }
 sub print_market
 {

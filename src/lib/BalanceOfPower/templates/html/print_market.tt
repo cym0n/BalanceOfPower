@@ -25,6 +25,7 @@
 [% END %]
 [% END %]
 [% END %]
+</tr>
 </tbody>
 </table>
 </div>
