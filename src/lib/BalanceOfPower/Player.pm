@@ -260,8 +260,9 @@ sub load_wallet
 {
     my $self = shift;
     my $data = shift;
-    my @lines = split /\n/, $data;
     my %wallet = ();
+    return \%wallet if(! $data);
+    my @lines = split /\n/, $data;
     foreach my $line (@lines)
     {
         $line =~ s/^\s+//;
@@ -283,7 +284,6 @@ sub dump
                 join(";", $self->name, $self->money, $self->current_year) . "\n";
     print {$io} $indent . " " . "### WALLET\n";
     $self->dump_wallet($io, " " . $indent);            
-    print {$io} "\n";
     print {$io} $indent . " " . "### EVENTS\n";
     $self->dump_events($io, " " . $indent);
 }
@@ -316,10 +316,10 @@ sub load
         }
         else
         {
-            $extracted_data .= $line;
+            $extracted_data .= $line . "\n";
         }
     }
-    my $events = $self->load_events($data);
+    my $events = $self->load_events($extracted_data);
     return $self->new(name => $name, money => $money, current_year => $current_year,
                       wallet => $wallet,
                       events => $events);
