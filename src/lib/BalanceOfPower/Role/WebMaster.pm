@@ -68,6 +68,7 @@ sub build_pre_statics
     print {$market} $self->print_market('html');
     close($market);
     $self->build_nations_statics($game, $site_root);
+    $self->build_players_statics($game, $site_root);
 }
 
 sub build_post_statics
@@ -115,7 +116,7 @@ sub build_nations_statics
     foreach my $code (keys $self->nation_codes)
     {
         my $nation = $self->nation_codes->{$code};
-        my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . "/$code";
+        my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . "/n/$code";
         make_path($dest_dir);
         open(my $status, "> $dest_dir/actual.tt");
         print {$status} $self->print_nation_actual_situation($nation, 1, 'html');
@@ -133,6 +134,39 @@ sub build_nations_statics
         print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
         close($events);
     }
+}
+sub build_players_statics
+{
+    my $self = shift;
+    my $game = shift;
+    my $site_root = $self->site_root;
+    say "Generating player statics";
+    foreach my $p (@{$self->players})
+    {
+        say "Working on player " . $p->name;
+        my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . '/p/' . $p->name;
+        make_path($dest_dir);
+        open(my $stocks, "> $dest_dir/stocks.tt");
+        print {$stocks} $self->print_stocks($p->name, 'html');
+        close($stocks);
+        open(my $events, "> $dest_dir/events.tt");
+        print {$events} $self->print_stock_events($p->name, prev_turn($self->current_year()), "My market events", 3, 'html');
+        close($events);
+        #open(my $borders, "> $dest_dir/borders.tt");
+        #print {$borders} $self->print_borders_analysis($nation, 'html');  
+        #close($borders);
+        #open(my $near, "> $dest_dir/near.tt");
+        #print {$near} $self->print_near_analysis($nation, 'html');  
+        #close($near);
+        #open(my $diplomacy, "> $dest_dir/diplomacy.tt");
+        #print {$diplomacy} $self->print_diplomacy($nation, 'html');  
+        #close($diplomacy);
+        #open(my $events, "> $dest_dir/events.tt");
+        #print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
+        #close($events);
+    }
+
+
 }
 
 sub generate_whole_turn

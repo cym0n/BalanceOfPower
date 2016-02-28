@@ -19,6 +19,7 @@
 <td>[% market_data.$n.influence %]</td>
 <td>[% market_data.$n.war_bonds %]</td>
 </tr>
+[% END %]
 </tbody>
 </table>
 </div>

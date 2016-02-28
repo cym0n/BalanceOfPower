@@ -654,13 +654,13 @@ sub stock_commands
     {
         my $input_year = $2;
         $input_year ||= prev_turn($self->world->current_year);
-        my @turns = get_year_turns($input_year); 
-        foreach my $t (@turns)
-        {
-            print $self->world->print_stock_events($self->active_player, $t);
-            my $wait = prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
-        }
-        print "\n";
+        #my @turns = get_year_turns($input_year); 
+        #foreach my $t (@turns)
+        #{
+        print $self->world->print_stock_events($self->active_player, $input_year, "My stock events", 3);
+            #    my $wait = prompt "... press enter to continue ...\n\n" if($t ne $turns[-1]);
+            #}
+            #print "\n";
         $result = { status => 2 };
     }
 

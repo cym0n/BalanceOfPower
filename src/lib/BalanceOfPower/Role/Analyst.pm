@@ -249,8 +249,6 @@ sub print_stocks
     my $mode = shift || 'print';
     my $player_obj = $self->get_player($player);
     my $stock_value = 0;
-    say Dumper($player_obj->wallet);
-    say Dumper($player_obj->events);
     my %market_data = ();
     foreach my $nation(keys %{$player_obj->wallet})
     {

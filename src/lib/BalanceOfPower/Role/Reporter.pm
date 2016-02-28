@@ -3,7 +3,7 @@ package BalanceOfPower::Role::Reporter;
 use strict;
 use v5.10;
 use Moo::Role;
-use BalanceOfPower::Utils qw( get_year_turns as_title );
+use BalanceOfPower::Utils qw( prev_turn get_year_turns as_title );
 use BalanceOfPower::Printer;
 
 with "BalanceOfPower::Role::Logger";
@@ -45,20 +45,25 @@ sub print_turn_events
     my $self = shift;
     my $y = shift;
     my $title = shift;
+    my $backlog = shift || 0;
     my $mode = shift || 'print';
-    my $out = "";
     my @to_print;
     if(! $y)
     {
         $y = $self->current_year ? $self->current_year : "START";
     }
-    if($y =~ /\d\d\d\d/)
+    if($y =~ /^\d\d\d\d$/)
     {
         @to_print = get_year_turns($y);
     }
-    elsif($y =~ /\d\d\d\d\/\d+/)
+    elsif($y =~ /^\d\d\d\d\/\d+$/)
     {
         @to_print = ($y);
+        for(my $i = 0; $i < $backlog; $i++)
+        {
+            push @to_print, prev_turn($y);
+            $y = prev_turn($y);
+        }
     }
     elsif($y eq 'START')
     {
@@ -72,18 +77,6 @@ sub print_turn_events
                                    { title => $title,
                                      turns => \@to_print,
                                      events => $self->events } );
-
-    foreach my $t (@to_print)
-    {
-        $out .= as_title($self->name . " - $t\n") if $title == 1;
-        foreach my $e (@{$self->events->{$t}})
-        {
-            $out .= " ";
-            $out .= $t . ": " if($title == 2);
-            $out .= $e . "\n";
-        }
-    }
-    return $out; 
 }
 sub get_turn_tags
 {
