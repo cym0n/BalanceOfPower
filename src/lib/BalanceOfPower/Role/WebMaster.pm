@@ -143,7 +143,6 @@ sub build_players_statics
     say "Generating player statics";
     foreach my $p (@{$self->players})
     {
-        say "Working on player " . $p->name;
         my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . '/p/' . $p->name;
         make_path($dest_dir);
         open(my $stocks, "> $dest_dir/stocks.tt");
@@ -152,6 +151,12 @@ sub build_players_statics
         open(my $events, "> $dest_dir/events.tt");
         print {$events} $self->print_stock_events($p->name, prev_turn($self->current_year()), "My market events", 3, 'html');
         close($events);
+
+        $dest_dir = "$site_root/metadata/$game/p";
+        make_path($dest_dir);
+        open(my $metawallet, "> $dest_dir/" . $p->name . "-wallet.data");
+        print {$metawallet} Dumper($p->wallet);
+        close($metawallet);
         #open(my $borders, "> $dest_dir/borders.tt");
         #print {$borders} $self->print_borders_analysis($nation, 'html');  
         #close($borders);

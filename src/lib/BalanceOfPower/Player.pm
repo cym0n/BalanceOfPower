@@ -42,7 +42,7 @@ sub init_nation_wallet
     my $nation = shift;
     $self->wallet->{$nation}->{'stocks'} = 0;
     $self->wallet->{$nation}->{'influence'} = 0;
-    $self->wallet->{$nation}->{'war bonds'} = 0;
+    $self->wallet->{$nation}->{'war_bonds'} = 0;
 }
 sub add_wallet_element
 {
@@ -105,13 +105,13 @@ sub add_war_bonds
 {
     my $self = shift;
     my $nation = shift;
-    $self->add_wallet_element('war bonds', $nation, 1);
+    $self->add_wallet_element('war_bonds', $nation, 1);
 }
 sub war_bonds
 {
     my $self = shift;
     my $nation = shift;    
-    $self->get_wallet_element('war bonds', $nation);
+    $self->get_wallet_element('war_bonds', $nation);
 }
 sub add_money
 {
@@ -144,7 +144,7 @@ sub discard_war_bonds
     my $nation = shift;
     if($self->war_bonds($nation) > 0)
     {
-        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->wallet->{$nation}->{'war_bonds'} = 0;
         $self->register_event("WAR LOST FOR $nation! WAR BONDS FROM $nation HAVE NOW NO VALUE");
     }
 }
@@ -154,9 +154,9 @@ sub cash_war_bonds
     my $nation = shift;
     if($self->war_bonds($nation) > 0)
     {
-        my $gain = $self->wallet->{$nation}->{'war bonds'} * WAR_BOND_GAIN;
+        my $gain = $self->wallet->{$nation}->{'war_bonds'} * WAR_BOND_GAIN;
         $self->add_money($gain);
-        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->wallet->{$nation}->{'war_bonds'} = 0;
         $self->register_event("WAR WON FOR $nation! GAINES $gain FROM WAR BONDS");
 
     }
@@ -168,7 +168,7 @@ sub empty_stocks
     if($self->stocks($nation) > 0)
     {
         $self->wallet->{$nation}->{'stocks'} = 0;
-        $self->wallet->{$nation}->{'war bonds'} = 0;
+        $self->wallet->{$nation}->{'war_bonds'} = 0;
         $self->wallet->{$nation}->{'influence'} = 0;
         $self->register_event("INVESTMENTS IN $nation LOST BECAUSE OF REVOLUTION!");
     }
@@ -269,7 +269,7 @@ sub load_wallet
         chomp $line;
         my ($nation, $stocks, $war_bonds, $influence) = split ";", $line;
         $wallet{$nation}->{'stocks'} = $stocks;
-        $wallet{$nation}->{'war bonds'} = $war_bonds;
+        $wallet{$nation}->{'war_bonds'} = $war_bonds;
         $wallet{$nation}->{'influence'} = $influence;
     }    
     return \%wallet;
