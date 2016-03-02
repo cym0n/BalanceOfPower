@@ -194,6 +194,7 @@ sub generate_web_interactive_turn
     my $self = shift;
     my $game = shift;
     my $site_root = shift;
+    $self->manage_stock_orders($game);
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
@@ -214,7 +215,23 @@ sub manage_web_players
             $self->create_player($_);
         }
     }
+}
 
+sub manage_stock_orders
+{
+    my $self = shift;
+    my $game = shift;
+    foreach my $p (@{$self->players})
+    {
+        my $password = $self->admin_password;
+        my $user = $p->name;
+        my $call = "/api/$game/stock-orders?user=$user&password=$password";
+        my $orders = $self->get_web_data($call);
+        for(@{$orders})
+        {
+           $self->get_player($p->name)->add_stock_order($_); 
+        }
+    }
 }
 
 sub get_web_data
