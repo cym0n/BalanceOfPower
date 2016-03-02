@@ -16,7 +16,7 @@ sub dump
     my $self = shift;
     my $io = shift;
     my $indent = shift || "";
-    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year) . "\n";
+    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year, $self->admin_password) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 sub load
@@ -26,12 +26,12 @@ sub load
     my $world_line = ( split /\n/, $data )[0];
     $world_line =~ s/^\s+//;
     chomp $world_line;
-    my ($name, $first_year, $current_year) =
+    my ($name, $first_year, $current_year, $admin_password) =
         split ";", $world_line;
     $data =~ s/^.*?\n//;
     my $events = $self->load_events($data);
     return BalanceOfPower::World->new(name => $name, 
-                                      first_year => $first_year, current_year => $current_year,
+                                      first_year => $first_year, current_year => $current_year, admin_password => $admin_password,
                                       events => $events);
 }
 

@@ -94,8 +94,8 @@ with 'BalanceOfPower::Role::Broker';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Analyst';
-with 'BalanceOfPower::Role::Recorder';
 with 'BalanceOfPower::Role::WebMaster';
+with 'BalanceOfPower::Role::Recorder';
 
 sub get_nation
 {

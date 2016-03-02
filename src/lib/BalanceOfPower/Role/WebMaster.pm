@@ -18,6 +18,9 @@ has site_root => (
 has api_url => (
     is => 'rw',
 );
+has admin_password => (
+    is => 'rw'
+);
 
 requires 'print_hotspots';
 requires 'print_allies';

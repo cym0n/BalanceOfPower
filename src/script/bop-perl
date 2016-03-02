@@ -79,6 +79,7 @@ elsif($mode eq 'webgen')
 {
     my $game = shift @ARGV;
     my $site_root = shift @ARGV;
+    my $admin_password = shift @ARGV;
     #TODO allow gen_dir to be an environment variable
     my $file = "$game.dmp";
     if(-e $file)
@@ -89,7 +90,7 @@ elsif($mode eq 'webgen')
     }
     else
     {
-        $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
+        $world = BalanceOfPower::World->new( admin_password => $admin_password, first_year => $first_year, log_active => $logs );
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
         $world->init_random("nations-v2.txt", "borders-v2.txt");
