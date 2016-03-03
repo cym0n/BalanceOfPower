@@ -4,6 +4,11 @@ use Moo;
 
 extends 'BalanceOfPower::Commands::Plain';
 
+sub has_argument
+{
+    return 0;
+}
+
 sub extract_argument
 {
     my $self = shift;

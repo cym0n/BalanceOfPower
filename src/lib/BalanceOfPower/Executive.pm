@@ -209,6 +209,22 @@ sub decide
     }
 }
 
+sub allowed_orders
+{
+    my $self = shift;
+    my @out;
+    for(keys %{$self->commands})
+    {
+        my $c = $self->commands->{$_};
+        $c->actor($self->actor);
+        if( $c->allowed() )
+        {
+            push @out, $c->print;
+        }
+    }
+    return @out;
+}
+
 sub print_orders
 {
     my $self = shift;

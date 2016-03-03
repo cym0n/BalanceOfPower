@@ -119,6 +119,7 @@ sub build_nations_statics
     foreach my $code (keys $self->nation_codes)
     {
         my $nation = $self->nation_codes->{$code};
+
         my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year() . "/n/$code";
         make_path($dest_dir);
         open(my $status, "> $dest_dir/actual.tt");
@@ -136,6 +137,43 @@ sub build_nations_statics
         open(my $events, "> $dest_dir/events.tt");
         print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
         close($events);
+
+        $dest_dir = "$site_root/metadata/$game/n";
+        make_path($dest_dir);
+        open(my $nation_meta, "> $dest_dir/" . $code . ".data");
+        my $civil_war = $self->at_civil_war($nation);
+
+        my $commands = $self->build_commands();
+        my $exec = $commands->set_executive($nation);
+        my @allowed = $exec->allowed_orders();
+        my %command_matrix;
+        for(@allowed)
+        {
+            my $com_name = $_;
+            my $com = $exec->commands->{$com_name};
+            if($com->has_argument)
+            {
+               my @targets = $com->get_available_targets();
+               if(@targets)
+               {
+                    $command_matrix{$com_name}->{targets} = \@targets;
+                    $command_matrix{$com_name}->{argument} = $com->has_argument();
+               }
+            }
+            else
+            {
+                $command_matrix{$com_name}->{argument} = $com->has_argument();
+            }
+        }
+        my $nation_obj = $self->get_nation($nation);
+        my %nation_hash = ( internal_production => $nation_obj->production_for_domestic,
+                            export_production => $nation_obj->production_for_export,
+                            prestige => $nation_obj->prestige,
+                            army => $nation_obj->army,
+                            civil_war => $civil_war,
+                            commands => \%command_matrix );
+        print {$nation_meta} Dumper(\%nation_hash);
+        close($nation_meta);
     }
 }
 sub build_players_statics

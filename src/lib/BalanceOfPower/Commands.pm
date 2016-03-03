@@ -167,6 +167,18 @@ sub verify_nation
     return @good_nation > 0;
 }
 
+sub set_executive
+{
+    my $self = shift;
+    my $controlled_nation = shift;
+
+    my $exec = BalanceOfPower::Executive->new;
+    $exec->init($self->world);
+    $exec->actor($controlled_nation);
+    $self->executive($exec);
+    return $exec;
+}
+
 sub turn_command
 {
     my $self = shift;
@@ -698,10 +710,7 @@ sub control_commands
             my $player = $self->get_active_player();
             if($player->influence($controlled_nation) > 0)
             {
-                my $exec = BalanceOfPower::Executive->new;
-                $exec->init($self->world);
-                $exec->actor($controlled_nation);
-                $self->executive($exec);
+                $self->set_executive($controlled_nation);
                 say $self->world->print_nation_actual_situation($controlled_nation, 1);
                 $result = { status => 1 };
             }

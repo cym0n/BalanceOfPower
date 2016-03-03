@@ -49,6 +49,11 @@ has treaty_limit => (
     default => 0
 );
 
+sub has_argument
+{
+    return 1;
+}
+
 sub get_nation
 {
     my $self = shift;
