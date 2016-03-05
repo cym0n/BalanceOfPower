@@ -239,6 +239,7 @@ sub generate_web_interactive_turn
     my $game = shift;
     my $site_root = shift;
     $self->manage_stock_orders($game);
+    $self->manage_influence_orders($game);
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
@@ -269,11 +270,27 @@ sub manage_stock_orders
     {
         my $password = $self->admin_password;
         my $user = $p->name;
-        my $call = "/api/$game/stock-orders?user=$user&password=$password";
+        my $call = "/api/$game/stock-orders?player=$user&password=$password";
         my $orders = $self->get_web_data($call);
         for(@{$orders})
         {
            $self->get_player($p->name)->add_stock_order($_); 
+        }
+    }
+}
+sub manage_influence_orders
+{
+    my $self = shift;
+    my $game = shift;
+    foreach my $p (@{$self->players})
+    {
+        my $password = $self->admin_password;
+        my $user = $p->name;
+        my $call = "/api/$game/influence-orders?player=$user&password=$password";
+        my $orders = $self->get_web_data($call);
+        for(@{$orders})
+        {
+           $self->get_player($p->name)->add_control_order($_->{nation}, $_->{command});
         }
     }
 }
