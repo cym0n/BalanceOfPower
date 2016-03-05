@@ -196,7 +196,13 @@ sub build_players_statics
         $dest_dir = "$site_root/metadata/$game/p";
         make_path($dest_dir);
         open(my $metawallet, "> $dest_dir/" . $p->name . "-wallet.data");
-        print {$metawallet} Dumper($p->wallet);
+        my %wallet;
+        for(keys %{$p->wallet})
+        {
+            my $code = $self->get_nation($_)->code;
+            $wallet{$code} = $p->wallet->{$_};
+        }
+        print {$metawallet} Dumper(\%wallet);
         close($metawallet);
         #open(my $borders, "> $dest_dir/borders.tt");
         #print {$borders} $self->print_borders_analysis($nation, 'html');  
