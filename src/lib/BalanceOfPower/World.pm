@@ -227,6 +227,7 @@ sub init_random
             export_quote => $export_quote, 
             government_strength => $government_strength,
             available_stocks => START_STOCKS->[$nations_data{$n}->{size}],
+            log_dir => $self->log_dir,
             log_name => $self->log_name,
             log_on_stdout => $self->log_on_stdout);
         $self->nation_codes->{$nations_data{$n}->{code}} = $n;
@@ -1000,8 +1001,28 @@ sub collect_events
 sub build_commands
 {
     my $self = shift;
-    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active );
+    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active, log_dir => $self->log_dir );
     return $commands;
+}
+
+### Logs
+
+sub set_log_dir
+{
+    my $self = shift;
+    my $log_dir = shift;
+
+    $self->log_dir($log_dir);
+    $self->dice->log_dir($log_dir);
+
+    for(@{$self->nations})
+    {
+        $_->log_dir($log_dir);
+    }
+    for(@{$self->players})
+    {
+        $_->log_dir($log_dir);
+    }
 }
 
 

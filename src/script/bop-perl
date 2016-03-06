@@ -5,6 +5,7 @@ use strict;
 
 use IO::Prompter;
 use Term::ANSIColor;
+use File::Path 'make_path';
 use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
 use BalanceOfPower::World;
 use Data::Dumper;
@@ -82,17 +83,21 @@ elsif($mode eq 'webgen')
     my $admin_password = shift @ARGV;
     #TODO allow gen_dir to be an environment variable
     my $file = "$game.dmp";
+    my $log_dir = "$game-logs";
+    make_path($log_dir);
     if(-e $file)
     {
         $world = BalanceOfPower::World->load_world($file);
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
+        $world->set_log_dir($log_dir);
     }
     else
     {
         $world = BalanceOfPower::World->new( admin_password => $admin_password, first_year => $first_year, log_active => $logs );
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
+        $world->set_log_dir($log_dir);
         $world->init_random("nations-v2.txt", "borders-v2.txt");
         $world->dice_log($logs);
         $commands = $world->build_commands();
@@ -118,11 +123,14 @@ elsif($mode eq 'refresh')
     my $game = shift @ARGV;
     my $site_root = shift @ARGV;
     my $file = "$game.dmp";
+    my $log_dir = "$game-logs";
+    make_path($log_dir);
     if(-e $file)
     {
         $world = BalanceOfPower::World->load_world($file);
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
+        $world->set_log_dir($log_dir);
     }
     else
     {

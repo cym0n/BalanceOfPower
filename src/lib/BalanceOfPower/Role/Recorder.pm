@@ -33,6 +33,7 @@ sub load
     return BalanceOfPower::World->new(name => $name, 
                                       first_year => $first_year, current_year => $current_year, admin_password => $admin_password,
                                       events => $events);
+                                     
 }
 
 sub load_nations
@@ -189,6 +190,10 @@ sub load_world
             elsif($target eq 'WARS')
             {
                 $world->wars->load_pack("BalanceOfPower::Relations::War", $data);
+                for($world->wars->all())
+                {
+                    $_->log_active(0);
+                }
             }
             elsif($target eq 'MEMORIAL')
             {
