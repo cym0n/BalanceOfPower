@@ -207,21 +207,21 @@ sub build_players_statics
         }
         print {$metawallet} Dumper(\%wallet);
         close($metawallet);
-        #open(my $borders, "> $dest_dir/borders.tt");
-        #print {$borders} $self->print_borders_analysis($nation, 'html');  
-        #close($borders);
-        #open(my $near, "> $dest_dir/near.tt");
-        #print {$near} $self->print_near_analysis($nation, 'html');  
-        #close($near);
-        #open(my $diplomacy, "> $dest_dir/diplomacy.tt");
-        #print {$diplomacy} $self->print_diplomacy($nation, 'html');  
-        #close($diplomacy);
-        #open(my $events, "> $dest_dir/events.tt");
-        #print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
-        #close($events);
     }
+}
 
-
+sub server_available
+{
+    my $self = shift;
+    my $alive = $self->get_web_data('/keepalive', 1);
+    if($alive && $alive eq 'OK')
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 sub generate_whole_turn
@@ -302,6 +302,7 @@ sub get_web_data
 {
     my $self = shift;
     my $call = shift;
+    my $bare = shift || 0;
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     $ua->env_proxy;
@@ -310,8 +311,15 @@ sub get_web_data
 
     
     if ($response->is_success) {
-        my $json = JSON->new->allow_nonref;
-        return $json->decode( $response->decoded_content );
+        if($bare)
+        {
+            return $response->decoded_content;
+        }
+        else
+        {
+            my $json = JSON->new->allow_nonref;
+            return $json->decode( $response->decoded_content );
+        }
     }
     else {
         return undef;

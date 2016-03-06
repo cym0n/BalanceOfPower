@@ -91,6 +91,7 @@ elsif($mode eq 'webgen')
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
         $world->set_log_dir($log_dir);
+        die "Server unreachable" if(! $world->server_available);
     }
     else
     {
@@ -99,7 +100,7 @@ elsif($mode eq 'webgen')
         $world->api_url('http://localhost:3000');
         $world->set_log_dir($log_dir);
         $world->init_random("nations-v2.txt", "borders-v2.txt");
-        $world->dice_log($logs);
+        die "Server unreachable" if(! $world->server_available);
         $commands = $world->build_commands();
         say "Initialization: first year: $first_year";
         foreach my $y ( $first_year ..  $first_year + $init_years_web)
@@ -131,6 +132,7 @@ elsif($mode eq 'refresh')
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
         $world->set_log_dir($log_dir);
+        die "Server unreachable" if(! $world->server_available);
     }
     else
     {
