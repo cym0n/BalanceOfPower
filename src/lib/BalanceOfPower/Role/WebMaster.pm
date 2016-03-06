@@ -192,6 +192,9 @@ sub build_players_statics
         open(my $events, "> $dest_dir/events.tt");
         print {$events} $self->print_stock_events($p->name, prev_turn($self->current_year()), "My market events", 3, 'html');
         close($events);
+        open(my $ranking, "> $dest_dir/ranking.tt");
+        print {$ranking} $self->print_all_stocks('html');
+        close($ranking);
 
         $dest_dir = "$site_root/metadata/$game/p";
         make_path($dest_dir);

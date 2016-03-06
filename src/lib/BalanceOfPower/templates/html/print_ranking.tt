@@ -1,0 +1,21 @@
+<h3>RANKING</h3>
+<div class="row">
+<table id="rankingdata" class="table table-bordered" cellspacing="0" width="100%">
+<thead>
+<tr>
+    <th>Player</th>
+    <th>Total Value</th>
+    <th>Money</th>
+</tr>
+</thead>
+<tbody>
+[% FOREACH p IN players %]
+<tr class="[% p %]">
+<td>[% p %]</td>
+<td>[% players_data.$p.total_value %]</td>
+<td>[% players_data.$p.money %]</td>
+</tr>
+[% END %]
+</tbody>
+</table>
+</div>

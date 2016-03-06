@@ -242,11 +242,10 @@ sub print_treaties_table
     }
     return $out;
 }
-sub print_stocks
+sub player_stocks_status
 {
     my $self = shift;
     my $player = shift;
-    my $mode = shift || 'print';
     my $player_obj = $self->get_player($player);
     my $stock_value = 0;
     my %market_data = ();
@@ -263,13 +262,37 @@ sub print_stocks
         }
     }
     my $total_value = $stock_value + $player_obj->money;
-    return BalanceOfPower::Printer::print($mode, $self, 'print_stocks', 
-                                          { market_data => \%market_data,
-                                            stock_value => $stock_value,
-                                            money => $player_obj->money,
-                                            total_value => $total_value    
-                                          } );
+    return { market_data => \%market_data,
+             stock_value => $stock_value,
+             money => $player_obj->money,
+             total_value => $total_value };
+}
 
+
+sub print_stocks
+{
+    my $self = shift;
+    my $player = shift;
+    my $mode = shift || 'print';
+    return BalanceOfPower::Printer::print($mode, $self, 'print_stocks', $self->player_stocks_status($player));
+}
+sub print_all_stocks
+{
+    my $self = shift;
+    my $mode = shift || 'print';
+    my %data = ();
+    my @names;
+    for(@{$self->players})
+    {
+        my $p = $_;
+        push @names, $p->name;
+        $data{$p->name} = $self->player_stocks_status($p->name);
+    }
+    @names = sort { $data{$b}->{total_value} <=> $data{$a}->{total_value} } @names;
+
+    return BalanceOfPower::Printer::print($mode, $self, 'print_ranking', 
+                                            { players_data => \%data,
+                                              players => \@names });
 }
 sub print_market
 {
