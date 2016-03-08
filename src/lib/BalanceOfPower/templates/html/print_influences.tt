@@ -1,6 +1,6 @@
 <h3>INFLUENCES</h3>
 <p>
 [% FOREACH i IN influences %]
-[% i.print %]<br />
+[% INCLUDE fragments/linked_nation.tt n = i.node1 %] [% i.status_label %] [% INCLUDE fragments/linked_nation.tt n = i.node2 %]<br />
 [% END %]
 </p>
