@@ -1,23 +1,35 @@
 <h3>STATUS</h3>
-<div class="well">
-<p>
-Area: [% nation.area %]<br />
-Export quote: [% nation.export_quote %]<br />
-Government strength: [% nation.government_strength %]<br />
-Internal situation:  [% nation.internal_disorder_status %]<br />
-<br />
-[% IF under_influence -%]
-[% nation.name %] is under influence of [% INCLUDE fragments/linked_nation.tt n = under_influence %]<br />
-[%- ELSE -%]
-[%- IF influence.size > 0 -%]
-[%- FOR i IN influence -%]
-[% nation.name %] as influence on [% INCLUDE fragments/linked_nation.tt n = i %]<br />
-[% END -%]
-[%- ELSE -%]
-[% nation.name %] is free<br />
-[%- END -%]
-[%- END -%]
-<br />
+<div class="row">
+  <div class="col-sm-12">
+    <div class="col-md-4">
+        <div class="center-block">
+        <img style="height:120px" src="/images/flags/[% nation.code %].png" class="img-thumbnail">
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div>
+                <p>
+                Area: [% nation.area %]<br />
+                Export quote: [% nation.export_quote %]<br />
+                Government strength: [% nation.government_strength %]<br />
+                Internal situation:  [% nation.internal_disorder_status %]<br />
+                <br />
+                [% IF under_influence -%]
+                [% nation.name %] is under influence of [% INCLUDE fragments/linked_nation.tt n = under_influence %]<br />
+                [%- ELSE -%]
+                [%- IF influence.size > 0 -%]
+                [%- FOR i IN influence -%]
+                [% nation.name %] as influence on [% INCLUDE fragments/linked_nation.tt n = i %]<br />
+                [% END -%]
+                [%- ELSE -%]
+                [% nation.name %] is free<br />
+                [%- END -%]
+                [%- END -%]
+                <br />
+                </p>
+        </div>
+    </div>
+  </div>
 </div>
 <table class="table">
 [% INCLUDE 'fragments/nation_attributes_header.tt' %]
