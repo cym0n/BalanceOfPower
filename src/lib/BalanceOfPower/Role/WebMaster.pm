@@ -166,7 +166,8 @@ sub build_nations_statics
             }
         }
         my $nation_obj = $self->get_nation($nation);
-        my %nation_hash = ( internal_production => $nation_obj->production_for_domestic,
+        my %nation_hash = ( stocks => $nation_obj->available_stocks,
+                            internal_production => $nation_obj->production_for_domestic,
                             export_production => $nation_obj->production_for_export,
                             prestige => $nation_obj->prestige,
                             army => $nation_obj->army,
