@@ -95,6 +95,10 @@ elsif($mode eq 'webgen')
     }
     else
     {
+        if(! $admin_password)
+        {
+            die "Admin password needed on game init";
+        }
         $world = BalanceOfPower::World->new( admin_password => $admin_password, first_year => $first_year, log_active => $logs );
         $world->site_root($site_root);
         $world->api_url('http://localhost:3000');
