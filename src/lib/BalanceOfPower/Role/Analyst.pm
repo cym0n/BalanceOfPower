@@ -134,7 +134,7 @@ sub print_near_analysis
             {
                 push @data, { nation => $b,
                               relation => $rel,
-                              how => 'Supported' };
+                              how => 'supported' };
             }
             else
             {
@@ -149,7 +149,7 @@ sub print_near_analysis
                         {
                             push @data, { nation => $b,
                                           relation => $rel,
-                                          how => "Military support from $other_n" };
+                                          how => $other_n };
                         }
                     }
                 }
