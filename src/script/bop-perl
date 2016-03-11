@@ -79,9 +79,9 @@ elsif($mode eq 'load')
 elsif($mode eq 'webgen')
 {
     my $game = shift @ARGV;
-    my $site_root = shift @ARGV;
+    my $site_root = $ENV{'BOP_SITE_ROOT'};
+    my $website = $ENV{'BOP_WEBSITE'};
     my $admin_password = shift @ARGV;
-    #TODO allow gen_dir to be an environment variable
     my $file = "$game.dmp";
     my $log_dir = "$game-logs";
     make_path($log_dir);
@@ -89,7 +89,7 @@ elsif($mode eq 'webgen')
     {
         $world = BalanceOfPower::World->load_world($file);
         $world->site_root($site_root);
-        $world->api_url('http://localhost:3000');
+        $world->api_url($website);
         $world->set_log_dir($log_dir);
         die "Server unreachable" if(! $world->server_available);
     }
@@ -101,7 +101,7 @@ elsif($mode eq 'webgen')
         }
         $world = BalanceOfPower::World->new( admin_password => $admin_password, first_year => $first_year, log_active => $logs );
         $world->site_root($site_root);
-        $world->api_url('http://localhost:3000');
+        $world->api_url($website);
         $world->set_log_dir($log_dir);
         $world->init_random("nations-v2.txt", "borders-v2.txt");
         die "Server unreachable" if(! $world->server_available);
@@ -126,7 +126,8 @@ elsif($mode eq 'webgen')
 elsif($mode eq 'refresh')
 {
     my $game = shift @ARGV;
-    my $site_root = shift @ARGV;
+    my $site_root = $ENV{'BOP_SITE_ROOT'};
+    my $website = $ENV{'BOP_WEBSITE'};
     my $file = "$game.dmp";
     my $log_dir = "$game-logs";
     make_path($log_dir);
@@ -134,7 +135,7 @@ elsif($mode eq 'refresh')
     {
         $world = BalanceOfPower::World->load_world($file);
         $world->site_root($site_root);
-        $world->api_url('http://localhost:3000');
+        $world->api_url($website);
         $world->set_log_dir($log_dir);
         die "Server unreachable" if(! $world->server_available);
     }
@@ -143,6 +144,7 @@ elsif($mode eq 'refresh')
         die "Nothing to refresh";
     }
     say "Refreshing... " . $world->current_year;
+    $world->manage_web_players($game);
     $world->build_pre_statics($game);
     $world->build_post_statics($game, prev_turn($world->current_year));
     $world->build_meta_statics($game);

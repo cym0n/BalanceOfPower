@@ -307,7 +307,6 @@ sub get_web_data
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     $ua->env_proxy;
-    say "Getting data from " . $self->api_url . $call;
     my $response = $ua->get($self->api_url . $call);
 
     

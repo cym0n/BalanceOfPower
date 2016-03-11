@@ -18,4 +18,5 @@
 [% END %]
 </tbody>
 </table>
+<p class="text-muted">If you don't see your player here wait for the next turn or a data refresh</p>
 </div>
