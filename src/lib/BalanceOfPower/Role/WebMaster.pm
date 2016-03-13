@@ -7,7 +7,7 @@ use Moo::Role;
 use LWP::UserAgent;
 use JSON;
 use Data::Dumper;
-use File::Path 'make_path';
+use File::Path qw(make_path remove_tree);
 
 use BalanceOfPower::Utils qw(prev_turn next_turn);
 
@@ -208,6 +208,43 @@ sub build_players_statics
         }
         print {$metawallet} Dumper(\%wallet);
         close($metawallet);
+    }
+}
+
+sub clean_statics
+{
+    my $self = shift;
+    my $game = shift;
+    my $preservation_window = shift;
+    my $site_root = $self->site_root;
+    my $delete_year = $self->current_year;
+    say "Current year: $delete_year";
+    say "---";
+    for(my $i = $preservation_window; $i > 0; $i--)
+    {
+        $delete_year = prev_turn($delete_year);
+    }
+    my $deleting = 1;
+    while($deleting)
+    {
+        my $directory_to_delete = "$site_root/views/generated/$game/$delete_year";
+        if (-e $directory_to_delete and -d $directory_to_delete) 
+        {
+            say "Deleting $directory_to_delete";
+            remove_tree($directory_to_delete);
+            if($delete_year =~ /1$/)
+            {
+                my $parent_directory_to_delete = $directory_to_delete;
+                $parent_directory_to_delete =~ s/\/1$//;
+                say "Deleting $parent_directory_to_delete";
+                remove_tree($parent_directory_to_delete);
+            }
+            $delete_year = prev_turn($delete_year);
+        }
+        else 
+        {
+            $deleting = 0;
+        }
     }
 }
 

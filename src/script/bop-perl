@@ -150,3 +150,22 @@ elsif($mode eq 'refresh')
     $world->build_meta_statics($game);
     say $world->current_year . " refreshed";
 }
+elsif($mode eq 'clean')
+{
+    my $game = shift @ARGV;
+    my $window = shift @ARGV;
+    my $site_root = $ENV{'BOP_SITE_ROOT'};
+    my $website = $ENV{'BOP_WEBSITE'};
+    my $file = "$game.dmp";
+    if(-e $file)
+    {
+        $world = BalanceOfPower::World->load_world($file);
+        $world->site_root($site_root);
+        $world->api_url($website);
+        $world->clean_statics($game, $window);
+    }
+    else
+    {
+        die "Nothing to clean";
+    }
+}
