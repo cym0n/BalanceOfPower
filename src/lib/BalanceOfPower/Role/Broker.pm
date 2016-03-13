@@ -153,6 +153,7 @@ sub execute_stock_orders
             $orders{$player->name} = \@p_orders;
             push @acting_players, $player->name;
         }
+        $player->empty_stock_orders();
     }
     say "===" if($dry_run);
     while(@acting_players)
