@@ -256,7 +256,7 @@ sub player_stocks_status
             $market_data{$nation} = { 'stocks' => $player_obj->wallet->{$nation}->{stocks},
                                       'value'  => $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"),
                                       'influence' => $player_obj->wallet->{$nation}->{influence},
-                                      'war_bonds' => $player_obj->wallet->{$nation}->{'war bonds'},
+                                      'war_bonds' => $player_obj->wallet->{$nation}->{'war_bonds'},
                                     };
             $stock_value += $player_obj->wallet->{$nation}->{stocks} * $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d");
         }
