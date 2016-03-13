@@ -94,7 +94,7 @@ sub load_players
 sub dump_all
 {
     my $self = shift;
-    my $file = shift;
+    my $file = shift || $self->savefile;
     return "No file provided" if ! $file;
     open(my $io, "> $file");
     $self->dump($io);
@@ -150,6 +150,7 @@ sub load_world
             if($target eq 'WORLD')
             {
                 $world = $self->load($data);
+                $world->savefile($file);
             }
             elsif($target eq 'NATIONS')
             {

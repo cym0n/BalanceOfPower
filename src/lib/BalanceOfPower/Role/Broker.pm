@@ -141,17 +141,37 @@ sub cash_war_bonds
 sub execute_stock_orders
 {
     my $self = shift;
-    foreach my $player ($self->shuffle("shuffle players to execute stock orders", @{$self->players}))
+    my $dry_run = shift || 0;
+    my %orders;
+    my @acting_players;
+    foreach my $player (@{$self->players})
     {
-        foreach my $order (@{$player->stock_orders})
-        {
-            $order =~ /^(.*)\s(\d)\s(.*)$/;
-            my $command = $1;
-            my $q = $2;
-            my $nation = $3;
-            $self->manage_stock($command, $player->name, $nation, $q);
+        my @p_orders = @{$player->stock_orders};
+        if(@p_orders)
+        {  
+            say "Player " . $player->name . " has stock orders" if($dry_run);
+            $orders{$player->name} = \@p_orders;
+            push @acting_players, $player->name;
         }
-        $player->empty_stock_orders();
+    }
+    say "===" if($dry_run);
+    while(@acting_players)
+    {
+        @acting_players = $self->shuffle("Choosing player to execute stock action", @acting_players);
+        my $chosen_player = $acting_players[0];
+        say "Chosen player is $chosen_player" if($dry_run);
+        my $order = shift @{$orders{$chosen_player}};
+        say "Order is $order" if($dry_run);
+        $order =~ /^(.*)\s(\d)\s(.*)$/;
+        my $command = $1;
+        my $q = $2;
+        my $nation = $3;
+        $self->manage_stock($command, $chosen_player, $nation, $q) if (! $dry_run);
+        if(! @{$orders{$chosen_player}})
+        {
+            @acting_players = grep { $_ ne $chosen_player } @acting_players;
+        }
+        say "---" if($dry_run);
     }
 }
 sub print_stock_events

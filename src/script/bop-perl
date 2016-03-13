@@ -71,7 +71,6 @@ elsif($mode eq 'load')
     $world = BalanceOfPower::World->load_world($file);
     $world->dice_log($logs);
     $commands = $world->build_commands();
-    $world->savefile($file);
     my $active_player = $world->players->[0];
     $commands->set_player($active_player->name);
     $commands->interact(0);
@@ -79,32 +78,33 @@ elsif($mode eq 'load')
 elsif($mode eq 'webgen')
 {
     my $game = shift @ARGV;
-    my $site_root = $ENV{'BOP_SITE_ROOT'};
-    my $website = $ENV{'BOP_WEBSITE'};
-    my $admin_password = shift @ARGV;
-    my $file = "$game.dmp";
-    my $log_dir = "$game-logs";
-    make_path($log_dir);
-    if(-e $file)
+    my $world = load_game($game);
+    my $new = 0;
+    if(! $world)
     {
-        $world = BalanceOfPower::World->load_world($file);
-        $world->site_root($site_root);
-        $world->api_url($website);
-        $world->set_log_dir($log_dir);
-        die "Server unreachable" if(! $world->server_available);
-    }
-    else
-    {
+        my $site_root = $ENV{'BOP_SITE_ROOT'};
+        my $website = $ENV{'BOP_WEBSITE'};
+        my $admin_password = shift @ARGV;
+        my $log_dir = "$game-logs";
+        my $file = "$game.dmp";
+        make_path($log_dir);
         if(! $admin_password)
         {
             die "Admin password needed on game init";
         }
-        $world = BalanceOfPower::World->new( admin_password => $admin_password, first_year => $first_year, log_active => $logs );
+        $world = BalanceOfPower::World->new( admin_password => $admin_password, 
+                                             first_year => $first_year, 
+                                             log_active => $logs, 
+                                             savefile => $file );
         $world->site_root($site_root);
         $world->api_url($website);
         $world->set_log_dir($log_dir);
+        $new = 1;
+    }
+    die "Server unreachable" if(! $world->server_available);
+    if($new)
+    {
         $world->init_random("nations-v2.txt", "borders-v2.txt");
-        die "Server unreachable" if(! $world->server_available);
         $commands = $world->build_commands();
         say "Initialization: first year: $first_year";
         foreach my $y ( $first_year ..  $first_year + $init_years_web)
@@ -121,28 +121,14 @@ elsif($mode eq 'webgen')
     $world->generate_web_interactive_turn($game);
     $world->build_meta_statics($game);
     say $world->current_year . " ready to be played";
-    $world->dump_all($file);
+    $world->dump_all();
 }
 elsif($mode eq 'refresh')
 {
     my $game = shift @ARGV;
-    my $site_root = $ENV{'BOP_SITE_ROOT'};
-    my $website = $ENV{'BOP_WEBSITE'};
-    my $file = "$game.dmp";
-    my $log_dir = "$game-logs";
-    make_path($log_dir);
-    if(-e $file)
-    {
-        $world = BalanceOfPower::World->load_world($file);
-        $world->site_root($site_root);
-        $world->api_url($website);
-        $world->set_log_dir($log_dir);
-        die "Server unreachable" if(! $world->server_available);
-    }
-    else
-    {
-        die "Nothing to refresh";
-    }
+    my $world = load_game($game);
+    die "Nothing to refresh" if(! $world);
+    die "Server unreachable" if(! $world->server_available);
     say "Refreshing... " . $world->current_year;
     $world->manage_web_players($game);
     $world->build_pre_statics($game);
@@ -154,18 +140,40 @@ elsif($mode eq 'clean')
 {
     my $game = shift @ARGV;
     my $window = shift @ARGV;
+    my $world = load_game($game);
+    die "Nothing to clean" if(! $world);
+    $world->clean_statics($game, $window);
+}
+elsif($mode eq 'drystock')
+{
+    my $game = shift @ARGV;
+    my $window = shift @ARGV;
+    my $world = load_game($game);
+    die "Drystock impossible" if(! $world);
+    die "Server unreachable" if(! $world->server_available);
+    $world->manage_stock_orders($game);
+    $world->execute_stock_orders(1);
+}
+
+
+sub load_game
+{
+    my $game = shift;
     my $site_root = $ENV{'BOP_SITE_ROOT'};
     my $website = $ENV{'BOP_WEBSITE'};
     my $file = "$game.dmp";
+    my $log_dir = "$game-logs";
+    make_path($log_dir);
     if(-e $file)
     {
         $world = BalanceOfPower::World->load_world($file);
         $world->site_root($site_root);
         $world->api_url($website);
-        $world->clean_statics($game, $window);
+        $world->set_log_dir($log_dir);
+        return $world;
     }
-    else
+    else 
     {
-        die "Nothing to clean";
+        return undef;
     }
 }
