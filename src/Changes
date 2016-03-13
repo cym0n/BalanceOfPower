@@ -1,12 +1,13 @@
-0.300001
+0.300010
 ===
 
-__???__
+__Sun 13 Mar 2016__
 
  * Linked nations in near analysis
  * Bugfix about requirements
  * Basic parameters for web are taken from environment
  * Players are refreshed on refresh
+ * Clean procedure
 
 0.300000
 ===
