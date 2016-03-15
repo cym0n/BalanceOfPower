@@ -617,6 +617,8 @@ sub load_memorial
 {
     my $self = shift;
     my $data = shift;
+    
+    $data .= "EOF";
     my $war_data = "";
     my @memorial;
     my @lines = split "\n", $data;
