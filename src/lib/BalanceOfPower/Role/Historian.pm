@@ -337,33 +337,6 @@ sub order_statistics
     return @ordered;
 }
 
-sub print_crises
-{
-    my $self = shift;
-    my $year = shift;
-    my $out = "";
-    foreach my $t (get_year_turns($year))
-    {
-        my $header = 0;
-        foreach my $e (@{$self->events->{$t}})
-        {
-            if($e =~ /^CRISIS/)
-            {
-                if(! $header)
-                {
-                    $header = 1;
-                    $out .= "$t\n";
-                }
-                $out .= " " . $e . "\n";
-            }
-        }
-        if($header)
-        {
-            $out .= "\n";
-        }
-    }
-    return $out;
-}
 sub print_defcon_statistics
 {
     my $self = shift;

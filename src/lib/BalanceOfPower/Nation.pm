@@ -541,24 +541,6 @@ sub print_attributes
     return $out;
 }
 
-sub print
-{
-    my $self = shift;
-    my $out = "";
-    $out .= "Name: " . $self->name . "\n";
-    $out .= $self->print_attributes();
-    $out .= "Events:\n";
-    foreach my $year (sort keys %{$self->events})
-    {
-        $out .= "  $year:\n";
-        foreach my $e (@{$self->events->{$year}})
-        {
-            $out .= "    " . $e ."\n";
-        }
-    }
-    return $out;
-}
-
 sub dump
 {
     my $self = shift;
@@ -567,12 +549,6 @@ sub dump
     print {$io} $indent . 
                 join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->rebel_provinces, $self->current_year, $self->army, $self->progress, $self->available_stocks) . "\n";
     $self->dump_events($io, " " . $indent);
-}
-#TODO finish this
-sub dump_resources
-{
-    my $self = shift;
-    my %data = shift;
 }
 
 sub load
