@@ -1,9 +1,10 @@
 0.300012
 ===
 
-__???__
+__Wen 16 Mar 2016__
 
  * Constants about military support tuned to avoid schizophrenic behaviuor
+ * Bugfix on stock commands at first turn of a player
 
 0.300011
 ===

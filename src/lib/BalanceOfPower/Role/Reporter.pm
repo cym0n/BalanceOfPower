@@ -1,6 +1,7 @@
 package BalanceOfPower::Role::Reporter;
 
 use strict;
+use utf8;
 use v5.10;
 use Moo::Role;
 use BalanceOfPower::Utils qw( prev_turn get_year_turns as_title );
@@ -13,18 +14,6 @@ has events => (
     default => sub { {} }
 );
 
-#Struttura evento:
-#   - code
-#   - text
-#   - involved (ordinato)
-#   - values (ordinato)
-#
-#   involved e values assumono significato in base al code
-#
-#   A tendere i text saranno generati qui come traduzione dei metadata e l'eventuale text sarà un fallback
-
-
-#TODO: Se entra una stringa trasformarla in hashref, se è già hashref si può pushare direttamente nell'array
 sub register_event
 {
     my $self = shift;
@@ -36,7 +25,6 @@ sub register_event
     $self->log("[" . $self->name . "] $event");
 }
 
-#TODO: serve una funzione che trasformi gli array di hashref in array di stringhe per lasciare tutto invariato ai morsetti
 sub get_events
 {
     my $self = shift;
@@ -53,7 +41,6 @@ sub get_events
     }
 }
 
-#Qui tutta la struttura events deve diventare un hash->array di stringhe
 sub print_turn_events
 {
     my $self = shift;
@@ -107,8 +94,6 @@ sub get_turn_tags
 }
 
 
-#Dump su una riga con elementi separati da |
-#code|text|involved,involved,involved|value,value,value
 sub dump_events
 {
     my $self = shift;
