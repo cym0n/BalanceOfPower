@@ -237,7 +237,7 @@ sub print_nation_events
     my $title = shift;
     my $mode = shift || 'print';
     my $nation = $self->get_nation($nation_name);
-    return $nation->print_turn_events($y, $title, 0, $mode);
+    return $nation->print_turn_events($y, $title, 3, $mode);
 }
 
 sub print_turn_statistics

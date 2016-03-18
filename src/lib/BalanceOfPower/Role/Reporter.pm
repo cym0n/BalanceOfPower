@@ -149,9 +149,19 @@ sub dump_events
         print {$io} $indent . "### $y\n";
         foreach my $e (@{$self->events->{$y}})
         {
-            my $line = join '|', $e->{code}, $e->{text},
-                        join(',', @{$e->{involved}}),
-                        join(',', @{$e->{values}});
+            my $code = $e->{code} || '';
+            my $text = $e->{text} || '';
+            my $values = "";
+            if(@{$e->{values}})
+            {
+                $values = join(',', @{$e->{values}});
+            }
+            my $involved = "";
+            if(@{$e->{involved}})
+            {
+                $values = join(',', @{$e->{involved}});
+            }
+            my $line = join '|', $code, $text, $involved, $values;
             print {$io} $indent . $line . "\n";
         }
     }
@@ -185,10 +195,12 @@ sub load_events
             }
             else
             {
-                my @involved = split ',', $elements[2];
-                my @values = split ',', $elements[3];
-                $e = { code => $elements[0],
-                       text => $elements[1],
+                my @involved = (); 
+                @involved =  split ',', $elements[2] if $elements[2];
+                my @values = ();
+                @values = split ',', $elements[3] if $elements[3];
+                $e = { code => $elements[0] || '',
+                       text => $elements[1] || '',
                        involved => \@involved,
                        values => \@values
                      };
