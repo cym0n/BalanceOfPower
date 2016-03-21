@@ -4,8 +4,11 @@ use strict;
 use utf8;
 use v5.10;
 use Moo::Role;
+use Data::Dumper;
 use BalanceOfPower::Utils qw( prev_turn get_year_turns as_title );
 use BalanceOfPower::Printer;
+
+
 
 with "BalanceOfPower::Role::Logger";
 
@@ -53,6 +56,26 @@ sub make_plain
     }
     return @out;
 }
+sub by_tags
+{
+    my $self = shift;
+    my @events = @_;
+    my %out = ();
+    foreach my $e (@events)
+    {
+        my $tag = $e->{code} || 'XXX';
+        if(exists $out{$tag})
+        {
+            push @{$out{$tag}}, $e;
+        }
+        else
+        {
+            $out{$tag} = [];
+            push @{$out{$tag}}, $e;
+        }
+    }
+    return %out;
+}
 sub plain_events
 {
     my $self = shift;
@@ -64,9 +87,18 @@ sub plain_events
         $out{$turn} = \@evs;
     }
     return \%out;
-
-
-
+}
+sub by_tags_events
+{
+    my $self = shift;
+    my %out = ();
+    for(keys %{$self->events})
+    {
+        my $turn = $_;
+        my %evs = $self->make_plain(@{$self->events->{$turn}});
+        $out{$turn} = \%evs;
+    }
+    return \%out;
 }
 
 #Old get_events, based on grep on text. Returns events as array of strings.
@@ -85,15 +117,12 @@ sub get_events
         return ();
     }
 }
-
-sub print_turn_events
+sub turns_to_print
 {
     my $self = shift;
     my $y = shift;
-    my $title = shift;
-    my $backlog = shift || 0;
-    my $mode = shift || 'print';
-    my @to_print;
+    my $backlog = shift;
+    my @to_print = ();
     if(! $y)
     {
         $y = $self->current_year ? $self->current_year : "START";
@@ -115,15 +144,26 @@ sub print_turn_events
     {
         @to_print = ('START');
     }
-    else
-    {
-        return "";
-    }
+    return @to_print;
+}
+
+
+sub print_turn_events
+{
+    my $self = shift;
+    my $y = shift;
+    my $title = shift;
+    my $backlog = shift || 0;
+    my $mode = shift || 'print';
+
+    my @to_print = $self->turns_to_print($y, $backlog);
+   
     return BalanceOfPower::Printer::print($mode, $self, 'print_turn_events', 
                                    { title => $title,
                                      turns => \@to_print,
                                      events => $self->plain_events() } );
 }
+
 sub get_turn_tags
 {
     my $self = shift;
@@ -159,7 +199,7 @@ sub dump_events
             my $involved = "";
             if(@{$e->{involved}})
             {
-                $values = join(',', @{$e->{involved}});
+                $involved = join(',', @{$e->{involved}});
             }
             my $line = join '|', $code, $text, $involved, $values;
             print {$io} $indent . $line . "\n";

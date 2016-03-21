@@ -469,7 +469,11 @@ sub calculate_prestige
             if($ordered_best_w[$i]->{nation} eq $nation_name)
             {
                 $bonus += BEST_WEALTH_FOR_PRESTIGE_BONUS;
-                $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, $nation_name);
+                $self->broadcast_event({ code => 'bestwealth',
+                                         text => "ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, 
+                                         involved => [ $nation_name ],
+                                         values => [] },
+                                        $nation_name);
             }
         }
     }
@@ -481,7 +485,11 @@ sub calculate_prestige
             if($ordered_best_p[$i]->{nation} eq $nation_name)
             {
                 $bonus += BEST_PROGRESS_FOR_PRESTIGE_BONUS;
-                $self->broadcast_event("ONE OF THE FIRST " . BEST_PROGRESS_FOR_PRESTIGE . " NATIONS FOR PROGRESS WAS " . $nation_name, $nation_name);
+                $self->broadcast_event({ code => 'bestprogress',
+                                         text => "ONE OF THE FIRST " . BEST_PROGRESS_FOR_PRESTIGE . " NATIONS FOR PROGRESS WAS " . $nation_name, 
+                                         involved => [$nation_name],
+                                         values => [] },
+                                        $nation_name);
             }
         }
     }

@@ -420,7 +420,10 @@ sub fight_wars
         }
 
         #As Risiko
-        $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
+        $self->broadcast_event({ code => 'wargoon',
+                                 text => "WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON",
+                                 involved => [$w->node1, $w->node2],
+                                 values => [$w->id] }, $w->node1, $w->node2);
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
         my $attacker_army = $self->army_for_war($attacker);

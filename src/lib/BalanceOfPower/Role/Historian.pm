@@ -19,6 +19,7 @@ has statistics => (
 );
 
 requires 'get_nation';
+requires 'by_tags';
 
 sub get_statistics_value
 {
@@ -353,6 +354,20 @@ sub print_defcon_statistics
         }
     }
     return $out;
+}
+
+sub print_newspaper
+{
+    my $self = shift;
+    my $y = shift;
+    my $title = shift;
+    my $mode = shift || 'print';
+    return "" if(! exists $self->events->{$y});
+    my %events = $self->by_tags(@{$self->events->{$y}});
+    return BalanceOfPower::Printer::print($mode, $self, 'print_newspaper', 
+                                   { title => $title,
+                                     turn => $y,
+                                     events => \%events });
 }
 
 sub dump_statistics

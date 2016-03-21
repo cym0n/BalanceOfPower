@@ -88,6 +88,9 @@ sub build_post_statics
     open(my $events, "> $dest_dir/events.tt"); 
     print {$events} $self->print_formatted_turn_events($year, undef, 'html');  
     close($events);
+    open(my $news, "> $dest_dir/newspaper.tt"); 
+    print {$news} $self->print_newspaper($year, "News", 'html');  
+    close($news);
 }
 
 sub build_meta_statics
