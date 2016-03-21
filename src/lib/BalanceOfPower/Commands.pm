@@ -2,7 +2,7 @@ package BalanceOfPower::Commands;
 
 use v5.10;
 use Moo;
-use IO::Prompter;
+use IO::Prompter [-stdio];
 use Term::ANSIColor;
 use BalanceOfPower::Player;
 use BalanceOfPower::Executive;

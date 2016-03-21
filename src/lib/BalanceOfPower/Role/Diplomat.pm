@@ -210,6 +210,7 @@ sub change_diplomacy
         {
             $event_text = $event_text . " " . $reason;
         }
+        $reason ||= "";
         $self->broadcast_event({ code => "relchange",
                                  text => $event_text,
                                  involved => [$node1, $node2],
