@@ -1,3 +1,18 @@
+0.300012
+===
+
+__Wen 16 Mar 2016__
+
+ * Constants about military support tuned to avoid schizophrenic behaviuor
+ * Bugfix on stock commands at first turn of a player
+
+0.300011
+===
+
+__Tue 15 Mar 2016__
+
+ * Bugfix about war history
+
 0.300010
 ===
 

@@ -19,6 +19,7 @@ has statistics => (
 );
 
 requires 'get_nation';
+requires 'by_tags';
 
 sub get_statistics_value
 {
@@ -237,7 +238,7 @@ sub print_nation_events
     my $title = shift;
     my $mode = shift || 'print';
     my $nation = $self->get_nation($nation_name);
-    return $nation->print_turn_events($y, $title, 0, $mode);
+    return $nation->print_turn_events($y, $title, 3, $mode);
 }
 
 sub print_turn_statistics
@@ -337,33 +338,6 @@ sub order_statistics
     return @ordered;
 }
 
-sub print_crises
-{
-    my $self = shift;
-    my $year = shift;
-    my $out = "";
-    foreach my $t (get_year_turns($year))
-    {
-        my $header = 0;
-        foreach my $e (@{$self->events->{$t}})
-        {
-            if($e =~ /^CRISIS/)
-            {
-                if(! $header)
-                {
-                    $header = 1;
-                    $out .= "$t\n";
-                }
-                $out .= " " . $e . "\n";
-            }
-        }
-        if($header)
-        {
-            $out .= "\n";
-        }
-    }
-    return $out;
-}
 sub print_defcon_statistics
 {
     my $self = shift;
@@ -380,6 +354,20 @@ sub print_defcon_statistics
         }
     }
     return $out;
+}
+
+sub print_newspaper
+{
+    my $self = shift;
+    my $y = shift;
+    my $title = shift;
+    my $mode = shift || 'print';
+    return "" if(! exists $self->events->{$y});
+    my %events = $self->by_tags(@{$self->events->{$y}});
+    return BalanceOfPower::Printer::print($mode, $self, 'print_newspaper', 
+                                   { title => $title,
+                                     turn => $y,
+                                     events => \%events });
 }
 
 sub dump_statistics

@@ -8,6 +8,7 @@ Internal situation:  [% nation.internal_disorder_status %]
 
 [% IF under_influence -%]
 [% nation.name %] is under influence of [% under_influence %]
+
 [%- ELSE -%]
 [%- IF influence.size > 0 -%]
 [%- FOR i IN influence -%]

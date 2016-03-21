@@ -65,12 +65,12 @@ is($france_diplomacy->factor, 63, "Diplomacy changed between Italy and France");
 #is($result->{status}, 1, "Command elaborated: MILITARY SUPPORT (allowed)");
 #$world->order(undef);
 
-$world->get_nation("Italy")->army(3);
+$world->get_nation("Italy")->army(2);
 $world->forced_advisor("military");
 $world->only_one_nation_acting("Italy");
 $world->elaborate_turn("1970/4");
 is($world->get_events("MILITARY SUPPORT FOR Germany STOPPED BY Italy", "1970/4"), 1, "MILITARY SUPPORT FOR Germany STOPPED BY Italy");
-is($world->get_nation("Italy")->army(), 5, "Italian army merged with returned support");
+is($world->get_nation("Italy")->army(), 4, "Italian army merged with returned support");
 $world->get_hates("Italy");
 
 

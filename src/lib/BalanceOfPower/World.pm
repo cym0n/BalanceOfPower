@@ -469,7 +469,11 @@ sub calculate_prestige
             if($ordered_best_w[$i]->{nation} eq $nation_name)
             {
                 $bonus += BEST_WEALTH_FOR_PRESTIGE_BONUS;
-                $self->broadcast_event("ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, $nation_name);
+                $self->broadcast_event({ code => 'bestwealth',
+                                         text => "ONE OF THE FIRST " . BEST_WEALTH_FOR_PRESTIGE . " NATIONS FOR WEALTH WAS " . $nation_name, 
+                                         involved => [ $nation_name ],
+                                         values => [] },
+                                        $nation_name);
             }
         }
     }
@@ -481,7 +485,11 @@ sub calculate_prestige
             if($ordered_best_p[$i]->{nation} eq $nation_name)
             {
                 $bonus += BEST_PROGRESS_FOR_PRESTIGE_BONUS;
-                $self->broadcast_event("ONE OF THE FIRST " . BEST_PROGRESS_FOR_PRESTIGE . " NATIONS FOR PROGRESS WAS " . $nation_name, $nation_name);
+                $self->broadcast_event({ code => 'bestprogress',
+                                         text => "ONE OF THE FIRST " . BEST_PROGRESS_FOR_PRESTIGE . " NATIONS FOR PROGRESS WAS " . $nation_name, 
+                                         involved => [$nation_name],
+                                         values => [] },
+                                        $nation_name);
             }
         }
     }
@@ -797,7 +805,7 @@ sub economic_aid
     $nation1->subtract_production('export', ECONOMIC_AID_COST);
     $nation2->receive_aid($nation1->name);
     $self->broadcast_event("ECONOMIC AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
-    $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR);
+    $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR, "ECONOMIC AID FROM " . $nation1->name);
 
 }
 
@@ -882,7 +890,7 @@ sub military_aid
     $nation1->subtract_production('export', MILITARY_AID_COST);
     $nation2->add_army(ARMY_UNIT);
     $self->broadcast_event("MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
-    $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR);
+    $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR. "MILITARY AID FROM " . $nation1->name );
 }
 
 sub war_report

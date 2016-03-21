@@ -88,6 +88,9 @@ sub build_post_statics
     open(my $events, "> $dest_dir/events.tt"); 
     print {$events} $self->print_formatted_turn_events($year, undef, 'html');  
     close($events);
+    open(my $news, "> $dest_dir/newspaper.tt"); 
+    print {$news} $self->print_newspaper($year, "News", 'html');  
+    close($news);
 }
 
 sub build_meta_statics
@@ -279,13 +282,13 @@ sub generate_web_interactive_turn
     my $self = shift;
     my $game = shift;
     my $site_root = shift;
+    $self->manage_web_players($game);
     $self->manage_stock_orders($game);
     $self->manage_influence_orders($game);
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
     $self->pre_decisions_elaborations(next_turn($self->current_year));
-    $self->manage_web_players($game);
     $self->build_pre_statics($game, $site_root);
 }
 

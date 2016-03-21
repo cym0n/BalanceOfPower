@@ -420,7 +420,10 @@ sub fight_wars
         }
 
         #As Risiko
-        $self->broadcast_event("WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON", $w->node1, $w->node2);
+        $self->broadcast_event({ code => 'wargoon',
+                                 text => "WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON",
+                                 involved => [$w->node1, $w->node2],
+                                 values => [$w->id] }, $w->node1, $w->node2);
         my $attacker = $self->get_nation($w->node1);
         my $defender = $self->get_nation($w->node2);
         my $attacker_army = $self->army_for_war($attacker);
@@ -462,8 +465,7 @@ sub fight_wars
             my $supporter_n = $sup->start($attacker->name);
             if(! $self->exists_treaty_by_type($defender->name, $supporter_n, 'no aggression'))
             {
-                $self->broadcast_event("RELATIONS BETWEEN " . $defender->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $attacker->name, $attacker->name, $defender->name, $supporter_n);
-                $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+                $self->change_diplomacy($defender->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT, "WAR WITH " . $attacker->name);
             }
         }
         if(my $sup = $self->supported($defender->name))
@@ -471,8 +473,7 @@ sub fight_wars
             my $supporter_n = $sup->start($defender->name);
             if(! $self->exists_treaty_by_type($attacker->name, $supporter_n, 'no aggression'))
             {
-                $self->broadcast_event("RELATIONS BETWEEN " . $attacker->name . " AND " . $supporter_n . " CHANGED FOR WAR WITH " . $defender->name, $attacker->name, $defender->name, $supporter_n);
-                $self->change_diplomacy($attacker->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT);
+                $self->change_diplomacy($attacker->name, $supporter_n, -1 * DIPLOMACY_MALUS_FOR_SUPPORT, "WAR WITH " . $defender->name);
             }
         }
 
@@ -617,6 +618,8 @@ sub load_memorial
 {
     my $self = shift;
     my $data = shift;
+    
+    $data .= "EOF";
     my $war_data = "";
     my @memorial;
     my @lines = split "\n", $data;

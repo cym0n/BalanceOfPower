@@ -1,0 +1,61 @@
+[% IF title %]<h3>[% title %]</h3>[% END %]
+<div class="row">
+  <div class="col-sm-12">
+    <p>
+    [% FOREACH key IN events.keys %]
+    [% IF key != 'bestprogress' &&
+          key != 'bestwealth'   && 
+          key != 'tradedeleted'   && 
+          key != 'tradeadded' &&
+          key != 'wargoon' &&
+    %]
+    [% FOREACH e IN events.$key %]
+        [% e.text %]<br />
+    [% END %]
+    [% END %]
+    [% END %]
+    </p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-5">
+    <div class="well">
+    <h4>The market</h4>
+    [% key = 'tradeadded' %]
+    [% IF events.$key.size != "" %]
+    <strong>Added routes: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]<br />
+    [% END %]
+    [% key = 'tradedeleted' %]
+    [% IF events.$key.size != "" %]
+    <strong>Deleted routes: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %]
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-4">
+    <div class="well">
+    <h4>Top Progress</h4>
+    [% key = 'bestprogress' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %]<br />
+    [% END %]
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="well">
+    <h4>Top Wealth</h4>
+    [% key = 'bestwealth' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %]<br />
+    [% END %]
+    </div>
+  </div>
+</div>
+
