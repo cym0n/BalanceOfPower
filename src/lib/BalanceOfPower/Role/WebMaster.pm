@@ -116,7 +116,7 @@ sub build_nations_statics
     my $self = shift;
     my $game = shift;
     my $site_root = $self->site_root;
-    foreach my $code (keys $self->nation_codes)
+    foreach my $code (keys %{$self->nation_codes})
     {
         my $nation = $self->nation_codes->{$code};
 
