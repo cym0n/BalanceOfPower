@@ -805,7 +805,7 @@ sub economic_aid
     $nation1->subtract_production('export', ECONOMIC_AID_COST);
     $nation2->receive_aid($nation1->name);
     $self->broadcast_event("ECONOMIC AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
-    $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR);
+    $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR, "ECONOMIC AID FROM " . $nation1->name);
 
 }
 
@@ -890,7 +890,7 @@ sub military_aid
     $nation1->subtract_production('export', MILITARY_AID_COST);
     $nation2->add_army(ARMY_UNIT);
     $self->broadcast_event("MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
-    $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR);
+    $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR. "MILITARY AID FROM " . $nation1->name );
 }
 
 sub war_report

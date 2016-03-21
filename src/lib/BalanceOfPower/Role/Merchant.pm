@@ -95,7 +95,7 @@ sub generate_traderoute
     {
         $n1->subtract_production('export', ADDING_TRADEROUTE_COST);
         $n2->subtract_production('export', ADDING_TRADEROUTE_COST);
-        $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR);
+        $self->change_diplomacy($node1, $node2, TRADEROUTE_DIPLOMACY_FACTOR, "TRADE CREATION");
         my $event = { code => 'tradeadded',
                       text => "TRADEROUTE ADDED: $node1<->$node2",
                       involved => [$node1, $node2],
@@ -125,7 +125,7 @@ sub delete_route
                       involved => [$node1, $node2],
                       values => [] };
         $self->broadcast_event($event, $node1, $node2);
-        $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR);
+        $self->change_diplomacy($node1, $node2, -1 * TRADEROUTE_DIPLOMACY_FACTOR, "TRADE DELETION");
     }
 }
 sub suitable_route_creator

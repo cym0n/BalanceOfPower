@@ -196,6 +196,7 @@ sub change_diplomacy
     my $node1 = shift;
     my $node2 = shift;
     my $dipl = shift;
+    my $reason = shift;
     my $r = $self->diplomacy_exists($node1, $node2);
     return if(!$r ); #Should never happen
     return if $r->status eq 'ALLIANCE' || $r->status eq 'INFLUENCE PRESENT';
@@ -204,11 +205,41 @@ sub change_diplomacy
     my $actual_status = $r->status;
     if($present_status ne $actual_status)
     {
-        $self->broadcast_event("RELATION BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status", $node1, $node2);
+        my $event_text = "RELATIONS BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status";
+        if($reason)
+        {
+            $event_text = $event_text . " " . $reason;
+        }
+        $self->broadcast_event({ code => "relchange",
+                                 text => $event_text,
+                                 involved => [$node1, $node2],
+                                 values => [$present_status, $actual_status, $reason]},
+                                $node1, $node2);
         if($actual_status eq 'HATE')
         {
             $self->diplomatic_breakdown($node1, $node2);
         }
+    }
+    else
+    {
+        my $event_text;
+        if($dipl > 0)
+        {
+            $event_text = "RELATIONS BETWEEN $node1 AND $node2 ARE BETTER";
+        }
+        else
+        {
+            $event_text = "RELATIONS BETWEEN $node1 AND $node2 ARE WORSE";
+        }
+        if($reason)
+        {
+            $event_text = $event_text . " " . $reason;
+        }
+        $self->broadcast_event({ code => "relchange",
+                                 text => $event_text,
+                                 involved => [$node1, $node2],
+                                 values => [$actual_status, $actual_status, $reason]},
+                                $node1, $node2);
     }
 }
 sub diplomacy_status

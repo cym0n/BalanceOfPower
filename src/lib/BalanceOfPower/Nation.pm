@@ -365,13 +365,11 @@ sub fight_civil_war
     }
     if($reb_sup)
     {
-        $world->broadcast_event("RELATIONS BETWEEN " . $self->name . " AND " . $reb_sup->node1 . " CHANGED FOR CIVIL WAR IN " . $self->name, $self->name, $reb_sup->node1);
-        $world->change_diplomacy($self->name, $reb_sup->node1, -1 * DIPLOMACY_MALUS_FOR_REBEL_CIVIL_WAR_SUPPORT);
+        $world->change_diplomacy($self->name, $reb_sup->node1, -1 * DIPLOMACY_MALUS_FOR_REBEL_CIVIL_WAR_SUPPORT, "CIVIL WAR IN " . $self->name);
     }
     if($sup && $reb_sup)
     {
-        $world->broadcast_event("RELATIONS BETWEEN " . $sup->node1 . " AND " . $reb_sup->node1 . " CHANGED FOR CIVIL WAR IN " . $self->name, $self->name, $sup->node1, $reb_sup->node1);
-        $world->change_diplomacy($sup->node1, $reb_sup->node1, -1 * DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT);
+        $world->change_diplomacy($sup->node1, $reb_sup->node1, -1 * DIPLOMACY_MALUS_FOR_CROSSED_CIVIL_WAR_SUPPORT, "CIVIL WAR IN " . $self->name);
     }
     if($government > $rebels)
     {
