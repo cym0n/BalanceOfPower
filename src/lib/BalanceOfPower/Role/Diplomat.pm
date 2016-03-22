@@ -203,6 +203,7 @@ sub change_diplomacy
     my $present_status = $r->status;
     $r->change_factor($dipl);
     my $actual_status = $r->status;
+    my $trend = $dipl > 0 ? 'up' : 'down';
     if($present_status ne $actual_status)
     {
         my $event_text = "RELATIONS BETWEEN $node1 AND $node2 CHANGED FROM $present_status TO $actual_status";
@@ -210,11 +211,14 @@ sub change_diplomacy
         {
             $event_text = $event_text . " " . $reason;
         }
-        $reason ||= "";
+        else
+        {
+            $reason = "";
+        }
         $self->broadcast_event({ code => "relchange",
                                  text => $event_text,
                                  involved => [$node1, $node2],
-                                 values => [$present_status, $actual_status, $reason]},
+                                 values => [$trend, $present_status, $actual_status, $reason]},
                                 $node1, $node2);
         if($actual_status eq 'HATE')
         {
@@ -239,7 +243,7 @@ sub change_diplomacy
         $self->broadcast_event({ code => "relchange",
                                  text => $event_text,
                                  involved => [$node1, $node2],
-                                 values => [$actual_status, $actual_status, $reason]},
+                                 values => [$trend, $actual_status, $actual_status, $reason]},
                                 $node1, $node2);
     }
 }
@@ -303,12 +307,14 @@ sub diplomatic_pressure
     my $nation1 = shift;
     my $nation2 = shift;
     my @friends = $self->get_friends($nation1);
-    $self->change_diplomacy($nation1, $nation2, DIPLOMATIC_PRESSURE_FACTOR);
-    $self->broadcast_event("DIPLOMATIC PRESSURE OF $nation1 ON $nation2", $nation1, $nation2);
+    $self->change_diplomacy($nation1, $nation2, DIPLOMATIC_PRESSURE_FACTOR, "DIPLOMATIC PRESSURE OF $nation1 ON $nation2");
+    $self->broadcast_event({ code => 'pressure',
+                             text => "DIPLOMATIC PRESSURE OF $nation1 ON $nation2",
+                             involved =>  [$nation1, $nation2] }, $nation1, $nation2);
     for(@friends)
     {
         my $f = $_;
-        $self->change_diplomacy($f, $nation2, DIPLOMATIC_PRESSURE_FACTOR);
+        $self->change_diplomacy($f, $nation2, DIPLOMATIC_PRESSURE_FACTOR, "DIPLOMATIC PRESSURE OF $nation1 ON $nation2");
     }
 }
 

@@ -1,6 +1,40 @@
 [% IF title %]<h3>[% title %]</h3>[% END %]
 <div class="row">
   <div class="col-sm-12">
+  [% key = 'relchange' %]
+  [% IF events.$key.size != "" %]
+  <h4>Relationship changes</h4>
+  <table class="table table-striped table-bordered" cellspacing="0" width="100%">
+  <thead>
+  <tr>
+    <th>Nations</th>
+    <th>Trend</th>
+    <th>Present status</th>
+    <th>Reason</th>
+  </tr>
+  </thead>
+  <tbody>
+  [% FOREACH e IN events.$key %]
+  <tr>
+    <td>[% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]</td>
+    <td>
+    [% IF e.values.0 == 'up' %]
+    <span class="text-success glyphicon glyphicon-chevron-up" aria-hidden="false"></span>
+    [% ELSE %]
+    <span class="text-danger glyphicon glyphicon-chevron-down" aria-hidden="false"></span>
+    [% END %]
+    </td>
+    <td>[% e.values.2 %]</td>
+    <td>[% e.values.3 %]</td>
+  </tr>
+  [% END %]
+  </tbody>
+  </table>  
+  [% END %]
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
     <p>
     [% FOREACH key IN events.keys %]
     [% IF key != 'bestprogress' &&
@@ -8,6 +42,8 @@
           key != 'tradedeleted'   && 
           key != 'tradeadded' &&
           key != 'wargoon' &&
+          key != 'relchange' &&
+          key != 'pressure' 
     %]
     [% FOREACH e IN events.$key %]
         [% e.text %]<br />

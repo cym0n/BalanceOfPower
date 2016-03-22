@@ -192,14 +192,14 @@ sub dump_events
             my $code = $e->{code} || '';
             my $text = $e->{text} || '';
             my $values = "";
-            if(@{$e->{values}})
+            if(defined $e->{values} && @{$e->{values}})
             {
-                $values = join(',', @{$e->{values}});
+                $values = join(',', map { defined $_ ? $_ : '' } @{$e->{values}});
             }
             my $involved = "";
-            if(@{$e->{involved}})
+            if(defined $e->{involved} && @{$e->{involved}})
             {
-                $involved = join(',', @{$e->{involved}});
+                $involved = join(',', map { defined $_ ? $_ : '' } @{$e->{involved}});
             }
             my $line = join '|', $code, $text, $involved, $values;
             print {$io} $indent . $line . "\n";
