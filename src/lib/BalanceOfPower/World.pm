@@ -804,7 +804,9 @@ sub economic_aid
     my $nation2 = shift;
     $nation1->subtract_production('export', ECONOMIC_AID_COST);
     $nation2->receive_aid($nation1->name);
-    $self->broadcast_event("ECONOMIC AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
+    $self->broadcast_event({ code => 'economicaid' , 
+                             text => "ECONOMIC AID FROM " . $nation1->name . " TO " . $nation2->name, 
+                             involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, ECONOMIC_AID_DIPLOMACY_FACTOR, "ECONOMIC AID FROM " . $nation1->name);
 
 }
@@ -844,7 +846,10 @@ sub aid_insurgents
     my $nation2 = shift;
     if($nation1->production_for_export >= AID_INSURGENTS_COST && $nation2->internal_disorder_status ne 'Civil war')
     {
-        $self->broadcast_event("AIDS FOR INSURGENTS OF " . $nation2->name . " FROM " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event({ code => 'insurgentsaid' ,
+                                 text => "AIDS FOR INSURGENTS OF " . $nation2->name . " FROM " . $nation1->name, 
+                                 involved => [$nation1->name, $nation2->name] },
+                                $nation1->name, $nation2->name);
         $nation1->subtract_production('export', AID_INSURGENTS_COST);
         $nation2->add_internal_disorder(INSURGENTS_AID, $self);
     }
@@ -889,7 +894,9 @@ sub military_aid
     my $nation2 = shift;
     $nation1->subtract_production('export', MILITARY_AID_COST);
     $nation2->add_army(ARMY_UNIT);
-    $self->broadcast_event("MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name, $nation1->name, $nation2->name);
+    $self->broadcast_event({ code => 'militaryaid',
+                             text => "MILITARY AID FROM " . $nation1->name . " TO " . $nation2->name,
+                             involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, MILITARY_AID_DIPLOMACY_FACTOR, "MILITARY AID FROM " . $nation1->name );
 }
 

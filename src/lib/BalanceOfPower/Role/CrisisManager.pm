@@ -109,18 +109,20 @@ sub create_or_escalate_crisis
         if(! $crisis->is_max_crisis)
         {
             $crisis->escalate_crisis();
-            my $event = "CRISIS BETWEEN $node1 AND $node2 ESCALATES";
-            if($crisis->is_max_crisis)
-            {
-               $event .= " TO MAX LEVEL"; 
-            }
+            my $event = { code => 'crisisup',
+                          text => "CRISIS BETWEEN $node1 AND $node2 ESCALATES",
+                          involved => [$node1, $node2],
+                          values => [ $crisis->get_crisis_level() ]
+                        };
             $self->broadcast_event($event, $node1, $node2);
         }
     }
     else
     {
         $self->add_crisis($node1, $node2);
-        $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 STARTED", $node1, $node2);
+        $self->broadcast_event( { code => 'crisisstart',
+                                text => "CRISIS BETWEEN $node1 AND $node2 STARTED", 
+                                involved => [$node1, $node2] }, $node1, $node2);
     }
 }
 sub cool_down
@@ -133,12 +135,18 @@ sub cool_down
         $crisis->cooldown_crisis();
         if(! $crisis->is_crisis())
         {
-            my $event = "CRISIS BETWEEN $node1 AND $node2 ENDED";
+            my $event = { code => 'crisisend', 
+                          text => "CRISIS BETWEEN $node1 AND $node2 ENDED",
+                          involved => [$node1, $node2] };
             $self->broadcast_event($event, $node1, $node2);
         }
         else
         {
-            $self->broadcast_event("CRISIS BETWEEN $node1 AND $node2 COOLED DOWN", $node1, $node2);
+            $self->broadcast_event({ code => 'crisisdown',
+                                     text => "CRISIS BETWEEN $node1 AND $node2 COOLED DOWN",
+                                     involved => [$node1, $node2],
+                                     values => [ $crisis->get_crisis_level() ]
+                                   }, $node1, $node2);
         }
     }
 }

@@ -43,7 +43,14 @@
           key != 'tradeadded' &&
           key != 'wargoon' &&
           key != 'relchange' &&
-          key != 'pressure' 
+          key != 'pressure' && 
+          key != 'crisisstart' && 
+          key != 'crisisup' && 
+          key != 'crisisdown' && 
+          key != 'crisisend' &&
+          key != 'militaryaid' &&
+          key != 'insurgentsaid' &&
+          key != 'economicaid' 
     %]
     [% FOREACH e IN events.$key %]
         [% e.text %]<br />
@@ -73,6 +80,36 @@
     [% END %]
     </div>
   </div>
+</div>
+<div class="row">
+  <div class="col-sm-4">
+    <div class="well">
+    <h4>Military Aids</h4>
+    [% key = 'militaryaid' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="well">
+    <h4>Economic Aids</h4>
+    [% key = 'economicaid' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="well">
+    <h4>Aids to Insurgents</h4>
+    [% key = 'insurgentsaid' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    </div>
+  </div>
+
 </div>
 <div class="row">
   <div class="col-sm-4">
