@@ -19,7 +19,7 @@
                 [%- ELSE -%]
                 [%- IF influence.size > 0 -%]
                 [%- FOR i IN influence -%]
-                [% nation.name %] as influence on [% INCLUDE fragments/linked_nation.tt n = i %]<br />
+                [% nation.name %] has influence on [% INCLUDE fragments/linked_nation.tt n = i %]<br />
                 [% END -%]
                 [%- ELSE -%]
                 [% nation.name %] is free<br />
@@ -64,16 +64,23 @@
         <div class="well">
           <h4>SUPPORTS</h4>
           [% first_row_counter = 0 %]
+          [% first_row_index = 0 %]
+          [% display_sup = 'sup' %]
           [% WHILE first_row_counter < first_row_height %]
-          [%- IF supports.$first_row_counter -%]
+          [%- IF display_sup == 'sup' && supports.$first_row_index -%]
           [%- support = supports.$first_row_counter -%]
           [%- suptag = "" %]
           [%- ELSE -%]
-          [%- support = rebel_supports.$first_row_counter -%]
+          [% first_row_index = 0 %]
+          [% display_sup = 'rebsup' %]
+          [% END %]
+          [% IF display_sup == 'rebsup' %]
+          [%- support = rebel_supports.$first_row_index -%]
           [%- suptag = "REB: " %]
           [% END %]
           [%- IF support %][% suptag %][% INCLUDE fragments/support.tt s = support %][% END %]<br />
           [% first_row_counter = first_row_counter + 1 -%]
+          [% first_row_index = first_row_index + 1 -%]
           [%- END -%]
         </div>
       </div>
