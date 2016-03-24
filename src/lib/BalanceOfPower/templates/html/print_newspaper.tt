@@ -50,7 +50,15 @@
           key != 'crisisend' &&
           key != 'militaryaid' &&
           key != 'insurgentsaid' &&
-          key != 'economicaid' 
+          key != 'economicaid' && 
+          key != 'supincreased' && 
+          key != 'supstarted' && 
+          key != 'supstopped' && 
+          key != 'supfailed' && 
+          key != 'rebsupincreased' && 
+          key != 'rebsupstarted' && 
+          key != 'rebsupstopped' && 
+          key != 'rebsupfailed'  
     %]
     [% FOREACH e IN events.$key %]
         [% e.text %]<br />
@@ -109,10 +117,46 @@
     [% END %]
     </div>
   </div>
+</div>
+<div class="row">
+  <div class="col-sm-6">
+    <div class="well">
+    <h4>Military Supports</h4>
+    [% key = 'supstarted' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-share-alt" aria-hidden="false"></span><br />
+    [% END %]
+    [% key = 'supincreased' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-plus" aria-hidden="false"></span><br />
+    [% END %]
+    [% key = 'supstopped' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-remove-circle" aria-hidden="false"></span><br />
+    [% END %]
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="well">
+    <h4>Rebel Military Supports</h4>
+    [% key = 'rebsupstarted' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-share-alt" aria-hidden="false"></span><br />
+    [% END %]
+    [% key = 'rebsupincreased' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-plus" aria-hidden="false"></span><br />
+    [% END %]
+    [% key = 'rebsupstopped' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-success glyphicon glyphicon-remove-circle" aria-hidden="false"></span><br />
+    [% END %]
+    </div>
+  </div>
 
 </div>
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-sm-6">
     <div class="well">
     <h4>Top Progress</h4>
     [% key = 'bestprogress' %]
@@ -121,7 +165,7 @@
     [% END %]
     </div>
   </div>
-  <div class="col-sm-4">
+  <div class="col-sm-6">
     <div class="well">
     <h4>Top Wealth</h4>
     [% key = 'bestwealth' %]

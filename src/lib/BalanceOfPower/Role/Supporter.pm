@@ -47,13 +47,18 @@ sub start_military_support
     if($precedent_sup)
     {
         $precedent_sup->casualities(-1 * ARMY_FOR_SUPPORT);
-        $self->broadcast_event("MILITARY SUPPORT TO " . $nation2->name . " INCREASED BY " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event( { code => 'supincreased',
+                                text => "MILITARY SUPPORT TO " . $nation2->name . " INCREASED BY " . $nation1->name, 
+                                involved => [$nation1->name, $nation2->name] },
+                                $nation1->name, $nation2->name);
         $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_INCREASING_SUPPORT, "INCREASED MILITARY SUPPORT FROM " . $nation1->name);
         return 1;
     }
     if($self->supported($nation2->name))
     {
-        $self->broadcast_event($nation2->name . " ALREADY SUPPORTED. MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event( { code => 'supfailed',
+                                  text => $nation2->name . " ALREADY SUPPORTED. MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, 
+                                  involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         return 0;
     }
     my $supported = $self->supported($nation1->name);
@@ -67,7 +72,10 @@ sub start_military_support
             node1 => $nation1->name,
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
-    $self->broadcast_event("MILITARY SUPPORT TO " . $nation2->name . " STARTED BY " . $nation1->name, $nation1->name, $nation2->name);
+    $self->broadcast_event({ code => 'supstarted',
+                             text => "MILITARY SUPPORT TO " . $nation2->name . " STARTED BY " . $nation1->name, 
+                             involved => [$nation1->name, $nation2->name] },                                
+                             $nation1->name, $nation2->name);
     $self->war_report($nation1->name . " started military support for " . $nation2->name, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_SUPPORT, "STARTED MILITARY SUPPORT FROM ".$nation1->name);
 }
@@ -82,13 +90,17 @@ sub start_rebel_military_support
     if($precedent_sup)
     {
         $precedent_sup->casualities(-1 * ARMY_FOR_SUPPORT);
-        $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " INCREASED BY " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event({ code => 'rebsupincreased' ,
+                                 text => "REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " INCREASED BY " . $nation1->name, 
+                                 involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_INCREASING_REBEL_SUPPORT, "INCREASED REBEL MILITARY SUPPORT FROM " . $nation1->name);
         return 1;
     }
     if($self->rebel_supported($nation2->name))
     {
-        $self->broadcast_event("REBELS IN " . $nation2->name . " ALREADY SUPPORTED. REBEL MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, $nation1->name, $nation2->name);
+        $self->broadcast_event({ code => 'rebsupfailed',
+                                 text => "REBELS IN " . $nation2->name . " ALREADY SUPPORTED. REBEL MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, 
+                                 involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         return 0;
     }
     $nation1->add_army(-1 * ARMY_FOR_SUPPORT);
@@ -97,7 +109,9 @@ sub start_rebel_military_support
             node1 => $nation1->name,
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
-    $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " STARTED BY " . $nation1->name, $nation1->name, $nation2->name);
+    $self->broadcast_event({ code => 'rebsupstarted',
+                             text => "REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " STARTED BY " . $nation1->name, 
+                             involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT, "STARTED REBEL MILITARY SUPPORT FROM " . $nation1->name);
 }
 sub stop_military_support
@@ -110,7 +124,9 @@ sub stop_military_support
     return if (! $milsup);
     $self->delete_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
-    $self->broadcast_event("MILITARY SUPPORT FOR " . $node2->name . " STOPPED BY " . $node1->name, $node1->name, $node2->name);
+    $self->broadcast_event( { code => 'supstopped',
+                              text => "MILITARY SUPPORT FOR " . $node2->name . " STOPPED BY " . $node1->name, 
+                              involved => [$node1->name, $node2->name] }, $node1->name, $node2->name);
     $self->war_report($node1->name . " stopped military support for " . $node2->name, $node2->name);
     if(! $avoid_diplomacy)
     {
@@ -126,7 +142,9 @@ sub stop_rebel_military_support
     return if (! $milsup);
     $self->delete_rebel_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
-    $self->broadcast_event("REBEL MILITARY SUPPORT AGAINST " . $node2->name . " STOPPED BY " . $node1->name, $node1->name, $node2->name);
+    $self->broadcast_event({ code => 'rebsupstopped',
+                             text => "REBEL MILITARY SUPPORT AGAINST " . $node2->name . " STOPPED BY " . $node1->name, 
+                             involved => [$node1->name, $node2->name] }, $node1->name, $node2->name);
 }
 sub military_support_garbage_collector
 {
