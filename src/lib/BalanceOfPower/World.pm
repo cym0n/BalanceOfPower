@@ -569,7 +569,9 @@ sub execute_decisions
             }
             else
             {
-                $self->broadcast_event($supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name);
+                $self->broadcast_event({ code => 'suprefused',
+                                         text => $supported->name . " REFUSED MILITARY SUPPORT FROM " . $supporter->name,
+                                         involved => [$supporter->name, $supported->name] }, $supporter->name, $supported->name);
             }
         }
         elsif($command =~ /^RECALL MILITARY SUPPORT (.*)$/)
@@ -597,14 +599,7 @@ sub execute_decisions
         {
             my $nation2 = $self->get_nation($1);
             my $rebsup = $self->rebel_supported($nation2->name);
-            if($rebsup && $rebsup->node1 ne $nation->name)
-            {
-                $self->broadcast_event("REBEL SUPPORT IN " . $nation2->name . " IMPOSSIBLE FOR " . $nation->name, $nation->name, $nation2->name);
-            }
-            else
-            {
-                $self->start_rebel_military_support($nation, $nation2);
-            }
+            $self->start_rebel_military_support($nation, $nation2);
         }
         elsif($command =~ /^DIPLOMATIC PRESSURE ON (.*)$/)
         {
@@ -636,7 +631,9 @@ sub execute_decisions
         elsif($command =~ /^PROGRESS$/)
         {
             $nation->grow();
-            $self->broadcast_event("INVESTMENT IN PROGRESS FOR " . $nation->name, $nation->name);
+            $self->broadcast_event({ code => 'progress',
+                                     text => "INVESTMENT IN PROGRESS FOR " . $nation->name, 
+                                     involved => [$nation->name] }, $nation->name);
         }
         $self->set_statistics_value($nation, 'order', $command);
     }

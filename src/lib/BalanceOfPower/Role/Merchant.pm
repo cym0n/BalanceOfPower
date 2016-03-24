@@ -151,7 +151,9 @@ sub suitable_new_route
     }
     else
     {
-        $self->broadcast_event($node1->name . " AND " . $node2->name . " REFUSED TO OPEN A TRADEROUTE", $node1->name, $node2->name);
+        $self->broadcast_event({ code => 'traderefused',
+                                 text => $node1->name . " AND " . $node2->name . " REFUSED TO OPEN A TRADEROUTE", 
+                                 involved => [$node1->name, $node2->name] }, $node1->name, $node2->name);
         return 0;
     }
 }
