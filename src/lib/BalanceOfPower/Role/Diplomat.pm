@@ -264,7 +264,11 @@ sub diplomatic_breakdown
     my $treaty = $self->exists_treaty($n1, $n2);
     if($treaty)
     {
-        $self->broadcast_event($treaty->short_tag . " TREATY BETWEEN $n1 AND $n2 BROKEN", $n1, $n2);
+        $self->delete_treaty($n1, $n2);
+        $self->broadcast_event({ code => lc($treaty->short_tag) . "treatybroken",
+                                 text => $treaty->short_tag . " TREATY BETWEEN $n1 AND $n2 BROKEN",
+                                 involved => [$n1, $n2] },
+                                 $n1, $n2);
     }
     $self->stop_military_support($self->get_nation($n1), $self->get_nation($n2), 1);
     $self->stop_military_support($self->get_nation($n2), $self->get_nation($n1), 1);

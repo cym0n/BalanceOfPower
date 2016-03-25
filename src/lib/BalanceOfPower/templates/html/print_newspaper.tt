@@ -60,7 +60,11 @@
           key != 'rebsupstarted' && 
           key != 'rebsupstopped' && 
           key != 'rebsupfailed' && 
-          key != 'progress' 
+          key != 'progress' &&
+          key != 'progress' &&
+          key != 'hatetreaty' &&
+          key != 'limittreaty' &&
+          key != 'uselesstreaty' 
     %]
     [% FOREACH e IN events.$key %]
         [% e.text %]<br />
@@ -71,7 +75,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-sm-5">
+  <div class="col-sm-6">
     <div class="well">
     <h4>The market</h4>
     [% key = 'tradeadded' %]
@@ -88,6 +92,55 @@
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
     [% END %]
     [% END %]
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="well">
+    <h4>Diplomacy</h4>
+    [% key = 'comtreatynew' %]
+    [% IF events.$key.size != "" %]
+    <strong>New commercial treaties: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %]
+    [% key = 'nagtreatynew' %]
+    [% IF events.$key.size != "" %]
+    <strong>New no-aggression treaties: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %]
+    [% key = 'alliancetreatynew' %]
+    [% IF events.$key.size != "" %]
+    <strong>New alliances: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] [% IF e.values.0 == 'rebsup' %](support during revolution)[% END %]
+        <br />
+    [% END %]
+    [% END %] 
+    [% key = 'comtreatybroken' %]
+    [% IF events.$key.size != "" %]
+    <strong>Broken commercial treaties: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %] 
+    [% key = 'nagtreatybroken' %]
+    [% IF events.$key.size != "" %]
+    <strong>Broken no-aggression treaties: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %] 
+    [% key = 'alltreatybroken' %]
+    [% IF events.$key.size != "" %]
+    <strong>Broken alliances: </strong><br />
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
+    [% END %]
+    [% END %] 
+
     </div>
   </div>
 </div>

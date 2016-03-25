@@ -924,51 +924,59 @@ sub stipulate_treaty
     my $diplomatic_status = $self->diplomacy_status($nation1->name, $nation2->name);
     if($diplomatic_status eq 'HATE')
     {
-        $self->broadcast_event("TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE OF HATE", $nation1->name, $nation2->name);
+        $self->broadcast_event({ code => 'hatetreaty',
+                                 text => "TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE OF HATE", 
+                                 involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         return;
     }
     if($self->get_treaties_for_nation($nation1->name) >= $nation1->treaty_limit ||
-       $self->get_treaties_for_nation($nation2->name) >= $nation2->treaty_limit)
+       $self->get_treaties_for_nation($nation2->name) >= $nation2->treaty_limit &&
+       ! $present_treaty)
     {
-        $self->broadcast_event("TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE ONE NATION HAS ALREADY REACHED MAXIMUM ALLOWED TREATIES", $nation1->name, $nation2->name);
+        $self->broadcast_event( { code => 'limittreaty',
+                                  text => "TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " NOT POSSIBLE BECAUSE ONE NATION HAS ALREADY REACHED MAXIMUM ALLOWED TREATIES", 
+                                  involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         return;
     }
     if($nation1->prestige >= TREATY_PRESTIGE_COST)
     {
-        if($type eq 'COM')
+        if($present_treaty && $present_treaty->type ne 'alliance')
         {
-            if(! $present_treaty)
-            {
-                if($self->route_exists($nation1->name, $nation2->name))
-                {
-                    $self->create_treaty($nation1->name, $nation2->name, 'commercial');
-                    $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
-                }
-                else
-                {
-                    $self->broadcast_event("COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " MADE USELESS BY ROUTE CANCELATION", $nation1->name, $nation2->name);
-                }
-            }
-        }
-        elsif($type eq 'NAG')
-        {
-            if(! $present_treaty)
-            {
-                $self->create_treaty($nation1->name, $nation2->name, 'no aggression');
-                $self->broadcast_event("NO AGGRESSION TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
-            }
+            $self->create_treaty($nation1->name, $nation2->name, 'alliance');
+            $self->broadcast_event({ code => 'alliancetreatynew',
+                                     text => "ALLIANCE BETWEEN " . $nation1->name . " AND " . $nation2->name, 
+                                     involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         }
         else
         {
-            if($present_treaty && $present_treaty->type ne 'alliance')
+            if($type eq 'COM')
             {
-                $self->create_treaty($nation1->name, $nation2->name, 'alliance');
-                $self->broadcast_event("ALLIANCE BETWEEN " . $nation1->name . " AND " . $nation2->name, $nation1->name, $nation2->name);
+                if(! $present_treaty)
+                {
+                    if($self->route_exists($nation1->name, $nation2->name))
+                    {
+                        $self->create_treaty($nation1->name, $nation2->name, 'commercial');
+                        $self->broadcast_event({ code => "comtreatynew",
+                                                text => "COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, 
+                                                involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
+                    }
+                    else
+                    {
+                        $self->broadcast_event({ code => "uselesstreaty",
+                                                text => "COMMERCIAL TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name . " MADE USELESS BY ROUTE CANCELATION", 
+                                                involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
+                    }
+                }
+            }
+            elsif($type eq 'NAG')
+            {
+                $self->create_treaty($nation1->name, $nation2->name, 'no aggression');
+                $self->broadcast_event({ code => 'nagtreatynew',
+                                         text => "NO AGGRESSION TREATY BETWEEN " . $nation1->name . " AND " . $nation2->name, 
+                                         involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
             }
         }
     }
-
-
 }
 
 

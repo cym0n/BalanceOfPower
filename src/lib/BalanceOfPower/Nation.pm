@@ -432,6 +432,10 @@ sub win_civil_war
             $world->stop_rebel_military_support($rebel_supporter, $self) if $rebel_supporter;
             $world->diplomacy_exists($self->name, $rebel_supporter->name)->factor(REBEL_SUPPORTER_WINNER_FRIENDSHIP);
             $world->create_treaty($self->name, $rebel_supporter->name, 'alliance');
+            $world->broadcast_event({ code => 'alliancetreatynew',
+                                     text => "ALLIANCE BETWEEN " . $self->name . " AND " . $rebel_supporter->name, 
+                                     involved => [$self->name, $rebel_supporter->name],
+                                     values => ['rebsup'] }, $self->name, $rebel_supporter->name);
             $world->broadcast_event($self->name . " AND " . $rebel_supporter->name . " ARE NOW ALLIES. " . $rebel_supporter->name . " HELPED " . $self->name . " REVOLUTION", $self->name, $rebel_supporter->name);
         }
         $world->empty_stocks($self->name);
