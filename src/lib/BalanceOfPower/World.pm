@@ -664,7 +664,9 @@ sub manage_route_adding
             {
                 if(@route_adders == 0)
                 {
-                    $self->send_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                    $self->broadcast_event( { code => "tradelack",
+                                              text => "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", 
+                                              involved => [$node1] }, $node1);
                     $done = 1;
                 } 
                 else
@@ -994,24 +996,9 @@ sub register_global_data
 
 sub collect_events
 {
-    my $self = shift;
-    my @events_to_collect = ("DISORDER LOWERED TO",
-                             "INTERNAL DISORDER LEVEL FROM",
-                             "THE GOVERNMENT WON THE CIVIL WAR",
-                             "THE REBELS WON THE CIVIL WAR",
-                             "NEW GOVERNMENT CREATED",
-                             "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS");
+   my $self = shift;
    foreach my $n (@{$self->nations})
    {
-       my @collected = ();
-       foreach my $e (@events_to_collect)
-       {
-            push @collected, $n->get_events($e, $self->current_year);
-       }
-       foreach my $c (@collected)
-       {
-            $self->register_event($n->name . ": ". $c);
-       }
        $self->set_statistics_value($n, 'progress', $n->progress);
    }
 }

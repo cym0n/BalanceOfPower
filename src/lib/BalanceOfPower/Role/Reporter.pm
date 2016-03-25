@@ -117,6 +117,28 @@ sub get_events
         return ();
     }
 }
+sub get_events_by_tag
+{
+    my $self = shift;
+    my $tag = shift;
+    my $year = shift;
+    if($self->events && exists $self->events->{$year})
+    {
+        my %events = $self->by_tags(@{$self->events->{$year}});
+        if(exists $events{$tag})
+        {
+            return @{$events{$tag}};
+        }
+        else
+        {
+            return ();
+        }
+    }
+    else
+    {
+        return ();
+    }
+}
 sub turns_to_print
 {
     my $self = shift;

@@ -282,7 +282,9 @@ sub lower_disorder
     {
         $self->subtract_production('domestic', RESOURCES_FOR_DISORDER);
         $self->add_internal_disorder(-1 * DISORDER_REDUCTION, $world);
-        $self->register_event("DISORDER LOWERED TO " . $self->internal_disorder);
+        $world->broadcast_event({ code => 'lowerdisorder',
+                                  text => "DISORDER LOWERED TO " . $self->internal_disorder. " IN " . $self->name,
+                                  involved => [$self->name] }, $self->name);
     }
 }
 
@@ -306,7 +308,9 @@ sub add_internal_disorder
     my $new_disorder = $self->internal_disorder_status;
     if($actual_disorder ne $new_disorder)
     {
-        $self->register_event("INTERNAL DISORDER LEVEL FROM $actual_disorder TO $new_disorder");
+        $world->broadcast_event({ code => 'disorderchange',
+                                  text => "INTERNAL DISORDER LEVEL FROM $actual_disorder TO $new_disorder IN " . $self->name,
+                                  involved => [$self->name] }, $self->name);
         if($new_disorder eq "Civil war")
         {
             $world->start_civil_war($self);
@@ -381,7 +385,7 @@ sub fight_civil_war
     {
         $sup->casualities(1) if $sup;
         $world->military_support_garbage_collector();
-        return $self->civil_war_battle('rebels');
+        return $self->civil_war_battle('rebels', $world);
     }
     else
     {
@@ -393,6 +397,7 @@ sub civil_war_battle
 {
     my $self = shift;
     my $battle_winner = shift;
+    my $world = shift;
     if($battle_winner eq 'government')
     {
         $self->rebel_provinces($self->rebel_provinces() - .5);
@@ -404,13 +409,18 @@ sub civil_war_battle
     if($self->rebel_provinces == 0)
     {
         $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-        $self->register_event("THE GOVERNMENT WON THE CIVIL WAR");
+        $world->broadcast_event( { code => 'govwincivil',
+                                   text => "THE GOVERNMENT OF " . $self->name . " WON THE CIVIL WAR",
+                                   involved => [$self->name] }, $self->name );
         return 'government';
     }
     elsif($self->rebel_provinces == PRODUCTION_UNITS->[$self->size])
     {
         $self->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-        $self->register_event("THE REBELS WON THE CIVIL WAR");
+        $world->broadcast_event( { code => 'rebwincivil',
+                                   text => "THE REBELS IN " . $self->name . " WON THE CIVIL WAR",
+                                   involved => [$self->name] }, $self->name );
+      
         $self->rebel_provinces(0);
         return 'rebels';
     }
@@ -462,7 +472,9 @@ sub new_government
     $world->reset_influences($self->name);
     $world->reset_supports($self->name);
     $world->reset_crises($self->name);
-    $self->register_event("NEW GOVERNMENT CREATED");
+    $world->broadcast_event({ code => "newgov",
+                              text => "NEW GOVERNMENT CREATED IN " . $self->name,
+                              involved => [$self->name] }, $self->name);
 }
 
 sub occupation
