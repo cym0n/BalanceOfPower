@@ -103,6 +103,7 @@
     [% FOREACH e IN events.$key %]
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
     [% END %]
+    <br />
     [% END %]
     [% key = 'nagtreatynew' %]
     [% IF events.$key.size != "" %]
@@ -110,6 +111,7 @@
     [% FOREACH e IN events.$key %]
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
     [% END %]
+    <br />
     [% END %]
     [% key = 'alliancetreatynew' %]
     [% IF events.$key.size != "" %]
@@ -118,6 +120,7 @@
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] [% IF e.values.0 == 'rebsup' %](support during revolution)[% END %]
         <br />
     [% END %]
+    <br />
     [% END %] 
     [% key = 'comtreatybroken' %]
     [% IF events.$key.size != "" %]
@@ -125,6 +128,7 @@
     [% FOREACH e IN events.$key %]
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
     [% END %]
+    <br />
     [% END %] 
     [% key = 'nagtreatybroken' %]
     [% IF events.$key.size != "" %]
@@ -132,6 +136,7 @@
     [% FOREACH e IN events.$key %]
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] &lt;-&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %]<br />
     [% END %]
+    <br />
     [% END %] 
     [% key = 'alltreatybroken' %]
     [% IF events.$key.size != "" %]
