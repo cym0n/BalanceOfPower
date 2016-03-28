@@ -121,7 +121,9 @@ sub create_war
 
     if(! $self->war_exists($attacker->name, $defender->name))
     {
-        $self->broadcast_event("CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", $attacker->name, $defender->name); 
+        $self->broadcast_event({ code => 'crisisescalate', 
+                                 text => "CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", 
+                                 involved => [$attacker->name, $defender->name] }, $attacker->name, $defender->name); 
         my @attacker_coalition = $self->empire($attacker->name);
         @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
         @attacker_coalition = grep { ! $self->at_civil_war($_) } @attacker_coalition;
@@ -224,7 +226,9 @@ sub create_war
                     if(@potential_defenders == 0)
                     {
                         @attacker_coalition = grep { ! $attack_now eq $_ } @attacker_coalition;
-                        $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
+                        $self->broadcast_event({ code => 'nopartecipatewar',
+                                                 text => "NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", 
+                                                 involved => [$attack_now, $attacker->name, $defender->name] }, $attack_now);
                         last;
                     }
                 }
@@ -234,7 +238,9 @@ sub create_war
                     if(@potential_defenders == 0)
                     {
                         @defender_coalition = grep { ! $attack_now eq $_ } @defender_coalition;
-                        $self->broadcast_event("NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", $attack_now);
+                        $self->broadcast_event({ code => 'nopartecipatewar',
+                                                 text => "NO POSSIBILITY TO PARTECIPATE TO WAR LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " FOR $attack_now", 
+                                                 involved => [$attack_now, $attacker->name, $defender->name] }, $attack_now);
                         last;
                     }
                 }
@@ -280,7 +286,10 @@ sub create_war
         $war = $self->war_starting_report($war);
         $self->add_war($war); 
         $attacker_leaders{$defender->name} = $attacker->name;                                              
-        $self->broadcast_event("WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", $attacker->name, $defender->name);
+        $self->broadcast_event({ code => 'warstart', 
+                                 text => "WAR BETWEEN " . $attacker->name . " AND " .$defender->name . " STARTED", 
+                                 involved => [$attacker->name, $defender->name],
+                                 values => [$war_id] }, $attacker->name, $defender->name);
         my $faction_counter = 0;
         foreach my $c (@war_couples)
         {
@@ -318,7 +327,10 @@ sub create_war
                                                           log_active => 0);
             $war = $self->war_starting_report($war);
             $self->add_war($war);                                                  
-            $self->broadcast_event("WAR BETWEEN " . $node1 . " AND " . $node2 . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")", $node1, $node2);
+            $self->broadcast_event( { code => 'warlinkedstart',
+                                      text => "WAR BETWEEN " . $node1 . " AND " . $node2 . " STARTED (LINKED TO WAR BETWEEN " . $attacker->name . " AND " .$defender->name . ")",
+                                      involved => [$node1, $node2],
+                                      values => [$war_id, $attacker->name, $defender->name, $faction1, $faction2] }, $node1, $node2 );
         }
     }
 }
@@ -394,7 +406,9 @@ sub damage_from_battle
     {
         if($supported->army <= 0)
         {
-            $self->broadcast_event("MILITARY SUPPORT TO " . $supported->node2 . " BY " . $supported->node1 . " DESTROYED", $supported->node1, $supported->node2);
+            $self->broadcast_event({ code => 'supdestroyed',
+                                     text => "MILITARY SUPPORT TO " . $supported->node2 . " BY " . $supported->node1 . " DESTROYED", 
+                                     involved => [$supported->node1, $supported->node2] }, $supported->node1, $supported->node2);
             $self->war_report("Military support to ". $supported->node2 . " by " . $supported->node1 . " destroyed", $supported->node2);
         }
     }
@@ -530,7 +544,10 @@ sub lose_war
         }
         my $ending_line = "WAR BETWEEN $other AND $loser WON BY $other $winner_role";
 
-        $self->broadcast_event($ending_line, $other, $loser);
+        $self->broadcast_event({ code => 'warend',
+                                 text => $ending_line, 
+                                 involved => [$other, $loser],
+                                 values => [$w->war_id, $winner_role] }, $other, $loser);
         my $history_line = "";
         $self->cash_war_bonds($other);
         $self->discard_war_bonds($loser);

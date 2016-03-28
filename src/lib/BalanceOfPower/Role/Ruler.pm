@@ -129,7 +129,10 @@ sub occupy
             if($self->get_nation($c)->progress < $occupied_progress)
             {
                 $self->get_nation($c)->progress($occupied_progress);
-                $self->broadcast_event("$c ACQUIRES PROGRESS FROM $nation: $occupied_progress", $c, $nation);
+                $self->broadcast_event({ code => 'acquireprogress',
+                                         text => "$c ACQUIRES PROGRESS FROM $nation: $occupied_progress", 
+                                         involved => [$c, $nation],
+                                         values => [$occupied_progress] }, $c, $nation);
             }
         }
         else
@@ -141,7 +144,9 @@ sub occupy
             $self->set_diplomacy($nation, $c, DIPLOMACY_AFTER_OCCUPATION);
             $self->get_nation($c)->grow();
         }
-        $self->broadcast_event("$c OCCUPIES $nation", $c, $nation);
+        $self->broadcast_event({code => 'occupy',
+                                text => "$c OCCUPIES $nation", 
+                                involved => [$c, $nation] }, $c, $nation );
     }
 }
 sub situation_clock
@@ -155,11 +160,15 @@ sub situation_clock
         {
             if($new_status eq 'dominate')
             {
-                $self->broadcast_event($i->node1 . " DOMINATES " . $i->node2, $i->node1, $i->node2);
+                $self->broadcast_event({ code => 'dominate',
+                                         text => $i->node1 . " DOMINATES " . $i->node2, 
+                                         involved => [$i->node1, $i->node2] }, $i->node1, $i->node2);
             }
             elsif($new_status eq 'control')
             {
-                $self->broadcast_event($i->node1 . " CONTROLS " . $i->node2, $i->node1, $i->node2);
+                $self->broadcast_event({ code => 'control',
+                                         text => $i->node1 . " CONTROLS " . $i->node2, 
+                                         involved => [$i->node1, $i->node2] }, $i->node1, $i->node2);
             }
         }
     }
