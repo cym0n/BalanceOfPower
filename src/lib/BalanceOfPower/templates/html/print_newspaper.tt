@@ -1,6 +1,29 @@
 [% IF title %]<h3>[% title %]</h3>[% END %]
 <div class="row">
   <div class="col-sm-12">
+  [% key = 'civiloutbreak' %]
+  [% FOREACH e IN events.$key %]
+  <div class="well">
+     <h4>CIVIL WAR OUTBREAK IN [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %]</h4>
+  </div>  
+  [% END %]
+  [% key = 'govwincivil' %]
+  [% FOREACH e IN events.$key %]
+  <div class="well">
+     <h4>GOVERNMENT OF [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] WON THE CIVIL WAR</h4>
+  </div>  
+  [% END %]
+  [% key = 'rebwincivil' %]
+  [% FOREACH e IN events.$key %]
+  <div class="well">
+     <h4>REBELS WON THE CIVIL WAR IN [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %]</h4>
+  </div>  
+  [% END %]
+
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
   [% key = 'wars' %]
   [% factions = [ 'glyphicon-tower', 'glyphicon-knight'] %]
   [% FOREACH w IN events.$key.keys %]
@@ -43,6 +66,7 @@
   [% END %]
   </div>
 </div>
+
 
 <div class="row">
   <div class="col-sm-12">

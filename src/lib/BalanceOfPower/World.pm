@@ -868,7 +868,9 @@ sub start_civil_war
 {
     my $self = shift;
     my $nation = shift;
-    $self->broadcast_event("CIVIL WAR OUTBREAK IN " . $nation->name, $nation->name);
+    $self->broadcast_event({ code => "civiloutbreak",
+                             text => "CIVIL WAR OUTBREAK IN " . $nation->name, 
+                             involved => [$nation->name] }, $nation->name);
     $nation->rebel_provinces(STARTING_REBEL_PROVINCES->[$nation->size]);
     $self->war_report("Civil war in " . $nation->name . "!", $nation->name);
     $self->lose_war($nation->name, 1);

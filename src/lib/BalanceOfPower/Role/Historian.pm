@@ -365,7 +365,7 @@ sub print_newspaper
     return "" if(! exists $self->events->{$y});
     my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchange', 'acquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate', 'nopartecipatewar', 
  );
-    my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchange', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken' );
+    my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchange', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken', 'govwincivil', 'rebwincivil', 'civiloutbreak' );
     my @war_events = ('warstart', 'warlinkedstart', 'warend');
     my @generic = ();
     my %events = $self->by_tags(@{$self->events->{$y}});

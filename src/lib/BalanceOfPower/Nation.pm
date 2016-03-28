@@ -379,7 +379,7 @@ sub fight_civil_war
     {
         $reb_sup->casualities(1) if $reb_sup;
         $world->rebel_military_support_garbage_collector();
-        return $self->civil_war_battle('government');
+        return $self->civil_war_battle('government', $world);
     }
     elsif($rebels > $government)
     {
