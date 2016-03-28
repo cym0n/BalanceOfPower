@@ -363,11 +363,13 @@ sub print_newspaper
     my $title = shift;
     my $mode = shift || 'print';
     return "" if(! exists $self->events->{$y});
-    my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchange', 'aquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate'
+    my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchange', 'acquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate', 'nopartecipatewar', 
  );
     my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchange', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken' );
+    my @war_events = ('warstart', 'warlinkedstart', 'warend');
     my @generic = ();
     my %events = $self->by_tags(@{$self->events->{$y}});
+    my %wars = ();
     foreach my $key (keys %events)
     {
         if(grep { $_ eq $key } @ignored)
@@ -378,12 +380,48 @@ sub print_newspaper
         {
             #No action needed
         }
+        elsif(grep { $_ eq $key } @war_events)
+        {
+            foreach my $e (@{$events{$key}})
+            {
+                my $war_id = $e->{values}->[0];
+                if($key eq 'warstart')
+                {
+                    $wars{$war_id}->{'warstart'} = $e;
+                }
+                elsif($key eq 'warlinkedstart')
+                {
+                    if(exists $wars{$war_id} && exists $wars{$war_id}->{'warlinkedstart'})
+                    {
+                        push @{ $wars{$war_id}->{'warlinkedstart'} }, $e;
+                    }
+                    else
+                    {
+                        $wars{$war_id}->{'warlinkedstart'} = [ $e ];
+                    }
+                }
+                elsif($key eq 'warend')
+                {
+                    if(exists $wars{$war_id} && exists $wars{$war_id}->{'warend'})
+                    {
+                        push @{ $wars{$war_id}->{'warend'} }, $e;
+                    }
+                    else
+                    {
+                        $wars{$war_id}->{'warend'} = [ $e ];
+                    }
+                    
+                }
+            }
+        
+        }
         else
         {
             @generic = (@generic, @{$events{$key}});
         }
     }
     $events{'others'} = \@generic;
+    $events{'wars'} = \%wars;
     return BalanceOfPower::Printer::print($mode, $self, 'print_newspaper', 
                                    { title => $title,
                                      turn => $y,

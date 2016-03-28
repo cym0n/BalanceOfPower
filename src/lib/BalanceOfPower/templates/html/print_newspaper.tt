@@ -1,6 +1,51 @@
 [% IF title %]<h3>[% title %]</h3>[% END %]
 <div class="row">
   <div class="col-sm-12">
+  [% key = 'wars' %]
+  [% factions = [ 'glyphicon-tower', 'glyphicon-knight'] %]
+  [% FOREACH w IN events.$key.keys %]
+    [% IF events.$key.$w.warstart %]
+    <div class="well">
+    <h4>WAR [% w %]</h4>
+    <h4>[% INCLUDE fragments/linked_nation.tt n =  events.$key.$w.warstart.involved.0 %] <span class="text-info glyphicon [% factions.0 %]" aria-hidden="false"></span> ATTACCKED [% INCLUDE fragments/linked_nation.tt n =  events.$key.$w.warstart.involved.1 %] <span class="text-info glyphicon [% factions.1 %]" aria-hidden="false"></span>! THIS MEANS WAR!</h4>
+    [% IF events.$key.$w.warlinkedstart %]
+    <strong>Allies interventions</strong>
+    <p>
+    [% FOREACH linked IN events.$key.$w.warlinkedstart %]
+    [% faction1 = linked.values.3 %]
+    [% faction2 = linked.values.4 %]
+    [% INCLUDE fragments/linked_nation.tt n = linked.involved.0 %] <span class="text-info glyphicon [% factions.$faction1 %]" aria-hidden="false"></span> ATTACKED [% INCLUDE fragments/linked_nation.tt n = linked.involved.1 %] <span class="text-info glyphicon [% factions.$faction2 %]" aria-hidden="false"></span><br />
+    [% END %]
+    </p>
+    [% END %]
+    [% IF events.$key.$w.warend %]
+    <h4>LIGHTNING WAR!</h4>
+    <p>
+    [% FOREACH win IN events.$key.$w.warend %]
+    [% INCLUDE fragments/linked_nation.tt n = win.involved.0 %] [% win.values.1 %] WON ON [% INCLUDE fragments/linked_nation.tt n = win.involved.1 %] <br />
+    [% END %]
+    </p>
+    [% END %]
+    </div>
+    [% ELSE %]
+    [% IF events.$key.$w.warend %]
+    <div class="well">
+    <h4>WAR [% w %]</h4>
+    <h4>PEACE!</h4>
+    <p>
+    [% FOREACH win IN events.$key.$w.warend %]
+    [% INCLUDE fragments/linked_nation.tt n = win.involved.0 %] [% win.values.1 %] WON ON [% INCLUDE fragments/linked_nation.tt n = win.involved.1 %]<br /> 
+    [% END %]
+    </p>
+    [% END %]
+    </div>
+    [% END %]
+  [% END %]
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
   [% key = 'relchange' %]
   [% IF events.$key.size != "" %]
   <h4>Relationship changes</h4>
