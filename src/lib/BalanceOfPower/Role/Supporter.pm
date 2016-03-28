@@ -57,7 +57,7 @@ sub start_military_support
     if($self->supported($nation2->name))
     {
         $self->broadcast_event( { code => 'supfailed',
-                                  text => $nation2->name . " ALREADY SUPPORTED. MILITARY SUPPORT IMPOSSIBILE FOR " . $nation1->name, 
+                                  text => $nation2->name . " ALREADY SUPPORTED. MILITARY SUPPORT IMPOSSIBLE FOR " . $nation1->name, 
                                   involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
         return 0;
     }

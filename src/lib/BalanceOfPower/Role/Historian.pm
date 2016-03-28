@@ -363,7 +363,27 @@ sub print_newspaper
     my $title = shift;
     my $mode = shift || 'print';
     return "" if(! exists $self->events->{$y});
+    my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchange', 'aquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate'
+ );
+    my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchange', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken' );
+    my @generic = ();
     my %events = $self->by_tags(@{$self->events->{$y}});
+    foreach my $key (keys %events)
+    {
+        if(grep { $_ eq $key } @ignored)
+        {
+            delete $events{$key};
+        }
+        elsif(grep { $_ eq $key } @managed)
+        {
+            #No action needed
+        }
+        else
+        {
+            @generic = (@generic, @{$events{$key}});
+        }
+    }
+    $events{'others'} = \@generic;
     return BalanceOfPower::Printer::print($mode, $self, 'print_newspaper', 
                                    { title => $title,
                                      turn => $y,

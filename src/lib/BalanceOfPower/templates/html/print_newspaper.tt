@@ -36,40 +36,9 @@
 <div class="row">
   <div class="col-sm-12">
     <p>
-    [% FOREACH key IN events.keys %]
-    [% IF key != 'bestprogress' &&
-          key != 'bestwealth'   && 
-          key != 'tradedeleted'   && 
-          key != 'tradeadded' &&
-          key != 'traderefused' &&
-          key != 'wargoon' &&
-          key != 'relchange' &&
-          key != 'pressure' && 
-          key != 'crisisstart' && 
-          key != 'crisisup' && 
-          key != 'crisisdown' && 
-          key != 'crisisend' &&
-          key != 'militaryaid' &&
-          key != 'insurgentsaid' &&
-          key != 'economicaid' && 
-          key != 'supincreased' && 
-          key != 'supstarted' && 
-          key != 'supstopped' && 
-          key != 'supfailed' && 
-          key != 'rebsupincreased' && 
-          key != 'rebsupstarted' && 
-          key != 'rebsupstopped' && 
-          key != 'rebsupfailed' && 
-          key != 'progress' &&
-          key != 'progress' &&
-          key != 'hatetreaty' &&
-          key != 'limittreaty' &&
-          key != 'uselesstreaty' 
-    %]
+    [% key = 'others' %]
     [% FOREACH e IN events.$key %]
         [% e.text %]<br />
-    [% END %]
-    [% END %]
     [% END %]
     </p>
   </div>
@@ -197,6 +166,10 @@
     [% key = 'suprefused' %]
     [% FOREACH e IN events.$key %]
         [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-danger glyphicon glyphicon-thumbs-down" aria-hidden="false"></span><br />
+    [% END %]
+    [% key = 'supdestroyed' %]
+    [% FOREACH e IN events.$key %]
+        [% INCLUDE fragments/linked_nation.tt n = e.involved.0 %] -&gt; [% INCLUDE fragments/linked_nation.tt n = e.involved.1 %] <span class="text-danger glyphicon glyphicon-remove-circle" aria-hidden="false"></span><span class="text-danger glyphicon glyphicon-flash" aria-hidden="false"></span><br />
     [% END %]
     </div>
   </div>

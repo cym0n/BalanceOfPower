@@ -665,7 +665,7 @@ sub manage_route_adding
                 if(@route_adders == 0)
                 {
                     $self->broadcast_event( { code => "tradelack",
-                                              text => "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", 
+                                              text => "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS FOR $node1", 
                                               involved => [$node1] }, $node1);
                     $done = 1;
                 } 
@@ -684,7 +684,9 @@ sub manage_route_adding
                     }     
                     if($complete == 0)
                     {
-                        $self->send_event("TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS", $node1);
+                        $self->broadcast_event( { code => "tradelack",
+                                                  text => "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS FOR $node1", 
+                                                  involved => [$node1] }, $node1);
                     }
                 }
             }
