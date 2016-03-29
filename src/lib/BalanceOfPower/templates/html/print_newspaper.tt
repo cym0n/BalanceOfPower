@@ -86,16 +86,7 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-sm-12">
-    <p>
-    [% key = 'others' %]
-    [% FOREACH e IN events.$key %]
-        [% e.text %]<br />
-    [% END %]
-    </p>
-  </div>
-</div>
+
 <div class="row">
   <div class="col-sm-6">
     <div class="well">
@@ -277,6 +268,16 @@
   </tbody>
   </table>  
   [% END %]
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <p>
+    [% key = 'others' %]
+    [% FOREACH e IN events.$key %]
+        [% e.text %]<br />
+    [% END %]
+    </p>
   </div>
 </div>
 
