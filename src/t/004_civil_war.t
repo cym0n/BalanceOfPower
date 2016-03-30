@@ -34,6 +34,6 @@ $world->elaborate_turn("1970/3");
 $world->elaborate_turn("1970/4");
 $world->elaborate_turn("1971/1");
 $world->elaborate_turn("1971/2");
-is($world->get_events("Italy: THE REBELS WON THE CIVIL WAR", "1971/2"), 1, "Rebels won the civil war");
+is($world->get_events("THE REBELS IN Italy WON THE CIVIL WAR", "1971/2"), 1, "Rebels won the civil war");
 
 done_testing();
