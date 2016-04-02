@@ -140,7 +140,9 @@ sub build_nations_statics
         open(my $events, "> $dest_dir/events.tt");
         print {$events} $self->print_nation_events($nation, prev_turn($self->current_year()), undef, 'html');  
         close($events);
-
+        open(my $graphs, "> $dest_dir/graphs.tt");
+        print {$graphs} $self->print_nation_graphs($nation, prev_turn($self->current_year()), 10, 'html');  
+        close($graphs);
         $dest_dir = "$site_root/metadata/$game/n";
         make_path($dest_dir);
         open(my $nation_meta, "> $dest_dir/" . $code . ".data");

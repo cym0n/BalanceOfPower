@@ -81,6 +81,51 @@ sub print_nation_statistics
                                      statistics => \%data,
                                    } );
 }
+
+sub print_nation_graphs
+{
+    my $self = shift;
+    my $nation = shift;
+    my $start_turn = shift;
+    my $depth = shift;
+    my $mode = shift || 'html';
+
+    my @entities = ( "production", "w/d", "internal disorder", "army" );
+    my %data;
+    foreach my $e ( @entities )
+    {
+        my $out = "";
+        my $min = 10000;
+        my $turn = $start_turn;
+        for(my $step = 0; $step < $depth; $step++)
+        {
+            my $value = $self->get_statistics_value($turn, $nation, $e);
+            last if ! $value;
+            $out = ", ['$turn', $value]" . $out;
+            $turn = prev_turn($turn);
+            if($value < $min)
+            {
+                $min = $value;    
+            }
+        }
+        $out = "['Turn', '$e']" . $out;
+        $data{$e} = $out;
+        $data{min}->{$e} = $min;
+    }
+    $data{'nation'} = $nation;
+    $data{'entities'} = \@entities;
+    $data{'colors'} = { 'w/d' => '#00c87c',
+                        'production' => '#0081c9',
+                        'internal disorder' => '#d90d11',
+                        'army' => '#736f6e' };
+                        
+    return BalanceOfPower::Printer::print($mode, $self, 'print_nation_graphs', 
+                                          \%data );
+    
+}
+
+
+
 sub print_nation_factor
 {
     my $self = shift;
