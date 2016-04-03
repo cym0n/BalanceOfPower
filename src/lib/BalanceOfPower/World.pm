@@ -1000,11 +1000,18 @@ sub register_global_data
 
 sub collect_events
 {
-   my $self = shift;
-   foreach my $n (@{$self->nations})
-   {
+    my $self = shift;
+    foreach my $n (@{$self->nations})
+    {
        $self->set_statistics_value($n, 'progress', $n->progress);
-   }
+    }
+    foreach my $p (@{$self->players})
+    {
+        my $status = $self->player_stocks_status($p->name);
+        $self->set_statistics_value($p, 'stock value', $status->{'stock_value'}, 'player');     
+        $self->set_statistics_value($p, 'money', $status->{'money'}, 'player');     
+        $self->set_statistics_value($p, 'total value', $status->{'total_value'}, 'player');     
+    }
 }
 
 ### Commands

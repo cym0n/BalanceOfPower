@@ -11,7 +11,7 @@
         ]);
 
         var options_[% attrid %] = {
-          title: '[% e %] of [% nation %]',
+          title: '[% e %] of [% object %]',
           hAxis: {title: 'Turn',  titleTextStyle: {color: '#333'}},
           vAxis: {minValue: [% min.$e %]},
           colors: ['[% colors.$e %]']

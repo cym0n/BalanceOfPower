@@ -15,7 +15,7 @@ with 'BalanceOfPower::Role::Reporter';
 
 has statistics => (
     is => 'rw',
-    default => sub { {} }
+    default => sub { { "PLAYERS" => {} } }
 );
 
 requires 'get_nation';
@@ -25,17 +25,27 @@ sub get_statistics_value
 {
     my $self = shift;
     my $turn = shift;
-    my $nation = shift;
+    my $object = shift;
     my $value = shift;
-    if($turn && exists $self->statistics->{$turn})
+    my $type = shift || 'nation';
+    my $stats;
+    if($type eq 'nation')
     {
-        if($nation)
+        $stats = $self->statistics;
+    }
+    elsif($type eq 'player')
+    {
+        $stats = $self->statistics->{'PLAYERS'}       
+    }
+    if($turn && exists $stats->{$turn})
+    {
+        if($object)
         {
-            return $self->statistics->{$turn}->{$nation}->{$value};
+            return $stats->{$turn}->{$object}->{$value};
         }
         else
         {
-            return $self->statistics->{$turn}->{$value};
+            return $stats->{$turn}->{$value};
         }
     }
     else
@@ -46,17 +56,33 @@ sub get_statistics_value
 sub set_statistics_value
 {
     my $self = shift;
-    my $nation = shift;
+    my $object = shift;
     my $value_name = shift;
     my $value = shift;
-    if($nation)
+    my $type = shift || 'nation';
+    if($type eq 'nation')
     {
-        $self->statistics->{$nation->current_year}->{$nation->name}->{$value_name} = $value;
+        if($object)
+        {
+            $self->statistics->{$object->current_year}->{$object->name}->{$value_name} = $value;
+        }
+        else
+        {
+            $self->statistics->{$self->current_year}->{$value_name} = $value;
+        }
     }
-    else
+    elsif($type eq 'player')
     {
-        $self->statistics->{$self->current_year}->{$value_name} = $value;
+        if($object)
+        {
+            $self->statistics->{'PLAYERS'}->{$object->current_year}->{$object->name}->{$value_name} = $value;
+        }
+        else
+        {
+            $self->statistics->{$self->current_year}->{$value_name} = $value;
+        }
     }
+    
 }
 
 sub print_nation_statistics
@@ -112,14 +138,55 @@ sub print_nation_graphs
         $data{$e} = $out;
         $data{min}->{$e} = $min;
     }
-    $data{'nation'} = $nation;
+    $data{'object'} = $nation;
     $data{'entities'} = \@entities;
     $data{'colors'} = { 'w/d' => '#00c87c',
                         'production' => '#0081c9',
                         'internal disorder' => '#d90d11',
                         'army' => '#736f6e' };
                         
-    return BalanceOfPower::Printer::print($mode, $self, 'print_nation_graphs', 
+    return BalanceOfPower::Printer::print($mode, $self, 'print_graphs', 
+                                          \%data );
+    
+}
+sub print_player_graphs
+{
+    my $self = shift;
+    my $player = shift;
+    my $start_turn = shift;
+    my $depth = shift;
+    my $mode = shift || 'html';
+
+    my @entities = ( "stock value", "money", "total value" );
+    my %data;
+    foreach my $e ( @entities )
+    {
+        my $out = "";
+        my $min = 10000;
+        my $turn = $start_turn;
+        for(my $step = 0; $step < $depth; $step++)
+        {
+            my $value = $self->get_statistics_value($turn, $player, $e, 'player');
+            last if ! $value;
+            $out = ", ['$turn', $value]" . $out;
+            $turn = prev_turn($turn);
+            if($value < $min)
+            {
+                $min = $value;    
+            }
+        }
+        $out = "['Turn', '$e']" . $out;
+        $data{$e} = $out;
+        $data{min}->{$e} = $min;
+    }
+    $data{'object'} = $player;
+    $data{'entities'} = \@entities;
+    $data{'colors'} = { 'stock value' => '#00c87c',
+                        'money' => '#0081c9',
+                        'total value' => '#d90d11',
+                      };
+                        
+    return BalanceOfPower::Printer::print($mode, $self, 'print_graphs', 
                                           \%data );
     
 }

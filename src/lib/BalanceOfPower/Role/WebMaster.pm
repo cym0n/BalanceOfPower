@@ -201,6 +201,10 @@ sub build_players_statics
         open(my $ranking, "> $dest_dir/ranking.tt");
         print {$ranking} $self->print_all_stocks('html');
         close($ranking);
+        open(my $graphs, "> $dest_dir/graphs.tt");
+        print {$graphs} $self->print_player_graphs($p->name, prev_turn($self->current_year()), 10, 'html');
+        close($graphs);
+
 
         $dest_dir = "$site_root/metadata/$game/p";
         make_path($dest_dir);
