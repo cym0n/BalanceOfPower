@@ -29,9 +29,9 @@ requires 'random';
 requires 'change_diplomacy';
 requires 'get_crises';
 requires 'delete_crisis';
-requires 'at_civil_war';
 requires 'discard_war_bonds';
 requires 'cash_war_bonds';
+requires 'war_busy';
 
 has wars => (
     is => 'ro',
@@ -53,12 +53,7 @@ has memorial => (
 
 
 
-sub war_busy
-{
-    my $self = shift;
-    my $n = shift;
-    return $self->at_civil_war($n) || $self->at_war($n);
-}
+
 sub in_military_range
 {
     my $self = shift;
@@ -125,11 +120,9 @@ sub create_war
                                  text => "CRISIS BETWEEN " . $attacker->name . " AND " . $defender->name . " BECAME WAR", 
                                  involved => [$attacker->name, $defender->name] }, $attacker->name, $defender->name); 
         my @attacker_coalition = $self->empire($attacker->name);
-        @attacker_coalition = grep { ! $self->at_war($_) } @attacker_coalition;
-        @attacker_coalition = grep { ! $self->at_civil_war($_) } @attacker_coalition;
+        @attacker_coalition = grep { ! $self->war_busy($_) } @attacker_coalition;
         my @defender_coalition = $self->empire($defender->name);
-        @defender_coalition = grep { ! $self->at_war($_) } @defender_coalition;
-        @defender_coalition = grep { ! $self->at_civil_war($_) } @defender_coalition;
+        @defender_coalition = grep { ! $self->war_busy($_) } @defender_coalition;
     
         #Allies management
         my @attacker_allies = $self->get_allies($attacker->name);
@@ -574,53 +567,7 @@ sub delete_war
 }
 
 
-sub print_wars
-{
-    my $self = shift;
-    my $nation = shift;
-    my $mode = shift || 'print';
-    my %grouped_wars;
-    foreach my $w ($self->wars->all())
-    {
-        if(! exists $grouped_wars{$w->war_id})
-        {
-            $grouped_wars{$w->war_id} = [];
-        }
-        push @{$grouped_wars{$w->war_id}}, $w; 
-    }
-    my @wars;
-    foreach my $k (keys %grouped_wars)
-    {
-        my %war;
-        $war{'name'} = $k;
-        $war{'conflicts'} = [];
-        foreach my $w ( @{$grouped_wars{$k}})
-        {
-            my %subwar;
-            $subwar{'node1'} = $w->node1;
-            $subwar{'node2'} = $w->node2;
-            my $nation1 = $self->get_nation($w->node1);
-            my $nation2 = $self->get_nation($w->node2);
-            $subwar{'army1'} = $nation1->army;
-            $subwar{'army2'} = $nation2->army;
-            $subwar{'node1_faction'} = $w->node1_faction;
-            $subwar{'node2_faction'} = $w->node2_faction;
-            push @{$war{'conflicts'}}, \%subwar;
-        }
-        push @wars, \%war;
-    }
-    my @civil_wars;
-    foreach my $n (@{$self->nation_names})
-    {
-        if($self->at_civil_war($n))
-        {
-            push @civil_wars, $n;
-        }
-    }
-    return BalanceOfPower::Printer::print($mode, $self, 'print_wars', 
-                                   { wars => \@wars,
-                                     civil_wars => \@civil_wars } );
-}
+
 sub dump_memorial
 {
     my $self = shift;

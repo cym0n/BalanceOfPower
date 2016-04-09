@@ -323,4 +323,52 @@ sub print_market
                                           { market_data => \%data,
                                             nations => \@nations } );
 }
+
+sub print_wars
+{
+    my $self = shift;
+    my $nation = shift;
+    my $mode = shift || 'print';
+    my %grouped_wars;
+    foreach my $w ($self->wars->all())
+    {
+        if(! exists $grouped_wars{$w->war_id})
+        {
+            $grouped_wars{$w->war_id} = [];
+        }
+        push @{$grouped_wars{$w->war_id}}, $w; 
+    }
+    my @wars;
+    foreach my $k (keys %grouped_wars)
+    {
+        my %war;
+        $war{'name'} = $k;
+        $war{'conflicts'} = [];
+        foreach my $w ( @{$grouped_wars{$k}})
+        {
+            my %subwar;
+            $subwar{'node1'} = $w->node1;
+            $subwar{'node2'} = $w->node2;
+            my $nation1 = $self->get_nation($w->node1);
+            my $nation2 = $self->get_nation($w->node2);
+            $subwar{'army1'} = $nation1->army;
+            $subwar{'army2'} = $nation2->army;
+            $subwar{'node1_faction'} = $w->node1_faction;
+            $subwar{'node2_faction'} = $w->node2_faction;
+            push @{$war{'conflicts'}}, \%subwar;
+        }
+        push @wars, \%war;
+    }
+    my @civil_wars;
+    foreach my $n (@{$self->nation_names})
+    {
+        if($self->at_civil_war($n))
+        {
+            push @civil_wars, $n;
+        }
+    }
+    return BalanceOfPower::Printer::print($mode, $self, 'print_wars', 
+                                   { wars => \@wars,
+                                     civil_wars => \@civil_wars } );
+}
 1;

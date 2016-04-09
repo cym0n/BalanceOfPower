@@ -8,7 +8,6 @@ use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Constants ':all';
 
 requires 'get_nation';
-requires 'at_civil_war';
 requires 'war_report';
 
 has military_supports => (
@@ -85,7 +84,6 @@ sub start_rebel_military_support
     my $nation1 = shift;
     my $nation2 = shift;
     return 0 if($nation1->army < REBEL_ARMY_FOR_SUPPORT);
-    return 0 if(! $self->at_civil_war($nation2->name));
     my $precedent_sup = $self->exists_rebel_military_support($nation1->name, $nation2->name);
     if($precedent_sup)
     {

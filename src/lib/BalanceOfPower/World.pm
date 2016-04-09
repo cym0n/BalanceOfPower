@@ -92,6 +92,7 @@ with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Broker';
 with 'BalanceOfPower::Role::Warlord';
+with 'BalanceOfPower::Role::Rebel';
 with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Analyst';
 with 'BalanceOfPower::Role::WebMaster';
@@ -280,6 +281,7 @@ sub post_decisions_elaborations
     $self->execute_stock_orders();
     $self->execute_decisions();
     $self->economy();
+    $self->civil_warfare();
     $self->warfare();
     $self->internal_conflict();
     $self->register_global_data();
@@ -599,7 +601,14 @@ sub execute_decisions
         {
             my $nation2 = $self->get_nation($1);
             my $rebsup = $self->rebel_supported($nation2->name);
-            $self->start_rebel_military_support($nation, $nation2);
+            if($self->at_civil_war($nation2->name))
+            {
+                $self->start_rebel_military_support($nation, $nation2);
+            }
+            else
+            {
+                say "ERROR: NO CIVIL WAR " . $nation2->name;
+            }
         }
         elsif($command =~ /^DIPLOMATIC PRESSURE ON (.*)$/)
         {
@@ -821,21 +830,12 @@ sub internal_conflict
     my $self = shift;
     foreach my $n (@{$self->nations})
     {
-        my $present_status = $n->internal_disorder_status;
 
         $n->calculate_disorder($self);
-        
-        my $winner = $n->fight_civil_war($self);
-        if($winner && $winner eq 'rebels')
+        if($n->internal_disorder_status eq 'Civil war')
         {
-            $n->win_civil_war('rebels', $self);
-            $n->new_government($self);
+            $self->start_civil_war($n) if(! $self->get_civil_war($n->name));
         }
-        elsif($winner && $winner eq 'government')
-        {
-            $n->win_civil_war('government', $self);
-        }
-        
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
 }
@@ -856,29 +856,17 @@ sub aid_insurgents
     }
 }
 
-sub at_civil_war
-{
-    my $self = shift;
-    my $n = shift;
-    my $nation = $self->get_nation($n);
-    return $nation->internal_disorder_status eq 'Civil war';
-}
-
-sub start_civil_war
-{
-    my $self = shift;
-    my $nation = shift;
-    $self->broadcast_event({ code => "civiloutbreak",
-                             text => "CIVIL WAR OUTBREAK IN " . $nation->name, 
-                             involved => [$nation->name] }, $nation->name);
-    $nation->rebel_provinces(STARTING_REBEL_PROVINCES->[$nation->size]);
-    $self->war_report("Civil war in " . $nation->name . "!", $nation->name);
-    $self->lose_war($nation->name, 1);
-}
 
 # INTERNAL DISORDER END ######################################################
 
 # WAR ######################################################################
+
+sub war_busy
+{
+    my $self = shift;
+    my $n = shift;
+    return $self->at_civil_war($n) || $self->at_war($n);
+}
 
 sub warfare
 {
@@ -888,6 +876,25 @@ sub warfare
     {
         $self->set_statistics_value($n, 'army', $n->army);    
     }    
+}
+
+sub civil_warfare
+{
+    my $self = shift;
+    foreach my $cw (@{$self->civil_wars})
+    {
+        my $winner = $cw->fight($self);
+        if($winner && $winner eq 'rebels')
+        {
+            $cw->win('rebels', $self);
+            $self->delete_civil_war($cw->nation_name);
+        }
+        elsif($winner && $winner eq 'government')
+        {
+            $cw->win('government', $self);
+            $self->delete_civil_war($cw->nation_name);
+        }
+    }
 }
 
 sub military_aid
