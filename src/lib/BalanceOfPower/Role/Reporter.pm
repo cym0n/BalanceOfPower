@@ -43,7 +43,7 @@ sub register_event
 
     $self->events({}) if(! $self->events );
     push @{$self->events->{$time}}, $event;
-    $self->log("[" . $self->name . "] " . $event->{text});
+    $self->log("$time - [" . $self->name . "] " . $event->{text});
 }
 sub make_plain
 {
