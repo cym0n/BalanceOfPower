@@ -11,6 +11,9 @@ with 'BalanceOfPower::Role::Reporter';
 has nation => (
     is => 'rw',
 );
+has nation_to_load => (
+    is => 'rw',
+);
 has rebel_provinces => (
     is => 'rw',
     default => 0
@@ -111,6 +114,7 @@ sub battle
     if($self->rebel_provinces == 0)
     {
         $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("THE GOVERNMENT WON THE CIVIL WAR");
         $world->broadcast_event( { code => 'govwincivil',
                                    text => "THE GOVERNMENT OF " . $self->nation_name . " WON THE CIVIL WAR",
                                    involved => [$self->nation_name] }, $self->nation_name );
@@ -119,6 +123,7 @@ sub battle
     elsif($self->rebel_provinces == PRODUCTION_UNITS->[$self->nation->size])
     {
         $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("THE REBELS WON THE CIVIL WAR");
         $world->broadcast_event( { code => 'rebwincivil',
                                    text => "THE REBELS IN " . $self->nation_name . " WON THE CIVIL WAR",
                                    involved => [$self->nation_name] }, $self->nation_name );
@@ -141,7 +146,7 @@ sub win
         {
             my $rebel_supporter = $world->get_nation($rebsup->node1);
             $world->stop_rebel_military_support($rebel_supporter, $self) if $rebel_supporter;
-            $world->diplomacy_exists($self->naiton_name, $rebel_supporter->name)->factor(REBEL_SUPPORTER_WINNER_FRIENDSHIP);
+            $world->diplomacy_exists($self->nation_name, $rebel_supporter->name)->factor(REBEL_SUPPORTER_WINNER_FRIENDSHIP);
             $world->create_treaty($self->nation_name, $rebel_supporter->name, 'alliance');
             $world->broadcast_event({ code => 'alliancetreatynew',
                                      text => "ALLIANCE BETWEEN " . $self->nation_name . " AND " . $rebel_supporter->name, 
@@ -161,6 +166,35 @@ sub win
         }
     }  
 }
+sub dump
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift || "";
+    print {$io} $indent . 
+                join(";", $self->nation_name, $self->rebel_provinces, $self->current_year) . "\n";
+    $self->dump_events($io, " " . $indent);
+}
+sub load
+{
+    my $self = shift;
+    my $data = shift;
+    my $cw_line = ( split /\n/, $data )[0];
+    $cw_line =~ s/^\s+//;
+    chomp $cw_line;
+    my ($nation, $rebel_provinces, $current_year) = split ";", $cw_line;
+    $data =~ s/^.*?\n//;
+    my $events = $self->load_events($data);
+    return $self->new( nation_to_load => $nation, rebel_provinces => $rebel_provinces, current_year => $current_year);
+}
+sub load_nation
+{
+    my $self = shift;
+    my $world = shift;
+    $self->nation($world->get_nation($self->nation_to_load));
+}
+
+
 
 
 1;

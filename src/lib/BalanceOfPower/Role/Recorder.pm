@@ -90,6 +90,33 @@ sub load_players
     }
 }
 
+sub load_civil_wars
+{
+    my $self = shift;
+    my $data = shift;
+    $data .= "EOF\n";
+    my $cw_data = "";
+    foreach my $l (split "\n", $data)
+    {
+
+        if($l !~ /^\s/ && $l !~ /^$/)
+        {
+            if($cw_data)
+            {
+                my $cw = BalanceOfPower::CivilWar->load($cw_data);
+                $cw->load_nation($self);
+                push @{$self->civil_wars}, $cw;
+            }
+            $cw_data = $l . "\n";
+        }
+        else
+        {
+            $cw_data .= $l . "\n";
+        }
+    }
+}
+
+
 
 sub dump_all
 {
@@ -124,6 +151,11 @@ sub dump_all
     $self->rebel_military_supports->dump($io);
     print {$io} "### WARS\n";
     $self->wars->dump($io);
+    print {$io} "### CIVIL WARS\n";
+    for(@{$self->civil_wars})
+    {
+        $_->dump($io);
+    }
     print {$io} "### MEMORIAL\n";
     $self->dump_memorial($io);
     print {$io} "### STATISTICS\n";
@@ -195,6 +227,10 @@ sub load_world
                 {
                     $_->log_active(0);
                 }
+            }
+            elsif($target eq 'CIVIL WARS')
+            {
+                $world->load_civil_wars($data);
             }
             elsif($target eq 'MEMORIAL')
             {

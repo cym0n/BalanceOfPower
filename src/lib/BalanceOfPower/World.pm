@@ -272,6 +272,7 @@ sub pre_decisions_elaborations
     $self->init_year($t);
     $self->war_current_year();
     $self->player_current_year();
+    $self->civil_war_current_year();
     $self->war_debts();
     $self->crisis_generator();
 }
@@ -332,7 +333,7 @@ sub init_year
     {
         $turn = next_turn($self->current_year);
     }
-    $self->log("--- $turn ---");
+    #$self->log("--- $turn ---");
     say $turn if $self->autoplay();
     $self->current_year($turn);
     foreach my $n (@{$self->nations})
@@ -830,11 +831,13 @@ sub internal_conflict
     my $self = shift;
     foreach my $n (@{$self->nations})
     {
-
-        $n->calculate_disorder($self);
-        if($n->internal_disorder_status eq 'Civil war')
+        if(! $self->get_civil_war($n->name))
         {
-            $self->start_civil_war($n) if(! $self->get_civil_war($n->name));
+            $n->calculate_disorder($self);
+            if($n->internal_disorder_status eq 'Civil war')
+            {
+                $self->start_civil_war($n);
+            }
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }
@@ -884,14 +887,9 @@ sub civil_warfare
     foreach my $cw (@{$self->civil_wars})
     {
         my $winner = $cw->fight($self);
-        if($winner && $winner eq 'rebels')
+        if($winner)
         {
-            $cw->win('rebels', $self);
-            $self->delete_civil_war($cw->nation_name);
-        }
-        elsif($winner && $winner eq 'government')
-        {
-            $cw->win('government', $self);
+            $cw->win($winner, $self);
             $self->delete_civil_war($cw->nation_name);
         }
     }

@@ -65,7 +65,7 @@ sub delete_civil_war
 {
     my $self = shift;
     my $nation = shift;
-    my @civwars = grep { $_->is_about($nation) } @{$self->civil_wars};
+    my @civwars = grep { ! $_->is_about($nation) } @{$self->civil_wars};
     $self->civil_wars(\@civwars);
 }
 sub civil_war_current_year
