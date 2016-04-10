@@ -446,22 +446,53 @@ sub load
 {
     my $self = shift;
     my $data = shift;
+    my $version = shift;
     my $nation_line = ( split /\n/, $data )[0];
-    $nation_line =~ s/^\s+//;
-    chomp $nation_line;
-    my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $current_year, $army, $progress, $available_stocks) = split ";", $nation_line;
+    my %init_params = $self->manage_nation_line($nation_line, $version);
     $data =~ s/^.*?\n//;
     my $events = $self->load_events($data);
-    return $self->new(name => $name, code => $code, area => $area, size => $size,
-                      export_quote => $export_quote, government => $government, government_strength => $government_strength,
-                      internal_disorder => $internal_disorder, 
-                      production_for_domestic => $production_for_domestic, production_for_export => $production_for_export,
-                      prestige => $prestige, wealth => $wealth, debt => $debt,
-                      army => $army,
-                      current_year => $current_year,
-                      progress => $progress,
-                      events => $events,
-                      available_stocks => $available_stocks);
+    $init_params{'events'} = $events;
+    return $self->new(%init_params);
+}
+
+sub manage_nation_line
+{
+    my $self = shift;
+    my $nation_line = shift;
+    my $version = shift;
+    $nation_line =~ s/^\s+//;
+    chomp $nation_line;
+
+    my %init_params;
+    
+    if($version > 1)
+    {
+        my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $current_year, $army, $progress, $available_stocks) = split ";", $nation_line;
+        %init_params = (name => $name, code => $code, area => $area, size => $size,
+                        export_quote => $export_quote, government => $government, government_strength => $government_strength,
+                        internal_disorder => $internal_disorder, 
+                        production_for_domestic => $production_for_domestic, production_for_export => $production_for_export,
+                        prestige => $prestige, wealth => $wealth, debt => $debt,
+                        army => $army,
+                        current_year => $current_year,
+                        progress => $progress,
+                        available_stocks => $available_stocks);
+
+    }
+    else
+    {
+        my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $rebel_provinces, $current_year, $army, $progress, $available_stocks) = split ";", $nation_line;
+        %init_params = (name => $name, code => $code, area => $area, size => $size,
+                        export_quote => $export_quote, government => $government, government_strength => $government_strength,
+                        internal_disorder => $internal_disorder, 
+                        production_for_domestic => $production_for_domestic, production_for_export => $production_for_export,
+                        prestige => $prestige, wealth => $wealth, debt => $debt,
+                        army => $army,
+                        current_year => $current_year,
+                        progress => $progress,
+                        available_stocks => $available_stocks);
+    }
+    return %init_params;
 }
 
 1;

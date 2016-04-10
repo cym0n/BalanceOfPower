@@ -10,6 +10,8 @@ use BalanceOfPower::Executive;
 requires 'dump_events';
 requires 'load_events';
 
+my $dump_version = 2;
+
 
 sub dump
 {
@@ -40,6 +42,7 @@ sub load_nations
 {
     my $self = shift;
     my $data = shift;
+    my $version = shift;
     $data .= "EOF\n";
     my $nation_data = "";
     foreach my $l (split "\n", $data)
@@ -49,7 +52,7 @@ sub load_nations
         {
             if($nation_data)
             {
-                my $nation = BalanceOfPower::Nation->load($nation_data);
+                my $nation = BalanceOfPower::Nation->load($nation_data, $version);
                 my $executive = BalanceOfPower::Executive->new( actor => $nation->name );
                 $executive->init($self);
                 $nation->executive($executive);
@@ -124,6 +127,7 @@ sub dump_all
     my $file = shift || $self->savefile;
     return "No file provided" if ! $file;
     open(my $io, "> $file");
+    print {$io} "####### V$dump_version\n";
     $self->dump($io);
     print {$io} "### NATIONS\n";
     for(@{$self->nations})
@@ -173,9 +177,30 @@ sub load_world
     my $world;
     my $target = "WORLD";
     my $data = "";
+    my $version = undef;
     for(<$dump>)
     {
         my $line = $_;
+        if(! $version)
+        {
+            if($line =~ /^####### V(.*)$/)
+            {
+                $version = $1;
+                if($version != $dump_version)
+                {
+                    say "WARNING: Dump of version $version";
+                }
+                next;
+            }
+            else
+            {
+                $version = 1;
+                if($version != $dump_version)
+                {
+                    say "WARNING: Dump of version $version";
+                }
+            }
+        }
         if($line =~ /^### (.*)$/)
         {
             my $next = $1;
@@ -186,7 +211,7 @@ sub load_world
             }
             elsif($target eq 'NATIONS')
             {
-                $world->load_nations($data);
+                $world->load_nations($data, $version);
             }
             elsif($target eq 'PLAYERS')
             {
