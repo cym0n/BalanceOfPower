@@ -21,6 +21,14 @@ has rebel_provinces => (
 has current_year => (
     is => 'rw'
 );
+has start_date => (
+    is => 'ro',
+    default => ""
+);
+has end_date => (
+    is => 'rw',
+    default => ""
+);
 
 sub name
 {
@@ -51,24 +59,20 @@ sub fight
     {
         $self->nation->add_army(-1 * ARMY_UNIT_FOR_CIVIL_WAR);
         $government += ARMY_HELP_FOR_CIVIL_WAR;
-        $self->register_event("HELP FROM ARMY FOR GOVERNMENT");
     }
     if($self->nation->government eq 'dictatorship')
     {
         $government += DICTATORSHIP_BONUS_FOR_CIVIL_WAR;
-        $self->register_event("HELP FROM DICTATORSHIP FOR GOVERNMENT");
     }
     my $reb_sup;
     my $sup;
     if($reb_sup = $world->rebel_supported($self->nation_name))
     {
         $rebels += REBEL_SUPPORT_HELP_FOR_CIVIL_WAR;
-        $self->register_event("HELP FROM REBEL SUPPORT FOR REBELS");
     }
     if($sup = $world->supported($self->nation_name))
     {
         $government += SUPPORT_HELP_FOR_CIVIL_WAR;
-        $self->register_event("HELP FROM SUPPORT FOR GOVERNMENT");
     }
     if($reb_sup)
     {
@@ -80,16 +84,22 @@ sub fight
     }
     if($government > $rebels)
     {
-        $reb_sup->casualities(1) if $reb_sup;
-        $world->rebel_military_support_garbage_collector();
-        $self->register_event("BATTLE WON BY GOVERNMENT [G: $government - R: $rebels]");
+        if($reb_sup)
+        {
+            $reb_sup->casualities(1);
+            $self->register_event("Rebel military support from " . $reb_sup->node1 . " destroyed") if($reb_sup->army == 0);
+            $world->rebel_military_support_garbage_collector();
+        }
         return $self->battle('government', $world);
     }
     elsif($rebels > $government)
     {
-        $sup->casualities(1) if $sup;
-        $world->military_support_garbage_collector();
-        $self->register_event("BATTLE WON BY REBELS [G: $government - R: $rebels]");
+        if($sup)
+        {
+            $sup->casualities(1);
+            $self->register_event("Military support from " . $sup->node1 . " destroyed") if($sup->army == 0);
+            $world->military_support_garbage_collector();
+        }
         return $self->battle('rebels', $world);
     }
     else
@@ -110,24 +120,13 @@ sub battle
     {
         $self->rebel_provinces($self->rebel_provinces() + .5);
     }
-    $self->register_event("REBEL PROVINCES: " . $self->rebel_provinces());
     if($self->rebel_provinces == 0)
     {
-        $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-        $self->register_event("THE GOVERNMENT WON THE CIVIL WAR");
-        $world->broadcast_event( { code => 'govwincivil',
-                                   text => "THE GOVERNMENT OF " . $self->nation_name . " WON THE CIVIL WAR",
-                                   involved => [$self->nation_name] }, $self->nation_name );
+ 
         return 'government';
     }
     elsif($self->rebel_provinces == PRODUCTION_UNITS->[$self->nation->size])
     {
-        $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
-        $self->register_event("THE REBELS WON THE CIVIL WAR");
-        $world->broadcast_event( { code => 'rebwincivil',
-                                   text => "THE REBELS IN " . $self->nation_name . " WON THE CIVIL WAR",
-                                   involved => [$self->nation_name] }, $self->nation_name );
-      
         return 'rebels';
     }
     return undef;
@@ -153,6 +152,12 @@ sub win
                                      involved => [$self->nation_name, $rebel_supporter->name],
                                      values => ['rebsup'] }, $self->nation_name, $rebel_supporter->name);
         }
+        $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("The rebels won the civil war");
+        $world->broadcast_event( { code => 'rebwincivil',
+                                   text => "THE REBELS IN " . $self->nation_name . " WON THE CIVIL WAR",
+                                   involved => [$self->nation_name] }, $self->nation_name );
+      
         $world->empty_stocks($self->nation_name);
         $self->nation->available_stocks(START_STOCKS->[$self->nation->size]);
     }
@@ -164,6 +169,11 @@ sub win
             my $rebel_supporter = $world->get_nation($rebsup->node1);
             $world->stop_rebel_military_support($rebel_supporter, $self->nation) if $rebel_supporter;
         }
+        $self->nation->internal_disorder(AFTER_CIVIL_WAR_INTERNAL_DISORDER);
+        $self->register_event("The government won the civil war");
+        $world->broadcast_event( { code => 'govwincivil',
+                                   text => "THE GOVERNMENT OF " . $self->nation_name . " WON THE CIVIL WAR",
+                                   involved => [$self->nation_name] }, $self->nation_name );
     }  
 }
 sub dump
@@ -171,8 +181,9 @@ sub dump
     my $self = shift;
     my $io = shift;
     my $indent = shift || "";
+    my $end_date = $self->end_date || "";
     print {$io} $indent . 
-                join(";", $self->nation_name, $self->rebel_provinces, $self->current_year) . "\n";
+                join(";", $self->nation_name, $self->rebel_provinces, $self->current_year, $self->start_date, $end_date) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 sub load
@@ -182,10 +193,11 @@ sub load
     my $cw_line = ( split /\n/, $data )[0];
     $cw_line =~ s/^\s+//;
     chomp $cw_line;
-    my ($nation, $rebel_provinces, $current_year) = split ";", $cw_line;
+    my ($nation, $rebel_provinces, $current_year, $start_date, $end_date) = split ";", $cw_line;
     $data =~ s/^.*?\n//;
+    say $data;
     my $events = $self->load_events($data);
-    return $self->new( nation_to_load => $nation, rebel_provinces => $rebel_provinces, current_year => $current_year);
+    return $self->new( nation_to_load => $nation, rebel_provinces => $rebel_provinces, current_year => $current_year, events => $events, start_date => $start_date, end_date => $end_date);
 }
 sub load_nation
 {

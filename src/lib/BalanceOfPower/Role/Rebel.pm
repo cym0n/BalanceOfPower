@@ -10,12 +10,19 @@ use BalanceOfPower::Constants ':all';
 requires 'broadcast_event';
 requires 'war_report';
 requires 'lose_war';
+requires 'supported';
 
 
 has civil_wars => (
     is => 'rw',
     default => sub { [] }
 );
+
+has civil_memorial => (
+    is => 'rw',
+    default => sub { [] }
+);
+
 
 sub get_civil_war
 {
@@ -37,8 +44,13 @@ sub start_civil_war
     
     my $civwar = BalanceOfPower::CivilWar->new(nation => $nation,
                                                rebel_provinces => $rebel_provinces,
-                                               current_year => $nation->current_year);
-    $civwar->register_event("CIVIL WAR OUTBREAK!");
+                                               start_date => $nation->current_year);
+    $civwar->register_event("Starting army: " . $nation->army);
+    my $sup = $self->supported($nation->name);
+    if($sup)
+    {
+        $civwar->register_event("Support to government from " . $sup->node1);
+    }
     $self->add_civil_war($civwar);
     $self->broadcast_event({ code => "civiloutbreak",
                              text => "CIVIL WAR OUTBREAK IN " . $nation->name, 
@@ -65,6 +77,13 @@ sub delete_civil_war
 {
     my $self = shift;
     my $nation = shift;
+    my $cw = $self->get_civil_war($nation);
+    if($cw)
+    {
+        $cw->end_date($self->current_year);
+        
+        push @{$self->civil_memorial}, $cw;
+    }
     my @civwars = grep { ! $_->is_about($nation) } @{$self->civil_wars};
     $self->civil_wars(\@civwars);
 }
@@ -90,6 +109,50 @@ sub at_civil_war
         return 0;
     }
 }
+
+sub dump_civil_memorial
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift;
+    foreach my $cw (@{$self->civil_memorial})
+    {
+        print {$io} $cw->dump($io, $indent);
+    }
+}
+sub load_civil_memorial
+{
+    my $self = shift;
+    my $data = shift;
+    
+    $data .= "EOF";
+    my $war_data = "";
+    my @memorial;
+    my @lines = split "\n", $data;
+    foreach my $l (@lines)
+    {
+        if($l !~ /^\s/)
+        {
+            if($war_data)
+            {
+                my $cw = BalanceOfPower::CivilWar->load($war_data);
+                $cw->load_nation($self);
+                push @memorial, $cw;
+                $war_data = $l . "\n";
+            }
+            else
+            {
+                $war_data = $l . "\n";
+            }
+        }
+        else
+        {
+            $war_data .= $l . "\n";
+        }
+    }
+    return \@memorial;
+}
+
 
 1;
 

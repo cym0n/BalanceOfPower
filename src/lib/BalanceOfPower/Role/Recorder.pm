@@ -162,6 +162,8 @@ sub dump_all
     }
     print {$io} "### MEMORIAL\n";
     $self->dump_memorial($io);
+    print {$io} "### CIVIL MEMORIAL\n";
+    $self->dump_civil_memorial($io);
     print {$io} "### STATISTICS\n";
     $self->dump_statistics($io);
     print {$io} "### EOF\n";
@@ -260,6 +262,10 @@ sub load_world
             elsif($target eq 'MEMORIAL')
             {
                 $world->memorial($world->load_memorial($data));
+            }
+            elsif($target eq 'CIVIL MEMORIAL')
+            {
+                $world->civil_memorial($world->load_civil_memorial($data));
             }
             elsif($target eq 'STATISTICS')
             {

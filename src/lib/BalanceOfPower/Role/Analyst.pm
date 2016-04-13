@@ -224,6 +224,28 @@ sub print_war_history
                                    { wars => \%wars,
                                      war_names => \@war_names } );
 }
+sub print_civil_war_history
+{
+    my $self = shift;
+    my $mode = shift || 'print';
+    my %civil_wars;
+    my @civil_war_names;
+    foreach my $w (@{$self->civil_memorial})
+    {
+        my $name = $w->name . " - " . $w->start_date;
+        $civil_wars{$name} =  $w;
+        push @civil_war_names, { name => $name,
+                                 start => $w->start_date  };
+    }
+    sub civil_comp
+    {
+        compare_turns($a->{start}, $b->{start});
+    }
+    @civil_war_names = sort civil_comp @civil_war_names;
+    return BalanceOfPower::Printer::print($mode, $self, 'print_civil_war_history', 
+                                   { civil_wars => \%civil_wars,
+                                     civil_war_names => \@civil_war_names } );
+}
 sub print_treaties_table
 {
     my $self = shift;

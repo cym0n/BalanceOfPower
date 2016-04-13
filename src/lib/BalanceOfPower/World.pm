@@ -920,6 +920,15 @@ sub war_report
     }
 }
 
+sub civil_war_report
+{
+    my $self = shift;
+    my $message = shift;
+    my $nation = shift;
+    my $cw = $self->get_civil_war($nation);
+    $cw->register_event($message) if $cw;
+}
+
 
 # WAR END ##################################################################
 

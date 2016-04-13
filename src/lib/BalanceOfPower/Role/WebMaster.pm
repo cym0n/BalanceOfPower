@@ -28,6 +28,7 @@ requires 'print_influences';
 requires 'print_military_supports';
 requires 'print_rebel_military_supports';
 requires 'print_war_history';
+requires 'print_civil_war_history';
 requires 'print_turn_statistics';
 requires 'print_formatted_turn_events';
 requires 'print_nation_actual_situation';
@@ -67,6 +68,9 @@ sub build_pre_statics
     open(my $whistory, "> $dest_dir/war-history.tt");
     print {$whistory} $self->print_war_history('html');
     close($whistory);
+    open(my $cwhistory, "> $dest_dir/civil-war-history.tt");
+    print {$cwhistory} $self->print_civil_war_history('html');
+    close($cwhistory);
     open(my $market, "> $dest_dir/market.tt");
     print {$market} $self->print_market('html');
     close($market);

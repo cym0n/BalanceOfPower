@@ -330,6 +330,11 @@ COMMANDS
         print $self->world->print_war_history();
         $result = { status => 1 };
     }
+    elsif($query eq "civil war history")
+    {
+        print $self->world->print_civil_war_history();
+        $result = { status => 1 };
+    }
     elsif($query eq "treaties")
     {
         print $self->world->print_treaties_table();
