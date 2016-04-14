@@ -1,4 +1,3 @@
-<h3>WAR HISTORY</h3>
 [% FOREACH wn IN war_names %][% wnname = wn.name %]
 <h4>### WAR [% wnname %]</h4>
 [% FOREACH w IN wars.$wnname %]

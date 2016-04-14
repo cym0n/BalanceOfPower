@@ -195,7 +195,6 @@ sub load
     chomp $cw_line;
     my ($nation, $rebel_provinces, $current_year, $start_date, $end_date) = split ";", $cw_line;
     $data =~ s/^.*?\n//;
-    say $data;
     my $events = $self->load_events($data);
     return $self->new( nation_to_load => $nation, rebel_provinces => $rebel_provinces, current_year => $current_year, events => $events, start_date => $start_date, end_date => $end_date);
 }
