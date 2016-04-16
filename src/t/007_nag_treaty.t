@@ -24,9 +24,9 @@ $italy->production(100);
 $italy->prestige(20);
 $world->forced_advisor("domestic");
 is($italy->decision($world), 'Italy: TREATY NAG WITH Germany', "Italy will subscribe a non aggression treaty with Germany (dangerous neighbor)");
-is($world->in_military_range("United Kingdom", "Italy"), 1, "With no treaty Italy is in UK military range");
+ok($world->in_military_range("United Kingdom", "Italy"), "With no treaty Italy is in UK military range");
 $world->create_treaty('Italy', 'Germany', "no aggression");
-is($world->in_military_range("United Kingdom", "Italy"), 0, "With treaty Italy is NOT in UK military range");
+ok(! $world->in_military_range("United Kingdom", "Italy"), "With treaty Italy is NOT in UK military range");
 
 
 #Scenario: neutralize the supporter of the enemy

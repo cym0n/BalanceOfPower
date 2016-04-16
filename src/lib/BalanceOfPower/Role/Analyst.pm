@@ -128,44 +128,15 @@ sub print_near_analysis
     foreach my $b (@near)
     {
         my $rel = $self->diplomacy_exists($nation, $b);
-        if(! $self->border_exists($nation, $b))
-        {
-            if($self->exists_military_support($nation, $b))
-            {
-                push @data, { nation => $b,
-                              relation => $rel,
-                              how => 'supported' };
-            }
-            else
-            {
-                my @foreign_borders = $self->get_borders($b);
-                foreach my $fb (@foreign_borders)
-                {
-                    my $other_n = $fb->destination($b);
-                    my $sups = $self->supported($other_n);
-                    if($sups)
-                    {
-                        if($sups->start($other_n) eq $nation)
-                        {
-                            push @data, { nation => $b,
-                                          relation => $rel,
-                                          how => $other_n };
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            push @data, { nation => $b,
-                          relation => $rel,
-                          how => "border" };
-        }
+        my $reason = $self->in_military_range($nation, $b);
+        push @data, { nation => $b,
+                      relation => $rel,
+                      how => $reason->{'how'},
+                      who => $reason->{'who'} };
     }
     BalanceOfPower::Printer::print($mode, $self, 'print_near_analysis', 
                                            { nation => $nation,
                                              near => \@data } );
-
 }
 sub print_hotspots
 {

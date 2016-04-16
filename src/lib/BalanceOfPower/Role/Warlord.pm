@@ -19,7 +19,6 @@ requires 'get_hates';
 requires 'occupy';
 requires 'broadcast_event';
 requires 'send_event';
-requires 'empire';
 requires 'get_group_borders';
 requires 'get_allies';
 requires 'supported';
@@ -62,7 +61,7 @@ sub in_military_range
     my $hostile = shift || 1;
     if($self->border_exists($nation1, $nation2))
     {
-        return 1;
+        return { how => 'border', who => undef };
     }
     my @supported = $self->supporter($nation1);
     for(@supported)
@@ -75,11 +74,11 @@ sub in_military_range
             {
                 if($nation_supported eq $nation2)
                 {
-                    return 1;
+                    return { how => 'supporting', who => undef};
                 }
                 if($self->border_exists($nation_supported, $nation2))
                 {
-                    return 1;
+                    return { how => 'support', who => $nation_supported};
                 }
             }
             else
@@ -93,7 +92,8 @@ sub in_military_range
         my $ally = $_;
         if(! $self->war_busy($ally))
         {
-            return 1 if $ally eq $nation2 || $self->border_exists($ally, $nation2);
+                return { how => 'linked', who => undef } if $ally eq $nation2;
+                return { how => 'control', who => $ally } if $self->border_exists($ally, $nation2);
         }
     }
     return 0;
