@@ -3,10 +3,6 @@
 <h4>[% INCLUDE fragments/linked_nation.tt n = ne.nation %]</h4>
 <p>
    Relations: <span class="[% ne.relation.status_html_class %]">[% ne.relation.status %]</span><br />
-   [% IF ne.how == 'supported' || ne.how == 'border' %]
-   In range because: [% ne.how %]
-   [% ELSE %]
-   In range because: Military support from [% INCLUDE fragments/linked_nation.tt n = ne.how %]
-   [% END %]
+   In range because: [% INCLUDE fragments/in_range_reason.tt reason = ne %]<br /> 
 </p>
 [% END %]
