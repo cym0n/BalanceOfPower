@@ -513,6 +513,7 @@ sub lose_war
     my $retreat_penality = 0;
     my @conquerors = ();
     my $conquerors_leader = "";
+    my $occupied = 0;
     foreach my $w (@wars)
     {
         my $other;
@@ -549,8 +550,10 @@ sub lose_war
     }
     if(@conquerors > 0)
     {
+        $occupied = 1;
         $self->occupy($loser, \@conquerors, $conquerors_leader, $internal_disorder);  
     }
+    return $occupied;
 }
 
 sub delete_war

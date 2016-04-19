@@ -557,7 +557,7 @@ sub execute_decisions
         {
             my $attacker = $nation;
             my $defender = $self->get_nation($1);
-            if(! $self->at_war($attacker->name) && ! $self->at_war($defender->name))
+            if(! $self->war_busy($attacker->name) && ! $self->war_busy($defender->name))
             {
                 $self->create_war($attacker, $defender);
             }

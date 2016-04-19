@@ -51,12 +51,15 @@ sub start_civil_war
     {
         $civwar->register_event("Support to government from " . $sup->node1);
     }
-    $self->add_civil_war($civwar);
     $self->broadcast_event({ code => "civiloutbreak",
                              text => "CIVIL WAR OUTBREAK IN " . $nation->name, 
                              involved => [$nation->name] }, $nation->name);
     $self->war_report("Civil war in " . $nation->name . "!", $nation->name);
-    $self->lose_war($nation->name, 1);
+    my $occupied = $self->lose_war($nation->name, 1);
+    if(! $occupied)
+    {
+        $self->add_civil_war($civwar);
+    }
 }
 
 sub add_civil_war
