@@ -38,6 +38,10 @@ has government_strength => (
     is => 'rw',
     default => 70
 );
+has government_id => (
+    is => 'rw',
+    default => 0
+);
 has size => (
     is => 'ro',
     default => 1
@@ -344,6 +348,7 @@ sub new_government
     my $self = shift;
     my $world = shift;
     $self->government_strength($world->random10(MIN_GOVERNMENT_STRENGTH, MAX_GOVERNMENT_STRENGTH, "Reroll government strength for " . $self->name));
+    $self->government_id($self->government_id + 1);
     $world->reroll_diplomacy($self->name);
     $world->reset_treaties($self->name);
     $world->reset_influences($self->name);
@@ -358,6 +363,7 @@ sub occupation
 {
     my $self = shift;
     my $world = shift;
+    $self->government_id($self->government_id + 1);
     $world->reset_treaties($self->name);
     $world->reset_influences($self->name);
     $world->reset_supports($self->name);
