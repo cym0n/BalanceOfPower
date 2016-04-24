@@ -285,6 +285,7 @@ sub post_decisions_elaborations
     $self->civil_warfare();
     $self->warfare();
     $self->internal_conflict();
+    $self->player_targets();
     $self->register_global_data();
     $self->collect_events();
 }

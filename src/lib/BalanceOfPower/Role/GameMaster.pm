@@ -6,6 +6,7 @@ use v5.10;
 use Moo::Role;
 
 use BalanceOfPower::Player;
+use BalanceOfPower::Targets::Fall;
 
 use BalanceOfPower::Constants ':all';
 
@@ -73,6 +74,32 @@ sub player_current_year
     {
         $_->current_year($self->current_year);
     }
+}
+
+sub player_targets
+{
+    my $self = shift;
+    for(@{$self->players})
+    {
+        my $p = $_;
+        if($p->no_targets)
+        {
+            my $obj = BalanceOfPower::Targets::Fall->select_random_target($self);
+            if($obj)
+            {
+                my $target = BalanceOfPower::Targets::Fall->new(target_obj => $obj, 
+                                                                government_id => $obj->government_id, 
+                                                                countdown => TIME_FOR_TARGET);
+                $p->add_target($target);
+            }
+        }
+        else
+        {
+            $p->check_targets($self);
+            $p->click_targets();
+        }
+    }
+
 }
 
 1;

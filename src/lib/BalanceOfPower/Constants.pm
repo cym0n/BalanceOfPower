@@ -148,6 +148,7 @@ use constant PROGRESS_INCREMENT => .1;
 use constant TREATY_LIMIT_PROGRESS_STEP => 0.4;
 use constant TREATIES_FOR_PROGRESS_STEP => 5;
 use constant MAX_AFFORDABLE_PROGRESS => 0.8;
+use constant TIME_FOR_TARGET => 16;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -269,5 +270,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'CIVIL_WAR_WEALTH_MALUS',
                   'INFLUENCE_COST',
                   'MAX_BUY_STOCK',
+                  'TIME_FOR_TARGET'
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
