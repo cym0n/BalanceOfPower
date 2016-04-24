@@ -99,7 +99,18 @@ sub player_targets
             $p->click_targets();
         }
     }
-
+}
+sub print_targets
+{
+    my $self = shift;
+    my $player = shift;
+    my $mode = shift || 'print';
+    my $player_obj = $self->get_player($player);
+    return BalanceOfPower::Printer::print($mode, $self, 'print_targets', 
+                                   { player => $player,
+                                     points => $player_obj->mission_points,
+                                     targets => $player_obj->targets,
+                                   } );
 }
 
 1;

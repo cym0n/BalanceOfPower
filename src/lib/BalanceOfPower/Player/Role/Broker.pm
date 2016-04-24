@@ -5,6 +5,7 @@ use v5.10;
 use Moo::Role;
 
 use BalanceOfPower::Constants ':all';
+use BalanceOfPower::Utils qw(as_title);
 
 requires 'register_event';
 

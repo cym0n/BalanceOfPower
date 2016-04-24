@@ -516,6 +516,11 @@ COMMANDS
             $result = { status => -1 };
         }
     }
+    elsif($query eq "targets")
+    {
+        print $self->world->print_targets($self->get_active_player()->name);
+        $result = { status => 1 };
+    }
     else
     {
         my $nation_query = $self->world->correct_nation_name($query);
