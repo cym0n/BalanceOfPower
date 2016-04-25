@@ -60,6 +60,7 @@ $world->get_nation("Italy")->production(200);
 $world->get_nation("Germany")->production(200);
 $world->set_diplomacy("Italy", "Germany", 80);
 $world->ia_orders( [ "Italy: DECLARE WAR TO France" ] );
+is($world->get_nation("France")->government_id, 0, "France has government 0");
 $world->post_decisions_elaborations();
 ok($world->war_exists("Italy", "France"), "Italy attacked France");
 ok($world->war_exists("Russia", "Germany"), "Russia attacked Germany");
@@ -68,6 +69,7 @@ $world->post_decisions_elaborations();
 is($world->get_events("Italy OCCUPIES France", "1970/2"), 1, "Italy occupies France");
 is($world->get_nation("Italy")->progress, 0.1, "Italy acquired France progress");
 is($world->get_events("WAR BETWEEN Germany AND Russia WON BY Germany", "1970/2"), 1, "WAR BETWEEN Germany AND Russia WON BY Germany");
+is($world->get_nation("France")->government_id, 1, "France has government 1");
 
 
 done_testing();

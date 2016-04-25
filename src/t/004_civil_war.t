@@ -23,6 +23,7 @@ $world->init_random("nations-test-single.txt", "borders-test-single.txt",
 $world->forced_advisor("Noone");
 $world->get_nation("Italy")->internal_disorder(10);
 $world->get_nation("Italy")->army(2);
+is($world->get_nation("Italy")->government_id, 0, "Italy has government 0");
 $world->pre_decisions_elaborations("1970/1");
 $world->get_nation("Italy")->add_internal_disorder(70, $world);
 $world->post_decisions_elaborations();
@@ -35,5 +36,6 @@ $world->elaborate_turn("1970/4");
 $world->elaborate_turn("1971/1");
 $world->elaborate_turn("1971/2");
 is($world->get_events("THE REBELS IN Italy WON THE CIVIL WAR", "1971/2"), 1, "Rebels won the civil war");
+is($world->get_nation("Italy")->government_id, 1, "Italy has government 1");
 
 done_testing();
