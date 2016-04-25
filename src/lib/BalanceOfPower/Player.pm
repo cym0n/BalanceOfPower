@@ -47,8 +47,8 @@ sub load
     my $what = '';
     my $extracted_data;
     my $wallet = {};
-    my $targets = {};
-    my $events = [];
+    my $targets = [];
+    my $events = {};
     foreach my $line (@player_lines)
     {
         $line =~ s/^\s+//;

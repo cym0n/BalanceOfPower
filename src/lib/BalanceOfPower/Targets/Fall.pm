@@ -61,7 +61,7 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . 
-                join(";", $self->target_obj->name, $self->government_id, $self->countdown) . "\n";
+                join(";", "FALL", $self->target_obj->name, $self->government_id, $self->countdown) . "\n";
 }
 sub load_target
 {
@@ -77,8 +77,8 @@ sub load
     my $f_line = ( split /\n/, $data )[0];
     $f_line =~ s/^\s+//;
     chomp $f_line;
-    my ($nation, $government, $countdown) = split ";", $f_line;
+    my ($type, $nation, $government, $countdown) = split ";", $f_line;
     $data =~ s/^.*?\n//;
-    return $self->new( target_to_load => $nation, government => $government, countdown => $countdown);
+    return $self->new( target_to_load => $nation, government_id => $government, countdown => $countdown);
 }
 1;

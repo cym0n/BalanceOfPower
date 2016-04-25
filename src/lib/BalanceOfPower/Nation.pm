@@ -444,7 +444,7 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . 
-                join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->current_year, $self->army, $self->progress, $self->available_stocks) . "\n";
+                join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->current_year, $self->army, $self->progress, $self->available_stocks, $self->government_id) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 
@@ -470,8 +470,21 @@ sub manage_nation_line
     chomp $nation_line;
 
     my %init_params;
-    
-    if($version > 1)
+    if($version > 2)
+    {
+        my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $current_year, $army, $progress, $available_stocks, $government_id) = split ";", $nation_line;
+        %init_params = (name => $name, code => $code, area => $area, size => $size,
+                        government_id => $government_id,
+                        export_quote => $export_quote, government => $government, government_strength => $government_strength,
+                        internal_disorder => $internal_disorder, 
+                        production_for_domestic => $production_for_domestic, production_for_export => $production_for_export,
+                        prestige => $prestige, wealth => $wealth, debt => $debt,
+                        army => $army,
+                        current_year => $current_year,
+                        progress => $progress,
+                        available_stocks => $available_stocks);
+    }    
+    elsif($version == 2)
     {
         my ($name, $code, $area, $export_quote, $government, $government_strength, $size, $internal_disorder, $production_for_domestic, $production_for_export, $prestige, $wealth, $debt, $current_year, $army, $progress, $available_stocks) = split ";", $nation_line;
         %init_params = (name => $name, code => $code, area => $area, size => $size,
