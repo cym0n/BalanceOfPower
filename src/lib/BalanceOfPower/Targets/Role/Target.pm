@@ -5,9 +5,11 @@ use v5.10;
 use Moo::Role;
 
 has target_obj => (
-    is => 'ro',
+    is => 'rw',
 );
-
+has target_to_load => (
+    is => 'ro'
+);
 has countdown => (
     is => 'rw',
 );

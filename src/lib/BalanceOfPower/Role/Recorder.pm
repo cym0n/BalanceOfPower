@@ -10,7 +10,7 @@ use BalanceOfPower::Executive;
 requires 'dump_events';
 requires 'load_events';
 
-my $dump_version = 2;
+my $dump_version = 3;
 
 
 sub dump
@@ -81,7 +81,7 @@ sub load_players
         {
             if($player_data)
             {
-                my $player = BalanceOfPower::Player->load($player_data);
+                my $player = BalanceOfPower::Player->load($player_data, $self);
                 push @{$self->players}, $player;
             }
             $player_data = $l . "\n";

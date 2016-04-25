@@ -30,12 +30,15 @@ sub dump
     $self->dump_wallet($io, " " . $indent);            
     print {$io} $indent . " " . "### EVENTS\n";
     $self->dump_events($io, " " . $indent);
+    print {$io} $indent . " " . "### TARGETS\n";
+    $self->dump_targets($io, " " . $indent);
 }
 
 sub load
 {
     my $self = shift;
     my $data = shift;
+    my $world = shift;
     my @player_lines =  split /\n/, $data;
     my $player_line = shift @player_lines;
     $player_line =~ s/^\s+//;
@@ -43,7 +46,9 @@ sub load
     my ($name, $money, $current_year) = split ";", $player_line;
     my $what = '';
     my $extracted_data;
-    my $wallet;
+    my $wallet = {};
+    my $targets = {};
+    my $events = [];
     foreach my $line (@player_lines)
     {
         $line =~ s/^\s+//;
@@ -58,15 +63,29 @@ sub load
             $wallet = $self->load_wallet($extracted_data);
             $extracted_data = "";
         }
+        elsif($line eq '### TARGETS')
+        {
+            $what = 'targets';
+            $events = $self->load_events($extracted_data);
+            $extracted_data = "";
+        }
         else
         {
             $extracted_data .= $line . "\n";
         }
     }
-    my $events = $self->load_events($extracted_data);
+    if($what eq 'targets')
+    {
+        $targets = $self->load_targets($extracted_data, $world);
+    }
+    elsif($what eq 'events')
+    {
+        $events = $self->load_events($extracted_data);
+    }
     return $self->new(name => $name, money => $money, current_year => $current_year,
                       wallet => $wallet,
-                      events => $events);
+                      events => $events,
+                      targets => $targets);
 }
 
 

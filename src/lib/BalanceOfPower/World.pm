@@ -114,7 +114,7 @@ sub get_nation
     }
     else
     {
-        say "Cannot found $nation";
+        say "Cannot find $nation";
         return undef;
     }
 }

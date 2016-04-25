@@ -73,6 +73,30 @@ sub point
     my $self = shift;
     $self->mission_points($self->mission_points + 1);
 }
+sub dump_targets
+{
+    my $self = shift;
+    my $io = shift;
+    my $indent = shift;
+    for(@{$self->targets})
+    {
+        $_->dump($io, $indent);
+    }
+}
+sub load_targets
+{
+    my $self = shift; 
+    my $extracted_data = shift;
+    my $world = shift;
+    my @targets;
+    for(split "\n", $extracted_data)
+    {
+        my $target = BalanceOfPower::Targets::Fall->load($_);
+        $target->load_target($world);
+        push @targets, $target;
+    }
+    return \@targets;
+}
 
 1;
 
