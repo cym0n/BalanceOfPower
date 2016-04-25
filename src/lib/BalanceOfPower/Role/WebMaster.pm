@@ -208,6 +208,9 @@ sub build_players_statics
         open(my $graphs, "> $dest_dir/graphs.tt");
         print {$graphs} $self->print_player_graphs($p->name, prev_turn($self->current_year()), 10, 'html');
         close($graphs);
+        open(my $targets, "> $dest_dir/targets.tt");
+        print {$targets} $self->print_targets($p->name, 'html');
+        close($targets);
 
 
         $dest_dir = "$site_root/metadata/$game/p";

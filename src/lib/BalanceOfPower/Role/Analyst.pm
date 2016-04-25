@@ -259,7 +259,8 @@ sub player_stocks_status
     return { market_data => \%market_data,
              stock_value => $stock_value,
              money => $player_obj->money,
-             total_value => $total_value };
+             total_value => $total_value,
+             points => $player_obj->mission_points };
 }
 
 
