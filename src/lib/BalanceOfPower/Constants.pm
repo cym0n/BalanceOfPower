@@ -113,8 +113,8 @@ use constant MILITARY_AID_DIPLOMACY_FACTOR => 7;
 use constant STOCK_INFLUENCE_FACTOR => .5;
 use constant START_STOCKS => [ 8, 10, 12 ];
 use constant START_PLAYER_MONEY => 1000;
-use constant WAR_BOND_COST => 10;
-use constant WAR_BOND_GAIN => 20;
+use constant WAR_BOND_COST => 50;
+use constant WAR_BOND_GAIN => 90;
 use constant INFLUENCE_COST => 1;
 use constant MAX_BUY_STOCK => 4;
 
