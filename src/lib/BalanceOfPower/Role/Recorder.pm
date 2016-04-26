@@ -72,6 +72,7 @@ sub load_players
 {
     my $self = shift;
     my $data = shift;
+    my $version = shift;
     $data .= "EOF\n";
     my $player_data = "";
     foreach my $l (split "\n", $data)
@@ -81,7 +82,7 @@ sub load_players
         {
             if($player_data)
             {
-                my $player = BalanceOfPower::Player->load($player_data, $self);
+                my $player = BalanceOfPower::Player->load($player_data, $version, $self);
                 push @{$self->players}, $player;
             }
             $player_data = $l . "\n";
@@ -217,7 +218,7 @@ sub load_world
             }
             elsif($target eq 'PLAYERS')
             {
-                $world->load_players($data);
+                $world->load_players($data, $version);
             }
             elsif($target eq 'DIPLOMATIC RELATIONS')
             {

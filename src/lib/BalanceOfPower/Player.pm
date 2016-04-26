@@ -25,7 +25,7 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . 
-                join(";", $self->name, $self->money, $self->current_year) . "\n";
+                join(";", $self->name, $self->money, $self->current_year, $self->mission_points) . "\n";
     print {$io} $indent . " " . "### WALLET\n";
     $self->dump_wallet($io, " " . $indent);            
     print {$io} $indent . " " . "### EVENTS\n";
@@ -38,12 +38,13 @@ sub load
 {
     my $self = shift;
     my $data = shift;
+    my $version = shift;
     my $world = shift;
     my @player_lines =  split /\n/, $data;
     my $player_line = shift @player_lines;
     $player_line =~ s/^\s+//;
     chomp $player_line;
-    my ($name, $money, $current_year) = split ";", $player_line;
+    my %params = $self->manage_player_line($player_line, $version);
     my $what = '';
     my $extracted_data;
     my $wallet = {};
@@ -82,10 +83,35 @@ sub load
     {
         $events = $self->load_events($extracted_data);
     }
-    return $self->new(name => $name, money => $money, current_year => $current_year,
-                      wallet => $wallet,
-                      events => $events,
-                      targets => $targets);
+    $params{'wallet'} = $wallet;
+    $params{'events'} = $events;
+    $params{'targets'} = $targets;
+    return $self->new(%params);
+}
+
+sub manage_player_line
+{
+    my $self = shift;
+    my $data = shift;
+    my $version = shift;
+    if($version >= 3)
+    {
+        my ($name, $money, $current_year, $mission_points) = split ";", $data;
+        return ( name => $name,
+                 money => $money,
+                 current_year => $current_year,
+                 mission_points => $mission_points );
+    }
+    else
+    {
+        my ($name, $money, $current_year) = split ";", $data;
+        return ( name => $name,
+                 money => $money,
+                 current_year => $current_year,
+                 mission_points => 0 );
+    }
+
+    
 }
 
 
