@@ -53,12 +53,12 @@ $world->set_diplomacy("Italy", "France", 3);
 $world->ia_orders([ "Italy: DECLARE WAR TO France" ]);
 $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
-is($player->money, 970, "Payed for war bonds");
+is($player->money, 930, "Payed for war bonds");
 is($player->war_bonds("Italy"), 1, "1 war bond from Italy acquired");
 $world->get_nation("France")->army(0);
 $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
-is($player->money, 1000, "Italy won the war. War bonds returned a gain of 40");
+is($player->money, 1060, "Italy won the war. War bonds returned a gain of 180");
 is($player->war_bonds("Italy"), 0, "War bonds erased");
 done_testing();
   
