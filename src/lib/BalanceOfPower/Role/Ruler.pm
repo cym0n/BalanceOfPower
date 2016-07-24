@@ -181,6 +181,7 @@ sub print_influences
     my $n = shift;
     my $mode = shift || 'print';
     my @inf = $self->influences->links_for_node($n);
+    @inf = sort { lc($a->node1) cmp lc($b->node1) } @inf;
     return BalanceOfPower::Printer::print($mode, $self, 'print_influences', 
                                           { influences => \@inf } );
 }
