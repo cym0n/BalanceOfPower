@@ -12,6 +12,10 @@ has position => (
     is => 'rw',
 );
 
+has movements => (
+    is => 'rw',
+);
+
 sub make_travel_plan
 {
     my $self = shift;
@@ -29,7 +33,10 @@ sub make_travel_plan
         {
             my $youcan = 'OK';
             $youcan = 'KO' if($world->war_busy($self->position) || $world->war_busy($n));
-            $plan{'air'}->{$n} = $youcan;
+            $plan{'air'}->{$n}->{status} = $youcan;
+            my $cost = $world->distance($self->position, $n) * AIR_TRAVEL_COST_FOR_DISTANCE;
+            $cost = AIR_TRAVEL_CAP_COST if $cost > AIR_TRAVEL_CAP_COST;
+            $plan{'air'}->{$n}->{cost} = $cost if($youcan eq 'OK');
             push @already, $n if $youcan eq 'OK';
         }
     }
@@ -37,7 +44,8 @@ sub make_travel_plan
     {
         if(! grep { $_ eq $n } @already)
         {
-            $plan{'ground'}->{$n} = 'OK';
+            $plan{'ground'}->{$n}->{status} = 'OK';
+            $plan{'ground'}->{$n}->{cost} = GROUND_TRAVEL_COST;
             push @already, $n;
         }
     }
@@ -53,5 +61,36 @@ sub print_travel_plan
     return BalanceOfPower::Printer::print($mode, $self, 'print_travel_plan', 
                                           { plan => \%plan } );
     
+}
+
+sub refill_movements
+{
+    my $self = shift;
+    $self->movements(PLAYER_MOVEMENTS);
+}
+sub go
+{
+    my $self = shift;
+    my $world = shift;
+    my $destination = shift;
+    my %plan = $self->make_travel_plan($world);
+    foreach my $way ('air', 'ground')
+    {
+        if(my $route = $plan{$way}->{$destination})
+        {
+            if($route->{status} eq 'KO')
+            {
+                return -1;
+            }        
+            elsif($route->{cost} > $self->movements)
+            {
+                return -2;
+            }
+            $self->movements($self->movements - $route->{cost});
+            $self->position($destination);   
+            return (1, { destination => $destination, way => $way, cost => $route->{cost} });     
+        }
+    }
+    return -3;
 }
 1;

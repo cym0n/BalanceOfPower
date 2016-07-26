@@ -271,7 +271,7 @@ sub pre_decisions_elaborations
     my $t = shift;
     $self->init_year($t);
     $self->war_current_year();
-    $self->player_current_year();
+    $self->player_start_turn();
     $self->civil_war_current_year();
     $self->war_debts();
     $self->crisis_generator();

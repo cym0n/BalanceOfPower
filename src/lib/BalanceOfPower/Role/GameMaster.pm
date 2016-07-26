@@ -67,12 +67,13 @@ sub delete_player
     my @players = grep { $_->name ne $player} @{$self->players};
     $self->players(\@players);
 }
-sub player_current_year
+sub player_start_turn
 {
     my $self = shift;
     for(@{$self->players})
     {
         $_->current_year($self->current_year);
+        $_->refill_movements();
     }
 }
 

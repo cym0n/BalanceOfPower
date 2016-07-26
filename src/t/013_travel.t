@@ -22,8 +22,8 @@ $player->position('Italy');
 
 %plan = $player->make_travel_plan($world); 
 is_deeply(\%plan, 
-          { ground => { 'France' => 'OK',
-                        'Germany' => 'OK' },  
+          { ground => { 'France' => { status => 'OK', 'cost' => 2 },
+                        'Germany' => { status => 'OK', 'cost' => 2 } },  
             air => {} },
           "Good travel plan - minimal situation");
 
@@ -31,10 +31,10 @@ $world->generate_traderoute("Italy", "Russia", 0);
 $world->generate_traderoute("Italy", "United Kingdom", 0);
 %plan = $player->make_travel_plan($world); 
 is_deeply(\%plan, 
-          { ground => { 'France' => 'OK',
-                        'Germany' => 'OK' },  
-            air => { 'Russia' => 'OK',
-                     'United Kingdom' => 'OK'} },
+          { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
+                        'Germany' =>  { status => 'OK', 'cost' => 2 } },  
+            air => { 'Russia' =>  { status => 'OK', 'cost' => 4 },
+                     'United Kingdom' =>  { status => 'OK', 'cost' => 2 }} },
             "Good travel plan - traderoutes present");
 
 $world->get_nation('Germany')->army(7);
@@ -44,19 +44,19 @@ $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
 %plan = $player->make_travel_plan($world); 
 is_deeply(\%plan, 
-          { ground => { 'France' => 'OK',
-                        'Germany' => 'OK' },  
-            air => { 'Russia' => 'OK',
-                     'United Kingdom' => 'KO'} },
+          { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
+                        'Germany' =>  { status => 'OK', 'cost' => 2 } },  
+            air => { 'Russia' =>  { status => 'OK', 'cost' => 4 },
+                     'United Kingdom' =>  { status => 'KO' }} },
             "Good travel plan - war blocks air routes");
 
 $world->generate_traderoute("Italy", "France", 0);
 %plan = $player->make_travel_plan($world); 
 is_deeply(\%plan, 
-          { ground => { 'Germany' => 'OK' },  
-            air => { 'France' => 'OK',
-                     'Russia' => 'OK',
-                     'United Kingdom' => 'KO'} },
+          { ground => { 'Germany' =>  { status => 'OK', 'cost' => 2 } },  
+            air => { 'France' =>  { status => 'OK', 'cost' => 1 },
+                     'Russia' =>  { status => 'OK', 'cost' => 4 },
+                     'United Kingdom' =>  { status => 'KO' }} },
             "Good travel plan - Air has priority on ground");
 
 $world->get_nation("Italy")->add_internal_disorder(90, $world);
@@ -64,11 +64,11 @@ $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
 %plan = $player->make_travel_plan($world); 
 is_deeply(\%plan, 
-          { ground => { 'France' => 'OK',
-                        'Germany' => 'OK' },  
-            air => { 'Russia' => 'KO',
-                     'United Kingdom' => 'KO',
-                     'France' => 'KO'} },
+          { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
+                        'Germany' =>  { status => 'OK', 'cost' => 2 } },  
+            air => { 'Russia' =>  { status => 'KO' },
+                     'United Kingdom' => { status => 'KO' },
+                     'France' => { status => 'KO' } } },
             "Good travel plan - civil war in italy block all the air routes");
 
 done_testing();

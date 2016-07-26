@@ -118,6 +118,12 @@ use constant WAR_BOND_GAIN => 90;
 use constant INFLUENCE_COST => 1;
 use constant MAX_BUY_STOCK => 4;
 
+#Travel
+use constant GROUND_TRAVEL_COST => 2;
+use constant AIR_TRAVEL_COST_FOR_DISTANCE => 1;
+use constant AIR_TRAVEL_CAP_COST => 4;
+use constant PLAYER_MOVEMENTS => 8;
+
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
@@ -270,6 +276,10 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'CIVIL_WAR_WEALTH_MALUS',
                   'INFLUENCE_COST',
                   'MAX_BUY_STOCK',
-                  'TIME_FOR_TARGET'
+                  'TIME_FOR_TARGET',
+                  'GROUND_TRAVEL_COST',
+                  'AIR_TRAVEL_COST_FOR_DISTANCE',
+                  'AIR_TRAVEL_CAP_COST',
+                  'PLAYER_MOVEMENTS',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

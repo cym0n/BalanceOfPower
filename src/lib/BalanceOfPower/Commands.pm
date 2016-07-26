@@ -521,11 +521,6 @@ COMMANDS
         print $self->world->print_targets($self->get_active_player()->name);
         $result = { status => 1 };
     }
-    elsif($query eq "travels")
-    {
-        say $self->get_active_player->print_travel_plan($self->world);  
-        $result = { status => 1 };
-    }
     else
     {
         my $nation_query = $self->world->correct_nation_name($query);
@@ -764,6 +759,33 @@ sub control_commands
     return $result;
 }
 
+sub travel_commands
+{
+    my $self = shift;
+    my $query = $self->query;
+    my $result = { status => 0 };
+    $query = lc $query;
+    if($query eq "travels")
+    {
+        say $self->get_active_player->print_travel_plan($self->world);  
+        $result = { status => 2 };
+    }
+    elsif($query =~ /^go( (.*))$/)
+    {
+        my $input_nation = $self->world->correct_nation_name($2);
+        my ($status, $info) = $self->get_active_player->go($self->world, $input_nation);
+        if($status != 1)
+        {
+            $result = { status => $status };       
+        }
+        else
+        {
+            $result = { status => 1, travel => $info };
+        }
+    }
+    return $result;
+}
+
 sub commands
 {
     my $self = shift;
@@ -788,6 +810,12 @@ sub commands
     }
     $result = $self->control_commands();
     if($self->handle_result('control', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->travel_commands();
+    if($self->handle_result('travel', $result))
     {
         $self->latest_result($result);
         return 1;
@@ -968,6 +996,39 @@ sub handle_result
             $player->add_control_order($self->executive->actor, $result->{command});
             return 1;
         } 
+        else
+        {
+            return 0;
+        }
+    }
+    elsif($type eq 'travel')
+    {
+        if($result->{status} == -1)
+        {
+            say "Route blocked";
+            return 1;
+        }
+        elsif($result->{status} == -2)
+        {
+            say "Not enough movements";
+            return 1;
+        }
+        elsif($result->{status} == -3)
+        {
+            say "Destination unreachable";
+            return 1;
+        }
+        elsif($result->{status} == 1)
+        {
+            say "Moved to " . $result->{travel}->{destination} . " via " . $result->{travel}->{way};
+            say $result->{travel}->{cost} . " movements payed";
+            say "Movements available are now " . $self->get_active_player->movements;
+            print "\n";
+        } 
+        elsif($result->{status} == 2)
+        {
+            return 1;
+        }
         else
         {
             return 0;
