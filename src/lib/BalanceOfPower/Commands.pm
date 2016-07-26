@@ -521,6 +521,11 @@ COMMANDS
         print $self->world->print_targets($self->get_active_player()->name);
         $result = { status => 1 };
     }
+    elsif($query eq "travels")
+    {
+        say $self->get_active_player->print_travel_plan($self->world);  
+        $result = { status => 1 };
+    }
     else
     {
         my $nation_query = $self->world->correct_nation_name($query);

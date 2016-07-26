@@ -9,6 +9,7 @@ use BalanceOfPower::Constants ':all';
 with 'BalanceOfPower::Role::Reporter';
 with 'BalanceOfPower::Player::Role::Broker';
 with 'BalanceOfPower::Player::Role::Hitman';
+with 'BalanceOfPower::Player::Role::Traveler';
 
 
 has name => (
@@ -18,6 +19,7 @@ has name => (
 has current_year => (
     is => 'rw'
 );
+
 
 sub dump
 {
