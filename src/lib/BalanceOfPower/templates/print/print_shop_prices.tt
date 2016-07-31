@@ -2,6 +2,8 @@
 [% "SHOP PRICES" | color 'yellow' 'bold' %]
 [% "===" | color 'yellow' 'bold' %]
 
+[% "# $nation" | color 'yellow' %]
+
 Goods: [% goods_price %]
 Luxury: [% luxury_price %]
 Arms: [% arms_price %]

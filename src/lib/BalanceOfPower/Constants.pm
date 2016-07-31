@@ -126,6 +126,7 @@ use constant PLAYER_MOVEMENTS => 8;
 
 #Shop
 use constant SHOP_PRICE_FACTOR => 10;
+use constant CARGO_TOTAL_SPACE => 500;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -285,5 +286,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'AIR_TRAVEL_CAP_COST',
                   'PLAYER_MOVEMENTS',
                   'SHOP_PRICE_FACTOR',
+                  'CARGO_TOTAL_SPACE',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

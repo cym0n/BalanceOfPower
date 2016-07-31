@@ -47,12 +47,50 @@ sub print_nation_shop_prices
     my $y = shift;
     my $nation = shift;
     my $mode = shift || 'print';
-    my $data = {};
+    my $data = { nation => $nation};
     foreach my $p (@products)
     {
         my $label = $p . "_price";
         $data->{$label} = $self->calculate_price($y, $p, $nation);
     }
     return BalanceOfPower::Printer::print($mode, $self, 'print_shop_prices', $data); 
+}
+
+sub do_transaction
+{
+    my $self = shift;
+    my $player = shift;
+    my $action = shift;
+    my $q = shift;
+    my $what = shift;
+    if(! grep {$_ eq $what} @products)
+    {
+        return -10;
+    }
+    my $price = $self->calculate_price($self->current_year, $what, $player->position);
+    my $cost = $price * $q;
+    if($action eq 'buy')
+    {   
+        if($cost > $player->money)
+        {
+            return -11;
+        }
+        if($q > $player->cargo_free_space)
+        {
+            return -12;
+        }
+        $player->add_money(-1 * $cost);
+        $player->add_cargo($what, $q);
+    }
+    elsif($action eq 'sell')
+    {
+        my $have = $player->get_cargo($what);
+        if($have < $q)
+        {
+            return -13;
+        }
+        $player->add_money($cost);
+        $player->add_cargo($what, -1 * $q);
+    }
 }
 
