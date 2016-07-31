@@ -1,0 +1,9 @@
+[% USE ANSIColor 'color' %]
+[% "SHOP PRICES" | color 'yellow' 'bold' %]
+[% "===" | color 'yellow' 'bold' %]
+
+Goods: [% goods_price %]
+Luxury: [% luxury_price %]
+Arms: [% arms_price %]
+Tech: [% tech_price %]
+Culture: [% culture_price %]

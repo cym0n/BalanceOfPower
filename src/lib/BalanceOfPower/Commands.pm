@@ -121,6 +121,7 @@ sub get_prompt_text
         $prompt_text .= "Controlling $controlled (" . "Int:" . $ctrl_n->production_for_domestic . "    Exp:" . $ctrl_n->production_for_export . "    Prtg:" . $ctrl_n->prestige . "    Army:" . $ctrl_n->army . ")\n";
         $prompt_text .= "Control orders: " .  $player->get_control_order($controlled) . "\n" if $player->get_control_order($controlled);
     }
+    $prompt_text .= "You're in " . $player->position . "\n";
     $prompt_text .= $self->nation ? "(" . $self->nation . " [" . $player->influence($self->nation) .  "]) ?" : "?";
     return $prompt_text;
 }
@@ -786,6 +787,29 @@ sub travel_commands
     return $result;
 }
 
+sub shop_commands
+{
+    my $self = shift;
+    my $query = $self->query;
+    my $result = { status => 0 };
+    $query = lc $query;
+    if($query =~ /^prices( (.*))$/)
+    {
+        my $input_nation = $self->world->correct_nation_name($2);
+        if($input_nation)
+        {
+            say $self->world->print_nation_shop_prices($self->world->current_year, $input_nation);
+            $result = { status => 1 }
+        }
+        else
+        {
+            $result = { status => -1 }
+        }
+    }
+    return $result;
+}
+
+
 sub commands
 {
     my $self = shift;
@@ -816,6 +840,12 @@ sub commands
     }
     $result = $self->travel_commands();
     if($self->handle_result('travel', $result))
+    {
+        $self->latest_result($result);
+        return 1;
+    }
+    $result = $self->shop_commands();
+    if($self->handle_result('shop', $result))
     {
         $self->latest_result($result);
         return 1;
@@ -1032,6 +1062,18 @@ sub handle_result
         else
         {
             return 0;
+        }
+    }
+    elsif($type eq 'shop')
+    {
+        if($result->{status} == -1)
+        {
+            say "Bad nation";
+            return 1;
+        }
+        else
+        {
+            return 1;
         }
     }
 }

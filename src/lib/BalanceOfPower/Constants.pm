@@ -124,6 +124,9 @@ use constant AIR_TRAVEL_COST_FOR_DISTANCE => 1;
 use constant AIR_TRAVEL_CAP_COST => 4;
 use constant PLAYER_MOVEMENTS => 8;
 
+#Shop
+use constant SHOP_PRICE_FACTOR => 10;
+
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
@@ -281,5 +284,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'AIR_TRAVEL_COST_FOR_DISTANCE',
                   'AIR_TRAVEL_CAP_COST',
                   'PLAYER_MOVEMENTS',
+                  'SHOP_PRICE_FACTOR',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
