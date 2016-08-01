@@ -8,6 +8,7 @@ use BalanceOfPower::Player;
 use BalanceOfPower::Executive;
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn prev_turn get_year_turns compare_turns evidence_text);
+use Data::Dumper;
 
 with 'BalanceOfPower::Role::Logger';
 
@@ -806,6 +807,36 @@ sub shop_commands
             $result = { status => -1 }
         }
     }
+    elsif($query eq 'cargo')
+    {
+        say $self->get_active_player->print_cargo();
+        $result = { status => 1 };
+    }
+    elsif($query =~ /^sbuy +([0-9]+) +(.*)$/)
+    {
+        my ($res, $cost) = $self->world->do_transaction($self->get_active_player, 'buy', $1, $2);
+        if($res == 1)
+        {
+            $result = { status => 20, cost => $cost};
+        }
+        else
+        {
+            $result = { status => $res };
+        }
+        say Dumper($self->get_active_player->hold);
+    }
+    elsif($query =~ /^ssell +([0-9]+) +(.*)$/)
+    {
+        my ($res, $cost) = $self->world->do_transaction($self->get_active_player, 'sell', $1, $2);
+        if($res == 1)
+        {
+            $result = { status => 30, cost => $cost};
+        }
+        else
+        {
+            $result = { status => $res };
+        }
+    }
     return $result;
 }
 
@@ -1066,9 +1097,39 @@ sub handle_result
     }
     elsif($type eq 'shop')
     {
-        if($result->{status} == -1)
+        if($result->{status} == 20)
+        {
+            say "Transaction completed. Payed: " . $result->{cost};
+            return 1;
+        }
+        elsif($result->{status} == 30)
+        {
+            say "Transaction completed. Earned: " . $result->{cost};
+            return 1;
+        }
+        elsif($result->{status} == -1)
         {
             say "Bad nation";
+            return 1;
+        }
+        elsif($result->{status} == -10)
+        {
+            say "Bad type of trade";
+            return 1;
+        }
+        elsif($result->{status} == -11)
+        {
+            say "Not enough money";
+            return 1;
+        }
+        elsif($result->{status} == -12)
+        {
+            say "Not enough cargo space";
+            return 1;
+        }
+        if($result->{status} == -13)
+        {
+            say "You don't owe that quantity";
             return 1;
         }
         else

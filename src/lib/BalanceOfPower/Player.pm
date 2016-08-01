@@ -10,6 +10,7 @@ with 'BalanceOfPower::Role::Reporter';
 with 'BalanceOfPower::Player::Role::Broker';
 with 'BalanceOfPower::Player::Role::Hitman';
 with 'BalanceOfPower::Player::Role::Traveler';
+with 'BalanceOfPower::Player::Role::Cargo';
 
 
 has name => (

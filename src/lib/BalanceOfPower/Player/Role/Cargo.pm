@@ -14,14 +14,14 @@ has hold => (
 
 sub add_cargo
 {
-    my $self;
-    my $type;
-    my $q;
+    my $self = shift;
+    my $type = shift;
+    my $q = shift;
 
     my $present = $self->get_cargo($type);
     my $new = $present + $q;
     return -1 if($new < 0);
-    $self->hold->{type} = $new;
+    $self->hold->{$type} = $new;
     return 1;
 }
 
@@ -58,3 +58,18 @@ sub cargo_free_space
     }
 }
 
+sub print_cargo
+{
+    my $self = shift;
+    my $mode = shift || 'print';
+    my $data = {};
+    foreach my $p ( ( 'goods', 'luxury', 'arms', 'tech', 'culture' ) )
+    {
+        $data->{$p} = $self->get_cargo($p);
+    }
+    $data->{'free'} = $self->cargo_free_space;
+    return BalanceOfPower::Printer::print($mode, $self, 'print_cargo', $data); 
+}
+
+
+1;

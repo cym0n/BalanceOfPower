@@ -92,5 +92,6 @@ sub do_transaction
         $player->add_money($cost);
         $player->add_cargo($what, -1 * $q);
     }
+    return (1, $cost);
 }
 
