@@ -41,19 +41,29 @@ sub calculate_price
     return int((($max_value / $nation_value) * SHOP_PRICE_FACTOR) *100)/100;
 }
 
+sub get_all_nation_prices
+{
+    my $self = shift;
+    my $nation = shift;
+    my $year = shift;
+    my %data = ();
+    foreach my $p (@products)
+    {
+        my $label = $p . "_price";
+        $data{$label} = $self->calculate_price($year, $p, $nation);
+    }
+    return %data;
+}
+
 sub print_nation_shop_prices
 {
     my $self = shift;
     my $y = shift;
     my $nation = shift;
     my $mode = shift || 'print';
-    my $data = { nation => $nation};
-    foreach my $p (@products)
-    {
-        my $label = $p . "_price";
-        $data->{$label} = $self->calculate_price($y, $p, $nation);
-    }
-    return BalanceOfPower::Printer::print($mode, $self, 'print_shop_prices', $data); 
+    my %data = $self->get_all_nation_prices($nation, $y);
+    $data{nation} = $nation;
+    return BalanceOfPower::Printer::print($mode, $self, 'print_shop_prices', \%data); 
 }
 
 sub do_transaction
