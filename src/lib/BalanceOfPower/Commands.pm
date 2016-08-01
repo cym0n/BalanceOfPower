@@ -913,6 +913,8 @@ sub handle_result
     my $self = shift;
     my $type = shift;
     my $result = shift;
+    #say $self->query . " - $type: " . $result->{status};
+    #say Dumper($result);
     if($type eq 'turn')
     {
         if($result->{status} == 1)
@@ -1133,7 +1135,7 @@ sub handle_result
         }
         else
         {
-            return 1;
+            return 0;
         }
     }
 }
