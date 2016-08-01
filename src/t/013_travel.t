@@ -20,7 +20,7 @@ my %plan;
 my $player = $world->get_player("Tester");
 $player->position('Italy');
 
-%plan = $player->make_travel_plan($world); 
+%plan = $world->make_travel_plan($player->position); 
 is_deeply(\%plan, 
           { ground => { 'France' => { status => 'OK', 'cost' => 2 },
                         'Germany' => { status => 'OK', 'cost' => 2 } },  
@@ -29,7 +29,7 @@ is_deeply(\%plan,
 
 $world->generate_traderoute("Italy", "Russia", 0);
 $world->generate_traderoute("Italy", "United Kingdom", 0);
-%plan = $player->make_travel_plan($world); 
+%plan = $world->make_travel_plan($player->position); 
 is_deeply(\%plan, 
           { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
                         'Germany' =>  { status => 'OK', 'cost' => 2 } },  
@@ -42,7 +42,7 @@ $world->get_nation('United Kingdom')->army(7);
 $world->ia_orders([ "Germany: DECLARE WAR TO United Kingdom" ]);
 $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
-%plan = $player->make_travel_plan($world); 
+%plan = $world->make_travel_plan($player->position); 
 is_deeply(\%plan, 
           { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
                         'Germany' =>  { status => 'OK', 'cost' => 2 } },  
@@ -51,7 +51,7 @@ is_deeply(\%plan,
             "Good travel plan - war blocks air routes");
 
 $world->generate_traderoute("Italy", "France", 0);
-%plan = $player->make_travel_plan($world); 
+%plan = $world->make_travel_plan($player->position); 
 is_deeply(\%plan, 
           { ground => { 'Germany' =>  { status => 'OK', 'cost' => 2 } },  
             air => { 'France' =>  { status => 'OK', 'cost' => 1 },
@@ -62,7 +62,7 @@ is_deeply(\%plan,
 $world->get_nation("Italy")->add_internal_disorder(90, $world);
 $world->post_decisions_elaborations();
 $world->pre_decisions_elaborations();
-%plan = $player->make_travel_plan($world); 
+%plan = $world->make_travel_plan($player->position); 
 is_deeply(\%plan, 
           { ground => { 'France' =>  { status => 'OK', 'cost' => 2 },
                         'Germany' =>  { status => 'OK', 'cost' => 2 } },  

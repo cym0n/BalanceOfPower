@@ -1005,6 +1005,46 @@ sub stipulate_treaty
 
 # TRATIES END ##############################################################
 
+# TRAVELS ##################################################################
+
+sub make_travel_plan
+{
+    my $self = shift;
+    my $from = shift;
+    my @already = ();
+    my %plan;
+    $plan{'ground'} = {};
+    $plan{'air'} = {};
+    my @for_commerce = $self->route_destinations_for_node($from);
+    
+    my @at_borders = $self->near_nations($from, 1);
+    foreach my $n(@for_commerce)
+    {
+        if(! grep { $_ eq $n } @already)
+        {
+            my $youcan = 'OK';
+            $youcan = 'KO' if($self->war_busy($from) || $self->war_busy($n));
+            $plan{'air'}->{$n}->{status} = $youcan;
+            my $cost = $self->distance($from, $n) * AIR_TRAVEL_COST_FOR_DISTANCE;
+            $cost = AIR_TRAVEL_CAP_COST if $cost > AIR_TRAVEL_CAP_COST;
+            $plan{'air'}->{$n}->{cost} = $cost if($youcan eq 'OK');
+            push @already, $n if $youcan eq 'OK';
+        }
+    }
+    foreach my $n(@at_borders)
+    {
+        if(! grep { $_ eq $n } @already)
+        {
+            $plan{'ground'}->{$n}->{status} = 'OK';
+            $plan{'ground'}->{$n}->{cost} = GROUND_TRAVEL_COST;
+            push @already, $n;
+        }
+    }
+    return %plan;
+}
+
+#########################################################################
+
 sub register_global_data
 {
     my $self = shift;
