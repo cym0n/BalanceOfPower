@@ -823,7 +823,6 @@ sub shop_commands
         {
             $result = { status => $res };
         }
-        say Dumper($self->get_active_player->hold);
     }
     elsif($query =~ /^ssell +([0-9]+) +(.*)$/)
     {
