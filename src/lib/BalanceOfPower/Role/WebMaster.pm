@@ -147,6 +147,9 @@ sub build_nations_statics
         open(my $graphs, "> $dest_dir/graphs.tt");
         print {$graphs} $self->print_nation_graphs($nation, prev_turn($self->current_year()), 10, 'html');  
         close($graphs);
+        open(my $prices, "> $dest_dir/prices.tt");
+        print {$prices} $self->print_nation_shop_prices($self->current_year, $nation, 'html');  
+        close($prices);
         $dest_dir = "$site_root/metadata/$game/n";
         make_path($dest_dir);
         open(my $nation_meta, "> $dest_dir/" . $code . ".data");
@@ -175,13 +178,17 @@ sub build_nations_statics
             }
         }
         my $nation_obj = $self->get_nation($nation);
+        my %travels = $self->make_travel_plan($nation);
+        my %prices = $self->get_all_nation_prices($nation, $self->current_year);
         my %nation_hash = ( stocks => $nation_obj->available_stocks,
                             internal_production => $nation_obj->production_for_domestic,
                             export_production => $nation_obj->production_for_export,
                             prestige => $nation_obj->prestige,
                             army => $nation_obj->army,
                             civil_war => $civil_war,
-                            commands => \%command_matrix );
+                            commands => \%command_matrix,
+                            travels => \%travels,
+                            prices => \%prices );
         print {$nation_meta} Dumper(\%nation_hash);
         close($nation_meta);
     }
