@@ -23,8 +23,8 @@ sub calculate_price
     my $nation = shift;
 
 
-    my %dependencies = ( 'goods' => 'production',
-                          'luxury' => 'wealth', #previous year
+    my %dependencies = ( 'goods' => 'p/d',
+                          'luxury' => 'w/d', 
                           'arms' => 'army',
                           'tech' => 'progress',
                           'culture' => 'prestige' );
@@ -33,6 +33,7 @@ sub calculate_price
 
     my $turn = $value eq 'goods' || $value eq 'prestige' ? $y : prev_turn($y);
     my @stat_values = $self->order_statistics($turn, $dependencies{$value});
+    return SHOP_PRICE_FACTOR if(@stat_values == 0);
     my $max_value = $stat_values[0]->{'value'};
     return SHOP_PRICE_FACTOR if($max_value == 0);
 
@@ -40,7 +41,7 @@ sub calculate_price
     $nation_value ||= 1;
     return int((($max_value / $nation_value) * SHOP_PRICE_FACTOR) *100)/100;
 }
-
+    
 sub get_all_nation_prices
 {
     my $self = shift;
@@ -64,6 +65,23 @@ sub print_nation_shop_prices
     my %data = $self->get_all_nation_prices($nation, $y);
     $data{nation} = $nation;
     return BalanceOfPower::Printer::print($mode, $self, 'print_shop_prices', \%data); 
+}
+
+sub print_all_nations_prices
+{
+    my $self = shift;
+    my $y = shift;
+    my $mode = shift || 'print';
+    my @nations = @{$self->nation_names};
+    my %data = ();
+    foreach my $n (@nations)
+    {
+        my %prices = $self->get_all_nation_prices($n, $y); 
+        $data{$n} = \%prices;
+    }
+    return BalanceOfPower::Printer::print($mode, $self, 'print_all_shop_prices', 
+                                                { prices => \%data,
+                                                  names => \@nations }); 
 }
 
 sub do_transaction

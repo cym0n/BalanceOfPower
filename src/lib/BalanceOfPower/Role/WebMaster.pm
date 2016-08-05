@@ -40,6 +40,8 @@ requires 'pre_decisions_elaborations';
 requires 'decisions';
 requires 'post_decisions_elaborations';
 requires 'print_market';
+requires 'print_nation_shop_prices';
+requires 'print_all_nations_prices';
 
 
 
@@ -47,6 +49,7 @@ sub build_pre_statics
 {
     my $self = shift;
     my $game = shift;
+    my $year = shift || $self->current_year;
     my $site_root = $self->site_root;
     my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year();
     make_path $dest_dir;
@@ -74,6 +77,9 @@ sub build_pre_statics
     open(my $market, "> $dest_dir/market.tt");
     print {$market} $self->print_market('html');
     close($market);
+    open(my $prices, "> $dest_dir/prices.tt");
+    print {$prices} $self->print_all_nations_prices($year, 'html');
+    close($prices);
     $self->build_nations_statics($game, $site_root);
     $self->build_players_statics($game, $site_root);
 }

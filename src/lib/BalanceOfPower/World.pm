@@ -95,9 +95,9 @@ with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Rebel';
 with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Analyst';
-with 'BalanceOfPower::Role::WebMaster';
 with 'BalanceOfPower::Role::Recorder';
 with 'BalanceOfPower::Role::Shopper';
+with 'BalanceOfPower::Role::WebMaster';
 
 sub get_nation
 {
@@ -346,7 +346,9 @@ sub init_year
         $n->production($prod);
         my $prestige = $self->calculate_prestige($n);
         $n->prestige($prestige);
+        my $pu = PRODUCTION_UNITS->[$n->size];
         $self->set_statistics_value($n, 'production', $prod);
+        $self->set_statistics_value($n, 'p/d', int(($prod / $pu) * 100) / 100);
         $self->set_statistics_value($n, 'debt', $n->debt);
         $self->set_statistics_value($n, 'prestige', $prestige);
     }
