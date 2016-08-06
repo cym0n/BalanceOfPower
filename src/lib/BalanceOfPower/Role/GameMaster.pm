@@ -33,11 +33,19 @@ sub create_player
 {
     my $self = shift;
     my $username = shift;
+    my $position = shift;
+    my $money = shift || START_PLAYER_MONEY;
     my $already = $self->get_player($username);
-    return 0 if($already);
+    if($already)
+    {
+        $already->position($position);
+        $already->money($money);
+        return 0;
+    }
+    $position ||= 'Italy';
     my $log_name = $username . ".log";
     $log_name =~ s/ /_/g;
-    my $pl = BalanceOfPower::Player->new(name => $username, money => START_PLAYER_MONEY, log_name => $log_name, log_dir => $self->log_dir, current_year => $self->current_year, position => 'Italy');
+    my $pl = BalanceOfPower::Player->new(name => $username, money => $money, log_name => $log_name, log_dir => $self->log_dir, current_year => $self->current_year, position => $position);
     $pl->delete_log();
     $pl->register_event("ENTERING THE GAME");
     $self->register_event("$username IS ENTERING THE GAME");

@@ -327,7 +327,7 @@ sub manage_web_players
     {
         for(@{$players})
         {
-            $self->create_player($_);
+            $self->create_player($_->{'username'}, $_->{'position'}, $_->{'money'});
         }
     }
 }
