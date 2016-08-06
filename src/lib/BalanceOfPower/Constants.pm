@@ -126,6 +126,11 @@ use constant PLAYER_MOVEMENTS => 8;
 
 #Shop
 use constant SHOP_PRICE_FACTOR => 10;
+use constant PRICE_RANGES => { 'goods' => [1, 3],
+                               'luxury' => [5, 9],
+                               'arms' => [10, 15],
+                               'tech' => [3, 5],
+                               'culture' => [4, 7] };
 use constant CARGO_TOTAL_SPACE => 500;
 
 #Others
@@ -287,5 +292,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'PLAYER_MOVEMENTS',
                   'SHOP_PRICE_FACTOR',
                   'CARGO_TOTAL_SPACE',
+                  'PRICE_RANGES',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

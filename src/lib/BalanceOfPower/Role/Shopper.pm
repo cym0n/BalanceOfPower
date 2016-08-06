@@ -19,7 +19,7 @@ sub calculate_price
 {
     my $self = shift;
     my $y = shift;
-    my $value = shift;
+    my $type = shift;
     my $nation = shift;
 
 
@@ -29,17 +29,22 @@ sub calculate_price
                           'tech' => 'progress',
                           'culture' => 'prestige' );
 
-    #Price formula is MaxValue/NationValue * FACTOR
+    #Price formula is MaxPrice - (( MaxPrice - MinPrice) / MaxValue) * Value
+    #MaxPrice and MinPrice are constant
 
-    my $turn = $value eq 'goods' || $value eq 'prestige' ? $y : prev_turn($y);
-    my @stat_values = $self->order_statistics($turn, $dependencies{$value});
+    my $turn = $type eq 'goods' || $type eq 'prestige' ? $y : prev_turn($y);
+
+    my $min_price = PRICE_RANGES->{$type}->[0];
+    my $max_price = PRICE_RANGES->{$type}->[1];
+
+    my @stat_values = $self->order_statistics($turn, $dependencies{$type});
     return SHOP_PRICE_FACTOR if(@stat_values == 0);
-    my $max_value = $stat_values[0]->{'value'};
-    return SHOP_PRICE_FACTOR if($max_value == 0);
 
-    my $nation_value = $self->get_statistics_value($turn, $nation, $dependencies{$value});
-    $nation_value ||= 1;
-    return int((($max_value / $nation_value) * SHOP_PRICE_FACTOR) *100)/100;
+    my $max_value = $stat_values[0]->{'value'};
+
+    my $value = $self->get_statistics_value($turn, $nation, $dependencies{$type});
+
+    return int(((($max_price - (($max_price - $min_price) / $max_value) * $value))* SHOP_PRICE_FACTOR)*100)/100;
 }
     
 sub get_all_nation_prices
