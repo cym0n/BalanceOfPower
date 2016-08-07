@@ -4,6 +4,7 @@ use strict;
 use v5.10;
 
 use Moo::Role;
+use List::Util qw(shuffle);
 
 use BalanceOfPower::Player;
 use BalanceOfPower::Targets::Fall;
@@ -42,7 +43,12 @@ sub create_player
         $already->money($money);
         return 0;
     }
-    $position ||= 'Italy';
+    if(! $position)
+    {
+        my @nations = @{$self->nation_names};
+        @nations = shuffle @nations;
+        $position = $nations[0];
+    }
     my $log_name = $username . ".log";
     $log_name =~ s/ /_/g;
     my $pl = BalanceOfPower::Player->new(name => $username, money => $money, log_name => $log_name, log_dir => $self->log_dir, current_year => $self->current_year, position => $position);

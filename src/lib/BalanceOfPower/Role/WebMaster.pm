@@ -376,7 +376,8 @@ sub update_web_players
     {
         my $res = $self->post_web_data("/api/$game/user-data", { password => $password,
                                                                  player => $p->name,
-                                                                 money => $p->money });
+                                                                 money => $p->money,
+                                                                 position => $p->position });
         say "$game - Updating " . $p->name. ": " . $res;
     }
 }
