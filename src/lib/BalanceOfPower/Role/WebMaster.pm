@@ -314,6 +314,7 @@ sub generate_web_interactive_turn
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
+    $self->update_web_players($game);
     $self->pre_decisions_elaborations(next_turn($self->current_year));
     $self->build_pre_statics($game, $site_root);
 }
@@ -365,6 +366,21 @@ sub manage_influence_orders
     }
 }
 
+sub update_web_players
+{
+    my $self = shift;
+    my $game = shift;
+    my $password = $self->admin_password;
+    my @players = @{$self->players};
+    foreach my $p (@players)
+    {
+        my $res = $self->post_web_data("/api/$game/user-data", { password => $password,
+                                                                 player => $p->name,
+                                                                 money => $p->money });
+        say "$game - Updating " . $p->name. ": " . $res;
+    }
+}
+
 sub get_web_data
 {
     my $self = shift;
@@ -390,6 +406,18 @@ sub get_web_data
     else {
         return undef;
     }
+}
+
+sub post_web_data
+{
+    my $self = shift;
+    my $call = shift;
+    my $form = shift;
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    $ua->env_proxy;
+    my $response = $ua->post($self->api_url . $call, $form);
+    return $response->code;
 }
 
 1;
