@@ -41,9 +41,10 @@ $world->pre_decisions_elaborations("1970/1");
 
 my $commands = $world->build_commands();
 $commands->set_player("Tester");
+$commands->get_active_player->position("Italy");
 
 is($world->calculate_price("1970/1", 'goods', "Italy"), 10, "Price of goods in Italy is 10");
-is($world->calculate_price("1970/1", 'goods', "France"), 30, "Price of goods in France is 30");
+is($world->calculate_price("1970/1", 'goods', "France"), 23.33, "Price of goods in France is 23.33");
 $commands->query("sbuy 10 goods");
 $commands->commands();
 is($commands->get_active_player->money, 900, "Money payed for goods");
@@ -53,7 +54,7 @@ $commands->query("go FRA");
 $commands->commands();
 $commands->query("ssell 5 goods");
 $commands->commands();
-is($commands->get_active_player->money, 1050, "Money earned for goods");
+is($commands->get_active_player->money, 1016.65, "Money earned for goods");
 is($commands->get_active_player->get_cargo("goods"), 5, "Goods in the hold are 5");
 
 
