@@ -39,8 +39,8 @@ sub create_player
     my $already = $self->get_player($username);
     if($already)
     {
-        $already->position($position);
-        $already->money($money);
+        $already->position($position) if $position;
+        $already->money($money) if $money;
         return 0;
     }
     if(! $position)

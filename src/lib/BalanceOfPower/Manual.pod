@@ -131,6 +131,85 @@ Stop control
 
 List all the control orders issued for controlled nations
 
+=head1 TRAVEL
+
+The player has a position in the world. To change the position you have to travel to another country.
+
+=head3 go NATION
+
+The go command move you to NATION. Moving to a nation cost movement points. See the cost of travels in the section about travels command.
+
+=head3 travels
+
+This report gives you available travels and their cost. Rules are:
+
+=over
+
+=item *
+
+All the countries that have border with the one you are in can be reached by ground with a cost of 2 TU.
+
+=item *
+
+All the countries that have a trade route with the one you are in can be reached by air.
+
+=item *
+
+Cost of air travel is a number of TU as the distance from the country (country on border: 1TU)
+
+=item *
+
+You can't travel by air if one of the countries on the path is involved in a war
+
+=back
+
+=head1 THE SHOP
+
+Every country has a shop with five types of objects. The price of every type is based on a characteristic of the country. Higher is the characteristics, lower the price.
+
+=over
+
+=item *
+
+goods depends on production
+
+=item *
+
+luxury depends on wealth
+
+=item *
+
+arms depends on army
+
+=item *
+
+tech depends on progress
+
+=item *
+
+culture depends on prestige
+
+=back
+
+You can buy them in the country as long as you have money and hold to do that. You can try to earn money buying where the price is low and selling where it's high
+
+=head3 sbuy X TYPE
+
+Buy at the shop of the country X units of TYPE
+
+=head3 ssel X TYPE
+
+Sell at the shop of the country X units of TYPE
+
+=head3 prices NATION
+
+Show the prices of the NATION
+
+=head3 cargo
+
+Show your cargo
+
+
 =head1 REPORTS
 
 You can display many reports to decide how to manage your stocks.
