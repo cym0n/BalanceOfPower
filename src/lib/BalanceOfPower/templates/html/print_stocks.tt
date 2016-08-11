@@ -39,10 +39,3 @@
 </tbody>
 </table>
 </div>
-<div class="row">
-<p>
-<strong>Stock value</strong>: [% stock_value %]<br />
-<strong>Money</strong>: [% money %]<br />
-<strong>Total value</strong>: [% total_value %]<br />
-</p>
-</div>

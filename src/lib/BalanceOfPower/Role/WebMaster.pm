@@ -235,7 +235,9 @@ sub build_players_statics
             my $code = $self->get_nation($_)->code;
             $wallet{$code} = $p->wallet->{$_};
         }
-        print {$metawallet} Dumper(\%wallet);
+        my $stock_status = $self->player_stocks_status($p->name);
+        my $w_metadata = { wallet => \%wallet, stock_value => $stock_status->{'stock_value'} };
+        print {$metawallet} Dumper($w_metadata);
         close($metawallet);
     }
 }
