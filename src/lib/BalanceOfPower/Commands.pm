@@ -830,9 +830,14 @@ sub shop_commands
             $result = { status => $res };
         }
     }
-    elsif($query =~ /^ssell +([0-9]+) +(.*)$/)
+    elsif($query =~ /^ssell +([0-9]+) +(.*?)( +(bm))?$/)
     {
-        my ($res, $cost) = $self->world->do_transaction($self->get_active_player, 'sell', $1, $2);
+        my $flags = {};
+        if($4 && $4 eq 'bm')
+        {
+            $flags->{'bm'} = 1;   
+        }
+        my ($res, $cost) = $self->world->do_transaction($self->get_active_player, 'sell', $1, $2, $flags);
         if($res == 1)
         {
             $result = { status => 30, cost => $cost};
@@ -1104,7 +1109,11 @@ sub handle_result
     }
     elsif($type eq 'shop')
     {
-        if($result->{status} == 20)
+        if($result->{status} == 1)
+        {
+            return 1;
+        }
+        elsif($result->{status} == 20)
         {
             say "Transaction completed. Payed: " . $result->{cost};
             return 1;
@@ -1137,6 +1146,11 @@ sub handle_result
         if($result->{status} == -13)
         {
             say "You don't owe that quantity";
+            return 1;
+        }
+        if($result->{status} == -14)
+        {
+            say "You can't trade. This nation hates you!";
             return 1;
         }
         else

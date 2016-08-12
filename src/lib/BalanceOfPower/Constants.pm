@@ -132,6 +132,9 @@ use constant PRICE_RANGES => { 'goods' => [1, 3],
                                'tech' => [3, 5],
                                'culture' => [4, 7] };
 use constant CARGO_TOTAL_SPACE => 500;
+use constant BLACK_MARKET_PERCENT_SELLING_BONUS => 10;
+use constant BLACK_MARKET_FRIENDSHIP_MALUS => -5;
+use constant FRIENDSHIP_LIMIT_TO_SHOP => 30;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -293,5 +296,8 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'SHOP_PRICE_FACTOR',
                   'CARGO_TOTAL_SPACE',
                   'PRICE_RANGES',
+                  'BLACK_MARKET_PERCENT_SELLING_BONUS',
+                  'BLACK_MARKET_FRIENDSHIP_MALUS',
+                  'FRIENDSHIP_LIMIT_TO_SHOP',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

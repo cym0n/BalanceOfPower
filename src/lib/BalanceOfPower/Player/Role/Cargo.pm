@@ -43,7 +43,7 @@ sub cargo_free_space
 {
     my $self = shift;
     my $occupied = 0;
-    foreach my $t (%{$self->hold})
+    foreach my $t (keys %{$self->hold})
     {
         $occupied += $self->hold->{$t};
     }

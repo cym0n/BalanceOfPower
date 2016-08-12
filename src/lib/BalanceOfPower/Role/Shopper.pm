@@ -96,9 +96,14 @@ sub do_transaction
     my $action = shift;
     my $q = shift;
     my $what = shift;
+    my $flags = shift;
     if(! grep {$_ eq $what} @products)
     {
         return -10;
+    }
+    if($player->get_friendship($player->position) < FRIENDSHIP_LIMIT_TO_SHOP)
+    {
+        return -14;
     }
     my $price = $self->calculate_price($self->current_year, $what, $player->position);
     my $cost = $price * $q;
@@ -122,8 +127,18 @@ sub do_transaction
         {
             return -13;
         }
-        $player->add_money($cost);
-        $player->add_cargo($what, -1 * $q);
+        if(exists $flags->{'bm'})
+        {
+            $cost = $cost + (BLACK_MARKET_PERCENT_SELLING_BONUS * $cost) / 100;
+            $player->add_money($cost);
+            $player->add_cargo($what, -1 * $q);
+            $player->add_friendship($player->position, BLACK_MARKET_FRIENDSHIP_MALUS);
+        }
+        else
+        {
+            $player->add_money($cost);
+            $player->add_cargo($what, -1 * $q);
+        }
     }
     return (1, $cost);
 }
