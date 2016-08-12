@@ -523,6 +523,12 @@ COMMANDS
         print $self->world->print_targets($self->get_active_player()->name);
         $result = { status => 1 };
     }
+    elsif($query =~ /^friends( (.*))?$/)
+    {
+        my $input_nation = $self->world->correct_nation_name($2);
+        print $self->get_active_player->print_friendship($input_nation);
+        $result = { status => 1 };
+    }
     else
     {
         my $nation_query = $self->world->correct_nation_name($query);
