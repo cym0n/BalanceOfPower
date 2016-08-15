@@ -17,11 +17,21 @@ sub add_cargo
     my $self = shift;
     my $type = shift;
     my $q = shift;
+    my $cost = shift;
+    my $stat = shift;
 
-    my $present = $self->get_cargo($type);
-    my $new = $present + $q;
-    return -1 if($new < 0);
-    $self->hold->{$type} = $new;
+    my $present_q = $self->get_cargo($type);
+    my $present_cost = $self->get_cargo($type, 'cost');
+    my $present_stat = $self->get_cargo($type, 'stat');
+    
+    my $new_q = $present_q + $q;
+    my $new_cost = $q > 0 ? (($present_q * $cost) + ($q * $cost))/($new_q) : $present_cost;
+    my $new_stat = $q > 0 ? (($present_q * $stat) + ($q * $stat))/($new_q) : $present_stat;
+    
+    return -1 if($new_q < 0);
+    $self->hold->{$type} = { q => $new_q,
+                             cost => $new_cost,
+                             stat => $new_stat };
     return 1;
 }
 
@@ -29,9 +39,10 @@ sub get_cargo
 {
     my $self = shift;
     my $type = shift;
+    my $what = shift || 'q';
     if(exists $self->hold->{$type})
     {
-        return $self->hold->{$type};
+        return $self->hold->{$type}->{$what};
     }
     else
     {
@@ -43,9 +54,9 @@ sub cargo_free_space
 {
     my $self = shift;
     my $occupied = 0;
-    foreach my $t (keys %{$self->hold})
+    foreach my $t (%{$self->hold})
     {
-        $occupied += $self->hold->{$t};
+        $occupied += $self->hold->{$t}->{'q'};
     }
     if($occupied > CARGO_TOTAL_SPACE)
     {

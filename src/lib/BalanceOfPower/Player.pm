@@ -11,7 +11,7 @@ with 'BalanceOfPower::Player::Role::Broker';
 with 'BalanceOfPower::Player::Role::Hitman';
 with 'BalanceOfPower::Player::Role::Traveler';
 with 'BalanceOfPower::Player::Role::Cargo';
-with 'BalanceOfPower::Player::Role::Friend';
+#with 'BalanceOfPower::Player::Role::Friend';
 
 
 has name => (

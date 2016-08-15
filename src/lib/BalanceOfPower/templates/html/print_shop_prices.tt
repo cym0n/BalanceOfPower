@@ -1,9 +1,9 @@
 <h3>SHOP PRICES</h3>
 <p>
-<strong>Goods:</strong>: [% goods_price %]<br />
-<strong>Luxury:</strong>: [% luxury_price %]<br />
-<strong>Arms:</strong>: [% arms_price %]<br />
-<strong>Tech:</strong>: [% tech_price %]<br />
-<strong>Culture:</strong>: [% culture_price %]<br />
+<strong>Goods:</strong>: [% goods.price %]<br />
+<strong>Luxury:</strong>: [% luxury.price %]<br />
+<strong>Arms:</strong>: [% arms.price %]<br />
+<strong>Tech:</strong>: [% tech.price %]<br />
+<strong>Culture:</strong>: [% culture.price %]<br />
 
 </p>

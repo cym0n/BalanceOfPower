@@ -15,11 +15,11 @@
 [% FOREACH n IN names %]
 <tr>
 <td>[% INCLUDE fragments/linked_nation.tt %]</span></td>
-<td>[% prices.$n.goods_price %]</td>
-<td>[% prices.$n.luxury_price %]</td>
-<td>[% prices.$n.arms_price %]</td>
-<td>[% prices.$n.tech_price %]</td>
-<td>[% prices.$n.culture_price %]</td>
+<td>[% prices.$n.goods.price %]</td>
+<td>[% prices.$n.luxury.price %]</td>
+<td>[% prices.$n.arms.price %]</td>
+<td>[% prices.$n.tech.price %]</td>
+<td>[% prices.$n.culture.price %]</td>
 [% END %]
 </tbody>
 </table>

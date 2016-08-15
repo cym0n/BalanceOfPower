@@ -879,18 +879,18 @@ sub commands
         $self->latest_result($result);
         return 1;
     }
-    $result = $self->travel_commands();
-    if($self->handle_result('travel', $result))
-    {
-        $self->latest_result($result);
-        return 1;
-    }
-    $result = $self->shop_commands();
-    if($self->handle_result('shop', $result))
-    {
-        $self->latest_result($result);
-        return 1;
-    }
+    #$result = $self->travel_commands();
+    #if($self->handle_result('travel', $result))
+    #{
+    #    $self->latest_result($result);
+    #    return 1;
+    #}
+    #$result = $self->shop_commands();
+    #if($self->handle_result('shop', $result))
+    #{
+    #    $self->latest_result($result);
+    #    return 1;
+    #}
     $result = $self->orders();
     if($self->handle_result('orders', $result))
     {
