@@ -52,6 +52,7 @@ sub build_pre_statics
     my $year = shift || $self->current_year;
     my $site_root = $self->site_root;
     my $dest_dir = "$site_root/views/generated/$game/" . $self->current_year();
+    say "Generating pre-decisions statics";
     make_path $dest_dir;
     open(my $hotspots, "> $dest_dir/hotspots.tt");
     print {$hotspots} $self->print_hotspots('html');  
@@ -92,6 +93,7 @@ sub build_post_statics
     my $year = shift || $self->current_year;
     my $dest_dir = "$site_root/views/generated/$game/" . next_turn($year);
     make_path $dest_dir;
+    say "Generating post-decisions statics";
     open(my $situation, "> $dest_dir/situation.tt");
     print {$situation} $self->print_turn_statistics($year, undef, 'html');  
     close($situation);
@@ -129,6 +131,7 @@ sub build_nations_statics
     my $self = shift;
     my $game = shift;
     my $site_root = $self->site_root;
+    say "Generating nations statics";
     foreach my $code (keys %{$self->nation_codes})
     {
         my $nation = $self->nation_codes->{$code};
@@ -310,9 +313,7 @@ sub generate_web_interactive_turn
     my $self = shift;
     my $game = shift;
     my $site_root = shift;
-    $self->manage_web_players($game);
-    $self->manage_stock_orders($game);
-    $self->manage_influence_orders($game);
+    $self->collect_api_data($game);
     $self->decisions();
     $self->post_decisions_elaborations();
     $self->build_post_statics($game, $site_root);
@@ -328,11 +329,26 @@ sub manage_web_players
     my $players = $self->get_web_data("/api/$game/users");
     if($players)
     {
+        my $many = @{$players} + 0;
+        say "$game - $many players on DB";
         for(@{$players})
         {
             $self->create_player($_->{'username'}, $_->{'position'}, $_->{'money'});
         }
     }
+    else
+    {
+        say "$game - players list NOT retrieved";
+    }
+}
+
+sub collect_api_data
+{
+    my $self = shift;
+    my $game = shift;
+    $self->manage_web_players($game);
+    $self->manage_stock_orders($game);
+    $self->manage_influence_orders($game);
 }
 
 sub manage_stock_orders
@@ -345,9 +361,17 @@ sub manage_stock_orders
         my $user = $p->name;
         my $call = "/api/$game/stock-orders?player=$user&password=$password";
         my $orders = $self->get_web_data($call);
-        for(@{$orders})
+        if(defined $orders)
         {
-           $self->get_player($p->name)->add_stock_order($_); 
+            say "$game - Stock orders for $user retrieved";
+            for(@{$orders})
+            {
+                $self->get_player($p->name)->add_stock_order($_); 
+            }
+        }
+        else
+        {
+            say "$game - Stock orders for $user NOT retrieved";
         }
     }
 }
@@ -361,10 +385,18 @@ sub manage_influence_orders
         my $user = $p->name;
         my $call = "/api/$game/influence-orders?player=$user&password=$password";
         my $orders = $self->get_web_data($call);
-        for(@{$orders})
+        if(defined $orders)
         {
-           $self->get_player($p->name)->add_control_order($_->{nation}, $_->{command});
+            say "$game - Influence orders for $user retrieved";
+            for(@{$orders})
+            {
+                $self->get_player($p->name)->add_control_order($_->{nation}, $_->{command});
+            }
         }
+        else
+        { 
+            say "$game - Orders for $user NOT retrieved";
+        }  
     }
 }
 

@@ -14,6 +14,7 @@ use Data::Dumper;
 my $stubbed_player = 0;
 my $logs = 0;
 my $new = 1;
+my $noserver = 0;
 
 my $first_year = 1970;
 my $init_years_web = 1;
@@ -41,6 +42,11 @@ elsif($mode eq 'fastdev')
    $logs = 0;
    $mode = 'new';
 }
+elsif($mode eq 'refresh-nosrv')
+{
+    $mode = 'refresh';
+    $noserver = 1;
+}
 
 if($mode eq 'new')
 {
@@ -51,7 +57,7 @@ if($mode eq 'new')
     my $auto_years;
     if($stubbed_player)
     {
-        $auto_years = 10;
+        $auto_years = 0;
         $commands->set_player("Player One");
     }
     else
@@ -128,9 +134,14 @@ elsif($mode eq 'refresh')
     my $game = shift @ARGV;
     my $world = load_game($game);
     die "Nothing to refresh" if(! $world);
-    die "Server unreachable" if(! $world->server_available);
+    say "Server not involved" if($noserver);
+    if(! $noserver)
+    {
+        die "Server unreachable" if(! $world->server_available);
+    }
     say "Refreshing... " . $world->current_year;
-    $world->manage_web_players($game);
+    say "Site root is " . $world->site_root;
+    $world->collect_api_data($game) if (! $noserver);
     $world->build_pre_statics($game);
     $world->build_post_statics($game, prev_turn($world->current_year));
     $world->build_meta_statics($game);
