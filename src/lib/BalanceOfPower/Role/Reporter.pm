@@ -5,6 +5,7 @@ use utf8;
 use v5.10;
 use Moo::Role;
 use Data::Dumper;
+use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn get_year_turns as_title );
 use BalanceOfPower::Printer;
 
@@ -189,6 +190,7 @@ sub print_turn_events
 sub get_turn_tags
 {
     my $self = shift;
+    my $range = shift || -1;
     sub sort_start
     {
         return 0 if($a eq $b);
@@ -197,7 +199,20 @@ sub get_turn_tags
         return 1 if($a gt $b);
         return -1 if($b gt $a);
     }
-    return sort sort_start keys %{$self->events};
+    my @keys =  keys %{$self->events};
+    my $start;
+    my $stop = $#keys;
+    if($range == -1)
+    {
+        $start = 0;
+    }
+    else
+    {
+        $start = $stop - $range;
+        $start = 0 if($start < 0);
+    }
+    @keys = sort sort_start keys %{$self->events};
+    return @keys[$start..$stop];
 }
 
 sub dump_events
@@ -205,8 +220,8 @@ sub dump_events
     my $self = shift;
     my $io = shift;
     my $indent = shift || "";
-  
-    foreach my $y ($self->get_turn_tags())
+     
+    foreach my $y ($self->get_turn_tags(EVENT_TURNS_TO_DUMP))
     {
         print {$io} $indent . "### $y\n";
         foreach my $e (@{$self->events->{$y}})

@@ -171,6 +171,7 @@ use constant TREATY_LIMIT_PROGRESS_STEP => 0.4;
 use constant TREATIES_FOR_PROGRESS_STEP => 5;
 use constant MAX_AFFORDABLE_PROGRESS => 0.8;
 use constant TIME_FOR_TARGET => 16;
+use constant EVENT_TURNS_TO_DUMP => 40;
 
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
@@ -307,5 +308,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'LOWERED_PRICE_PERCENT_SELLING_MALUS',
                   'LOWERED_PRICE_FRIENDSHIP_BONUS',
                   'NOT_LOWERED_PRICE_FRIENDSHIP_MALUS',
+                  'EVENT_TURNS_TO_DUMP',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
