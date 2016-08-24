@@ -140,6 +140,12 @@ use constant NOT_LOWERED_PRICE_FRIENDSHIP_MALUS => -2;
 use constant FRIENDSHIP_LIMIT_TO_SHOP => 30;
 use constant LOWER_MY_PRICE_FACTOR => 0.4;
 
+#Missions
+use constant FRIENDSHIP_RANGE_FOR_MISSION => { 'parcel' => [-7, +7] };
+use constant MONEY_RANGE_FOR_MISSION => { 'parcel' => [100, 500] };
+use constant BONUS_FACTOR_FOR_BAD_FRIENSHIP => 15;
+use constant MISSIONS_TO_GENERATE_PER_TURN => 40;
+
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
@@ -309,5 +315,9 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'LOWERED_PRICE_FRIENDSHIP_BONUS',
                   'NOT_LOWERED_PRICE_FRIENDSHIP_MALUS',
                   'EVENT_TURNS_TO_DUMP',
+                  'FRIENDSHIP_RANGE_FOR_MISSION',
+                  'MONEY_RANGE_FOR_MISSION',
+                  'BONUS_FACTOR_FOR_BAD_FRIENSHIP',
+                  'MISSIONS_TO_GENERATE_PER_TURN',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

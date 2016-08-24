@@ -1045,7 +1045,61 @@ sub make_travel_plan
     return %plan;
 }
 
-#########################################################################
+# END TRAVELS ########################################################################
+
+# MISSIONS ###########################################################################
+
+sub generate_mission
+{
+    my $self = shift;
+    my $type = shift;
+    my @nations = @{$self->nation_names};
+    my %out;
+    
+    if($type eq 'parcel')
+    {
+        @nations = $self->shuffle("Nations for mission - assignment", @nations); 
+        $out{'assignment'} = $nations[0];
+        @nations = $self->shuffle("Nations for mission - from", @nations); 
+        $out{'from'} = $nations[0];
+        @nations = $self->shuffle("Nations for mission - to", @nations); 
+        $out{'to'} = $nations[0] ne $out{'from'} ? $nations[0] : $nations[1];
+        $out{'expire'} = next_turn($self->current_year);
+        $out{'reward'}->{'friendship'}->{'assignment'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
+                                                                        FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
+                                                                        "Friendship for mission - assignment");
+        $out{'reward'}->{'friendship'}->{'from'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
+                                                                  FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
+                                                                  "Friendship for mission - from");
+        $out{'reward'}->{'friendship'}->{'to'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
+                                                                FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
+                                                                "Friendship for mission - to");
+        my $tot_friendship = $out{'reward'}->{'friendship'}->{'assignment'} +  $out{'reward'}->{'friendship'}->{'from'} +  $out{'reward'}->{'friendship'}->{'to'};
+        my $money_bonus = $tot_friendship * BONUS_FACTOR_FOR_BAD_FRIENSHIP;
+        $out{'reward'}->{'money'} = $self->random(MONEY_RANGE_FOR_MISSION->{$type}->[0] - $money_bonus, MONEY_RANGE_FOR_MISSION->{$type}->[1], "Money for mission");
+    }
+    else
+    {
+        die "Wrong type of mission";
+    }
+    return %out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# END MISSIONS #######################################################################
 
 sub register_global_data
 {
