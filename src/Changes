@@ -1,3 +1,12 @@
+0.400105
+===
+
+__Sun 21 Aug 2016__
+
+ * Events dump is now limitated at ten years
+ * refresh-nosrv command now allow refresh not involving server
+ * Refactoring
+
 0.400100
 ===
 
