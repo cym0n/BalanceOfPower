@@ -145,6 +145,8 @@ use constant FRIENDSHIP_RANGE_FOR_MISSION => { 'parcel' => [-7, +7] };
 use constant MONEY_RANGE_FOR_MISSION => { 'parcel' => [100, 500] };
 use constant BONUS_FACTOR_FOR_BAD_FRIENSHIP => 15;
 use constant MISSIONS_TO_GENERATE_PER_TURN => 40;
+use constant MAX_MISSIONS_FOR_USER => 1;
+use constant PENALTY_FACTOR_FOR_DROP_MISSION => .5;
 
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
@@ -319,5 +321,7 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MONEY_RANGE_FOR_MISSION',
                   'BONUS_FACTOR_FOR_BAD_FRIENSHIP',
                   'MISSIONS_TO_GENERATE_PER_TURN',
+                  'MAX_MISSIONS_FOR_USER',
+                  'PENALTY_FACTOR_FOR_DROP_MISSION',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
