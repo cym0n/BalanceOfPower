@@ -1064,7 +1064,12 @@ sub generate_mission
         $out{'from'} = $nations[0];
         @nations = $self->shuffle("Nations for mission - to", @nations); 
         $out{'to'} = $nations[0] ne $out{'from'} ? $nations[0] : $nations[1];
+        my $time = $self->random(0, 2, "Time available for mission");
         $out{'expire'} = next_turn($self->current_year);
+        for(my $i = 0; $i < $time; $i++)
+        {
+            $out{'expire'} = next_turn($out{'expire'});
+        }
         $out{'reward'}->{'friendship'}->{'assignment'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
                                                                         FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
                                                                         "Friendship for mission - assignment");
