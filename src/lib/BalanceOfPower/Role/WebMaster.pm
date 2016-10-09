@@ -42,6 +42,7 @@ requires 'post_decisions_elaborations';
 requires 'print_market';
 requires 'print_nation_shop_prices';
 requires 'print_all_nations_prices';
+requires 'armies_on_territory';
 
 
 
@@ -162,7 +163,8 @@ sub build_nations_statics
         $dest_dir = "$site_root/metadata/$game/n";
         make_path($dest_dir);
         open(my $nation_meta, "> $dest_dir/" . $code . ".data");
-        my $civil_war = $self->at_civil_war($nation);
+        my $at_civil_war = $self->at_civil_war($nation);
+        my $at_war = $self->at_war($nation) ? 1 : 0;
 
         my $commands = $self->build_commands();
         my $exec = $commands->set_executive($nation);
@@ -189,15 +191,18 @@ sub build_nations_statics
         my $nation_obj = $self->get_nation($nation);
         my %travels = $self->make_travel_plan($nation);
         my %prices = $self->get_all_nation_prices($nation, $self->current_year);
+        my $foreign_armies = $self->armies_on_territory($nation);
         my %nation_hash = ( stocks => $nation_obj->available_stocks,
                             internal_production => $nation_obj->production_for_domestic,
                             export_production => $nation_obj->production_for_export,
                             prestige => $nation_obj->prestige,
                             army => $nation_obj->army,
-                            civil_war => $civil_war,
+                            war => $at_war,
+                            civil_war => $at_civil_war,
                             commands => \%command_matrix,
                             travels => \%travels,
-                            prices => \%prices );
+                            prices => \%prices,
+                            foreigners => $foreign_armies );
         print {$nation_meta} Dumper(\%nation_hash);
         close($nation_meta);
     }

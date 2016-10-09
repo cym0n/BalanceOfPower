@@ -24,7 +24,7 @@ requires 'print_nation_statistics_header';
 requires 'print_nation_statistics_line';
 requires 'get_player';
 requires 'print_all_crises';
-requires 'print_wars';
+requires 'get_attackers';
 
 sub print_nation_actual_situation
 {
@@ -318,12 +318,10 @@ sub print_market
                                             nations => \@nations } );
 }
 
-sub print_wars
+sub wars_info
 {
     my $self = shift;
-    my $nation = shift;
-    my $mode = shift || 'print';
-    my %grouped_wars;
+my %grouped_wars;
     foreach my $w ($self->wars->all())
     {
         if(! exists $grouped_wars{$w->war_id})
@@ -353,6 +351,36 @@ sub print_wars
         }
         push @wars, \%war;
     }
+    return @wars;
+}
+
+sub armies_on_territory
+{
+    my $self = shift;
+    my $nation = shift;
+    my @conflicts = $self->get_attackers($nation);
+    my @attackers = ();
+    for(@conflicts)
+    {
+        push @attackers, $_->node1;
+    }
+    my $supporter;
+    my $supps = $self->supported($nation);
+    if($supps)
+    {
+        $supporter = $supps->start($nation);
+    }
+    return { invaders => \@attackers,
+             supporter => $supporter,
+           }  
+}
+
+sub print_wars
+{
+    my $self = shift;
+    my $nation = shift;
+    my $mode = shift || 'print';
+    my @wars = $self->wars_info();
     my @civil_wars;
     foreach my $n (@{$self->nation_names})
     {
