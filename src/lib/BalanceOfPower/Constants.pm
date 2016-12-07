@@ -148,6 +148,9 @@ use constant MISSIONS_TO_GENERATE_PER_TURN => 40;
 use constant MAX_MISSIONS_FOR_USER => 1;
 use constant PENALTY_FACTOR_FOR_DROP_MISSION => .5;
 
+#Mercenary
+use constant MAX_HEALTH => 5;
+
 #Others
 use constant TRADEROUTE_SIZE_BONUS => .5;
 use constant PRODUCTION_UNITS => [ 2, 3, 4 ];
@@ -323,5 +326,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MISSIONS_TO_GENERATE_PER_TURN',
                   'MAX_MISSIONS_FOR_USER',
                   'PENALTY_FACTOR_FOR_DROP_MISSION',
+                  'MAX_HEALTH',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );

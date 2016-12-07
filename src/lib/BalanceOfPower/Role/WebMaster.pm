@@ -192,6 +192,7 @@ sub build_nations_statics
         my %travels = $self->make_travel_plan($nation);
         my %prices = $self->get_all_nation_prices($nation, $self->current_year);
         my $foreign_armies = $self->armies_on_territory($nation);
+        my $invaded = @{$foreign_armies->{invaders}} > 0 ? 1 : 0;
         my %nation_hash = ( stocks => $nation_obj->available_stocks,
                             internal_production => $nation_obj->production_for_domestic,
                             export_production => $nation_obj->production_for_export,
@@ -199,6 +200,7 @@ sub build_nations_statics
                             army => $nation_obj->army,
                             war => $at_war,
                             civil_war => $at_civil_war,
+                            invasion => $invaded,
                             commands => \%command_matrix,
                             travels => \%travels,
                             prices => \%prices,
