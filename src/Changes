@@ -1,10 +1,11 @@
-0.400111
+0.400115
 ===
 
-__???__
+__Tue 07 Dec 2016__
 
- * Foreign army on nation soli added to nation meta
+ * Foreign army on nation soil added to nation meta
  * Better garbage collection of rebel supports
+ * More constants for web
 
 0.400110
 ===
