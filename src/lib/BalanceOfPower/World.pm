@@ -1059,17 +1059,21 @@ sub generate_mission
     if($type eq 'parcel')
     {
         @nations = $self->shuffle("Nations for mission - assignment", @nations); 
-        $out{'assignment'} = $nations[0];
+        $out{configuration}->{'assignment'} = $nations[0];
         @nations = $self->shuffle("Nations for mission - from", @nations); 
-        $out{'from'} = $nations[0];
+        $out{configuration}->{'from'} = $nations[0];
         @nations = $self->shuffle("Nations for mission - to", @nations); 
-        $out{'to'} = $nations[0] ne $out{'from'} ? $nations[0] : $nations[1];
+        $out{configuration}->{'to'} = $nations[0] ne $out{'from'} ? $nations[0] : $nations[1];
+
         my $time = $self->random(0, 2, "Time available for mission");
         $out{'expire'} = next_turn($self->current_year);
         for(my $i = 0; $i < $time; $i++)
         {
             $out{'expire'} = next_turn($out{'expire'});
         }
+
+        $out{location} = $out{configuration}->{'assignment'};
+
         $out{'reward'}->{'friendship'}->{'assignment'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
                                                                         FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
                                                                         "Friendship for mission - assignment");
@@ -1080,6 +1084,38 @@ sub generate_mission
                                                                 FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
                                                                 "Friendship for mission - to");
         my $tot_friendship = $out{'reward'}->{'friendship'}->{'assignment'} +  $out{'reward'}->{'friendship'}->{'from'} +  $out{'reward'}->{'friendship'}->{'to'};
+        my $money_bonus = $tot_friendship * BONUS_FACTOR_FOR_BAD_FRIENSHIP;
+        $out{'reward'}->{'money'} = $self->random(MONEY_RANGE_FOR_MISSION->{$type}->[0] - $money_bonus, MONEY_RANGE_FOR_MISSION->{$type}->[1], "Money for mission");
+    }
+    elsif($type eq 'joinwar')
+    {
+        @nations = $self->shuffle("Nations for mission - assignment", @nations); 
+        $out{configuration}->{'assignment'} = $nations[0];
+        my @wars = $self->shuffle("War for mission ", $self->wars->all);
+        my $side = $self->random(0, 1, "Side for war mission");
+        $out{configuration}->{position} = $wars[0]->node2;
+        if($side == 0)
+        {
+            $out{configuration}->{army} = $wars[0]->node1;
+        }
+        elsif($side == 1)
+        {
+            $out{configuration}->{army} = $wars[0]->node2;
+        }
+        
+        my $time = $self->random(0, 2, "Time available for mission");
+        $out{'expire'} = next_turn($self->current_year);
+        for(my $i = 0; $i < $time; $i++)
+        {
+            $out{'expire'} = next_turn($out{'expire'});
+        }
+        
+        $out{location} = $out{configuration}->{'assignment'};
+
+        $out{'reward'}->{'friendship'}->{'assignment'} =  $self->random(FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[0], 
+                                                                        FRIENDSHIP_RANGE_FOR_MISSION->{$type}->[1], 
+                                                                        "Friendship for mission - assignment");
+        my $tot_friendship = $out{'reward'}->{'friendship'}->{'assignment'};
         my $money_bonus = $tot_friendship * BONUS_FACTOR_FOR_BAD_FRIENSHIP;
         $out{'reward'}->{'money'} = $self->random(MONEY_RANGE_FOR_MISSION->{$type}->[0] - $money_bonus, MONEY_RANGE_FOR_MISSION->{$type}->[1], "Money for mission");
     }

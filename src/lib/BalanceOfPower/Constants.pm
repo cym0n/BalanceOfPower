@@ -141,8 +141,10 @@ use constant FRIENDSHIP_LIMIT_TO_SHOP => 30;
 use constant LOWER_MY_PRICE_FACTOR => 0.4;
 
 #Missions
-use constant FRIENDSHIP_RANGE_FOR_MISSION => { 'parcel' => [-7, +7] };
-use constant MONEY_RANGE_FOR_MISSION => { 'parcel' => [100, 500] };
+use constant FRIENDSHIP_RANGE_FOR_MISSION => { 'parcel' => [-7, +7],
+                                               'mercenary' => [-9, +9], };
+use constant MONEY_RANGE_FOR_MISSION => { 'parcel' => [100, 500],
+                                          'mercenary' => [200, 600] };
 use constant BONUS_FACTOR_FOR_BAD_FRIENSHIP => 15;
 use constant MISSIONS_TO_GENERATE_PER_TURN => 40;
 use constant MAX_MISSIONS_FOR_USER => 1;
