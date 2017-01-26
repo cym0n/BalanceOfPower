@@ -1055,6 +1055,15 @@ sub generate_mission
     my $type = shift;
     my @nations = @{$self->nation_names};
     my %out;
+
+
+    if(! $type)
+    {
+        my @types = $self->shuffle("Mission type to generate", ('parcel', 'mercenary'));
+        $type = $types[0];
+    }
+
+    $out{type} = $type;
     
     if($type eq 'parcel')
     {
@@ -1063,7 +1072,7 @@ sub generate_mission
         @nations = $self->shuffle("Nations for mission - from", @nations); 
         $out{configuration}->{'from'} = $nations[0];
         @nations = $self->shuffle("Nations for mission - to", @nations); 
-        $out{configuration}->{'to'} = $nations[0] ne $out{'from'} ? $nations[0] : $nations[1];
+        $out{configuration}->{'to'} = $nations[0] ne $out{configuration}->{'from'} ? $nations[0] : $nations[1];
 
         my $time = $self->random(0, 2, "Time available for mission");
         $out{'expire'} = next_turn($self->current_year);
@@ -1087,7 +1096,7 @@ sub generate_mission
         my $money_bonus = $tot_friendship * BONUS_FACTOR_FOR_BAD_FRIENSHIP;
         $out{'reward'}->{'money'} = $self->random(MONEY_RANGE_FOR_MISSION->{$type}->[0] - $money_bonus, MONEY_RANGE_FOR_MISSION->{$type}->[1], "Money for mission");
     }
-    elsif($type eq 'joinwar')
+    elsif($type eq 'mercenary')
     {
         @nations = $self->shuffle("Nations for mission - assignment", @nations); 
         $out{configuration}->{'assignment'} = $nations[0];
