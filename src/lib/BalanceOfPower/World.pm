@@ -91,11 +91,11 @@ with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
 with 'BalanceOfPower::Role::Broker';
+with 'BalanceOfPower::Role::Recorder';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Rebel';
 with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Analyst';
-with 'BalanceOfPower::Role::Recorder';
 with 'BalanceOfPower::Role::Shopper';
 with 'BalanceOfPower::Role::WebMaster';
 
@@ -270,6 +270,8 @@ sub init_random
     {
         say "Cleaning MongoDB events table";
         $self->clean_mongo_events();
+        say "Cleaning MongoDB memorial table";
+        $self->clean_mongo_memorial();
     }
 }
 

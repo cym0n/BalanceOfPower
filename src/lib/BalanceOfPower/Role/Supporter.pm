@@ -160,7 +160,6 @@ sub rebel_military_support_garbage_collector
     my $self = shift;
     for($self->rebel_military_supports->all)
     {
-        say $_->node1 . " => " . $_->node2;
         if(! $self->at_civil_war($_->node2))
         {
             $self->stop_rebel_military_support($self->get_nation($_->node1), $self->get_nation($_->node2));

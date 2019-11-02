@@ -44,7 +44,10 @@ sub start_civil_war
     
     my $civwar = BalanceOfPower::CivilWar->new(nation => $nation,
                                                rebel_provinces => $rebel_provinces,
-                                               start_date => $nation->current_year);
+                                               start_date => $nation->current_year,
+                                               mongo_save => $self->mongo_save,
+                                               mongo_events_collection => $self->name
+                                            );
     $civwar->register_event("Starting army: " . $nation->army);
     my $sup = $self->supported($nation->name);
     if($sup)
@@ -61,7 +64,7 @@ sub start_civil_war
         $self->add_civil_war($civwar);
     }
 }
-
+    
 sub add_civil_war
 {
     my $self = shift;
@@ -86,6 +89,7 @@ sub delete_civil_war
         $cw->end_date($self->current_year);
         
         push @{$self->civil_memorial}, $cw;
+        $self->to_mongo_memorial("civil war", $cw) if $self->mongo_save;
     }
     my @civwars = grep { ! $_->is_about($nation) } @{$self->civil_wars};
     $self->civil_wars(\@civwars);

@@ -31,6 +31,7 @@ requires 'delete_crisis';
 requires 'discard_war_bonds';
 requires 'cash_war_bonds';
 requires 'war_busy';
+requires 'to_mongo_memorial';
 
 has wars => (
     is => 'ro',
@@ -571,6 +572,7 @@ sub delete_war
     $war->end_date($self->current_year);
     $war->register_event($ending_line);
     push @{$self->memorial}, $war;
+    $self->to_mongo_memorial("war", $war) if $self->mongo_save;
     $self->delete_war_link($nation1, $nation2);
 }
 

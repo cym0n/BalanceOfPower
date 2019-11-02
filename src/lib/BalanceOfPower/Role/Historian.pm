@@ -549,6 +549,15 @@ sub dump_statistics
     $dump->Indent(0);
     print {$io} $indent . $dump->Dump . "\n";
 }
+sub statistics_to_mongo
+{
+    my $self = shift;
+    my $turn = shift;
+    return $self->statistics->{$turn};    
+}
+
+
+
 sub load_statistics
 {
     my $self = shift;

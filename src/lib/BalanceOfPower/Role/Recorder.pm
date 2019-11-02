@@ -28,6 +28,16 @@ sub dump
     print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year, $self->admin_password) . "\n";
     $self->dump_events($io, " " . $indent);
 }
+sub to_mongo
+{
+    my $self = shift;
+    return {
+        name => $self->name,
+        first_year => $self->first_year,
+        current_year => $self->current_year,
+        admin_password => $self->admin_password
+    }
+}
 sub load
 {
     my $self = shift;
@@ -179,29 +189,32 @@ sub dump_all
     return "World saved to $file";
 }   
 
+sub world_to_mongo
+{
+    my $self = shift;
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_games');
+    $db->get_collection('games')->insert_one_or_replace({ name => $self->name}, $self->to_mongo);
+}
+
+
 sub dump_mongo
 {
     my $self = shift;
+
+    $self->world_to_mongo();
+
     my $db_name = 'bop_' . $self->name . '_'. $self->current_year;
     $db_name =~ s/\//_/;
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database($db_name);
     $db->drop;
-    for($self->events_to_mongo($self->current_year))
-    {
-        $db->get_collection('events')->insert_one($_);
-    }
     for(@{$self->nations})
     {
         my $n = $_;
         my $doc = $n->to_mongo();
         $db->get_collection('nations')->insert_one($doc);
-        for($n->events_to_mongo($self->current_year))
-        {
-            $db->get_collection('events')->insert_one($_);
-        }
     }
-
     for($self->diplomatic_relations->to_mongo)
     {
         $db->get_collection('relations')->insert_one($_);
@@ -234,13 +247,11 @@ sub dump_mongo
     {
         $db->get_collection('relations')->insert_one($_);
     }
-    foreach my $w ($self->wars->all)
+    for(@{$self->civil_wars})
     {
-        for($w->events_to_mongo($self->current_year))
-        {
-            $db->get_collection('events')->insert_one($_);
-        }
+        $db->get_collection('civil_wars')->insert_one($_->to_mongo());
     }
+    $db->get_collection('statistics')->insert_one($self->statistics_to_mongo($self->current_year)); 
     return "World saved to $db_name mongodb";
 }
 
@@ -250,6 +261,27 @@ sub clean_mongo_events
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database('bop_events')->get_collection($self->name)->drop;
 }
+
+sub to_mongo_memorial
+{
+    my $self = shift;
+    my $war_type = shift;
+    my $war = shift;
+    my $mongo = MongoDB->connect();
+
+    my $data = $war->to_mongo();
+    $data->{war_type} = $war_type;
+    my $db = $mongo->get_database('bop_memorials')->get_collection($self->name)->insert_one($data);
+}
+
+sub clean_mongo_memorial
+{
+    my $self = shift;
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_memorials')->get_collection($self->name)->drop;
+}
+
+
 
 
 
