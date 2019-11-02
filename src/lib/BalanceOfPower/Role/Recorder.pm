@@ -4,6 +4,7 @@ use strict;
 use v5.10;
 
 use Moo::Role;
+use MongoDB;
 use BalanceOfPower::Nation;
 use BalanceOfPower::Executive;
 
@@ -171,6 +172,23 @@ sub dump_all
     close($io);
     return "World saved to $file";
 }   
+
+sub dump_mongo
+{
+    my $self = shift;
+    my $db_name = 'bop_' . $self->name . '_'. $self->current_year;
+    $db_name =~ s/\//_/;
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database($db_name);
+    for(@{$self->nations})
+    {
+        my $doc = $_->to_mongo();
+        $db->insert_one($doc);
+    }
+    return "World saved to $db_name mongodb";
+}
+
+
 
 sub load_world
 {

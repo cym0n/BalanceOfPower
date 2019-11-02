@@ -447,6 +447,18 @@ sub dump
                 join(";", $self->name, $self->code, $self->area, $self->export_quote, $self->government, $self->government_strength, $self->size, $self->internal_disorder, $self->production_for_domestic, $self->production_for_export, $self->prestige, $self->wealth, $self->debt, $self->current_year, $self->army, $self->progress, $self->available_stocks, $self->government_id) . "\n";
     $self->dump_events($io, " " . $indent);
 }
+sub to_mongo
+{
+    my $self = shift;
+    my @fields = qw(name code area export_quote government government_strength size internal_disorder production_for_domestic production_for_export prestige wealth debt current_year army progress available_stocks government_id);
+    my $out = {};
+    for(@fields)
+    {
+        my $f = shift;
+        $out->{$f} = $self->$f;
+    }
+    return $out;
+}
 
 sub load
 {
