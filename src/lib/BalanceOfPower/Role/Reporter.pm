@@ -4,6 +4,7 @@ use strict;
 use utf8;
 use v5.10;
 use Moo::Role;
+use MongoDB;
 use Data::Dumper;
 use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw( prev_turn get_year_turns as_title );
@@ -18,6 +19,14 @@ has events => (
     default => sub { {} }
 );
 
+has mongo_save => (
+    is => 'ro',
+    default => 0
+);
+
+has mongo_events_collection => (
+    is => 'ro',
+);
 #Event structure:
 #   - code
 #   - text
@@ -45,7 +54,43 @@ sub register_event
     $self->events({}) if(! $self->events );
     push @{$self->events->{$time}}, $event;
     $self->log("$time - [" . $self->name . "] " . $event->{text});
+    if($self->mongo_save)
+    {
+        $self->send_to_mongo($event, $time);
+    }
 }
+
+sub send_to_mongo
+{
+    my $self = shift;
+    my $event = shift;
+    my $time = shift;
+    my $source;
+    my $source_type;
+    if(ref($self) eq 'BalanceOfPower::Nation')
+    {
+        $source_type = 'nation';
+        $source = $self->name;
+    }
+    elsif(ref($self) eq 'BalanceOfPower::Relations::War')
+    {
+        $source_type = 'war';
+        $source = $self->war_id;
+    }
+    else
+    {   
+        $source_type = 'world';
+        $source = 'WORLD';
+    }
+    $event->{source} = $source;
+    $event->{source_type} = $source_type;
+    $event->{time} = $time;
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_events');
+    $db->get_collection($self->mongo_events_collection)->insert_one($event);
+}
+
+
 sub make_plain
 {
     my $self = shift;
@@ -243,6 +288,46 @@ sub dump_events
         }
     }
 }
+
+sub events_to_mongo
+{
+    my $self = shift;
+    my $ts = shift;
+    my $source;
+    my $source_type;
+    if(ref($self) eq 'BalanceOfPower::Nation')
+    {
+        $source_type = 'nation';
+        $source = $self->name;
+    }
+    elsif(ref($self) eq 'BalanceOfPower::Relations::War')
+    {
+        $source_type = 'war';
+        $source = $self->war_id;
+    }
+    else
+    {   
+        $source_type = 'world';
+        $source = 'WORLD';
+    }
+    my @out = ();
+    foreach my $e (@{$self->events->{$ts}})
+    {
+        push @out, {
+            source => $source,
+            source_type => $source_type,
+            code => $e->{code},
+            text => $e->{text},
+            values => $e->{values},
+            involved => $e->{involved}
+        }; 
+    }
+    return @out;
+}
+
+
+
+
 sub load_events
 {
     my $self = shift;

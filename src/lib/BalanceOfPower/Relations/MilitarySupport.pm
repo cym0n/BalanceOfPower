@@ -7,6 +7,10 @@ use Moo;
 
 with 'BalanceOfPower::Relations::Role::Relation';
 
+has '+rel_type' => (
+    is => 'ro',
+    default => 'support'
+);
 has army => (
     is => 'rw',
     default => 0
@@ -37,6 +41,15 @@ sub dump
     my $io = shift;
     my $indent = shift;
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->army) . "\n";
+}
+sub to_mongo
+{
+    my $self = shift;
+    return { rel_type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2,
+             army => $self->army,
+    }
 }
 sub load
 {

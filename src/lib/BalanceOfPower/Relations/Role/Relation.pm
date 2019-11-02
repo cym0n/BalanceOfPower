@@ -4,6 +4,10 @@ use strict;
 use Moo::Role;
 use HTML::Entities;
 
+has rel_type => (
+    is => 'ro',
+    default => 'relationship'
+);
 has node1 => (
     is => 'ro'
 );
@@ -131,6 +135,13 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . $self->node1 . ";" . $self->node2 . "\n";
+}
+sub to_mongo
+{
+    my $self = shift;
+    return { type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2 }
 }
 sub load
 {

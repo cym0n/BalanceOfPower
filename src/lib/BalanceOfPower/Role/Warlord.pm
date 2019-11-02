@@ -275,6 +275,8 @@ sub create_war
                                                       node2_faction => 1,
                                                       start_date => $self->current_year,
                                                       log_active => 0,
+                                                      mongo_save => $self->mongo_save,
+                                                      mongo_events_collection => $self->name
                                                       );
         $war = $self->war_starting_report($war);
         $self->add_war($war); 
@@ -317,7 +319,10 @@ sub create_war
                                                           node1_faction => $faction1,
                                                           node2_faction => $faction2,
                                                           start_date => $self->current_year,
-                                                          log_active => 0);
+                                                          log_active => 0,
+                                                          mongo_save => $self->mongo_save,
+                                                          mongo_events_collection => $self->name
+                                                        );
             $war = $self->war_starting_report($war);
             $self->add_war($war);                                                  
             $self->broadcast_event( { code => 'warlinkedstart',

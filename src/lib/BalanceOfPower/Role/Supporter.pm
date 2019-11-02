@@ -106,6 +106,7 @@ sub start_rebel_military_support
     $nation1->add_army(-1 * ARMY_FOR_SUPPORT);
     $self->add_rebel_military_support(
         BalanceOfPower::Relations::MilitarySupport->new(
+            rel_type => 'rebel_support',
             node1 => $nation1->name,
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));

@@ -452,9 +452,8 @@ sub to_mongo
     my $self = shift;
     my @fields = qw(name code area export_quote government government_strength size internal_disorder production_for_domestic production_for_export prestige wealth debt current_year army progress available_stocks government_id);
     my $out = {};
-    for(@fields)
+    foreach my $f (@fields)
     {
-        my $f = shift;
         $out->{$f} = $self->$f;
     }
     return $out;

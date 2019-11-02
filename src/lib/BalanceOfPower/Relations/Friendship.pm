@@ -19,6 +19,10 @@ has crisis_level => (
 );
 with 'BalanceOfPower::Relations::Role::Relation';
 
+has '+rel_type' => (
+    is => 'ro',
+    default => 'friendship'
+);
 sub get_crisis_level
 {
     my $self = shift;
@@ -269,6 +273,16 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->factor, $self->crisis_level) . "\n";
+}
+sub to_mongo
+{
+    my $self = shift;
+    return { rel_type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2,
+             factor => $self->factor,
+             crisis_level => $self->crisis_level
+    }
 }
 sub load
 {

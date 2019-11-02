@@ -10,6 +10,12 @@ use BalanceOfPower::Executive;
 
 requires 'dump_events';
 requires 'load_events';
+requires 'diplomacy_for_node';
+
+has mongo_save => (
+    is => 'ro',
+    default => 0
+);
 
 my $dump_version = 3;
 
@@ -180,12 +186,69 @@ sub dump_mongo
     $db_name =~ s/\//_/;
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database($db_name);
+    $db->drop;
+    for($self->events_to_mongo($self->current_year))
+    {
+        $db->get_collection('events')->insert_one($_);
+    }
     for(@{$self->nations})
     {
-        my $doc = $_->to_mongo();
-        $db->insert_one($doc);
+        my $n = $_;
+        my $doc = $n->to_mongo();
+        $db->get_collection('nations')->insert_one($doc);
+        for($n->events_to_mongo($self->current_year))
+        {
+            $db->get_collection('events')->insert_one($_);
+        }
+    }
+
+    for($self->diplomatic_relations->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->treaties->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->borders->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->trade_routes->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->influences->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->military_supports->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->rebel_military_supports->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    for($self->wars->to_mongo)
+    {
+        $db->get_collection('relations')->insert_one($_);
+    }
+    foreach my $w ($self->wars->all)
+    {
+        for($w->events_to_mongo($self->current_year))
+        {
+            $db->get_collection('events')->insert_one($_);
+        }
     }
     return "World saved to $db_name mongodb";
+}
+
+sub clean_mongo_events
+{
+    my $self = shift;
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_events')->get_collection($self->name)->drop;
 }
 
 

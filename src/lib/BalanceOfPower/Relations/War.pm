@@ -11,6 +11,10 @@ use HTML::Entities;
 with 'BalanceOfPower::Relations::Role::Relation';
 with 'BalanceOfPower::Role::Reporter';
 
+has '+rel_type' => (
+    is => 'ro',
+    default => 'war'
+);
 has attack_leader => (
     is => 'rw',
     default => ""
@@ -118,6 +122,24 @@ sub dump
         $self->dump_events($io, $indent . " ");
     }
 }
+sub to_mongo
+{
+    my $self = shift;
+    return { rel_type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2,
+             attack_leader => $self->attack_leader,
+             war_id => $self->war_id,
+             node1_faction => $self->node1_faction,
+             node2_faction => $self->node2_faction,
+             start_date => $self->start_date,
+             end_date => $self->end_date,
+             current_year => $self->current_year,
+    }
+}
+
+
+
 sub load
 {
     my $self = shift;

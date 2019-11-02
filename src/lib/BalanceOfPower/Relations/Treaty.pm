@@ -7,7 +7,12 @@ use Moo;
 
 with 'BalanceOfPower::Relations::Role::Relation';
 
-has type => (
+has '+rel_type' => (
+    is => 'ro',
+    default => 'treaty'
+);
+
+has 'type' => (
     is => 'ro',
 );
 
@@ -45,6 +50,16 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->type) . "\n";
+}
+sub to_mongo
+{
+    my $self = shift;
+    return {
+             rel_type => $self->rel_type, 
+             node1 => $self->node1,
+             node2 => $self->node2,
+             type => $self->type,
+    }
 }
 sub load
 {

@@ -231,7 +231,10 @@ sub init_random
             available_stocks => START_STOCKS->[$nations_data{$n}->{size}],
             log_dir => $self->log_dir,
             log_name => $self->log_name,
-            log_on_stdout => $self->log_on_stdout);
+            log_on_stdout => $self->log_on_stdout,
+            mongo_save => $self->mongo_save,
+            mongo_events_collection => $self->name
+        );
         $self->nation_codes->{$nations_data{$n}->{code}} = $n;
     }
     $self->nation_names(\@nation_names);
@@ -262,6 +265,11 @@ sub init_random
     else
     {
         say "Alliances generation skipped" if ! $self->silent;
+    }
+    if($self->mongo_save)
+    {
+        say "Cleaning MongoDB events table";
+        $self->clean_mongo_events();
     }
 }
 
@@ -317,6 +325,7 @@ sub autopilot
         foreach my $t (get_year_turns($y))
         {
             $self->elaborate_turn($t);
+            $self->dump_mongo() if $self->mongo_save;
         }
     }
     $self->autoplay(0);

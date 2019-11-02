@@ -73,6 +73,19 @@ if($mode eq 'new')
     $commands->welcome_player();
     $commands->interact();
 }
+elsif($mode eq 'new-batch')
+{
+    my $name = shift;
+    die "Name is mandatory" if ! $name;
+    $world = BalanceOfPower::World->new( name => $name, first_year => $first_year, log_active => $logs, admin_password => 'password', savefile => "$name.dmp", mongo_save => 1, mongo_events_collection => $name );
+    $world->init_random("nations-v2.txt", "borders-v2.txt");
+    $world->dice_log(0);
+    $commands = $world->build_commands();
+    my $auto_years = shift || 1;
+    $commands->set_player("Player One");
+    $world->autopilot($first_year, $first_year+$auto_years);
+    say $world->dump_all();
+}
 elsif($mode eq 'load')
 {
     my $file = shift @ARGV;

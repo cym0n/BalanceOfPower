@@ -13,7 +13,10 @@ with 'BalanceOfPower::Relations::Role::Relation';
 #   0: occupy
 #   1: dominate
 #   2: control
-
+has '+rel_type' => (
+    is => 'ro',
+    default => 'influence'
+);
 has status => (
     is => 'rw',
     default => -1
@@ -119,6 +122,18 @@ sub dump
     my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->status, $self->next, $self->clock) . "\n";
 }
+sub to_mongo
+{
+    my $self = shift;
+    return { rel_type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2,
+             status => $self->status,
+             next => $self->next,
+             clock => $self->clock,
+    }
+}
+
 sub load
 {
     my $self = shift;

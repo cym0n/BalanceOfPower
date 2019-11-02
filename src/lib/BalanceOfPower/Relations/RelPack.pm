@@ -426,6 +426,17 @@ sub dump
         $l->dump($io, $indent);
     }
 }
+sub to_mongo
+{
+    my $self = shift;
+    my @out = ();
+    foreach my $l (@{$self->links})
+    {
+        push @out, $l->to_mongo();
+    }
+    return @out;
+}
+
 sub load_pack
 {
     my $self = shift;

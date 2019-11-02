@@ -14,6 +14,13 @@ has factor2 => (
 
 with 'BalanceOfPower::Relations::Role::Relation';
 
+has '+rel_type' => (
+    is => 'ro',
+    default => 'traderoute'
+);
+
+
+
 sub factor_for_node
 {
     my $self = shift;
@@ -50,6 +57,16 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     print {$io} $indent . join(";", $self->node1, $self->node2, $self->factor1, $self->factor2) . "\n";
+}
+sub to_mongo
+{
+    my $self = shift;
+    return { rel_type => $self->rel_type,
+             node1 => $self->node1,
+             node2 => $self->node2,
+             factor1 => $self->factor1,
+             factor2 => $self->factor2,
+    }
 }
 sub load
 {
