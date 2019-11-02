@@ -46,7 +46,8 @@ sub start_civil_war
                                                rebel_provinces => $rebel_provinces,
                                                start_date => $nation->current_year,
                                                mongo_save => $self->mongo_save,
-                                               mongo_events_collection => $self->name
+                                               mongo_events_collection => $self->name,
+                                               log_active => 0,
                                             );
     $civwar->register_event("Starting army: " . $nation->army);
     my $sup = $self->supported($nation->name);

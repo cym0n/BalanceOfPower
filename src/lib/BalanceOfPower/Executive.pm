@@ -43,8 +43,8 @@ sub init
     my $self = shift;
     $self->log_name("bop-IA.log");
     $self->delete_log();
-    $self->log_active(1);
     my $world = shift;
+    $self->log_active($world->log_active);
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
                                                     domestic_cost => ARMY_COST,

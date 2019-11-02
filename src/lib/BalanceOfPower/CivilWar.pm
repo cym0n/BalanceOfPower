@@ -182,18 +182,19 @@ sub dump
     my $io = shift;
     my $indent = shift || "";
     my $end_date = $self->end_date || "";
-    say "Dumping civil war in " . $self->nation_name;
+    my $current_year = $self->current_year || $self->start_date;
     print {$io} $indent . 
-                join(";", $self->nation_name, $self->rebel_provinces, $self->current_year, $self->start_date, $end_date) . "\n";
+                join(";", $self->nation_name, $self->rebel_provinces, $current_year, $self->start_date, $end_date) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 sub to_mongo
 {
     my $self = shift;
+    my $current_year = $self->current_year || $self->start_date;
     return {
         nation_name => $self->nation_name,
         rebel_provincies => $self->rebel_provinces,
-        current_year => $self->current_year,
+        current_year => $current_year,
         start_date => $self->start_date,
         end_date => $self->end_date
     }

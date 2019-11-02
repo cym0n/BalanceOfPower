@@ -51,7 +51,7 @@ sub create_player
     }
     my $log_name = $username . ".log";
     $log_name =~ s/ /_/g;
-    my $pl = BalanceOfPower::Player->new(name => $username, money => $money, log_name => $log_name, log_dir => $self->log_dir, current_year => $self->current_year, position => $position);
+    my $pl = BalanceOfPower::Player->new(name => $username, money => $money, log_name => $log_name, log_dir => $self->log_dir, current_year => $self->current_year, position => $position, log_active => $self->log_active);
     $pl->delete_log();
     $pl->register_event("ENTERING THE GAME");
     $self->register_event("$username IS ENTERING THE GAME");

@@ -64,7 +64,7 @@ has data_directory => (
 );
 has dice => (
     is => 'ro',
-    default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log" ) },
+    default => sub { BalanceOfPower::Dice->new( log_name => "bop-dice.log", log_active => 0 ) },
     handles => { random => 'random',
                  random10 => 'random10',
                  random_around_zero => 'random_around_zero',
@@ -229,6 +229,7 @@ sub init_random
             export_quote => $export_quote, 
             government_strength => $government_strength,
             available_stocks => START_STOCKS->[$nations_data{$n}->{size}],
+            log_active => $self->log_active,
             log_dir => $self->log_dir,
             log_name => $self->log_name,
             log_on_stdout => $self->log_on_stdout,

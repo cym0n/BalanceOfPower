@@ -194,7 +194,8 @@ sub world_to_mongo
     my $self = shift;
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database('bop_games');
-    $db->get_collection('games')->insert_one_or_replace({ name => $self->name}, $self->to_mongo);
+    $db->get_collection('games')->find_one_and_delete({ name => $self->name});
+    $db->get_collection('games')->insert_one($self->to_mongo);
 }
 
 
