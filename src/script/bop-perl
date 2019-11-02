@@ -9,6 +9,7 @@ use File::Path 'make_path';
 use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
 use BalanceOfPower::World;
 use Data::Dumper;
+use Getopt::Long;
 
 
 my $stubbed_player = 0;
@@ -23,6 +24,7 @@ my $world;
 my $commands;
 
 my $mode = shift @ARGV;
+
 
 if(! $mode)
 {
@@ -50,7 +52,7 @@ elsif($mode eq 'refresh-nosrv')
 
 if($mode eq 'new')
 {
-    $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs );
+    $world = BalanceOfPower::World->new( first_year => $first_year, log_active => $logs, admin_password => 'password' );
     $world->init_random("nations-v2.txt", "borders-v2.txt");
     $world->dice_log($logs);
     $commands = $world->build_commands();
@@ -84,13 +86,19 @@ elsif($mode eq 'load')
 elsif($mode eq 'webgen')
 {
     my $game = shift @ARGV;
+    my $noserver = 0;
+    my $opt_years = $init_years_web;
+    my $opt_password = "password";
+    GetOptions ("password=s" => \$opt_password,
+                "years=i"   => \$opt_years,  
+                "noserver"  => \$noserver);
     my $world = load_game($game);
     my $new = 0;
     if(! $world)
     {
         my $site_root = $ENV{'BOP_SITE_ROOT'};
         my $website = $ENV{'BOP_WEBSITE'};
-        my $admin_password = shift @ARGV;
+        my $admin_password = $opt_password;
         my $log_dir = "$game-logs";
         my $file = "$game.dmp";
         make_path($log_dir);
@@ -107,13 +115,13 @@ elsif($mode eq 'webgen')
         $world->set_log_dir($log_dir);
         $new = 1;
     }
-    die "Server unreachable" if(! $world->server_available);
+    die "Server unreachable" if(! $world->server_available && (! $noserver));
     if($new)
     {
         $world->init_random("nations-v2.txt", "borders-v2.txt");
         $commands = $world->build_commands();
         say "Initialization: first year: $first_year";
-        foreach my $y ( $first_year ..  $first_year + $init_years_web)
+        foreach my $y ( $first_year ..  $first_year + $opt_years)
         {
             foreach my $t (get_year_turns($y))
             {
