@@ -77,6 +77,11 @@ sub send_to_mongo
         $source_type = 'war';
         $source = $self->war_id;
     }
+    elsif(ref($self) eq 'BalanceOfPower::CivilWar')
+    {
+        $source_type = 'civil_war';
+        $source = $self->nation;
+    }
     else
     {   
         $source_type = 'world';
