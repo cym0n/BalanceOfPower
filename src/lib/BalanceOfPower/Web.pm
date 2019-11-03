@@ -1,6 +1,8 @@
 package BalanceOfPower::Web;
 use Mojo::Base 'Mojolicious';
 
+use Mojolicious::Plugin::Mongodb;
+
 # This method will run once at server start
 sub startup {
   my $self = shift;
