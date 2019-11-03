@@ -1,0 +1,15 @@
+<script>
+function show_mission( mission )
+{
+    $('.missiondetails').hide();
+    $('#mission'+mission).show();
+}
+$(document).ready(function() {
+    $('.missiondetails').hide();
+    [% IF showme %]
+    $('#mission'+[% showme %]).show();
+    [% ELSE %]
+    $('#nomission').show();
+    [% END %]
+});
+</script>

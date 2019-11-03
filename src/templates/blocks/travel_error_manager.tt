@@ -1,0 +1,31 @@
+[% IF travel_posted %]
+<div class="row">
+    <div class="col-sm-12">
+    [% IF travel_posted == 'ok' %]
+        <div class="alert alert-success">
+        [% IF err == 'posted' %]
+        Travel started!
+        [% END %]
+        [% IF err == 'arrived' %]
+        Arrived!
+        [% END %]
+        </div>
+    [% ELSE %]
+        <div class="alert alert-danger">
+        [% IF err == 'no-destination' %]
+            No destination provided
+        [% END %]
+        [% IF err == 'bad-destination' %]
+            Bad destination provided            
+        [% END %]
+        [% IF err == 'not-arrived' %]
+            Not arrived
+        [% END %]
+        [% IF err == 'ongoing-travel' %]
+            Travel already started
+        [% END %]
+        </div>
+    [% END %]
+    </div>
+</div>
+[% END %]

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Balance of Power 2015">
+    <meta name="author" content="Cymon">
+
+    <title>Balance of Power 2015</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="[% request.uri_base %]/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="[% request.uri_base %]/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="[% request.uri_base %]/css/offcanvas.css" rel="stylesheet">
+
+    <link href="[% request.uri_base %]/css/dataTables.bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="[% request.uri_base %]/javascripts/html5shiv.min.js"></script>
+      <script src="[% request.uri_base %]/javascripts/respond.min.js"></script>
+    <![endif]-->
+    [% IF custom_css %]
+    <link href="[% request.uri_base %]/css/[% custom_css %]" rel="stylesheet">
+    [% END %]
+  </head>
+  <body>
+  [% c.content %]
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="[% request.uri_base %]/javascripts/jquery.min.js"></script>
+    <script src="[% request.uri_base %]/javascripts/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="[% request.uri_base %]/javascripts/ie10-viewport-bug-workaround.js"></script>
+    <script src="[% request.uri_base %]/javascripts/offcanvas.js"></script>
+    <script src="[% request.uri_base %]/javascripts/jquery.dataTables.min.js"></script>
+    <script src="[% request.uri_base %]/javascripts/dataTables.bootstrap.min.js"></script>
+    <script>
+        $('.nation-link').replaceWith(function() {
+        var nname = $(this).text();
+        var ncode = $(this).attr('ref');
+        var url = "/[% game %]/[% year %]/[% quarter %]/n/"+ncode+"/act";
+        return '<a href="' + url + '">' + nname + '</a>';
+        });
+    </script>
+    [% IF custom_js %]
+    [% INCLUDE $custom_js %]
+    [% END %]
+  </body>
+</html>
+
+

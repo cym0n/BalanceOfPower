@@ -1,0 +1,12 @@
+[% quotes = { 'Yip Man' => 'It is difficult for a student to pick a good teacher, but it is more difficult for a teacher to pick a good student.',
+              'Carl von Clausewitz' => 'War is regarded as nothing but the continuation of state policy with other means.'
+              'Louis Pasteur' => 'Do not let yourself be tainted with a barren skepticism.',
+              'Wyatt Earp' => 'Fast is fine, but accuracy is everything.',
+              'Simone Bolivar' => 'When tyranny becomes law, rebellion is a right.',
+              'Cleopatra' => 'All strange and terrible events are welcome, but comforts we despise.',
+              'Ieyasu Tokugawa' => 'After victory, tighten the cords of your helmet.',  
+              'Hippocrates' => 'Everything in excess is opposed to nature.',
+              'Averroes' => 'An army of philosophers would not be sufficient to change the nature of error and to make it truth.',
+              'Sigmund Freud' => 'The first human who hurled an insult instead of a stone was the founder of civilization.',
+              'Paracelsus' => 'Medicine rests upon four pillars - philosophy, astronomy, alchemy, and ethics.',
+} %]

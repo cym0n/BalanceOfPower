@@ -1,0 +1,17 @@
+<div class="center-block">
+    <img style="height:100px" src="/images/[% icon %]">
+</div>
+<br />
+<strong>You are in [% INCLUDE blocks/linked_nation.tt n = position %]<br /><br /></strong>
+<div class="center-block">
+    <center><img style="height:50px" src="/images/flags/[% nation_codes.$position %].png"></center>
+</div>
+<br />
+[% IF nation_friendship_good %]
+<div class="alert alert-success">
+[% ELSE %]
+<div class="alert alert-danger">
+[% END %]
+<center>Friendship</center>
+<center><span class="badge">[% nation_friendship %]/100</span></center>
+</div>

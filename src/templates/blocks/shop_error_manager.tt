@@ -1,0 +1,33 @@
+[% IF shop_posted %]
+<div class="row">
+    <div class="col-sm-12">
+    [% IF shop_posted == 'ok' %]
+        <div class="alert alert-success">
+        Transaction succesfully completed!
+        </div>
+    [% ELSE %]
+        <div class="alert alert-danger">
+        <strong>No transaction</strong><br />
+        [% IF err == 'no-input' %]
+            Transaction KO! Something went wrong with the input
+        [% END %]
+        [% IF err == 'no-money' %]
+            Transaction KO! Not enough money
+        [% END %]
+        [% IF err == 'no-space' %]
+            Transaction KO! No space in the hold
+        [% END %]
+        [% IF err == 'not-owned' %]
+            Transaction KO! You don't own that quantity
+        [% END %]
+        [% IF err == 'hate' %]
+            Your relationship with the nation is compromised
+        [% END %]
+        [% IF err == 'used' %]
+            You already had transaction with that type here
+        [% END %]
+        </div>
+    [% END %]
+    </div>
+</div>
+[% END %]

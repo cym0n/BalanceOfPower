@@ -1,0 +1,22 @@
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
+            <div class="well well-sm">
+                <p style="font-size:18px">
+                <strong>Game</strong>: [% game %]<br />
+                </p>
+                <p>
+                    <a href="/[% game %]/[% year %]/[% quarter %]/hs">Hotspots</a>
+                </p>
+                <p>
+                    <a href="/[% game %]/[% year %]/[% quarter %]/al">Alliances</a>
+                </p>
+                <p>
+                    <a href="/[% game %]/[% year %]/[% quarter %]/inf">Influences</a>
+                </p>
+                <p>
+                    <a href="/[% game %]/[% year %]/[% quarter %]/sup">Supports</a>
+                </p>
+                <p>
+                    <a href="/[% game %]/[% year %]/[% quarter %]/rsup">Rebel Supports</a>
+                </p>
+            </div>
+        </div>

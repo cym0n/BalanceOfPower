@@ -1,0 +1,124 @@
+<div class="row">
+    <div class="col-sm-12">
+    <h4>[% missions_title %]</h4>
+        [% IF missions.size > 0 %]
+        <div class="col-sm-4">
+            [% FOREACH m in missions %]
+            <div class="well">
+                <strong>Mission type: [% m.type %]</strong><br />
+                [% m.configuration.from %] -> [% m.configuration.to %]<br /><br />
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button class="btn btn-default" onclick="show_mission([% m.id %])">SHOW</button>
+                    </div>
+                    [% IF m.action == 1 %]
+                    <div class="col-sm-6">
+                        <center><img style="height:30px" src="/images/warning.png"></center>
+                    </div>
+                    [% END %]
+                </div>
+            </div>
+            [% END %]
+            [% IF my == 1 && expired_missions.size > 0 %]
+            <p>
+                (missions expired this turn: <strong>[% expired_missions.size %]</strong>) 
+            </p>
+            [% END %]
+        </div>
+        <div class="col-sm-8">
+            <div id="nomission" class="well missiondetails">
+                <center>Click on SHOW button for details on missions</center>
+            </div>
+            [% FOREACH m in missions %]
+            <div id="mission[% m.id %]" class="well missiondetails" style="display:none">
+                <strong>Mission type: [% m.type %]</strong><br /><br />
+                [% IF my == 1 %]
+                [% IF err == 'action-done' %]
+                <div class="alert alert-warning">
+                    [% IF m.progress == 1 %]
+                    <strong>Package collected!</strong>
+                    [% END %]
+                    [% IF m.progress == 2 %]
+                    <strong>Package delivered!</strong>
+                    [% END %]
+                </div>
+                [% END %]
+                <div class="alert alert-warning">
+                [% IF m.progress == 0 %]
+                Position of the package acquired.<br />
+                <strong>Next step:</strong> go to [% m.configuration.from %] to collect the package
+                [% END %]
+                [% IF m.progress == 1 %]
+                The package is in your hands<br />
+                <strong>Next step:</strong> take the package to [% m.configuration.to %]
+                [% END %]
+                </div>
+                [% END %]
+
+                <br />
+                <br />
+                <center><img style="height:100px" src="/images/parcel.png"></center>
+                <br />
+                <p>
+                    Your mission is to take a secret parcel from [% INCLUDE blocks/linked_nation.tt n = m.configuration.from %] to 
+                    [% INCLUDE blocks/linked_nation.tt n = m.configuration.to %].
+                </p>
+                <p>
+                    Here's what will be of your relationships with the nations involved:<br />
+                    <p style="padding-left: 30px">
+                        [% INCLUDE blocks/linked_nation.tt n = m.configuration.assignment %]: [% m.reward.friendship.assignment %]<br />
+                        [% INCLUDE blocks/linked_nation.tt n = m.configuration.from %]: [% m.reward.friendship.from %]<br />
+                        [% INCLUDE blocks/linked_nation.tt n = m.configuration.to %]: [% m.reward.friendship.to %]<br />
+                    </p>
+                </p>
+                <br />
+                <strong>Money</strong>: [% m.reward.money %]<br />
+                <br />
+                <strong>Mission will expire on</strong>: [% m.expire_turn %]<br />
+                <br />
+                <strong>Penalty for dropping mission</strong>: [% m.drop_penalty %]<br />
+                <br />
+                [% IF my == 0 %]
+                <form method="post" action="/interact/[% game %]/mission-command">
+                <input type="hidden" name="mission" value="[% m.id %]" />
+                <input type="hidden" name="command" value="accept" />
+                <button type="submit" class="btn btn-info">Accept</button>
+                </form>
+                [% ELSE %]
+                <div class="row">
+                    [% IF m.action == 1 %]
+                    <div class="col-sm-6">
+                        [% IF m.progress == 0 %]
+                        [% action_label = "Collect the parcel" %]
+                        [% ELSE %]
+                        [% IF m.progress == 1 %]
+                        [% action_label = "Deliver the parcel" %]
+                        [% END %]
+                        [% END %]
+                        <form method="post" action="/interact/[% game %]/mission-command">
+                        <input type="hidden" name="mission" value="[% m.id %]" />
+                        <input type="hidden" name="command" value="action" />
+                        <button type="submit" class="btn btn-success">[% action_label %]</button>
+                        </form>
+                    </div>
+                    [% END %]
+                    <div class="col-sm-6">
+                        <form method="post" action="/interact/[% game %]/mission-command">
+                        <input type="hidden" name="mission" value="[% m.id %]" />
+                        <input type="hidden" name="command" value="drop" />
+                        <button type="submit" class="btn btn-danger">Drop</button>
+                        </form>
+                    </div>
+                   
+                </div>
+                [% end %]
+            </div>
+            [% END %]
+        </div>
+        [% ELSE %]
+        <div class="well">
+            <center>No missions to display</center>
+        </div>
+        [% END %]
+    </div>
+</div>

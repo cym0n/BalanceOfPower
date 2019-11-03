@@ -1,0 +1,46 @@
+[% IF join_army_posted %]
+<div class="row">
+    <div class="col-sm-12">
+    [% IF join_army_posted == 'ok' %]
+        <div class="alert alert-success">
+            You joined [% err %] army in war!
+        </div>
+    [% ELSE %]
+        <div class="alert alert-danger">
+        [% IF err == 'wrong-position' %]
+            Position is incorrect
+        [% END %]
+        [% IF err == 'already' %]
+            You're already fighting
+        [% END %]
+        [% IF err == 'low-health' %]
+            Not enough health to fight
+        [% END %]
+        [% IF err == 'invalid-nation' %]
+            Bad nation
+        [% END %]
+        </div>
+    [% END %]
+    </div>
+</div>
+[% END %]
+[% IF leave_army_posted %]
+<div class="row">
+    <div class="col-sm-12">
+    [% IF leave_army_posted == 'ok' %]
+        <div class="alert alert-success">
+            You left the war
+        </div>
+    [% ELSE %]
+        <div class="alert alert-danger">
+        [% IF err == 'no-war' %]
+            You're not fighting
+        [% END %]
+        [% IF err == 'not-enough-time' %]
+            You have to spend at least one hour fighting
+        [% END %]
+        </div>
+    [% END %]
+    </div>
+</div>
+[% END %]

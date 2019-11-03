@@ -1,0 +1,8 @@
+[% IF bot_i.class == 'borderguard' %]
+<p>This bot is a border guard. He is blocking some routes out of this country, at random.</p>
+[% END %]
+[% IF bot_i.class == 'medic' %]
+<p>This bot is a medic. You can ask him to cure your wounds for 100 credits.</p>
+<a class="btn btn-danger" role="button" href="/interact/[% game %]/bot-command?bot=[% bot_i.id %]&command=cure">Cure me</a>    
+[% END %]
+

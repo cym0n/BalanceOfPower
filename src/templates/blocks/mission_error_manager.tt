@@ -1,0 +1,43 @@
+[% IF mission_posted %]
+<div class="row">
+    <div class="col-sm-12">
+    [% IF mission_posted == 'ok' %]
+        <div class="alert alert-success">
+        [% IF err == 'accepted' %]
+        Mission accepted!
+        [% END %]
+        [% IF err == 'dropped' %]
+        Mission dropped!
+        [% END %]
+        [% IF err == 'action-done' %]
+        Mission progress!
+        [% END %]
+        </div>
+    [% ELSE %]
+        <div class="alert alert-danger">
+        [% IF err == 'no-input' %]
+            Not enough data provided
+        [% END %]
+        [% IF err == 'no-mission' %]
+            Bad mission provided            
+        [% END %]
+        [% IF err == 'bad-mission' %]
+            Mission is in an invalid state
+        [% END %]
+        [% IF err == 'missions-limit' %]
+            Missions limit already reached
+        [% END %]
+        [% IF err == 'assigned' %]
+            You're not the owner of the mission
+        [% END %]
+        [% IF err == 'bad-command' %]
+            Bad command
+        [% END %]
+        [% IF err == 'not-here' %]
+            The mission is not here
+        [% END %]
+        </div>
+    [% END %]
+    </div>
+</div>
+[% END %]

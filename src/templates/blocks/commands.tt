@@ -1,0 +1,61 @@
+[% help = {
+    'BUILD TROOPS' = 'Add an army unit using internal resources',
+    'LOWER DISORDER' = 'Lower internal disorder using export resources',
+    'ADD ROUTE' = 'Ask for a new commercial route',
+    'DECLARE WAR TO' = 'Declare war to a nation',
+    'DELETE TRADEROUTE' = "Delete existing traderoute if there's no treaty about it",
+    'BOOST PRODUCION' = 'Gives a production bonus',
+    'MILITARY SUPPORT' = 'Give military support to a nation',
+    'RECALL MILITARY SUPPORT' = 'Recall military support from a nation',
+    'AID INSURGENTS IN' = 'Increase internal disorder of an enemy nation using export resources',
+    'TREATY COM WITH' = 'Try to sign a commercial treaty (need prestige)',
+    'ECONOMIC AID FOR' = 'Give some export production to a friendly nation',
+    'REBEL MILITARY SUPPORT' = 'Supports rebels with army in a nation with civil war',
+    'DIPLOMATIC PRESSURE ON' = 'Make your friends hate target nation',
+    'RECALL REBEL MILITARY SUPPORT' = 'Stop military aid for rebels',
+    'MILITARY AID FOR' = 'Use domestic resources to give army to a friendly nation',
+    'PROGRESS' = 'Increase progress',
+    };
+%]
+<script>
+(function($, window) {
+  $.fn.replaceOptions = function(options) {
+    var self, $option;
+
+    this.empty();
+    self = this;
+
+    $.each(options, function(index, option) {
+      $option = $("<option></option>")
+        .attr("value", option.value)
+        .text(option.text);
+      self.append($option);
+    });
+  };
+})(jQuery, window);
+function target_selection( event )
+{
+    [% FOR command IN nation_meta.commands.keys %]
+    if( $(".OrdersCombo").val() == '[% command %]')
+    {
+        [% IF nation_meta.commands.$command.argument %]
+        var options = [
+        [% FOR target IN nation_meta.commands.$command.targets %]
+            {text: "[% target %]", value: "[% target %]"},
+        [% END %]
+        ];
+        $(".TargetCombo").replaceOptions(options);
+        $(".TargetCombo").prop('disabled', false);
+        [% ELSE %]
+        $(".TargetCombo").replaceOptions([]);
+        $(".TargetCombo").prop('disabled', true);
+        [% END %]
+        $("#helptext").html("[% help.$command %]");
+    }  
+    [% END %]
+}
+$(document).ready(function() {
+    $(".OrdersCombo").on("change", target_selection);
+});
+</script>
+

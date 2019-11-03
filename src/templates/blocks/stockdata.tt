@@ -1,0 +1,9 @@
+<script>
+$(document).ready(function() {
+    $('#stockdata').DataTable( {
+         "searching": false,
+         "pageLength": 80 
+
+    });
+} );
+</script>

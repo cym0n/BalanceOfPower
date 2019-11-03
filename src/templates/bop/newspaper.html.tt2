@@ -1,0 +1,10 @@
+[% INCLUDE blocks/head.tt %]
+<div class="col-xs-12 col-sm-9">
+<h2>[% page_title %]</h2>
+<p style="font-size:5px">&nbsp;</p>
+[% INCLUDE "data/newspaper.tt" %]
+<p class="text-muted">For a detailed log click <a href="/play/[% game %]/r/events">here</a></p>
+</div><!--/.col-xs-12.col-sm-9-->
+
+[% INCLUDE blocks/side.tt %]
+[% INCLUDE blocks/foot.tt %]
