@@ -45,6 +45,7 @@ sub init
     $self->delete_log();
     my $world = shift;
     $self->log_active($world->log_active);
+    #$self->log_active(1);
     my $command = 
         BalanceOfPower::Commands::BuildTroops->new( name => "BUILD TROOPS",
                                                     domestic_cost => ARMY_COST,
@@ -124,7 +125,7 @@ sub init
                                                              world => $world,
                                                              export_cost => ECONOMIC_AID_COST,
                                                             );
-    $self->commands->{"ECONOMIC AID FOR"} = $command; 
+    $self->commands->{"ECONOMIC AID"} = $command; 
     $command =
         BalanceOfPower::Commands::RebelMilitarySupport->new( name => "REBEL MILITARY SUPPORT",
                                                              world => $world,

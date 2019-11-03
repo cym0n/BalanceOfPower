@@ -80,7 +80,7 @@ sub send_to_mongo
     elsif(ref($self) eq 'BalanceOfPower::CivilWar')
     {
         $source_type = 'civil_war';
-        $source = $self->nation;
+        $source = $self->nation->name;
     }
     else
     {   
@@ -294,6 +294,7 @@ sub dump_events
     }
 }
 
+#Deprecated
 sub events_to_mongo
 {
     my $self = shift;
@@ -309,6 +310,11 @@ sub events_to_mongo
     {
         $source_type = 'war';
         $source = $self->war_id;
+    }
+    elsif(ref($self) eq 'BalanceOfPower::CivilWar')
+    {
+        $source_type = 'civil_war';
+        $source = $self->nation->name;
     }
     else
     {   
