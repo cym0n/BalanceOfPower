@@ -1,17 +1,10 @@
 package BalanceOfPower::Web;
 use Mojo::Base 'Mojolicious';
 
-use Mojolicious::Plugin::Mongodb;
-
 # This method will run once at server start
 sub startup {
   my $self = shift;
 
-  $self->plugin('mongodb', { 
-        host => 'localhost',
-        port => 27017,
-        helper => 'db',
-  });
   $self->plugin('TemplateToolkit');
   $self->renderer->default_handler('tt2');
   $self->defaults(layout => 'bop');
