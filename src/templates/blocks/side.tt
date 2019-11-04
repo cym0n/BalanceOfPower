@@ -7,7 +7,7 @@
                     <a href="/g/[% game %]/[% year %]/[% turn %]/hotspots">Hotspots</a>
                 </p>
                 <p>
-                    <a href="/[% game %]/[% year %]/[% quarter %]/al">Alliances</a>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/alliances">Alliances</a>
                 </p>
                 <p>
                     <a href="/[% game %]/[% year %]/[% quarter %]/inf">Influences</a>

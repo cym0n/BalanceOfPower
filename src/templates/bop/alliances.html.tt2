@@ -2,8 +2,7 @@
 <div class="col-xs-12 col-sm-9">
 <h2>[% page_title %]</h2>
 <p style="font-size:5px">&nbsp;</p>
-[% INCLUDE "data/all_crises.tt" %]
-[% INCLUDE "data/all_wars.tt" %]
+[% INCLUDE "data/alliances.tt" %]
 </div><!--/.col-xs-12.col-sm-9-->
 
 [% INCLUDE blocks/side.tt %]

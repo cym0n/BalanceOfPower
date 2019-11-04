@@ -140,4 +140,20 @@ sub hotspots {
 
     $c->render(template => 'bop/hotspots');
 }
+
+sub alliances
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $cursor;
+    my @alls = $db->get_collection('relations')->find({ rel_type => 'treaty', type => 'alliance'})->all;
+    $c->stash(treaties => \@alls);
+    $c->render(template => 'bop/alliances');
+}
 1;
