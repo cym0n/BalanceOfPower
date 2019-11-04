@@ -4,7 +4,7 @@
                 <strong>Game</strong>: [% game %]<br />
                 </p>
                 <p>
-                    <a href="/[% game %]/[% year %]/[% quarter %]/hs">Hotspots</a>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/hotspots">Hotspots</a>
                 </p>
                 <p>
                     <a href="/[% game %]/[% year %]/[% quarter %]/al">Alliances</a>

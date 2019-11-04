@@ -21,6 +21,7 @@ sub startup {
   # Normal route to controller
   $r->get('/')->to('example#welcome');
   $r->get('/g/:game/:year/:turn/newspaper')->to('game#newspaper');
+  $r->get('/g/:game/:year/:turn/hotspots')->to('game#hotspots');
 }
 
 1;

@@ -143,6 +143,13 @@ sub to_mongo
              node1 => $self->node1,
              node2 => $self->node2 }
 }
+sub from_mongo
+{
+    my $package = shift;
+    my $data = shift;
+    delete $data->{rel_type};
+    return $package->new(%{$data});
+}
 sub load
 {
     my $self = shift;
