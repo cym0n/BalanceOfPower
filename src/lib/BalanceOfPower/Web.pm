@@ -23,6 +23,7 @@ sub startup {
   $r->get('/g/:game/:year/:turn/newspaper')->to('game#newspaper');
   $r->get('/g/:game/:year/:turn/hotspots')->to('game#hotspots');
   $r->get('/g/:game/:year/:turn/alliances')->to('game#alliances');
+  $r->get('/g/:game/:year/:turn/influences')->to('game#influences');
 }
 
 1;

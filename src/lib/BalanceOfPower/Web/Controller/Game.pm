@@ -6,6 +6,7 @@ use Data::Dumper;
 use MongoDB;
 use BalanceOfPower::Relations::Friendship;
 use BalanceOfPower::Relations::War;
+use BalanceOfPower::Relations::Influence;
 
 # This action will render a template
 sub newspaper {
@@ -155,5 +156,26 @@ sub alliances
     my @alls = $db->get_collection('relations')->find({ rel_type => 'treaty', type => 'alliance'})->all;
     $c->stash(treaties => \@alls);
     $c->render(template => 'bop/alliances');
+}
+
+
+sub influences
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $cursor = $db->get_collection('relations')->find({ rel_type => 'influence'});
+    my @inf;
+    while(my $obj = $cursor->next) {
+        push @inf, BalanceOfPower::Relations::Influence->from_mongo($obj);
+    }
+    @inf = sort { lc($a->node1) cmp lc($b->node1) } @inf;
+    $c->stash(influences => \@inf);
+    $c->render(template => 'bop/influences');
 }
 1;

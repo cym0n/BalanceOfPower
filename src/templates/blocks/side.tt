@@ -10,7 +10,7 @@
                     <a href="/g/[% game %]/[% year %]/[% turn %]/alliances">Alliances</a>
                 </p>
                 <p>
-                    <a href="/[% game %]/[% year %]/[% quarter %]/inf">Influences</a>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/influences">Influences</a>
                 </p>
                 <p>
                     <a href="/[% game %]/[% year %]/[% quarter %]/sup">Supports</a>
