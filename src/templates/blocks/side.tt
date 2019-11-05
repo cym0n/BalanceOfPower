@@ -13,10 +13,10 @@
                     <a href="/g/[% game %]/[% year %]/[% turn %]/influences">Influences</a>
                 </p>
                 <p>
-                    <a href="/[% game %]/[% year %]/[% quarter %]/sup">Supports</a>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/supports">Supports</a>
                 </p>
                 <p>
-                    <a href="/[% game %]/[% year %]/[% quarter %]/rsup">Rebel Supports</a>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/rsupports">Rebel Supports</a>
                 </p>
             </div>
         </div>

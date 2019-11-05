@@ -24,6 +24,8 @@ sub startup {
   $r->get('/g/:game/:year/:turn/hotspots')->to('game#hotspots');
   $r->get('/g/:game/:year/:turn/alliances')->to('game#alliances');
   $r->get('/g/:game/:year/:turn/influences')->to('game#influences');
+  $r->get('/g/:game/:year/:turn/supports')->to('game#supports');
+  $r->get('/g/:game/:year/:turn/rsupports')->to('game#rebel_supports');
 }
 
 1;

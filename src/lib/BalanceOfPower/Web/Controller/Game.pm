@@ -178,4 +178,43 @@ sub influences
     $c->stash(influences => \@inf);
     $c->render(template => 'bop/influences');
 }
+
+
+
+sub supports
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $cursor;
+    my @sups = $db->get_collection('relations')->find({ rel_type => 'support'})->all;
+    $c->stash(title => "MILITARY SUPPORTS");
+    $c->stash(supports => \@sups);
+    $c->render(template => 'bop/supports');
+}
+
+sub rebel_supports
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $cursor;
+    my @sups = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all;
+    $c->stash(title => "REBEL SUPPORTS");
+    $c->stash(supports => \@sups);
+    $c->render(template => 'bop/supports');
+}
+
+
+
 1;
