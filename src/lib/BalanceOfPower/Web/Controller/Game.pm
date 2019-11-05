@@ -7,6 +7,10 @@ use MongoDB;
 use BalanceOfPower::Relations::Friendship;
 use BalanceOfPower::Relations::War;
 use BalanceOfPower::Relations::Influence;
+use BalanceOfPower::Relations::Treaty;
+use BalanceOfPower::Relations::TradeRoute;
+use BalanceOfPower::Relations::MilitarySupport;
+use BalanceOfPower::Nation;
 
 my $nation_codes = {
 'Nicaragua' => 'NIC',
@@ -285,6 +289,99 @@ sub rebel_supports
     $c->stash(supports => \@sups);
     $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
+}
+
+sub nation
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
+    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+    $c->stash(nation => $nation);
+
+    my $cursor;
+    
+    $cursor = $db->get_collection('relations')->find({ '$or' => [{ node1 => $nation->name}, {node2=> $nation->name}]});
+    my @treaties;
+    my @traderoutes;
+    my @supports;
+    my @rebel_supports;
+    my @crises;
+    my @wars;
+    
+    while(my $obj = $cursor->next) {
+        if($obj->{rel_type} eq 'treaty')
+        {
+            push @treaties, BalanceOfPower::Relations::Treaty->from_mongo($obj);
+        }
+        elsif($obj->{rel_type} eq 'traderoute')
+        {
+            push @traderoutes, BalanceOfPower::Relations::TradeRoute->from_mongo($obj);
+        }
+        elsif($obj->{rel_type} eq 'support')
+        {
+            push @supports, BalanceOfPower::Relations::MilitarySupport->from_mongo($obj);
+        }
+        elsif($obj->{rel_type} eq 'rebel_support')
+        {
+            push @rebel_supports, BalanceOfPower::Relations::MilitarySupport->from_mongo($obj);
+        }
+        elsif($obj->{rel_type} eq 'war')
+        {
+            push @wars, BalanceOfPower::Relations::War->from_mongo($obj);
+        }
+        elsif($obj->{rel_type} eq 'friendship')
+        {
+            my $fr = BalanceOfPower::Relations::Friendship->from_mongo($obj);
+            if($fr->crisis_level > 0)
+            {
+                push @crises, $fr;
+            }
+        }
+    }
+    $c->stash(traderoutes => \@traderoutes);
+    $c->stash(treaties => \@treaties);
+    $c->stash(supports => \@supports);
+    $c->stash(rebel_supports => \@rebel_supports);
+    $c->stash(crises => \@crises);
+    $c->stash(wars => \@wars);
+    if(@treaties > @supports + @rebel_supports)
+    {
+        $c->stash(first_row_height => scalar @treaties);
+    }
+    else
+    {
+        $c->stash(first_row_height => scalar ( @supports + @rebel_supports));
+    }
+    my $second_row_height;
+    if(@crises > @wars)
+    {
+        $c->stash(second_row_height => scalar @crises);
+    }
+    else
+    {
+        $c->stash(second_row_height => scalar @wars);
+    }
+    my ($stats) = $db->get_collection('statistics')->find()->all;
+    $c->stash(latest_order => $stats->{$nation->name}->{'order'});
+    
+    $c->stash(nation_codes => $nation_codes);
+
+
+
+
+    $c->render(template => 'bop/nation');
+
+    
+
+
 }
 
 

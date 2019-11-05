@@ -26,6 +26,7 @@ sub startup {
   $r->get('/g/:game/:year/:turn/influences')->to('game#influences');
   $r->get('/g/:game/:year/:turn/supports')->to('game#supports');
   $r->get('/g/:game/:year/:turn/rsupports')->to('game#rebel_supports');
+  $r->get('/n/:game/:year/:turn/:nationcode/view')->to('game#nation');
 }
 
 1;

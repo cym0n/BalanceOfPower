@@ -139,7 +139,7 @@ sub dump
 sub to_mongo
 {
     my $self = shift;
-    return { type => $self->rel_type,
+    return { rel_type => $self->rel_type,
              node1 => $self->node1,
              node2 => $self->node2 }
 }

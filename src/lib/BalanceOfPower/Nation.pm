@@ -458,6 +458,12 @@ sub to_mongo
     }
     return $out;
 }
+sub from_mongo
+{
+    my $self = shift;
+    my $obj = shift;
+    return BalanceOfPower::Nation->new($obj);
+}
 
 sub load
 {
