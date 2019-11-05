@@ -87,6 +87,17 @@ elsif($mode eq 'new-batch')
     $world->autopilot($first_year, $first_year+$auto_years);
     say $world->dump_all();
 }
+elsif($mode eq 'nation_codes')
+{
+    my $world = BalanceOfPower::World->new( name => 'dummy', first_year => $first_year, log_active => 0, admin_password => 'password', savefile => "dummy.dmp", mongo_save => 0 );
+    $world->init_random("nations-v2.txt", "borders-v2.txt");
+    my %nation_codes = reverse %{$world->nation_codes};
+    for(keys %nation_codes)
+    {
+        say "$_: " . $nation_codes{$_};
+    }
+    
+}
 elsif($mode eq 'load')
 {
     my $file = shift @ARGV;

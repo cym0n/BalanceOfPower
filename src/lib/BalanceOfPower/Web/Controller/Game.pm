@@ -8,6 +8,71 @@ use BalanceOfPower::Relations::Friendship;
 use BalanceOfPower::Relations::War;
 use BalanceOfPower::Relations::Influence;
 
+my $nation_codes = {
+'Nicaragua' => 'NIC',
+'Romania' => 'ROM',
+'Kenya' => 'KEN',
+'Iran' => 'IRI',
+'East Germany' => 'DDR',
+'South Korea' => 'KOR',
+'China' => 'CHN',
+'Australia' => 'AUS',
+'Canada' => 'CAN',
+'Tanzania' => 'TAN',
+'Syria' => 'SYR',
+'Zimbabwe' => 'ZIM',
+'West Germany' => 'BRD',
+'Burma' => 'BIR',
+'Japan' => 'JAP',
+'North Korea' => 'PRK',
+'Thailand' => 'THA',
+'USA' => 'USA',
+'Egypt' => 'EGY',
+'United Kingdom' => 'GBR',
+'Algeria' => 'ALG',
+'Poland' => 'POL',
+'Morocco' => 'MOR',
+'Turkey' => 'TUR',
+'USSR' => 'URS',
+'Mali' => 'MAL',
+'Brazil' => 'BRA',
+'Argentina' => 'ARG',
+'Cuba' => 'CUB',
+'Greece' => 'GRE',
+'Philippines' => 'PHI',
+'Mexico' => 'MEX',
+'Colombia' => 'COL',
+'Ethiopia' => 'ETH',
+'Libya' => 'LIB',
+'Sweden' => 'SWE',
+'Chile' => 'CHI',
+'Peru' => 'PER',
+'Tunisia' => 'TUN',
+'Spain' => 'SPA',
+'Israel' => 'ISR',
+'Venezuela' => 'VEN',
+'Honduras' => 'HON',
+'France' => 'FRA',
+'Indonesia' => 'INA',
+'Angola' => 'ANG',
+'Czechoslovakia' => 'CZE',
+'Taiwan' => 'TWN',
+'Zaire' => 'ZAI',
+'Afghanistan' => 'AFG',
+'Italy' => 'ITA',
+'Iraq' => 'IRQ',
+'Saudi Arabia' => 'KSA',
+'Pakistan' => 'PAK',
+'Panama' => 'PAN',
+'Sudan' => 'SUD',
+'Mozambique' => 'MOZ',
+'India' => 'IND',
+'Yugoslavia' => 'YUG',
+'Nigeria' => 'NIG',
+'Vietnam' => 'VIE',
+'South Africa' => 'RSA'
+};
+
 # This action will render a template
 sub newspaper {
     my $c = shift;
@@ -68,6 +133,8 @@ sub newspaper {
         }
     }
     $c->stash( wars => \%wars );
+
+    $c->stash(nation_codes => $nation_codes);
 
     $c->render(template => 'bop/newspaper');
 }
@@ -138,6 +205,7 @@ sub hotspots {
     $c->stash(civil_wars => \@civil_wars);
 
 
+    $c->stash(nation_codes => $nation_codes);
 
     $c->render(template => 'bop/hotspots');
 }
@@ -155,6 +223,7 @@ sub alliances
     my $cursor;
     my @alls = $db->get_collection('relations')->find({ rel_type => 'treaty', type => 'alliance'})->all;
     $c->stash(treaties => \@alls);
+    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/alliances');
 }
 
@@ -176,6 +245,7 @@ sub influences
     }
     @inf = sort { lc($a->node1) cmp lc($b->node1) } @inf;
     $c->stash(influences => \@inf);
+    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/influences');
 }
 
@@ -195,6 +265,7 @@ sub supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'support'})->all;
     $c->stash(title => "MILITARY SUPPORTS");
     $c->stash(supports => \@sups);
+    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
 }
 
@@ -212,6 +283,7 @@ sub rebel_supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all;
     $c->stash(title => "REBEL SUPPORTS");
     $c->stash(supports => \@sups);
+    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
 }
 
