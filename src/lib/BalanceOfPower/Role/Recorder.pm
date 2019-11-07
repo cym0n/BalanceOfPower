@@ -398,4 +398,82 @@ sub load_world
     return $world;
 }
 
+sub load_mongo
+{
+    my $package = shift;
+    my $game = shift;
+    my $time = shift;
+    my ($year, $turn) = split '/', $time;
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_games');
+    my ($world_mongo) = $db->get_collection('games')->find({ name => $game})->all();
+
+    my $world = $package->new( first_year => $world_mongo->{first_year}, log_active => 0 );
+
+    #nations
+    $db = $mongo->get_database($db_dump_name);
+    my @nations = $db->get_collection('nations')->find()->all();
+    my @nation_names = ();
+    foreach my $n (@nations)
+    {
+        my $executive = BalanceOfPower::Executive->new( actor => $n->{name} );
+        my $n_obj = BalanceOfPower::Nation->from_mongo($n);
+        $n_obj->executive($executive);
+        #    log_active => $self->log_active,
+        #    log_dir => $self->log_dir,
+        #    log_name => $self->log_name,
+        #    log_on_stdout => $self->log_on_stdout,
+        #    mongo_save => $self->mongo_save,
+        #    mongo_events_collection => $self->name
+        push @{$world->nations}, $n_obj;
+        push @nation_names, $n->{name};
+        $world->nation_codes->{$n->{code}} = $n->{name};
+    }
+    $world->nation_names(\@nation_names);
+
+    my @borders = $db->get_collection('relations')->find({ rel_type => 'border'})->all();
+    foreach my $b (@borders)
+    {
+        $world->add_border(BalanceOfPower::Relations::Border->from_mongo($b));
+    }
+    my @diplomacy = $db->get_collection('relations')->find({ rel_type => 'friendship'})->all();
+    foreach my $f (@diplomacy)
+    {
+        $world->add_diplomacy(BalanceOfPower::Relations::Friendship->from_mongo($f));
+    }
+    my @supports = $db->get_collection('relations')->find({ rel_type => 'support'})->all();
+    foreach my $s (@supports)
+    {
+        $world->add_military_support(BalanceOfPower::Relations::MilitarySupport->from_mongo($s));
+    }
+    my @rsupports = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all();
+    foreach my $rs (@rsupports)
+    {
+        $world->add_rebel_military_support(BalanceOfPower::Relations::MilitarySupport->from_mongo($rs));
+    }
+    my @wars = $db->get_collection('relations')->find({ rel_type => 'war'})->all();
+    foreach my $w (@wars)
+    {
+        $world->add_war(BalanceOfPower::Relations::War->from_mongo($w));
+    }
+    my @influences = $db->get_collection('relations')->find({ rel_type => 'influence'})->all();
+    foreach my $i (@influences)
+    {
+        $world->add_influence(BalanceOfPower::Relations::Influence->from_mongo($i));
+    }
+    my @routes = $db->get_collection('relations')->find({ rel_type => 'traderoute'})->all();
+    foreach my $tr (@routes)
+    {
+        $world->add_traderoute(BalanceOfPower::Relations::TradeRoute->from_mongo($tr));
+    }
+    my @treaties = $db->get_collection('relations')->find({ rel_type => 'treaty'})->all();
+    foreach my $t (@treaties)
+    {
+        $world->add_treaty(BalanceOfPower::Relations::Treaty->from_mongo($t));
+    }
+    return $world;
+}
+
 1;
