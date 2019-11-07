@@ -20,3 +20,15 @@
                 </p>
             </div>
         </div>
+        [% IF nation_menu %]
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
+            <div class="well well-sm">
+                <p style="font-size:18px">
+                <strong>Nation</strong>: [% nation.name %]<br />
+                </p>
+                <p>
+                    <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/borders">Borders</a>
+                </p>
+            </div>
+        </div>
+        [% END %]

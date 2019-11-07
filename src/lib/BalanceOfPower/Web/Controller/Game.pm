@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use v5.10;
 use Data::Dumper;
 use MongoDB;
+use BalanceOfPower::World;
 use BalanceOfPower::Relations::Friendship;
 use BalanceOfPower::Relations::War;
 use BalanceOfPower::Relations::Influence;
@@ -373,13 +374,48 @@ sub nation
     $c->stash(latest_order => $stats->{$nation->name}->{'order'});
     
     $c->stash(nation_codes => $nation_codes);
+    $c->stash(nation_menu => 1);
 
 
 
 
     $c->render(template => 'bop/nation');
+}
+sub borders
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
 
     
+    my $world = BalanceOfPower::World->load_mongo($game, "$year/$turn"); 
+    my $nation = $world->nation_codes->{uc $n_code};
+    my @borders = $world->near_nations($nation, 1);
+    my %data;
+
+    foreach my $b (@borders)
+    {
+        my $rel = $world->diplomacy_exists($nation, $b);
+        $data{$b}->{'relation'} = $rel;
+        say "### " . Dumper($rel);
+
+        my $supps = $world->supported($b);
+        if($supps)
+        {
+            my $supporter = $supps->start($b);
+            $data{$b}->{'support'}->{nation} = $supporter;
+            my $sup_rel = $world->diplomacy_exists($nation, $supporter);
+            $data{$b}->{'support'}->{relation} = $sup_rel;
+        }
+    }
+    $c->stash( nation => $world->get_nation($nation) );
+    $c->stash( borders => \%data );
+    $c->stash( nation => $world->get_nation($nation) );
+    $c->stash(nation_codes => $nation_codes);
+    $c->stash(nation_menu => 1);
+    $c->render(template => 'bop/nation/borders');
 
 
 }
