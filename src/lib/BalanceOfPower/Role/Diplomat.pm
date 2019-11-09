@@ -238,7 +238,7 @@ sub change_diplomacy
         }
         if($reason)
         {
-            $event_text = $event_text . " " . $reason;
+            $event_text = $event_text . " (" . $reason . ")";
         }
         $self->broadcast_event({ code => "relchange",
                                  text => $event_text,

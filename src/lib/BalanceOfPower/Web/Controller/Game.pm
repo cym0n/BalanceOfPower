@@ -12,6 +12,7 @@ use BalanceOfPower::Relations::Treaty;
 use BalanceOfPower::Relations::TradeRoute;
 use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Nation;
+use BalanceOfPower::Utils qw( next_turn prev_turn );
 
 my $nation_codes = {
 'Nicaragua' => 'NIC',
@@ -419,10 +420,46 @@ sub diplomacy
     $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/diplomacy');
+}
 
-    
+sub nation_events
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
+    my $client = MongoDB->connect();
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    my $db = $client->get_database($db_dump_name);
+    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
+    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+       $db = $client->get_database('bop_events');
 
 
+    my %events = ();
+    my @turns = ();
+    my $when = "$year/$turn";
+    for(my $i = 0; $i < 4; $i++)
+    {
+        push @turns, $when;
+        my @es = $db->get_collection($game)->find({ time => "$when", source => $nation->name})->all; 
+        for(@es)
+        {
+            push @{$events{$when}}, $_->{text};
+        }
+        $when = prev_turn($when);
+    }
+
+
+
+    my @events = $db->get_collection($game)->find({ time => "$year/$turn", source => $nation->name})->all; 
+    $c->stash( nation => $nation );
+    $c->stash( events => \%events );
+    $c->stash( turns => \@turns );
+    $c->stash(nation_codes => $nation_codes);
+    $c->stash(nation_menu => 1);
+    $c->render(template => 'bop/nation/events');
 }
 
 
