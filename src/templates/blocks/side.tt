@@ -29,6 +29,9 @@
                 <p>
                     <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/borders">Borders</a>
                 </p>
+                <p>
+                    <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/diplomacy">Diplomacy</a>
+                </p>
             </div>
         </div>
         [% END %]

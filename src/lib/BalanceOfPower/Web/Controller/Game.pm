@@ -300,59 +300,39 @@ sub nation
     my $turn = $c->param('turn');
     my $n_code = $c->param('nationcode');
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
-    #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
     my $client = MongoDB->connect();
     my $db = $client->get_database($db_dump_name);
-    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
-    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
-    $c->stash(nation => $nation);
+    my $world = BalanceOfPower::World->load_mongo($game, "$year/$turn"); 
+    my $nation = $world->nation_codes->{uc $n_code};
 
-    my $cursor;
-    
-    $cursor = $db->get_collection('relations')->find({ '$or' => [{ node1 => $nation->name}, {node2=> $nation->name}]});
-    my @treaties;
-    my @traderoutes;
-    my @supports;
-    my @rebel_supports;
-    my @crises;
-    my @wars;
-    
-    while(my $obj = $cursor->next) {
-        if($obj->{rel_type} eq 'treaty')
-        {
-            push @treaties, BalanceOfPower::Relations::Treaty->from_mongo($obj);
-        }
-        elsif($obj->{rel_type} eq 'traderoute')
-        {
-            push @traderoutes, BalanceOfPower::Relations::TradeRoute->from_mongo($obj);
-        }
-        elsif($obj->{rel_type} eq 'support')
-        {
-            push @supports, BalanceOfPower::Relations::MilitarySupport->from_mongo($obj);
-        }
-        elsif($obj->{rel_type} eq 'rebel_support')
-        {
-            push @rebel_supports, BalanceOfPower::Relations::MilitarySupport->from_mongo($obj);
-        }
-        elsif($obj->{rel_type} eq 'war')
-        {
-            push @wars, BalanceOfPower::Relations::War->from_mongo($obj);
-        }
-        elsif($obj->{rel_type} eq 'friendship')
-        {
-            my $fr = BalanceOfPower::Relations::Friendship->from_mongo($obj);
-            if($fr->crisis_level > 0)
-            {
-                push @crises, $fr;
-            }
-        }
-    }
-    $c->stash(traderoutes => \@traderoutes);
+    my $nation_obj = $world->get_nation($nation);
+    my $under_influence = $world->is_under_influence($nation);
+    my @influence = $world->has_influence($nation);
+    my @routes = $world->routes_for_node($nation);
+    my @treaties = $world->get_treaties_for_nation($nation);
+    my @supports = $world->supports($nation);
+    my @rebel_supports = $world->rebel_supports($nation);
+    my @crises = $world->get_crises($nation);
+    my @wars = $world->get_wars($nation);
+    $c->stash(nation => $nation_obj);
+    $c->stash(traderoutes => \@routes);
     $c->stash(treaties => \@treaties);
     $c->stash(supports => \@supports);
     $c->stash(rebel_supports => \@rebel_supports);
     $c->stash(crises => \@crises);
     $c->stash(wars => \@wars);
+    my ($stats) = $db->get_collection('statistics')->find()->all;
+    my @ndata = ($nation_obj->size);
+    for(@{$attributes})
+    {
+        push @ndata, $stats->{$nation_obj->name}->{$_};
+    }
+
+    $c->stash(nationstats => \@ndata);
+    $c->stash(influence => \@influence);
+    $c->stash(under_influence => $under_influence);
     if(@treaties > @supports + @rebel_supports)
     {
         $c->stash(first_row_height => scalar @treaties);
@@ -370,11 +350,11 @@ sub nation
     {
         $c->stash(second_row_height => scalar @wars);
     }
-    my ($stats) = $db->get_collection('statistics')->find()->all;
-    $c->stash(latest_order => $stats->{$nation->name}->{'order'});
-    
+    $c->stash(latest_order => $stats->{$nation_obj->name}->{'order'});
     $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
+    $c->stash(attributes => $attributes_names);
+
 
 
 
@@ -399,7 +379,6 @@ sub borders
     {
         my $rel = $world->diplomacy_exists($nation, $b);
         $data{$b}->{'relation'} = $rel;
-        say "### " . Dumper($rel);
 
         my $supps = $world->supported($b);
         if($supps)
@@ -416,6 +395,32 @@ sub borders
     $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/borders');
+}
+
+sub diplomacy
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
+    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+    my $cursor = $db->get_collection('relations')->find({ '$or' => [{ node1 => $nation->name}, {node2=> $nation->name}], '$and' => [{ rel_type => 'friendship' }]});
+    my @friendships = ();
+    while(my $obj = $cursor->next) {
+        push @friendships, BalanceOfPower::Relations::Friendship->from_mongo($obj);
+    }
+    $c->stash( nation => $nation );
+    $c->stash( relationships => \@friendships );
+    $c->stash(nation_codes => $nation_codes);
+    $c->stash(nation_menu => 1);
+    $c->render(template => 'bop/nation/diplomacy');
+
+    
 
 
 }
