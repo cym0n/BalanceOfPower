@@ -462,6 +462,61 @@ sub nation_events
     $c->render(template => 'bop/nation/events');
 }
 
+sub nation_graphs
+{
+    my $c = shift;
+
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
+    my @entities = ( "production", "w/d", "internal disorder", "army" );
+    my $data;
+    my $client = MongoDB->connect();
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    my $db = $client->get_database($db_dump_name);
+    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
+    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+    my $depth = 10;
+    my $when = "$year/$turn";
+    for(my $step = 0; $step < $depth; $step++)
+    {
+        my ($y, $t) = split "/", $when;
+        my $db_dump_name = join('_', 'bop', $game, $y, $t);
+        my $db = $client->get_database($db_dump_name);
+        my ($stats) = $db->get_collection('statistics')->find()->all;
+        if($stats)
+        {
+            foreach my $e ( @entities )
+            {
+                my $value = $stats->{$nation->name}->{$e};
+                $data->{$e} = $data->{$e} ? ", ['$when', $value]" . $data->{$e} : ", ['$when', $value]";
+                if(! $data->{min}->{$e} || $value < $data->{min}->{$e})
+                {
+                    $data->{min}->{$e} = $value;
+                }
+            }
+        }
+        $when = prev_turn($when);
+    }
+    foreach my $e ( @entities )
+    {
+        $data->{$e} =  "['Turn', '$e']" . $data->{$e};
+        say $data->{$e};
+    }
+    $c->stash(colors => { 'w/d' => '#00c87c',
+                        'production' => '#0081c9',
+                        'internal disorder' => '#d90d11',
+                        'army' => '#736f6e' });
+    $c->stash(entities => \@entities);
+    $c->stash(object => $nation->name);
+    $c->stash(nation => $nation);
+    $c->stash(gdata => $data);
+    $c->stash(army => $data->{army});
+    $c->stash(nation_menu => 1);
+    $c->render(template => 'bop/nation/graphs');
+}
+
 
 
 1;

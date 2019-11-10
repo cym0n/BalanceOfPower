@@ -35,6 +35,9 @@
                 <p>
                     <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/events">Events</a>
                 </p>
+                <p>
+                    <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/graphs">Graphs</a>
+                </p>
             </div>
         </div>
         [% END %]

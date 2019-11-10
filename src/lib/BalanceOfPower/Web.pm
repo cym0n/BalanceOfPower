@@ -30,6 +30,7 @@ sub startup {
   $r->get('/n/:game/:year/:turn/:nationcode/borders')->to('game#borders');
   $r->get('/n/:game/:year/:turn/:nationcode/diplomacy')->to('game#diplomacy');
   $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#nation_events');
+  $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
 }
 
 1;
