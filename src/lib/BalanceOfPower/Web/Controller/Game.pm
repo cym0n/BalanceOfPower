@@ -517,6 +517,32 @@ sub nation_graphs
     $c->render(template => 'bop/nation/graphs');
 }
 
+sub near
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $n_code = $c->param('nationcode');
+    my $world = BalanceOfPower::World->load_mongo($game, "$year/$turn"); 
+    my $nation = $world->nation_codes->{uc $n_code};
+    my @data = ();
+    my @near = $world->near_nations($nation, 0);
+    foreach my $b (@near)
+    {
+        my $rel = $world->diplomacy_exists($nation, $b);
+        my $reason = $world->in_military_range($nation, $b);
+        push @data, { nation => $b,
+                      relation => $rel,
+                      how => $reason->{'how'},
+                      who => $reason->{'who'} };
+    }
+    $c->stash( nation => $world->get_nation($nation) );
+    $c->stash( near => \@data );
+    $c->stash(nation_codes => $nation_codes);
+    $c->stash(nation_menu => 1);
+    $c->render(template => 'bop/nation/near');
+}
 
 
 1;

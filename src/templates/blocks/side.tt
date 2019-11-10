@@ -38,6 +38,9 @@
                 <p>
                     <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/graphs">Graphs</a>
                 </p>
+                <p>
+                    <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/near">Military Range</a>
+                </p>
             </div>
         </div>
         [% END %]
