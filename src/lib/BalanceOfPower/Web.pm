@@ -26,6 +26,7 @@ sub startup {
   $r->get('/g/:game/:year/:turn/influences')->to('game#influences');
   $r->get('/g/:game/:year/:turn/supports')->to('game#supports');
   $r->get('/g/:game/:year/:turn/rsupports')->to('game#rebel_supports');
+  $r->get('/g/:game/:year/:turn/warhistory')->to('game#war_history');
   $r->get('/n/:game/:year/:turn/:nationcode/view')->to('game#nation');
   $r->get('/n/:game/:year/:turn/:nationcode/borders')->to('game#borders');
   $r->get('/n/:game/:year/:turn/:nationcode/diplomacy')->to('game#diplomacy');

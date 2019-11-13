@@ -18,6 +18,9 @@
                 <p>
                     <a href="/g/[% game %]/[% year %]/[% turn %]/rsupports">Rebel Supports</a>
                 </p>
+                <p>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/warhistory">War History</a>
+                </p>
             </div>
         </div>
         [% IF nation_menu %]
@@ -25,6 +28,9 @@
             <div class="well well-sm">
                 <p style="font-size:18px">
                 <strong>Nation</strong>: [% nation.name %]<br />
+                </p>
+                <p>
+                    <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/view">Situation</a>
                 </p>
                 <p>
                     <a href="/n/[% game %]/[% year %]/[% turn %]/[% nationcode %]/borders">Borders</a>

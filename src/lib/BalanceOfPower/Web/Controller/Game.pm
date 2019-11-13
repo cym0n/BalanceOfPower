@@ -12,7 +12,7 @@ use BalanceOfPower::Relations::Treaty;
 use BalanceOfPower::Relations::TradeRoute;
 use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Nation;
-use BalanceOfPower::Utils qw( next_turn prev_turn );
+use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns );
 
 my $nation_codes = {
 'Nicaragua' => 'NIC',
@@ -542,6 +542,74 @@ sub near
     $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/near');
+}
+
+sub war_history
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $now = "$year/$turn";
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_memorials');
+    my @all_wars = $db->get_collection($game)->find({ war_type => 'war' })->all;
+    my %wars;
+    my @war_names;
+    my %events;
+    my %clocks;
+    foreach my $w (@all_wars)
+    {
+        if(compare_turns($w->{end_date}, $now) <= 0)
+        {
+            if(exists $wars{$w->{war_id}})
+            {
+                push @{$wars{$w->{war_id}}}, $w;
+            }
+            else
+            {
+                $wars{$w->{war_id}} =  [ $w ];
+                push @war_names, { name => $w->{war_id},
+                                   start => $w->{start_date}  };
+            }
+        }
+    }
+    foreach my $wid (keys %wars)
+    {
+        my $db = $client->get_database('bop_events');
+        #my @events = $db->get_collection($game)->find({ source_type => 'war', source => "$wid" })->all;
+        my @events = $db->get_collection($game)->find({ source_type => 'war', source => ($wid+0) })->all;
+        say scalar @events . " events retrieved for $wid ";
+        $clocks{$wid} = [];
+        for(@events)
+        {
+            if(exists $events{$wid}->{$_->{time}})
+            {
+                push @{$events{$wid}->{$_->{time}}}, $_;
+            }
+            else
+            {
+                push @{$clocks{$wid}}, $_->{time};
+                $events{$wid}->{$_->{time}} = [ $_ ]
+            }
+
+        }
+        @{$clocks{$wid}} = sort { return -1 if $a eq 'START';
+                                  return 1 if $b eq 'START'; 
+                                  return 1 if $a eq 'END';
+                                  return -1 if $b eq 'END'; 
+                                  return compare_turns($a, $b) } @{$clocks{$wid}};
+    }
+    sub comp
+    {
+        compare_turns($a->{start}, $b->{start});
+    }
+    @war_names = sort comp @war_names;
+    $c->stash(wars => \%wars);
+    $c->stash(war_names => \@war_names);
+    $c->stash(events => \%events);
+    $c->stash(clocks => \%clocks);
+    $c->render(template => 'bop/war_history');
 }
 
 
