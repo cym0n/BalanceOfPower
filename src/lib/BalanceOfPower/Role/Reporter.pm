@@ -80,7 +80,7 @@ sub send_to_mongo
     elsif(ref($self) eq 'BalanceOfPower::CivilWar')
     {
         $source_type = 'civil_war';
-        $source = $self->nation->name;
+        $source = $self->nation->name. " " . $self->start_date;
     }
     else
     {   

@@ -192,6 +192,7 @@ sub to_mongo
     my $self = shift;
     my $current_year = $self->current_year || $self->start_date;
     return {
+        war_name => $self->nation_name . " ". $self->start_date,
         nation_name => $self->nation_name,
         rebel_provincies => $self->rebel_provinces,
         current_year => $current_year,

@@ -21,6 +21,9 @@
                 <p>
                     <a href="/g/[% game %]/[% year %]/[% turn %]/warhistory">War History</a>
                 </p>
+                <p>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/cwarhistory">Civil War History</a>
+                </p>
             </div>
         </div>
         [% IF nation_menu %]
