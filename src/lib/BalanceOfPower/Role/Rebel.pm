@@ -49,21 +49,7 @@ sub start_civil_war
                                                mongo_events_collection => $self->name,
                                                log_active => 0,
                                             );
-    $civwar->register_event("Starting army: " . $nation->army);
-    my $sup = $self->supported($nation->name);
-    if($sup)
-    {
-        $civwar->register_event("Support to government from " . $sup->node1);
-    }
-    $self->broadcast_event({ code => "civiloutbreak",
-                             text => "CIVIL WAR OUTBREAK IN " . $nation->name, 
-                             involved => [$nation->name] }, $nation->name);
-    $self->war_report("Civil war in " . $nation->name . "!", $nation->name);
-    my $occupied = $self->lose_war($nation->name, 1);
-    if(! $occupied)
-    {
-        $self->add_civil_war($civwar);
-    }
+    $self->add_civil_war($civwar);
 }
     
 sub add_civil_war
@@ -77,7 +63,21 @@ sub add_civil_war
     }
     else
     {
-        push @{$self->civil_wars}, $civwar;
+        $civwar->register_event("Starting army: " . $civwar->nation->army);
+        my $sup = $self->supported($civwar->nation->name);
+        if($sup)
+        {
+            $civwar->register_event("Support to government from " . $sup->node1);
+        }
+        $self->broadcast_event({ code => "civiloutbreak",
+                                text => "CIVIL WAR OUTBREAK IN " . $civwar->nation->name, 
+                                involved => [$civwar->nation->name] }, $civwar->nation->name);
+        $self->war_report("Civil war in " . $civwar->nation->name . "!", $civwar->nation->name);
+        my $occupied = $self->lose_war($civwar->nation->name, 1);
+        if(! $occupied)
+        {
+            push @{$self->civil_wars}, $civwar;
+        }
     }
 }
 sub delete_civil_war

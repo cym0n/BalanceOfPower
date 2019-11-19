@@ -850,10 +850,10 @@ sub internal_conflict
         if(! $self->get_civil_war($n->name))
         {
             $n->calculate_disorder($self);
-            if($n->internal_disorder_status eq 'Civil war')
-            {
-                $self->start_civil_war($n);
-            }
+            #if($n->internal_disorder_status eq 'Civil war')
+            #{
+            #    $self->start_civil_war($n);
+            #}
         }
         $self->set_statistics_value($n, 'internal disorder', $n->internal_disorder);
     }

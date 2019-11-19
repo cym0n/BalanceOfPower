@@ -502,7 +502,6 @@ sub nation_graphs
     foreach my $e ( @entities )
     {
         $data->{$e} =  "['Turn', '$e']" . $data->{$e};
-        say $data->{$e};
     }
     $c->stash(colors => { 'w/d' => '#00c87c',
                         'production' => '#0081c9',
