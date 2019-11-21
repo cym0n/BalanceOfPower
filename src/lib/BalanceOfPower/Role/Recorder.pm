@@ -256,11 +256,11 @@ sub dump_mongo
     return "World saved to $db_name mongodb";
 }
 
-sub clean_mongo_events
+sub clean_runtime_mongo
 {
     my $self = shift;
     my $mongo = MongoDB->connect(); 
-    my $db = $mongo->get_database('bop_events')->get_collection($self->name)->drop;
+    my $db = $mongo->get_database('bop_' . $self->name . '_runtime')->drop;
 }
 
 sub to_mongo_memorial
@@ -272,15 +272,9 @@ sub to_mongo_memorial
 
     my $data = $war->to_mongo();
     $data->{war_type} = $war_type;
-    my $db = $mongo->get_database('bop_memorials')->get_collection($self->name)->insert_one($data);
+    my $db = $mongo->get_database('bop_' . $self->name . '_runtime')->get_collection('memorial')->insert_one($data);
 }
 
-sub clean_mongo_memorial
-{
-    my $self = shift;
-    my $mongo = MongoDB->connect(); 
-    my $db = $mongo->get_database('bop_memorials')->get_collection($self->name)->drop;
-}
 
 
 

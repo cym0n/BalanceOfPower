@@ -78,7 +78,7 @@ elsif($mode eq 'new-batch')
     my $name = shift;
     $logs = 0;
     die "Name is mandatory" if ! $name;
-    $world = BalanceOfPower::World->new( name => $name, first_year => $first_year, log_active => $logs, admin_password => 'password', savefile => "$name.dmp", mongo_save => 1, mongo_events_collection => $name );
+    $world = BalanceOfPower::World->new( name => $name, first_year => $first_year, log_active => $logs, admin_password => 'password', savefile => "$name.dmp", mongo_save => 1, mongo_runtime_db => 'bop_' . $name . '_runtime' );
     $world->init_random("nations-v2.txt", "borders-v2.txt");
     $world->dice_log(0);
     $commands = $world->build_commands();

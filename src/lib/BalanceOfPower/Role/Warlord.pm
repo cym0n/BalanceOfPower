@@ -277,7 +277,7 @@ sub create_war
                                                       start_date => $self->current_year,
                                                       log_active => 0,
                                                       mongo_save => $self->mongo_save,
-                                                      mongo_events_collection => $self->name
+                                                      mongo_runtime_db => 'bop_' . $self->name . '_runtime'
                                                       );
         $war = $self->war_starting_report($war);
         $self->add_war($war); 
@@ -322,7 +322,7 @@ sub create_war
                                                           start_date => $self->current_year,
                                                           log_active => 0,
                                                           mongo_save => $self->mongo_save,
-                                                          mongo_events_collection => $self->name
+                                                          mongo_runtime_db => 'bop_' . $self->name . '_runtime'
                                                         );
             $war = $self->war_starting_report($war);
             $self->add_war($war);                                                  

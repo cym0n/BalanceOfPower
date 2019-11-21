@@ -234,7 +234,7 @@ sub init_random
             log_name => $self->log_name,
             log_on_stdout => $self->log_on_stdout,
             mongo_save => $self->mongo_save,
-            mongo_events_collection => $self->name
+            mongo_runtime_db => 'bop_' . $self->name . '_runtime',
         );
         $self->nation_codes->{$nations_data{$n}->{code}} = $n;
     }
@@ -269,10 +269,8 @@ sub init_random
     }
     if($self->mongo_save)
     {
-        say "Cleaning MongoDB events table";
-        $self->clean_mongo_events();
-        say "Cleaning MongoDB memorial table";
-        $self->clean_mongo_memorial();
+        say "Cleaning MongoDB events and memorial";
+        $self->clean_runtime_mongo();
     }
 }
 

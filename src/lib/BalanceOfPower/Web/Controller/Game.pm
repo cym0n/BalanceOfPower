@@ -88,7 +88,7 @@ sub newspaper {
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     #db.mongo.find({$and: [ {code: 'bestprogress'}, {time: '1970/2'}, {source_type: 'world'} ]}).pretty()
     my $client = MongoDB->connect();
-    my $db = $client->get_database('bop_events');
+    my $db = $client->get_database("bop_" . $game . '_runtime');
      
 
     $c->stash(title => "NEWS FOR $year/$turn");
@@ -96,16 +96,16 @@ sub newspaper {
     foreach my $event ( qw(bestprogress bestwealth civiloutbreak govwincivil rebwincivil tradeadded tradedeleted comtreatynew nagtreatynew alliancetreatynew nagtreatybroken alltreatybroken comtreatybroken militaryaid economicaid insurgentsaid supstarted supincreased supstopped suprefused supdestroyed rebsupincreased rebsupstopped rebsupstarted))
     {
         my @data = ();
-        my $cursor = $db->get_collection($game)->find({ code => $event, 'time' => "$year/$turn", "source_type" => 'world'});
+        my $cursor = $db->get_collection('events')->find({ code => $event, 'time' => "$year/$turn", "source_type" => 'world'});
         while(my $obj = $cursor->next) {
             push @data, $obj;
         }
         $c->stash($event => \@data);
     }
 
-    my @warevents = ( $db->get_collection($game)->find({ code => 'warstart', 'time' => "$year/$turn", "source_type" => 'world'})->all);
-    @warevents = (@warevents, $db->get_collection($game)->find({ code => 'warlinkedstart', 'time' => "$year/$turn", "source_type" => 'world'})->all);
-    @warevents = (@warevents, $db->get_collection($game)->find({ code => 'warend', 'time' => "$year/$turn", "source_type" => 'world'})->all);
+    my @warevents = ( $db->get_collection('events')->find({ code => 'warstart', 'time' => "$year/$turn", "source_type" => 'world'})->all);
+    @warevents = (@warevents, $db->get_collection('events')->find({ code => 'warlinkedstart', 'time' => "$year/$turn", "source_type" => 'world'})->all);
+    @warevents = (@warevents, $db->get_collection('events')->find({ code => 'warend', 'time' => "$year/$turn", "source_type" => 'world'})->all);
     my %wars;
     foreach my $e (@warevents)
     {
@@ -450,14 +450,14 @@ sub events
         $range = 1;
     }
 
-    $db = $client->get_database('bop_events');
+    $db = $client->get_database('bop_' . $game . '_runtime');
     my %events = ();
     my @turns = ();
     my $when = "$year/$turn";
     for(my $i = 0; $i < $range; $i++)
     {
         push @turns, $when;
-        my @es = $db->get_collection($game)->find({ time => "$when", source => $source})->all; 
+        my @es = $db->get_collection('events')->find({ time => "$when", source => $source})->all; 
         for(@es)
         {
             push @{$events{$when}}, $_->{text};
@@ -560,8 +560,8 @@ sub war_history
     my $turn = $c->param('turn');
     my $now = "$year/$turn";
     my $client = MongoDB->connect();
-    my $db = $client->get_database('bop_memorials');
-    my @all_wars = $db->get_collection($game)->find({ war_type => 'war' })->all;
+    my $db = $client->get_database('bop_' . $game . '_runtime');
+    my @all_wars = $db->get_collection('memorial')->find({ war_type => 'war' })->all;
     my %wars;
     my @war_names;
     my %events;
@@ -584,10 +584,8 @@ sub war_history
     }
     foreach my $wid (keys %wars)
     {
-        my $db = $client->get_database('bop_events');
         #my @events = $db->get_collection($game)->find({ source_type => 'war', source => "$wid" })->all;
-        my @wevents = $db->get_collection($game)->find({ source_type => 'war', source => ($wid+0) })->all;
-        say scalar @wevents . " events retrieved for $wid ";
+        my @wevents = $db->get_collection('events')->find({ source_type => 'war', source => ($wid+0) })->all;
         $clocks{$wid} = [];
         for(@wevents)
         {
@@ -629,8 +627,8 @@ sub civil_war_history
     my $turn = $c->param('turn');
     my $now = "$year/$turn";
     my $client = MongoDB->connect();
-    my $db = $client->get_database('bop_memorials');
-    my @all_wars = $db->get_collection($game)->find({ war_type => 'civil war' })->all;
+    my $db = $client->get_database('bop_' . $game . '_runtime');
+    my @all_wars = $db->get_collection('memorial')->find({ war_type => 'civil war' })->all;
     my %wars;
     my @war_names;
     my %events;
@@ -643,10 +641,7 @@ sub civil_war_history
     }
     foreach my $wid (keys %wars)
     {
-        my $db = $client->get_database('bop_events');
-        #my @events = $db->get_collection($game)->find({ source_type => 'war', source => "$wid" })->all;
-        my @wevents = $db->get_collection($game)->find({ source_type => 'civil_war', source => $wid })->all;
-        say scalar @wevents . " events retrieved for $wid ";
+        my @wevents = $db->get_collection('events')->find({ source_type => 'civil_war', source => $wid })->all;
         $clocks{$wid} = [];
         for(@wevents)
         {

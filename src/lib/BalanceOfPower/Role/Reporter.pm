@@ -24,7 +24,7 @@ has mongo_save => (
     default => 0
 );
 
-has mongo_events_collection => (
+has mongo_runtime_db => (
     is => 'ro',
 );
 #Event structure:
@@ -91,8 +91,8 @@ sub send_to_mongo
     $event->{source_type} = $source_type;
     $event->{time} = $time;
     my $mongo = MongoDB->connect(); 
-    my $db = $mongo->get_database('bop_events');
-    $db->get_collection($self->mongo_events_collection)->insert_one($event);
+    my $db = $mongo->get_database($self->mongo_runtime_db);
+    $db->get_collection('events')->insert_one($event);
 }
 
 

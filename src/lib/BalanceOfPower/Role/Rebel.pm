@@ -46,7 +46,7 @@ sub start_civil_war
                                                rebel_provinces => $rebel_provinces,
                                                start_date => $nation->current_year,
                                                mongo_save => $self->mongo_save,
-                                               mongo_events_collection => $self->name,
+                                               mongo_runtime_db => 'bop_' . $self->name . '_runtime',
                                                log_active => 0,
                                             );
     $self->add_civil_war($civwar);
