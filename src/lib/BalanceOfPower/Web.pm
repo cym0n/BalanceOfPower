@@ -28,10 +28,11 @@ sub startup {
   $r->get('/g/:game/:year/:turn/rsupports')->to('game#rebel_supports');
   $r->get('/g/:game/:year/:turn/warhistory')->to('game#war_history');
   $r->get('/g/:game/:year/:turn/cwarhistory')->to('game#civil_war_history');
+  $r->get('/g/:game/:year/:turn/events')->to('game#events');
   $r->get('/n/:game/:year/:turn/:nationcode/view')->to('game#nation');
   $r->get('/n/:game/:year/:turn/:nationcode/borders')->to('game#borders');
   $r->get('/n/:game/:year/:turn/:nationcode/diplomacy')->to('game#diplomacy');
-  $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#nation_events');
+  $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#events');
   $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
   $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
 }

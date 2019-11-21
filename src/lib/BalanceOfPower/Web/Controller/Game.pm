@@ -422,7 +422,7 @@ sub diplomacy
     $c->render(template => 'bop/nation/diplomacy');
 }
 
-sub nation_events
+sub events
 {
     my $c = shift;
     my $game = $c->param('game');
@@ -432,34 +432,43 @@ sub nation_events
     my $client = MongoDB->connect();
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     my $db = $client->get_database($db_dump_name);
-    my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
-    my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
-       $db = $client->get_database('bop_events');
 
+    my $source;
+    my $range;
+    if($n_code)
+    {
+        my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
+        my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+        $c->stash( nation => $nation );
+        $c->stash(nation_menu => 1);
+        $source = $nation->name;
+        $range = 4;
+    }
+    else
+    {
+        $source = 'WORLD';
+        $range = 1;
+    }
 
+    $db = $client->get_database('bop_events');
     my %events = ();
     my @turns = ();
     my $when = "$year/$turn";
-    for(my $i = 0; $i < 4; $i++)
+    for(my $i = 0; $i < $range; $i++)
     {
         push @turns, $when;
-        my @es = $db->get_collection($game)->find({ time => "$when", source => $nation->name})->all; 
+        my @es = $db->get_collection($game)->find({ time => "$when", source => $source})->all; 
         for(@es)
         {
             push @{$events{$when}}, $_->{text};
         }
         $when = prev_turn($when);
     }
-
-
-
-    my @events = $db->get_collection($game)->find({ time => "$year/$turn", source => $nation->name})->all; 
-    $c->stash( nation => $nation );
+    #my @events = $db->get_collection($game)->find({ time => "$year/$turn", source => $nation->name})->all; 
     $c->stash( events => \%events );
     $c->stash( turns => \@turns );
     $c->stash(nation_codes => $nation_codes);
-    $c->stash(nation_menu => 1);
-    $c->render(template => 'bop/nation/events');
+    $c->render(template => 'bop/events');
 }
 
 sub nation_graphs
