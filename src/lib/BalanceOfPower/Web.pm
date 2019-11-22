@@ -29,6 +29,7 @@ sub startup {
   $r->get('/g/:game/:year/:turn/warhistory')->to('game#war_history');
   $r->get('/g/:game/:year/:turn/cwarhistory')->to('game#civil_war_history');
   $r->get('/g/:game/:year/:turn/events')->to('game#events');
+  $r->get('/g/:game/:year/:turn/statistics')->to('game#statistics');
   $r->get('/n/:game/:year/:turn/:nationcode/view')->to('game#nation');
   $r->get('/n/:game/:year/:turn/:nationcode/borders')->to('game#borders');
   $r->get('/n/:game/:year/:turn/:nationcode/diplomacy')->to('game#diplomacy');

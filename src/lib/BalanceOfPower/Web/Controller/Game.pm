@@ -674,5 +674,39 @@ sub civil_war_history
     $c->render(template => 'bop/civil_war_history');
 }
 
+sub statistics
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+    my $now = "$year/$turn";
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
+    my $client = MongoDB->connect();
+    my $db = $client->get_database($db_dump_name);
+    my $statistics = $db->get_collection('statistics')->find()->next;
+    my $attributes_names = ["Size", "Prod.", "Wealth", "W/D", "Growth", "Disor.", "Army", "Prog.", "Pstg."];
+    my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
+    my $nationstats;
+    my @nnames = ();
+    foreach my $n (keys %{$nation_codes})
+    {
+        push @nnames, $n;
+        my $nation_mongo = $db->get_collection('nations')->find({ code => $nation_codes->{$n}})->next;
+        my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+        my @attrs = ($nation->size);
+        for(@{$attributes})
+        {
+            push @attrs, $statistics->{$n}->{$_};
+        }
+        $nationstats->{$n} = \@attrs;
+    }
+    $c->stash(statistics => $nationstats);
+    $c->stash(attributes => $attributes_names);
+    $c->stash(nation_codes => $nation_codes);
+    $c->stash(names => \@nnames );
+    $c->stash(custom_js => 'blocks/alldata.tt' );
+    $c->render(template => 'bop/statistics');
+}
 
 1;

@@ -19,6 +19,9 @@
                     <a href="/g/[% game %]/[% year %]/[% turn %]/rsupports">Rebel Supports</a>
                 </p>
                 <p>
+                    <a href="/g/[% game %]/[% year %]/[% turn %]/statistics">Statistics</a>
+                </p>
+                <p>
                     <a href="/g/[% game %]/[% year %]/[% turn %]/warhistory">War History</a>
                 </p>
                 <p>
