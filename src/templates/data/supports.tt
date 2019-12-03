@@ -1,4 +1,3 @@
-<h3>[% title %]</h3>
 <p>
 [% FOREACH s IN supports %]
 [% INCLUDE fragments/support.tt %]<br />

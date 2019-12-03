@@ -85,13 +85,13 @@ sub newspaper {
     my $game = $c->param('game');
     my $year = $c->param('year');
     my $turn = $c->param('turn');
+    $c->stash(page_title => "NEWSPAPER");
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     #db.mongo.find({$and: [ {code: 'bestprogress'}, {time: '1970/2'}, {source_type: 'world'} ]}).pretty()
     my $client = MongoDB->connect();
     my $db = $client->get_database("bop_" . $game . '_runtime');
      
 
-    $c->stash(title => "NEWS FOR $year/$turn");
 
     foreach my $event ( qw(bestprogress bestwealth civiloutbreak govwincivil rebwincivil tradeadded tradedeleted comtreatynew nagtreatynew alliancetreatynew nagtreatybroken alltreatybroken comtreatybroken militaryaid economicaid insurgentsaid supstarted supincreased supstopped suprefused supdestroyed rebsupincreased rebsupstopped rebsupstarted))
     {
@@ -149,6 +149,7 @@ sub hotspots {
     my $game = $c->param('game');
     my $year = $c->param('year');
     my $turn = $c->param('turn');
+    $c->stash(page_title => "HOTSPOTS");
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     #db.mongo.find({$and: [ {code: 'bestprogress'}, {time: '1970/2'}, {source_type: 'world'} ]}).pretty()
     my $client = MongoDB->connect();
@@ -222,6 +223,7 @@ sub alliances
     my $game = $c->param('game');
     my $year = $c->param('year');
     my $turn = $c->param('turn');
+    $c->stash(page_title => "ALLIANCES");
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     #db.relations.find({$and: [{ rel_type: 'treaty'}, {type: 'alliance'}]}).pretty()
     my $client = MongoDB->connect();
@@ -269,7 +271,7 @@ sub supports
     my $db = $client->get_database($db_dump_name);
     my $cursor;
     my @sups = $db->get_collection('relations')->find({ rel_type => 'support'})->all;
-    $c->stash(title => "MILITARY SUPPORTS");
+    $c->stash(page_title => "MILITARY SUPPORTS");
     $c->stash(supports => \@sups);
     $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
@@ -287,7 +289,7 @@ sub rebel_supports
     my $db = $client->get_database($db_dump_name);
     my $cursor;
     my @sups = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all;
-    $c->stash(title => "REBEL SUPPORTS");
+    $c->stash(page_title => "REBEL SUPPORTS");
     $c->stash(supports => \@sups);
     $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
@@ -439,6 +441,7 @@ sub events
     {
         my $nation_mongo = $db->get_collection('nations')->find({ code => $n_code})->next;
         my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
+        $c->stash( page_title => $nation->name );
         $c->stash( nation => $nation );
         $c->stash(nation_menu => 1);
         $source = $nation->name;
@@ -446,6 +449,7 @@ sub events
     }
     else
     {
+        $c->stash( page_title => "World" );
         $source = 'WORLD';
         $range = 1;
     }
