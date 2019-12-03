@@ -1,5 +1,6 @@
 package BalanceOfPower::Web;
 use Mojo::Base 'Mojolicious';
+use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns );
 
 # This method will run once at server start
 sub startup {
@@ -14,6 +15,38 @@ sub startup {
 
   # Configure the application
   $self->secrets($config->{secrets});
+
+  $self->hook(around_action => sub {
+    my ($next, $c, $action, $last) = @_;
+    local $_ = $c;
+    my $game = $c->param('game');
+    my $year = $c->param('year');
+    my $turn = $c->param('turn');
+
+    if($game)
+    {
+        my $client = MongoDB->connect();
+        my $db = $client->get_database("bop_games");
+        my ($data) = $db->get_collection('games')->find({ name => $game })->all;
+        $c->stash(first_year => $data->{first_year} . '/1');
+        $c->stash(current_year => $data->{current_year});
+        if($year && $turn)
+        {
+            if(compare_turns("$year/$turn", $data->{current_year}) <= 0 &&
+               compare_turns("$year/$turn", $data->{first_year}) >= 0)
+            {
+                say $data->{first_year} . " -> " . "$year/$turn" . " -> " . $data->{current_year};
+            }
+            else
+            {
+                return $c->reply->not_found
+            }
+        }
+    }
+
+
+    return $next->();
+  });
 
   # Router
   my $r = $self->routes;
