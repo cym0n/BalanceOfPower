@@ -8,34 +8,10 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Balance of Power</a>
+          <a class="navbar-brand" href="/">GAME: <b>[% game %]</b></a><br />
         </div>
-        [% this_turn = "$year/$turn" %]
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            [% IF first_year != this_turn %]
-            <li>
-                <a href="/g/[% game %]/[% first_year %]/newspaper">[% first_year %]</a>
-            </li>  
-            [% END %]
-            [% IF prev_turn %]
-            <li>
-                <a href="/g/[% game %]/[% prev_turn %]/newspaper">&lt;</a>
-            </li>  
-            [% END %]
-            <li>
-                <a href="/g/[% game %]/[% year %]/[% turn %]/newspaper"><b>[% this_turn %]</b></a>
-            </li>
-            [% IF next_turn %]
-            <li>
-                <a href="/g/[% game %]/[% next_turn %]/newspaper">&gt;</a>
-            </li>  
-            [% END %]
-            [% IF current_year != this_turn %]
-            <li>
-                <a href="/g/[% game %]/[% current_year %]/newspaper">[% current_year %]</a>
-            </li>  
-            [% END %]
           </ul>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->

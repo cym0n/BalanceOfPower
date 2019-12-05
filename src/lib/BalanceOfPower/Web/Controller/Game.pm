@@ -79,6 +79,34 @@ my $nation_codes = {
 'South Africa' => 'RSA'
 };
 
+sub years
+{
+    my $c = shift;
+    my $game = $c->param('game');
+    my @years = ();
+    my $y = $c->stash('first_year');
+    my ($prev_year, $init_turn) = split('/', $y);
+    my @turns = ($init_turn);
+    while($y ne $c->stash('current_year'))
+    {
+        $y = next_turn($y);
+        my ($ye, $tu) = split('/', $y);
+        if($ye eq $prev_year)
+        {
+            push @turns, $tu;
+        }
+        else
+        {
+            push @years, { year => $ye, turns => \@turns };
+            @turns = ($tu);
+            $prev_year = $ye;
+        }
+    }
+    push @years, { year => $prev_year, turns => \@turns };
+    $c->stash( years => \@years );
+    $c->render(template => 'bop/years');
+}
+
 # This action will render a template
 sub newspaper {
     my $c = shift;
