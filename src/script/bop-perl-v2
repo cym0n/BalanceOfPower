@@ -1,0 +1,81 @@
+#!/usr/bin/env perl
+
+use v5.10;
+use strict;
+
+use Data::Dumper;
+use MongoDB;
+use IO::Prompter;
+use Getopt::Long;
+use BalanceOfPower::World;
+use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
+
+my $usage = "$0 COMMAND SCENARIO [STEPS]\n\nAvailable commands:\n  new\n  elaborate\n  delete\n  help\n";
+my $first_year = 1970;
+
+my $command = shift;
+my $scenario = shift;
+
+say "";
+if($command eq 'new')
+{
+    die "No scenario" if ! $scenario;
+
+    my $data = get_scenario($scenario); 
+    die "Scenario already exists!" if $data;
+
+    say "Creating scenario $scenario";   
+    my $steps = shift || 5;
+    
+    my $logs = 0;
+    my $world = BalanceOfPower::World->new( name => $scenario, first_year => $first_year, log_active => $logs, mongo_save => 1, mongo_runtime_db => 'bop_' . $scenario . '_runtime' );
+    $world->init_random("nations-v2.txt", "borders-v2.txt");
+    $world->dice_log(0);
+    $world->autopilot($first_year, $first_year+$steps);
+}
+elsif($command eq 'delete')
+{
+    die "No scenario" if ! $scenario;
+
+    my $data = get_scenario($scenario); 
+    die "Scenario does not exists!" if ! $data;
+
+    my $confirm = prompt "Are you sure (Y/N)? ";
+    if($confirm eq 'Y')
+    {
+        my $client = MongoDB->connect();
+        my $year = $data->{first_year} . '/1';
+        while(compare_turns($year, $data->{current_year}) < 1)
+        {
+            my $db_name = 'bop_' . $scenario . '_'. $year;
+            $db_name =~ s/\//_/;
+            say "Deleting $db_name";
+            $client->get_database($db_name)->drop;
+            $year = next_turn($year);
+        }
+        $client->get_database('bop_' . $scenario . '_runtime')->drop;
+        say "Deleting bop_$scenario" . '_runtime';
+        my $db = $client->get_database("bop_games");
+        $db->get_collection('games')->delete_one({ name => $scenario });
+        say "Scenario deleted\n";
+    }
+
+}
+elsif($command eq 'help')
+{
+    say $usage;
+}
+else
+{
+    say "Bad command or no command provided\n";
+    say $usage;
+}
+
+sub get_scenario
+{
+    my $scenario = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database("bop_games");
+    my ($data) = $db->get_collection('games')->find({ name => $scenario })->all;
+    return $data;
+}

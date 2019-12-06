@@ -35,7 +35,6 @@ sub startup {
             if(compare_turns("$year/$turn", $data->{current_year}) <= 0 &&
                compare_turns("$year/$turn", $data->{first_year}) >= 0)
             {
-                say $data->{first_year} . " -> " . "$year/$turn" . " -> " . $data->{current_year};
             }
             else
             {
@@ -45,7 +44,6 @@ sub startup {
             $c->stash(prev_turn => $prev_turn) if(compare_turns($prev_turn, $data->{first_year}) > 0);
             my $next_turn = next_turn("$year/$turn");
             $c->stash(next_turn => $next_turn) if(compare_turns($next_turn, $data->{current_year}) < 0);
-            say "$prev_turn (" . compare_turns($prev_turn, $data->{first_year}) . ") < > (" . compare_turns($next_turn, $data->{current_year}) . ") $next_turn";
         }
     }
 
