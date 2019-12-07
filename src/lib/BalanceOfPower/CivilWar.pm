@@ -194,12 +194,35 @@ sub to_mongo
     return {
         war_name => $self->nation_name . " ". $self->start_date,
         nation_name => $self->nation_name,
-        rebel_provincies => $self->rebel_provinces,
+        rebel_provinces => $self->rebel_provinces,
         current_year => $current_year,
         start_date => $self->start_date,
         end_date => $self->end_date
     }
 }
+sub from_mongo
+{
+    my $package = shift;
+    my $data = shift;
+    my $mongo_db = shift;
+
+    my $params = { nation_to_load => $data->{nation_name},
+                   rebel_provinces => $data->{rebel_provinces},
+                   end_date => $data->{end_date},
+                   start_date => $data->{start_date},
+                   current_year => $data->{current_year} };
+    if($mongo_db)
+    {
+        $params->{mongo_save} = 1;
+        $params->{mongo_runtime_db} = $mongo_db;
+    }
+    return $package->new($params);
+}
+
+
+
+
+
 sub load
 {
     my $self = shift;

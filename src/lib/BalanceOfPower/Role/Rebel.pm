@@ -76,9 +76,15 @@ sub add_civil_war
         my $occupied = $self->lose_war($civwar->nation->name, 1);
         if(! $occupied)
         {
-            push @{$self->civil_wars}, $civwar;
+            $self->_add_civil_war($civwar);
         }
     }
+}
+sub _add_civil_war
+{
+    my $self = shift;
+    my $civwar = shift;
+    push @{$self->civil_wars}, $civwar;
 }
 sub delete_civil_war
 {

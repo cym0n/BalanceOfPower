@@ -555,6 +555,13 @@ sub statistics_to_mongo
     my $turn = shift;
     return $self->statistics->{$turn};    
 }
+sub statistics_from_mongo
+{
+    my $self = shift;
+    my $turn = shift;
+    my $data = shift;
+    $self->statistics->{$turn} = $data;
+}
 
 
 

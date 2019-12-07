@@ -5,8 +5,11 @@ use v5.10;
 
 use Moo::Role;
 use MongoDB;
+use Data::Dumper;
 use BalanceOfPower::Nation;
+use BalanceOfPower::CivilWar;
 use BalanceOfPower::Executive;
+use BalanceOfPower::Utils qw(prev_turn next_turn);
 
 requires 'dump_events';
 requires 'load_events';
@@ -202,7 +205,6 @@ sub world_to_mongo
 sub dump_mongo
 {
     my $self = shift;
-
     $self->world_to_mongo();
 
     my $db_name = 'bop_' . $self->name . '_'. $self->current_year;
@@ -403,8 +405,7 @@ sub load_mongo
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database('bop_games');
     my ($world_mongo) = $db->get_collection('games')->find({ name => $game})->all();
-
-    my $world = $package->new( first_year => $world_mongo->{first_year}, log_active => 0 );
+    my $world = $package->new( name => $game, mongo_save => 1, first_year => $world_mongo->{first_year}, log_active => 0, mongo_runtime_db => 'bop_' . $game . '_runtime' );
 
     #nations
     $db = $mongo->get_database($db_dump_name);
@@ -412,8 +413,9 @@ sub load_mongo
     my @nation_names = ();
     foreach my $n (@nations)
     {
+        $n->{mongo_runtime_db} = $world->mongo_runtime_db;
         my $executive = BalanceOfPower::Executive->new( actor => $n->{name} );
-        my $n_obj = BalanceOfPower::Nation->from_mongo($n);
+        my $n_obj = BalanceOfPower::Nation->from_mongo($n, $world->mongo_runtime_db);
         $n_obj->executive($executive);
         #    log_active => $self->log_active,
         #    log_dir => $self->log_dir,
@@ -450,7 +452,7 @@ sub load_mongo
     my @wars = $db->get_collection('relations')->find({ rel_type => 'war'})->all();
     foreach my $w (@wars)
     {
-        $world->add_war(BalanceOfPower::Relations::War->from_mongo($w));
+        $world->add_war(BalanceOfPower::Relations::War->from_mongo($w, $world->mongo_runtime_db));
     }
     my @influences = $db->get_collection('relations')->find({ rel_type => 'influence'})->all();
     foreach my $i (@influences)
@@ -467,6 +469,16 @@ sub load_mongo
     {
         $world->add_treaty(BalanceOfPower::Relations::Treaty->from_mongo($t));
     }
+    my @civil_wars = $db->get_collection('civil_wars')->find()->all();
+    foreach my $cw (@civil_wars)
+    {
+        my $cw_obj = BalanceOfPower::CivilWar->from_mongo($cw, $world->mongo_runtime_db);
+        $cw_obj->load_nation($world);
+        $world->_add_civil_war($cw_obj);
+    }
+    my ($statistics) = $db->get_collection('statistics')->find()->all();
+    $world->statistics_from_mongo($time, $statistics);
+
     return $world;
 }
 

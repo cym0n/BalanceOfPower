@@ -137,6 +137,18 @@ sub to_mongo
              current_year => $self->current_year,
     }
 }
+sub from_mongo
+{
+    my $package = shift;
+    my $data = shift;
+    my $mongo_db = shift;
+    if($mongo_db)
+    {
+        $data->{mongo_save} = 1;
+        $data->{mongo_runtime_db} = $mongo_db;
+    }
+    return $package->new($data);
+}
 
 
 

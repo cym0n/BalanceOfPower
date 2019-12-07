@@ -462,6 +462,12 @@ sub from_mongo
 {
     my $self = shift;
     my $obj = shift;
+    my $mongo_db = shift;
+    if($mongo_db)
+    {
+        $obj->{mongo_save} = 1;
+        $obj->{mongo_runtime_db} = $mongo_db;
+    }
     return BalanceOfPower::Nation->new($obj);
 }
 
