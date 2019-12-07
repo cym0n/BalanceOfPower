@@ -51,7 +51,15 @@ has memorial => (
 );
 
 
-
+sub war_from_id
+{
+    my $self = shift;
+    my $id = shift;
+    for($self->get_wars())
+    {
+        return $_ if($_->war_id == $id);
+    }
+}
 
 
 sub in_military_range

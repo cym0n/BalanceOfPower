@@ -536,7 +536,8 @@ sub execute_decisions
         my $command = $self->control($n);
         if(! $command)
         {
-            my @nation_orders = grep { $_ =~ /^$n: / } @decisions;           if(@nation_orders > 0)
+            my @nation_orders = grep { $_ =~ /^$n: / } @decisions; 
+            if(@nation_orders > 0)
             {
                 $nation_orders[0] =~ /^(.*): (.*)$/;
                 $command = $2;

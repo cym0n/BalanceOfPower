@@ -59,6 +59,21 @@ sub register_event
         $self->send_to_mongo($event, $time);
     }
 }
+sub event_from_mongo
+{
+    my $self = shift;
+    my $event = shift;
+    my $time = $event->{time};
+    my $clean_event = { code => $event->{code},
+                        text => $event->{text},
+                        involved => $event->{involved},
+                        values => $event->{values}
+                      };
+    $self->events({}) if(! $self->events );
+    push @{$self->events->{$time}}, $clean_event;
+}
+
+
 
 sub send_to_mongo
 {

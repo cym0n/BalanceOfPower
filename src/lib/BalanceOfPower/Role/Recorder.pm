@@ -479,6 +479,47 @@ sub load_mongo
     }
     my ($statistics) = $db->get_collection('statistics')->find()->all();
     $world->statistics_from_mongo($time, $statistics);
+    my $runtime_db = $mongo->get_database('bop_' . $game . '_runtime');
+    my @events = $runtime_db->get_collection('events')->find({ time => $time})->all();
+    foreach my $e (@events)
+    {
+        if($e->{source_type} eq 'world')
+        {
+            $world->event_from_mongo($e);
+        }
+        elsif($e->{source_type} eq 'nation')
+        {
+            my $n = $world->get_nation($e->{source});
+            $n->event_from_mongo($e);
+        }
+        elsif($e->{source_type} eq 'war')
+        {
+            my $w = $world->war_from_id($e->{source});
+            if($w)
+            {
+                $w->event_from_mongo($e);
+            }
+            else
+            {
+                #War already sent to memorial
+            }
+        }
+        elsif($e->{source_type} eq 'civil_war')
+        {
+            if($e->{source} =~ /^(.*) (\d+)\/\d$/)
+            {
+                my $cw = $world->get_civil_war($1);
+                $cw->event_from_mongo($e);
+            }
+            else
+            {
+                die "Bad civil war name: " . $e->{source};
+            }
+        }
+        
+    }
+    $world->events->{$time} = \@events;
+
 
     return $world;
 }
