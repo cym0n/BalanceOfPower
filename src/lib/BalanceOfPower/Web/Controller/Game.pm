@@ -84,25 +84,27 @@ sub years
     my $c = shift;
     my $game = $c->param('game');
     my @years = ();
-    my $y = $c->stash('first_year');
-    my ($prev_year, $init_turn) = split('/', $y);
+    my $y =  $c->stash('first_year');
+
+    my ($present_year, $init_turn) = split '/', $y;;
     my @turns = ($init_turn);
     while($y ne $c->stash('current_year'))
     {
         $y = next_turn($y);
         my ($ye, $tu) = split('/', $y);
-        if($ye eq $prev_year)
+        if($ye eq $present_year)
         {
             push @turns, $tu;
         }
         else
         {
-            push @years, { year => $ye, turns => \@turns };
+            my @done_turns = @turns;
+            push @years, { year => $present_year, turns => \@done_turns };
             @turns = ($tu);
-            $prev_year = $ye;
+            $present_year = $ye;
         }
     }
-    push @years, { year => $prev_year, turns => \@turns };
+    push @years, { year => $present_year, turns => \@turns };
     $c->stash( years => \@years );
     $c->render(template => 'bop/years');
 }
