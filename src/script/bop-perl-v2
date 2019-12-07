@@ -59,7 +59,23 @@ elsif($command eq 'delete')
         $db->get_collection('games')->delete_one({ name => $scenario });
         say "Scenario deleted\n";
     }
-
+}
+elsif($command eq 'elaborate')
+{
+    my $data = get_scenario($scenario); 
+    die "Scenario does not exists!" if ! $data;
+    my $steps = shift || 1;
+    my $world = BalanceOfPower::World->load_mongo($scenario, $data->{current_year}); 
+    my $year = next_turn($data->{current_year});
+    for(my $i = 0; $i < $steps; $i++)
+    {
+        say "Running turn";
+        $world->elaborate_turn($year);
+        say "Turn elaborated, dumping...";
+        $world->dump_mongo();
+        say $world->current_year . " elaborated...";
+        $year = next_turn($data->{current_year});
+    }
 }
 elsif($command eq 'help')
 {
