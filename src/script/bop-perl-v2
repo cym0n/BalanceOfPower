@@ -74,7 +74,7 @@ elsif($command eq 'elaborate')
         say "Turn elaborated, dumping...";
         $world->dump_mongo();
         say $world->current_year . " elaborated...";
-        $year = next_turn($data->{current_year});
+        $year = next_turn($year);
     }
 }
 elsif($command eq 'help')

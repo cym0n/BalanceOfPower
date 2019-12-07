@@ -415,6 +415,7 @@ sub load_mongo
     {
         $n->{mongo_runtime_db} = $world->mongo_runtime_db;
         my $executive = BalanceOfPower::Executive->new( actor => $n->{name} );
+        $executive->init($world);
         my $n_obj = BalanceOfPower::Nation->from_mongo($n, $world->mongo_runtime_db);
         $n_obj->executive($executive);
         #    log_active => $self->log_active,
