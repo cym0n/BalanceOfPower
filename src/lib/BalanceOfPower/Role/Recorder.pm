@@ -509,7 +509,10 @@ sub load_mongo
             if($e->{source} =~ /^(.*) (\d+)\/\d$/)
             {
                 my $cw = $world->get_civil_war($1);
-                $cw->event_from_mongo($e);
+                if($cw)
+                {
+                    $cw->event_from_mongo($e);
+                }
             }
             else
             {
