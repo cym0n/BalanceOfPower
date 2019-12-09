@@ -1,11 +1,13 @@
 [% INCLUDE blocks/head.tt %]
-<div class="col-xs-12 col-sm-9">
-<h2>[% game %] - YEARS</h2>
+<div class="col-xs-12 col-sm-12">
 <p style="font-size:5px">&nbsp;</p>
 [% FOREACH y IN years %] 
 <div class="row">
+<div class="col-sm-2">
+<h3>[% y.year %]</h3>
+</div>
 [% FOREACH t IN y.turns %]
-<div class="col-sm-3">
+<div class="col-sm-2">
     <div class="well">
         <p><center><a href="/g/[% game %]/[% y.year %]/[% t %]/newspaper">[% y.year %]/[% t %]</a></center></p>
     </div>
@@ -14,5 +16,4 @@
 </div>
 [% END %]
 </div><!--/.col-xs-12.col-sm-9-->
-[% INCLUDE blocks/side.tt %]
 [% INCLUDE blocks/foot.tt %]

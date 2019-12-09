@@ -10,8 +10,28 @@
 
     <div class="container">
     <div class="page-header">
-        <h2><center>[% game %]</center></h2>
-    </div>
+        <center><h2><a href="/g/[% game %]/years">[% game %]</a></h2></center>
+        [% IF year and turn %]
+            <p><center>
+            [% this_turn = "$year/$turn" %]
+            [% IF year AND turn %]
+            [% IF first_year != this_turn %]
+            <a href="/g/[% game %]/[% first_year %]/newspaper">[% first_year %]</a>
+            [% END %]
+            [% IF prev_turn %]
+                <a href="/g/[% game %]/[% prev_turn %]/newspaper">&lt;</a>
+            [% END %]
+                <a style="font-size:25px" href="/g/[% game %]/[% year %]/[% turn %]/newspaper"><b>[% this_turn %]</b></a>
+            [% IF next_turn %]
+                <a href="/g/[% game %]/[% next_turn %]/newspaper">&gt;</a>
+            [% END %]
+            [% END %]
+            [% IF current_year != this_turn %]
+                <a href="/g/[% game %]/[% current_year %]/newspaper">[% current_year %]</a>
+            [% END %]
+            </center><p>
+        [% END %]
+        </div>
 
       <div class="row row-offcanvas row-offcanvas-right">
 

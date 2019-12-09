@@ -1,28 +1,5 @@
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
             <div class="well well-sm">
-            <p><h4>
-            [% this_turn = "$year/$turn" %]
-            [% IF year AND turn %]
-            [% IF first_year != this_turn %]
-            <span class="label label-warning"><a href="/g/[% game %]/[% first_year %]/newspaper">[% first_year %]</a></span>
-            [% END %]
-            [% IF prev_turn %]
-                <span class="label label-warning"><a href="/g/[% game %]/[% prev_turn %]/newspaper">&lt;</a></span>
-            [% END %]
-                <span class="label label-warning"><a href="/g/[% game %]/[% year %]/[% turn %]/newspaper"><b>[% this_turn %]</b></a></span>
-            [% IF next_turn %]
-                <span class="label label-warning"><a href="/g/[% game %]/[% next_turn %]/newspaper">&gt;</a></span>
-            [% END %]
-            [% END %]
-            [% IF current_year != this_turn %]
-                <span class="label label-warning"><a href="/g/[% game %]/[% current_year %]/newspaper">[% current_year %]</a></span>
-            [% END %]
-            </h4><p>
-            <p><center><a href="/g/[% game %]/years">[all years]</a></center></p>
-            </div>
-        </div>
-        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
-            <div class="well well-sm">
                 <p>
                     <a href="/g/[% game %]/[% year %]/[% turn %]/hotspots">Hotspots</a>
                 </p>
