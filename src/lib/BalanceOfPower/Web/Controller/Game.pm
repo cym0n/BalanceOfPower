@@ -79,6 +79,18 @@ my $nation_codes = {
 'South Africa' => 'RSA'
 };
 
+sub home
+{
+    my $c = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database("bop_games");
+    my @games = $db->get_collection("games")->find()->all();
+    $c->stash(games => \@games);
+    $c->render(template => 'bop/homepage');
+}
+
+
+
 sub years
 {
     my $c = shift;

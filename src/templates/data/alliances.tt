@@ -1,5 +1,11 @@
+[% IF treaties.size == 0 %]
+<p>
+NO ALLIANCES
+</p>
+[% ELSE %]
 <p>
 [% FOREACH t IN treaties %]
 [% INCLUDE fragments/linked_nation.tt n = t.node1 %] <-> [% INCLUDE fragments/linked_nation.tt n = t.node2 %]<br />
 [% END %]
 </p>
+[% END %]

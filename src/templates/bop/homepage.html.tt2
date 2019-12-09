@@ -1,0 +1,36 @@
+[% INCLUDE blocks/head.tt %]
+<div class="col-xs-12 col-sm-12">
+<h1>Balance of Power</h1>
+<p>Meaningless geopolitics simulator. Choose a scenario to see its history</p>
+[% flip = 0 %]
+[% FOREACH g IN games %]
+[% IF flip == 0 %]
+<div class="row">
+[% ELSE %]
+[% END %]
+<div class="col-sm-4">
+<div class="well col-sm-12">
+    <div class="col-sm-8">
+        <h2>[% g.name %]</h2>
+        <p>
+            <b>Starting year</b>: [% g.first_year %]<br />
+            <b>Current year</b>: [% g.current_year %]
+        </p>
+    </div>
+    <div class="col-sm-4">
+        <p>
+        <br />
+        <a class="btn btn-primary" href="/g/[% g.name %]/[% g.current_year %]/newspaper" role="button">GO</a>
+        </p>
+    </div>
+</div>
+</div>
+[% IF flip == 0 %]
+[% flip = 1 %]
+[% ELSE %]
+[% flip = 0 %]
+</div>
+[% END %]
+[% END %]
+</div><!--/.col-xs-12.col-sm-12-->
+[% INCLUDE blocks/foot.tt %]

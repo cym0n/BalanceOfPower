@@ -1,4 +1,9 @@
 <p>
+[% IF influences.size == 0 %]
+<p>
+NO INFLUENCES
+</p>
+[% ELSE %]
 [% ruler = "" %]
 [% FOREACH i IN influences %]
 [% IF ruler != i.node1 %]
@@ -8,3 +13,4 @@
 [% INCLUDE fragments/linked_nation.tt n = i.node1 %] [% i.status_label %] [% INCLUDE fragments/linked_nation.tt n = i.node2 %]<br />
 [% END %]
 </p>
+[% END %]

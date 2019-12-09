@@ -1,5 +1,11 @@
+[% IF supports.size == 0 %]
+<p>
+NO SUPPORTS
+</p>
+[% ELSE %]
 <p>
 [% FOREACH s IN supports %]
 [% INCLUDE fragments/support.tt %]<br />
 [% END %]
 </p>
+[% END %]

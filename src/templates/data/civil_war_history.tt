@@ -1,3 +1,8 @@
+[% IF civil_war_names.size == 0 %]
+<p>
+NO CIVIL WAR ARCHIVIED
+</p>
+[% ELSE %]
 [% FOREACH wn IN civil_war_names %][% wnname = wn.name %]
 <!-- h4>[% wnname %]</h4 -->
 [% w = civil_wars.$wnname %]
@@ -8,3 +13,4 @@
 [% END %][% END %]*** Civil war ended in [% w.end_date %] ***
 [% END %]
 </p>
+[% END %]

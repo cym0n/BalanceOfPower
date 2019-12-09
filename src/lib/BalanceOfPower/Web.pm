@@ -55,7 +55,7 @@ sub startup {
   my $r = $self->routes;
 
   # Normal route to controller
-  $r->get('/')->to('example#welcome');
+  $r->get('/')->to('game#home');
   $r->get('/g/:game/years')->to('game#years');
   $r->get('/g/:game/:year/:turn/newspaper')->to('game#newspaper');
   $r->get('/g/:game/:year/:turn/hotspots')->to('game#hotspots');
