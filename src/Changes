@@ -1,3 +1,14 @@
+0.500000
+===
+
+__Sun 15 Dec 2019__
+
+(no test or CPAN release)
+
+ * Player interaction dismissed
+ * MongoDB introduced to manage data
+ * Mojolicious we integration
+
 0.400115
 ===
 
