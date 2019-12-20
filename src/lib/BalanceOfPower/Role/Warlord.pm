@@ -145,7 +145,10 @@ sub create_war
                 if(! grep { $_ eq $ally_name } @attacker_coalition)
                 {
                     push @attacker_coalition, $ally_name;
-                    $ally->register_event("JOIN WAR AS ALLY OF " . $attacker->name ." AGAINST " . $defender->name);
+                    $ally->register_event( { code => 'warjoin',
+                                             text => "JOIN WAR AS ALLY OF " . $attacker->name ." AGAINST " . $defender->name,
+                                             involved => [ $ally->name, $attacker->name, $defender->name ],
+                                             values => [] });
                 }
             }
         }
@@ -158,7 +161,11 @@ sub create_war
                 if(! grep { $_ eq $ally_name } @defender_coalition)
                 {
                     push @defender_coalition, $ally_name;
-                    $ally->register_event("JOIN WAR AS ALLY OF " . $defender->name ." AGAINST " . $attacker->name);
+                    $ally->register_event({ code => 'warjoin',
+                                            text => "JOIN WAR AS ALLY OF " . $defender->name ." AGAINST " . $attacker->name,
+                                            involved => [ $ally->name, $defender->name, $attacker->name ],
+                                            values => [] });
+
                 }
             }
         }
@@ -347,19 +354,42 @@ sub war_starting_report
     my $war = shift;
     my $node1 = $war->node1;
     my $node2 = $war->node2;
-    $war->register_event("Starting army for " . $node1 . ": " . $self->get_nation($node1)->army);
-    $war->register_event("Progress of " . $node1 . ": " . $self->get_nation($node1)->progress);
+    $war->register_event( { code => 'warstartarmy',
+                            text => "Starting army for " . $node1 . ": " . $self->get_nation($node1)->army,
+                            involved => [ $node1 ],
+                            values => [ $self->get_nation($node1)->army ] });
+    $war->register_event( { code => 'warstartprogress',
+                            text => "Progress of " . $node1 . ": " . $self->get_nation($node1)->progress,
+                            involved => [ $node1 ],
+                            values => [ $self->get_nation($node1)->progress ] });
+
+
+
+
     my $sup1 = $self->supported($node1);
     if($sup1)
     {
-        $war->register_event("$node1 is supported by " . $sup1->node1 . ": " . $sup1->army);
+        $war->register_event( { code => 'warstartsupport',
+                                text => "$node1 is supported by " . $sup1->node1 . ": " . $sup1->army,
+                                involved => [ $node1, $sup1->node1 ],
+                                values => [ $sup1->army ] });
+
     }
-    $war->register_event("Starting army for " . $node2 . ": " . $self->get_nation($node2)->army);
-    $war->register_event("Progress of " . $node2 . ": " . $self->get_nation($node2)->progress);
+    $war->register_event({ code => 'warstartarmy',
+                            text => "Starting army for " . $node2 . ": " . $self->get_nation($node2)->army,
+                            involved => [ $node2 ],
+                            values => [ $self->get_nation($node2)->army ] });
+    $war->register_event({ code => 'warstartprogress',
+                            text => "Progress of " . $node2 . ": " . $self->get_nation($node2)->progress,
+                            involved => [ $node2 ],
+                            values => [ $self->get_nation($node2)->progress ] });
     my $sup2 = $self->supported($node2);
     if($sup2)
     {
-        $war->register_event("$node2 is supported by " . $sup2->node1 . ": " . $sup2->army);
+        $war->register_event({ code => 'warstartsupport',
+                                text => "$node2 is supported by " . $sup2->node1 . ": " . $sup2->army,
+                                involved => [ $node2, $sup2->node1 ],
+                                values => [ $sup2->army ] });
     }
     return $war;
 }
@@ -500,8 +530,15 @@ sub fight_wars
 
         $self->damage_from_battle($attacker, $attacker_damage, $defender);
         $self->damage_from_battle($defender, $defender_damage, $attacker);
-        $attacker->register_event("CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage");
-        $defender->register_event("CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage");
+        $attacker->register_event({ code => "warcasualities",
+                                    text => "CASUALITIES IN WAR WITH " . $defender->name . ": $attacker_damage",
+                                    involved => [$defender->name],
+                                    values => [$attacker_damage] });
+                                    
+        $defender->register_event({ code => "warcasualities",
+                                    text => "CASUALITIES IN WAR WITH " . $attacker->name . ": $defender_damage",
+                                    involved => [$attacker->name],
+                                    values => [$defender_damage] });
         if($attacker->army == 0)
         {
             $losers{$attacker->name} = 1;
@@ -538,7 +575,11 @@ sub lose_war
             $retreat_penality = 1;
             $other = $w->node2;
             $winner_role = "[DEFENDER]";
-            $self->send_event("RETREAT FROM " . $other, $loser);
+            my $ev = { code => 'warretreat',
+                       text => "RETREAT FROM " . $other,
+                       involved => [ $loser, $other ],
+                       values => [] }; 
+            $self->send_event($ev, $loser);
         }
         elsif($w->node2 eq $loser)
         {

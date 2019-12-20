@@ -89,7 +89,10 @@ sub init_random_alliances
         if($n1 ne $n2)
         {
             $self->add_alliance($n1, $n2);
-            $self->broadcast_event("ALLIANCE BETWEEN $n1 AND $n2 CREATED", $n1, $n2);
+            $self->broadcast_event( {code => 'alliancecreated',
+                                     text => "ALLIANCE BETWEEN $n1 AND $n2 CREATED",
+                                     involved => [$n1, $n2],
+                                     values => [] }, $n1, $n2);
         }
     }
 }

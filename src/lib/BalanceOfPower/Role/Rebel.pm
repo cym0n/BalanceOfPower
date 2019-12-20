@@ -63,11 +63,17 @@ sub add_civil_war
     }
     else
     {
-        $civwar->register_event("Starting army: " . $civwar->nation->army);
+        $civwar->register_event({ code => "civwarstartarmy",
+                                  text => "Starting army: " . $civwar->nation->army,
+                                  involved => [$civwar->nation->name],
+                                  values => [$civwar->nation->army] });
         my $sup = $self->supported($civwar->nation->name);
         if($sup)
         {
-            $civwar->register_event("Support to government from " . $sup->node1);
+            $civwar->register_event({ code => "civwargovsupport",
+                                      text => "Support to government from " . $sup->node1,
+                                      involved => [$civwar->nation->name, $sup->node1],
+                                      values => []});
         }
         $self->broadcast_event({ code => "civiloutbreak",
                                 text => "CIVIL WAR OUTBREAK IN " . $civwar->nation->name, 

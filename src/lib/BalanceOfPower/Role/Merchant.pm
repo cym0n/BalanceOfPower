@@ -114,7 +114,10 @@ sub delete_route
     my $present_treaty = $self->exists_treaty_by_type($node1, $node2, 'commercial');
     if($present_treaty)
     {
-        my $not_event = "TRADEROUTE DELETION $node1<->$node2 BLOCKED BY TREATY";
+        my $not_event = { code => 'tradenotdeleted',
+                          text => "TRADEROUTE DELETION $node1<->$node2 BLOCKED BY TREATY",
+                          involved => [$node1, $node2],
+                          values => [] };
         $self->broadcast_event($not_event, $node1, $node2);
     }
     else
