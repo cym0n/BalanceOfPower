@@ -154,7 +154,7 @@ sub stop_rebel_military_support
     my $e = { code => 'rebsupstopped',
                              text => "REBEL MILITARY SUPPORT AGAINST " . $node2->name . " STOPPED BY " . $node1->name, 
                              involved => [$node1->name, $node2->name] };
-    $self->civil_war_report($e);
+    $self->civil_war_report($e, $node2->name);
     $self->broadcast_event($e, $node1->name, $node2->name);
 }
 sub military_support_garbage_collector

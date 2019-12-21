@@ -44,6 +44,7 @@ sub register_event
     #Fallback for old style events
     if(! (ref $event eq 'HASH'))
     {
+        say "WARNING! Event '$event' is still plain text";
         $event = { code => undef,
                    text => $event,
                    involved => [],

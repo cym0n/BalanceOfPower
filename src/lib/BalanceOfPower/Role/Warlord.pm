@@ -593,16 +593,18 @@ sub lose_war
             $self->get_nation($loser)->internal_disorder(AFTER_CONQUERED_INTERNAL_DISORDER);
         }
         my $ending_line = "WAR BETWEEN $other AND $loser WON BY $other $winner_role";
-
-        $self->broadcast_event({ code => 'warend',
+    
+        my $end_event = { code => 'warend',
                                  text => $ending_line, 
                                  involved => [$other, $loser],
-                                 values => [$w->war_id, $winner_role] }, $other, $loser);
+                                 values => [$w->war_id, $winner_role] };
+
+        $self->broadcast_event($end_event, $other, $loser);
         my $history_line = "";
         $self->cash_war_bonds($other);
         $self->discard_war_bonds($loser);
         $history_line .= "$other $winner_role won the war";
-        $self->delete_war($other, $loser, $history_line);
+        $self->delete_war($other, $loser, $end_event);
     }
     if(@conquerors > 0)
     {

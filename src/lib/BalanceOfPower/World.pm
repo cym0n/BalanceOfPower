@@ -423,9 +423,9 @@ sub calculate_production
     if($cost_for_retreat)
     {
         $self->send_event({ code => 'defcost',
-                            "COST FOR DEFEAT ON PRODUCTION: " . $cost_for_retreat,
+                            text => "COST FOR DEFEAT ON PRODUCTION: " . $cost_for_retreat,
                             values => [ $cost_for_retreat ],
-                            involved => [ $n->name] }, [ $n->name ]);
+                            involved => [ $n->name] },  $n->name );
     }
     return $global_production;
 }
