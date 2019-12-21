@@ -422,7 +422,10 @@ sub calculate_production
     }
     if($cost_for_retreat)
     {
-        $self->send_event("COST FOR DEFEAT ON PRODUCTION: " . $cost_for_retreat);
+        $self->send_event({ code => 'defcost',
+                            "COST FOR DEFEAT ON PRODUCTION: " . $cost_for_retreat,
+                            values => [ $cost_for_retreat ],
+                            involved => [ $n->name] }, [ $n->name ]);
     }
     return $global_production;
 }
@@ -453,10 +456,16 @@ sub loot
     my $amount_export = $nation->production_for_export >= $quote ? $quote : $nation->production_for_export;
     $nation->subtract_production('domestic', $amount_domestic);
     $nation->subtract_production('export', $amount_export);
-    $nation->register_event("PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export");
+    $nation->register_event({ code => 'payloot',
+                              text => "PAY LOOT TO " . $receiver->name . ": $amount_domestic + $amount_export",
+                              values => [  $amount_domestic + $amount_export ],
+                              involved => [ $nation->name, $receiver->name ] });
     $receiver->subtract_production('domestic', -1 * $amount_domestic);
     $receiver->subtract_production('export', -1 * $amount_export);
-    $receiver->register_event("ACQUIRE LOOT FROM " . $nation->name . ": $amount_domestic + $amount_export");
+    $receiver->register_event({ code => 'acquireloot',
+                                text => "ACQUIRE LOOT FROM " . $nation->name . ": $amount_domestic + $amount_export",
+                                values => [$amount_domestic + $amount_export],
+                                involved => [ $receiver->name, $nation->name]} );
 }
 
 
@@ -639,7 +648,10 @@ sub execute_decisions
                 }
                 else
                 {
-                    $self->broadcast_event("DIPLOMATIC PRESSURE ON $n2 BY " . $nation->name . " IMPOSSIBLE! $n2 IS UNDER INFLUENCE OF " . $nation->name, $nation->name, $n2);
+                    $self->broadcast_event({ code => 'impossiblepressure',
+                                             text => "DIPLOMATIC PRESSURE ON $n2 BY " . $nation->name . " IMPOSSIBLE! $n2 IS UNDER INFLUENCE OF " . $nation->name,
+                                             values => [],
+                                             involved => [ $nation->name, $n2 ]}, $nation->name, $n2);
                 }
             }
         }
@@ -711,13 +723,17 @@ sub manage_route_adding
                     {
                         $self->broadcast_event( { code => "tradelack",
                                                   text => "TRADEROUTE CREATION FAILED FOR LACK OF PARTNERS FOR $node1", 
+                                                  values => [],
                                                   involved => [$node1] }, $node1);
                     }
                 }
             }
             else
             {
-                $self->broadcast_event("TRADEROUTE CREATION NOT POSSIBLE FOR $node1", $node1);
+                $self->broadcast_event({ code => 'impossibletrade',
+                                         text => "TRADEROUTE CREATION NOT POSSIBLE FOR $node1", 
+                                         values => [],
+                                         involved => [ $node1 ]}, $node1);
             }
             $done = 1 if(@route_adders == 0);
        }
