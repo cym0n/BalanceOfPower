@@ -443,10 +443,11 @@ sub damage_from_battle
     {
         if($supported->army <= 0)
         {
-            $self->broadcast_event({ code => 'supdestroyed',
+            my $e = { code => 'supdestroyed',
                                      text => "MILITARY SUPPORT TO " . $supported->node2 . " BY " . $supported->node1 . " DESTROYED", 
-                                     involved => [$supported->node1, $supported->node2] }, $supported->node1, $supported->node2);
-            $self->war_report("Military support to ". $supported->node2 . " by " . $supported->node1 . " destroyed", $supported->node2);
+                                     involved => [$supported->node1, $supported->node2] };
+            $self->broadcast_event($e, $supported->node1, $supported->node2);
+            $self->war_report($e, $supported->node2);
         }
     }
     $self->military_support_garbage_collector();

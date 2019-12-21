@@ -75,10 +75,11 @@ sub add_civil_war
                                       involved => [$civwar->nation->name, $sup->node1],
                                       values => []});
         }
-        $self->broadcast_event({ code => "civiloutbreak",
+        my $e = { code => "civiloutbreak",
                                 text => "CIVIL WAR OUTBREAK IN " . $civwar->nation->name, 
-                                involved => [$civwar->nation->name] }, $civwar->nation->name);
-        $self->war_report("Civil war in " . $civwar->nation->name . "!", $civwar->nation->name);
+                                involved => [$civwar->nation->name] };
+        $self->broadcast_event($e, $civwar->nation->name);
+        $self->war_report($e, $civwar->nation->name);
         my $occupied = $self->lose_war($civwar->nation->name, 1);
         if(! $occupied)
         {

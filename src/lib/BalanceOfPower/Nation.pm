@@ -100,7 +100,7 @@ sub production
         {
             $prod += PRODUCTION_THROUGH_DEBT;
             $self->debt($self->debt + 1);
-            $self->register_event("DEBT RISE");
+            $self->register_event({ code => 'debtrise', text => "DEBT RISE", involved => [ $self->name ], values => [ $self->debt ]});
         }
         if($self->government eq 'dictatorship')
         {
@@ -110,7 +110,7 @@ sub production
         my $export = $prod - $internal;
         $self->production_for_domestic($internal);
         $self->production_for_export($export);
-        $self->register_event("PRODUCTION INT: $internal EXP: $export");
+        $self->register_event({ code => 'production', text => "PRODUCTION INT: $internal EXP: $export", involved => [$self->name], values => [ $internal, $export]});
     }
     return $self->production_for_domestic + $self->production_for_export;
 }
@@ -121,7 +121,7 @@ sub calculate_internal_wealth
     my $internal_production = $self->production_for_domestic();
     $self->add_wealth($internal_production * INTERNAL_PRODUCTION_GAIN);
     $self->production_for_domestic(0);
-    $self->register_event("INTERNAL " . $internal_production);
+    $self->register_event({ code => 'internalwealth', text => "INTERNAL " . $internal_production, involved => [$self->name], values => [$internal_production]});
 }
 
 sub calculate_trading
@@ -146,18 +146,24 @@ sub calculate_trading
                     $treaty_bonus = TREATY_TRADE_FACTOR;
                 }
                 $self->trade(TRADING_QUOTE, $r->factor_for_node($self->name) + $treaty_bonus);
-                my $event = "TRADE OK " . $r->destination($self->name) . " [x" . $r->factor_for_node($self->name);
+                my $event_text = "TRADE OK " . $r->destination($self->name) . " [x" . $r->factor_for_node($self->name);
                 if($treaty_bonus > 0)
                 {
-                    $event .= " +$treaty_bonus";
+                    $event_text .= " +$treaty_bonus";
                 }
-                $event .= "]";
+                $event_text .= "]";
+                my $event = {code => 'tradeok',
+                              text => $event_text,
+                              values => [$r->factor_for_node($self->name) + $treaty_bonus],
+                              involved => [ $self->name, $r->destination($self->name) ] };
                 $self->register_event($event);
            }
            else
            {
                 $self->trade(0, $r->factor_for_node($self->name));
-                $self->register_event("TRADE KO " . $r->destination($self->name));
+                $self->register_event({ code => 'tradeko',
+                                        text => "TRADE KO " . $r->destination($self->name),
+                                        involved =>  [ $self->name, $r->destination($self->name) ] });
            }     
         }
     }
@@ -167,7 +173,7 @@ sub convert_remains
 {
     my $self = shift;
     $self->add_wealth($self->production);
-    $self->register_event("REMAIN " . $self->production);
+    $self->register_event({ code => 'remain', text => "REMAIN " . $self->production, values => [ $self->production], involved => [ $self->name ]});
     $self->production_for_domestic(0);
     $self->production_for_export(0);
 }
@@ -176,13 +182,13 @@ sub war_cost
 {
     my $self = shift;
     $self->add_wealth(-1 * WAR_WEALTH_MALUS);
-    $self->register_event("WAR COST PAYED: " . WAR_WEALTH_MALUS);
+    $self->register_event({ code => 'warcostpayed', text => "WAR COST PAYED: " . WAR_WEALTH_MALUS, values => [WAR_WEALTH_MALUS], involved => [ $self->name]});
 }
 sub civil_war_cost
 {
     my $self = shift;
     $self->add_wealth(-1 * CIVIL_WAR_WEALTH_MALUS);
-    $self->register_event("CIVIL WAR COST PAYED: " . CIVIL_WAR_WEALTH_MALUS);
+    $self->register_event({ code => 'civwarcostpayed', text => "CIVIL WAR COST PAYED: " . CIVIL_WAR_WEALTH_MALUS, values => [CIVIL_WAR_WEALTH_MALUS], involved => [$self->name]});
 }
 
 sub boost_production
@@ -191,7 +197,7 @@ sub boost_production
     my $boost = BOOST_PRODUCTION_QUOTE * PRODUCTION_UNITS->[$self->size];
     $self->subtract_production('export', -1 * $boost);
     $self->subtract_production('domestic', -1 * $boost);
-    $self->register_event("BOOST OF PRODUCTION");
+    $self->register_event({ code => 'productionboost', text => "BOOST OF PRODUCTION", involved => [$self->name], values => [$boost]});
 }
 sub receive_aid
 {
@@ -242,7 +248,7 @@ sub calculate_disorder
                    $prg;
 
     $disorder = int ($disorder * 100) / 100;
-    $self->register_event("DISORDER CHANGE: " . $disorder);
+    $self->register_event({code => "disorderchange", text => "DISORDER CHANGE: " . $disorder, involved =>[$self->name], values => [$disorder]});
     $self->add_internal_disorder($disorder, $world);
 }
 
@@ -379,7 +385,7 @@ sub build_troops
     {
         $self->subtract_production('domestic', $army_cost);
         $self->add_army(ARMY_UNIT);
-        $self->register_event("NEW TROOPS FOR THE ARMY");
+        $self->register_event({ code => 'newtroops', text => "NEW TROOPS FOR THE ARMY", involved => [$self->name], values => [ARMY_UNIT]});
     } 
 }
 
@@ -417,7 +423,7 @@ sub grow
     my $new_progress = $self->progress + PROGRESS_INCREMENT;
     $self->progress($new_progress);
     $self->subtract_production('domestic', PROGRESS_COST);
-    $self->register_event("GROW. NEW PROGRESS: $new_progress");
+    $self->register_event({ code => 'grow', text => "GROW. NEW PROGRESS: $new_progress", involved => [ $self->name ], values => [$new_progress]});
 }
 
 sub treaty_limit

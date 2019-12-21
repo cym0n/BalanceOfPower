@@ -72,12 +72,16 @@ sub start_military_support
             node1 => $nation1->name,
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
-    $self->broadcast_event({ code => 'supstarted',
+    my $e = { code => 'supstarted',
                              text => "MILITARY SUPPORT TO " . $nation2->name . " STARTED BY " . $nation1->name, 
-                             involved => [$nation1->name, $nation2->name] },                                
-                             $nation1->name, $nation2->name);
-    $self->war_report($nation1->name . " started military support for " . $nation2->name, $nation2->name);
-    $self->civil_war_report($nation1->name . " started military support for " . $nation2->name, $nation2->name);
+                             involved => [$nation1->name, $nation2->name] };
+
+
+
+
+    $self->broadcast_event($e, $nation1->name, $nation2->name);
+    $self->war_report($e, $nation2->name);
+    $self->civil_war_report($e, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_SUPPORT, "STARTED MILITARY SUPPORT FROM ".$nation1->name);
 }
 sub start_rebel_military_support
@@ -110,10 +114,11 @@ sub start_rebel_military_support
             node1 => $nation1->name,
             node2 => $nation2->name,
             army => ARMY_FOR_SUPPORT));
-    $self->broadcast_event({ code => 'rebsupstarted',
+    my $e = { code => 'rebsupstarted',
                              text => "REBEL MILITARY SUPPORT AGAINST " . $nation2->name . " STARTED BY " . $nation1->name, 
-                             involved => [$nation1->name, $nation2->name] }, $nation1->name, $nation2->name);
-    $self->civil_war_report($nation1->name . " started rebel military support in " . $nation2->name, $nation2->name);
+                             involved => [$nation1->name, $nation2->name] };
+    $self->broadcast_event($e, $nation1->name, $nation2->name);
+    $self->civil_war_report($e, $nation2->name);
     $self->change_diplomacy($nation1->name, $nation2->name, DIPLOMACY_FACTOR_STARTING_REBEL_SUPPORT, "STARTED REBEL MILITARY SUPPORT FROM " . $nation1->name);
 }
 sub stop_military_support
@@ -126,11 +131,12 @@ sub stop_military_support
     return if (! $milsup);
     $self->delete_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
-    $self->broadcast_event( { code => 'supstopped',
+    my $e = { code => 'supstopped',
                               text => "MILITARY SUPPORT FOR " . $node2->name . " STOPPED BY " . $node1->name, 
-                              involved => [$node1->name, $node2->name] }, $node1->name, $node2->name);
-    $self->war_report($node1->name . " stopped military support for " . $node2->name, $node2->name);
-    $self->civil_war_report($node1->name . " stopped military support for " . $node2->name, $node2->name);
+                              involved => [$node1->name, $node2->name] };
+    $self->broadcast_event($e , $node1->name, $node2->name);
+    $self->war_report($e, $node2->name);
+    $self->civil_war_report($e, $node2->name);
     if(! $avoid_diplomacy)
     {
         $self->change_diplomacy($node1->name, $node2->name, -1 * DIPLOMACY_FACTOR_BREAKING_SUPPORT, "STOPPED MILITARY SUPPORT FROM " . $node1->name);
@@ -145,10 +151,11 @@ sub stop_rebel_military_support
     return if (! $milsup);
     $self->delete_rebel_military_support($node1->name, $node2->name);
     $node1->add_army($milsup->army);
-    $self->civil_war_report($node1->name . " stopped rebel military support in " . $node2->name, $node2->name);
-    $self->broadcast_event({ code => 'rebsupstopped',
+    my $e = { code => 'rebsupstopped',
                              text => "REBEL MILITARY SUPPORT AGAINST " . $node2->name . " STOPPED BY " . $node1->name, 
-                             involved => [$node1->name, $node2->name] }, $node1->name, $node2->name);
+                             involved => [$node1->name, $node2->name] };
+    $self->civil_war_report($e);
+    $self->broadcast_event($e, $node1->name, $node2->name);
 }
 sub military_support_garbage_collector
 {
