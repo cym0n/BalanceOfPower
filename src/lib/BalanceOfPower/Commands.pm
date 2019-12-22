@@ -4,7 +4,6 @@ use v5.10;
 use Moo;
 use IO::Prompter [-stdio];
 use Term::ANSIColor;
-use BalanceOfPower::Player;
 use BalanceOfPower::Executive;
 use BalanceOfPower::Constants ":all";
 use BalanceOfPower::Utils qw(next_turn prev_turn get_year_turns compare_turns evidence_text);

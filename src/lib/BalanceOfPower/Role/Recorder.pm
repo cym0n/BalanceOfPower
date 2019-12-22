@@ -28,7 +28,7 @@ sub dump
     my $self = shift;
     my $io = shift;
     my $indent = shift || "";
-    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year, $self->admin_password) . "\n";
+    print {$io} $indent . join(";", $self->name, $self->first_year, $self->current_year) . "\n";
     $self->dump_events($io, " " . $indent);
 }
 sub to_mongo
@@ -38,7 +38,6 @@ sub to_mongo
         name => $self->name,
         first_year => $self->first_year,
         current_year => $self->current_year,
-        admin_password => $self->admin_password
     }
 }
 sub load
@@ -48,12 +47,12 @@ sub load
     my $world_line = ( split /\n/, $data )[0];
     $world_line =~ s/^\s+//;
     chomp $world_line;
-    my ($name, $first_year, $current_year, $admin_password) =
+    my ($name, $first_year, $current_year) =
         split ";", $world_line;
     $data =~ s/^.*?\n//;
     my $events = $self->load_events($data);
     return BalanceOfPower::World->new(name => $name, 
-                                      first_year => $first_year, current_year => $current_year, admin_password => $admin_password,
+                                      first_year => $first_year, current_year => $current_year, 
                                       events => $events);
                                      
 }

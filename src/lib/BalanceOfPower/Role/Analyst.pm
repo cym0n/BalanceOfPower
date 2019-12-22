@@ -22,7 +22,6 @@ requires 'get_wars';
 requires 'print_nation_situation';
 requires 'print_nation_statistics_header';
 requires 'print_nation_statistics_line';
-requires 'get_player';
 requires 'print_all_crises';
 requires 'get_attackers';
 
@@ -234,88 +233,6 @@ sub print_treaties_table
         $out .= "\n";
     }
     return $out;
-}
-sub player_stocks_status
-{
-    my $self = shift;
-    my $player = shift;
-    my $player_obj = $self->get_player($player);
-    my $stock_value = 0;
-    my %market_data = ();
-    foreach my $nation(keys %{$player_obj->wallet})
-    {
-        if( $player_obj->stocks($nation) > 0 || $player_obj->influence($nation) > 0)
-        {
-            $market_data{$nation} = { 'stocks' => $player_obj->wallet->{$nation}->{stocks},
-                                      'value'  => $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d"),
-                                      'prev_value' => $self->get_statistics_value(prev_turn(prev_turn($self->current_year)), $nation, "w/d"),
-                                      'influence' => $player_obj->wallet->{$nation}->{influence},
-                                      'war_bonds' => $player_obj->wallet->{$nation}->{'war_bonds'},
-                                    };
-            $stock_value += $player_obj->wallet->{$nation}->{stocks} * $self->get_statistics_value(prev_turn($self->current_year), $nation, "w/d");
-        }
-    }
-    my $total_value = $stock_value + $player_obj->money;
-    return { market_data => \%market_data,
-             stock_value => $stock_value,
-             money => $player_obj->money,
-             total_value => $total_value,
-             points => $player_obj->mission_points };
-}
-
-
-sub print_stocks
-{
-    my $self = shift;
-    my $player = shift;
-    my $mode = shift || 'print';
-    return BalanceOfPower::Printer::print($mode, $self, 'print_stocks', $self->player_stocks_status($player));
-}
-sub print_all_stocks
-{
-    my $self = shift;
-    my $mode = shift || 'print';
-    my %data = ();
-    my @names;
-    for(@{$self->players})
-    {
-        my $p = $_;
-        push @names, $p->name;
-        $data{$p->name} = $self->player_stocks_status($p->name);
-    }
-    @names = sort { $data{$b}->{total_value} <=> $data{$a}->{total_value} } @names;
-
-    return BalanceOfPower::Printer::print($mode, $self, 'print_ranking', 
-                                            { players_data => \%data,
-                                              players => \@names });
-}
-sub print_market
-{
-    my $self = shift;
-    my $mode = shift || 'print';
-    my @ordered = $self->order_statistics(prev_turn($self->current_year), 'w/d');
-    my %data = ();
-    my @nations = ();
-    foreach my $stats (@ordered)
-    {
-        my $nation = $self->get_nation($stats->{nation});
-        push @nations, $stats->{nation};
-        my $status = "";
-        if($self->at_war($nation->name))
-        {
-            $status = "WAR";
-        }
-        elsif($self->at_civil_war($nation->name))
-        {
-            $status = "CIVILW";
-        }
-        $data{$nation->name} = {  stocks => $nation->available_stocks,
-                                  wd => $stats->{value},
-                                  status => $status };
-    }
-    return BalanceOfPower::Printer::print($mode, $self, 'print_market', 
-                                          { market_data => \%data,
-                                            nations => \@nations } );
 }
 
 sub wars_info

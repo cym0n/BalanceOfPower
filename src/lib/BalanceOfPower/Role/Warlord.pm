@@ -28,8 +28,6 @@ requires 'random';
 requires 'change_diplomacy';
 requires 'get_crises';
 requires 'delete_crisis';
-requires 'discard_war_bonds';
-requires 'cash_war_bonds';
 requires 'war_busy';
 requires 'to_mongo_memorial';
 
@@ -457,20 +455,8 @@ sub fight_wars
 {
     my $self = shift;
     my %losers;
-    my %war_bonds_issued = ();
     foreach my $w ($self->wars->all())
     {
-        if(! exists $war_bonds_issued{$w->node1})
-        {
-            $self->issue_war_bonds($w->node1);
-            $war_bonds_issued{$w->node1} = 1;
-        }
-        if(! exists $war_bonds_issued{$w->node2})
-        {
-            $self->issue_war_bonds($w->node2);
-            $war_bonds_issued{$w->node2} = 1;
-        }
-
         #As Risiko
         $self->broadcast_event({ code => 'wargoon',
                                  text => "WAR BETWEEN " . $w->node1 . " AND " . $w->node2 . " GO ON",
@@ -601,8 +587,6 @@ sub lose_war
 
         $self->broadcast_event($end_event, $other, $loser);
         my $history_line = "";
-        $self->cash_war_bonds($other);
-        $self->discard_war_bonds($loser);
         $history_line .= "$other $winner_role won the war";
         $self->delete_war($other, $loser, $end_event);
     }

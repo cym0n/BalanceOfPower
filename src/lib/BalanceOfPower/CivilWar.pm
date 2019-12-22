@@ -165,8 +165,6 @@ sub win
         $self->register_event($e);
         $world->broadcast_event( $e, $self->nation_name );
       
-        $world->empty_stocks($self->nation_name);
-        $self->nation->available_stocks(START_STOCKS->[$self->nation->size]);
     }
     elsif($winner eq 'government')
     {

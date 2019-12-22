@@ -12,7 +12,6 @@ use BalanceOfPower::Constants ':all';
 use BalanceOfPower::Utils qw(prev_turn next_turn);
 use BalanceOfPower::Nation;
 use BalanceOfPower::Dice;
-use BalanceOfPower::Commands;
 
 has name => (
     is => 'ro',
@@ -82,7 +81,6 @@ has savefile => (
 
 
 
-with 'BalanceOfPower::Role::GameMaster';
 with 'BalanceOfPower::Role::Historian';
 with 'BalanceOfPower::Role::Herald';
 with 'BalanceOfPower::Role::Ruler';
@@ -90,14 +88,11 @@ with 'BalanceOfPower::Role::Mapmaker';
 with 'BalanceOfPower::Role::Supporter';
 with 'BalanceOfPower::Role::Diplomat';
 with 'BalanceOfPower::Role::Merchant';
-with 'BalanceOfPower::Role::Broker';
 with 'BalanceOfPower::Role::Recorder';
 with 'BalanceOfPower::Role::Warlord';
 with 'BalanceOfPower::Role::Rebel';
 with 'BalanceOfPower::Role::CrisisManager';
 with 'BalanceOfPower::Role::Analyst';
-with 'BalanceOfPower::Role::Shopper';
-with 'BalanceOfPower::Role::WebMaster';
 
 sub get_nation
 {
@@ -228,7 +223,6 @@ sub init_random
             government => $nations_data{$n}->{government},
             export_quote => $export_quote, 
             government_strength => $government_strength,
-            available_stocks => START_STOCKS->[$nations_data{$n}->{size}],
             log_active => $self->log_active,
             log_dir => $self->log_dir,
             log_name => $self->log_name,
@@ -281,7 +275,6 @@ sub pre_decisions_elaborations
     my $t = shift;
     $self->init_year($t);
     $self->war_current_year();
-    $self->player_start_turn();
     $self->civil_war_current_year();
     $self->war_debts();
     $self->crisis_generator();
@@ -289,13 +282,11 @@ sub pre_decisions_elaborations
 sub post_decisions_elaborations
 {
     my $self = shift;
-    $self->execute_stock_orders();
     $self->execute_decisions();
     $self->economy();
     $self->civil_warfare();
     $self->warfare();
     $self->internal_conflict();
-    $self->player_targets();
     $self->register_global_data();
     $self->collect_events();
 }
@@ -542,7 +533,7 @@ sub execute_decisions
     #foreach my $d (@decisions)
     foreach my $n (@{$self->nation_names})
     {
-        my $command = $self->control($n);
+        my $command = undef;
         if(! $command)
         {
             my @nation_orders = grep { $_ =~ /^$n: / } @decisions; 
@@ -674,16 +665,7 @@ sub execute_decisions
         }
         $self->set_statistics_value($nation, 'order', $command);
     }
-    $self->empty_control_orders();
     $self->manage_route_adding(@route_adders);
-}
-sub empty_control_orders
-{
-    my $self = shift;
-    foreach my $p (@{$self->players})
-    {
-       $p->empty_control_orders(); 
-    }
 }
 
 sub manage_route_adding
@@ -753,50 +735,6 @@ sub decisions
         }
     }
     $self->ia_orders(\@decisions);
-}
-sub control
-{
-    my $self =  shift;
-    my $nation = shift;
-    my $quote = -1;
-    my $winner = undef;
-    my @losers = ();
-    my $winner_command;
-    foreach my $player (@{$self->players})
-    {
-        my $player_command = $player->get_control_order($nation);
-        if($player_command)
-        {
-            if($player->stocks($nation) > $quote)
-            {
-                if($winner)
-                {
-                    push @losers, $winner;
-                }
-                $winner = $player;
-                $quote = $player->stocks($nation);
-                $winner_command = $player_command;
-            }
-            else
-            {
-                push @losers, $player;
-            }
-        }
-    }
-    if($winner)
-    {
-        $winner->add_influence(-1 * INFLUENCE_COST, $nation);
-        $winner->register_event("ORDER FOR $nation IS EXECUTED: $winner_command");
-        for(@losers)
-        {
-            $_->register_event("ORDER FOR $nation NOT EXECUTED! " . $winner->name . " MORE POWERFUL");
-        }
-        return $winner_command;
-    }
-    else
-    {
-        return undef;
-    }
 }
 
 # DECISIONS END ###########################################################
@@ -1194,22 +1132,6 @@ sub collect_events
     {
        $self->set_statistics_value($n, 'progress', $n->progress);
     }
-    foreach my $p (@{$self->players})
-    {
-        my $status = $self->player_stocks_status($p->name);
-        $self->set_statistics_value($p, 'stock value', $status->{'stock_value'}, 'player');     
-        $self->set_statistics_value($p, 'money', $status->{'money'}, 'player');     
-        $self->set_statistics_value($p, 'total value', $status->{'total_value'}, 'player');     
-    }
-}
-
-### Commands
-
-sub build_commands
-{
-    my $self = shift;
-    my $commands = BalanceOfPower::Commands->new( world => $self, log_name => 'bop-commands.log', log_active => $self->log_active, log_dir => $self->log_dir );
-    return $commands;
 }
 
 ### Logs
@@ -1223,10 +1145,6 @@ sub set_log_dir
     $self->dice->log_dir($log_dir);
 
     for(@{$self->nations})
-    {
-        $_->log_dir($log_dir);
-    }
-    for(@{$self->players})
     {
         $_->log_dir($log_dir);
     }
