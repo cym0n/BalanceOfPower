@@ -10,6 +10,7 @@
 [% END %]
 <div class="col-sm-4">
 <div class="well col-sm-12">
+    <div class="row">
     <div class="col-sm-8">
         <h2>[% g.name %]</h2>
         <p>
@@ -22,6 +23,20 @@
         <br />
         <a class="btn btn-primary" href="/g/[% g.name %]/[% g.current_year %]/newspaper" role="button">GO</a>
         </p>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-sm-12">
+    <form action="/interaction/api/add-player" method="post">
+        <input type="hidden" name="game" value="[% g.name %]" />
+        <input type="hidden" name="start_year" value="[% g.current_year %]" />
+        <div class="form-group">
+            <label for="player">Name</label>
+            <input type="text" id="player" name="player">
+        <button type="submit" class="btn btn-primary">Add player</button>
+        </div>
+    </form>
+    </div>
     </div>
 </div>
 </div>

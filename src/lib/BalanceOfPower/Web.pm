@@ -73,6 +73,7 @@ sub startup {
   $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#events');
   $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
   $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
+  $r->post('/interaction/api/add-player')->to('interactive#add_player');
 }
 
 1;

@@ -186,6 +186,11 @@ use constant MAX_AFFORDABLE_PROGRESS => 0.8;
 use constant TIME_FOR_TARGET => 16;
 use constant EVENT_TURNS_TO_DUMP => 40;
 
+#Bids game
+use constant STARTING_FUNDS => 100;
+
+
+
 our @EXPORT_OK = ('MIN_EXPORT_QUOTE', 
                   'MAX_EXPORT_QUOTE',
                   'MIN_STARTING_TRADEROUTES',
@@ -329,5 +334,6 @@ our @EXPORT_OK = ('MIN_EXPORT_QUOTE',
                   'MAX_MISSIONS_FOR_USER',
                   'PENALTY_FACTOR_FOR_DROP_MISSION',
                   'MAX_HEALTH',
+                  'STARTING_FUNDS',
                 );
 our %EXPORT_TAGS = ( all => \@EXPORT_OK );
