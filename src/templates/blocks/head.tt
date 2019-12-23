@@ -32,6 +32,7 @@
             </center><p>
         [% END %]
         </div>
+        [% INCLUDE blocks/alerts.tt %]
 
       <div class="row row-offcanvas row-offcanvas-right">
 

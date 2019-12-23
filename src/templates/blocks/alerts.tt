@@ -1,0 +1,10 @@
+[% IF alert == 'player_already' %]
+<div class="alert alert-danger" role="alert">
+    Player already present
+</div>
+[% END %]
+[% IF alert == 'player_ok' %]
+<div class="alert alert-danger" role="alert">
+    Player already present
+</div>
+[% END %]

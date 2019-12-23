@@ -82,10 +82,19 @@ my $nation_codes = {
 sub home
 {
     my $c = shift;
+    my $alert = $c->param('alert');
+    
     my $client = MongoDB->connect();
     my $db = $client->get_database("bop_games");
     my @games = $db->get_collection("games")->find()->all();
+    foreach my $g(@games)
+    {
+        my $db = $client->get_database('bop_' . $g->{name} . '_interactions');
+        my @players = $db->get_collection('players')->find()->all();
+        $g->{players} = scalar @players;
+    }
     $c->stash(games => \@games);
+    $c->stash(alert => $alert);
     $c->render(template => 'bop/homepage');
 }
 

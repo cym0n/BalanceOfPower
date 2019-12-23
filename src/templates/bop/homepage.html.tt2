@@ -15,7 +15,12 @@
         <h2>[% g.name %]</h2>
         <p>
             <b>Starting year</b>: [% g.first_year %]<br />
-            <b>Current year</b>: [% g.current_year %]
+            <b>Current year</b>: [% g.current_year %]<br />
+            [% IF g.players > 0 %]
+            <b>Players</b>: [% g.players %]
+            [% ELSE %]
+            <br />
+            [% END %]
         </p>
     </div>
     <div class="col-sm-4">
