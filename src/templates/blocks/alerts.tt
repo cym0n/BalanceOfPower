@@ -1,10 +1,10 @@
 [% IF alert == 'player_already' %]
 <div class="alert alert-danger" role="alert">
-    Player already present
+    A player is already present
 </div>
 [% END %]
 [% IF alert == 'player_ok' %]
-<div class="alert alert-danger" role="alert">
-    Player already present
+<div class="alert alert-success" role="alert">
+    Player added
 </div>
 [% END %]

@@ -45,6 +45,9 @@ sub startup {
             my $next_turn = next_turn("$year/$turn");
             $c->stash(next_turn => $next_turn) if(compare_turns($next_turn, $data->{current_year}) < 0);
         }
+        my $dbp = $client->get_database('bop_' . $game . '_interactions');
+        my $player = $dbp->get_collection('players')->find()->next();
+        $c->stash(player => $player);
     }
 
 
@@ -73,7 +76,7 @@ sub startup {
   $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#events');
   $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
   $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
-#  $r->post('/interaction/api/add-player')->to('interactive#add_player');
+  $r->post('/interaction/api/add-player')->to('interactive#add_player');
 }
 
 1;

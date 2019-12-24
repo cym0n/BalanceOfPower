@@ -16,6 +16,11 @@
         <p>
             <b>Starting year</b>: [% g.first_year %]<br />
             <b>Current year</b>: [% g.current_year %]<br />
+            [% IF g.player %]
+            <b>Player</b>: [% g.player.name %]
+            [% ELSE %]
+            <br />
+            [% END %]
         </p>
     </div>
     <div class="col-sm-4">
@@ -25,6 +30,22 @@
         </p>
     </div>
     </div>
+    [% IF ! g.player %]
+    <div class="row">
+    <div class="col-sm-12">
+    <form action="/interaction/api/add-player" method="post">
+        <input type="hidden" name="game" value="[% g.name %]" />
+        <input type="hidden" name="start_year" value="[% g.current_year %]" />
+        <div class="form-group">
+            <label for="player">Name</label>
+            <input type="text" id="player" name="player">
+        <button type="submit" class="btn btn-primary">Add player</button>
+        </div>
+    </form>
+    </div>
+    </div>
+    [% ELSE %]
+    [% END %]
 </div>
 </div>
 [% IF flip == 0 %]

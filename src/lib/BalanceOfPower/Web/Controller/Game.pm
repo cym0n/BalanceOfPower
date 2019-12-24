@@ -90,8 +90,8 @@ sub home
     foreach my $g(@games)
     {
         my $db = $client->get_database('bop_' . $g->{name} . '_interactions');
-        my @players = $db->get_collection('players')->find()->all();
-        $g->{players} = scalar @players;
+        my $player = $db->get_collection('players')->find()->next();
+        $g->{player} = $player;
     }
     $c->stash(games => \@games);
     $c->stash(alert => $alert);
