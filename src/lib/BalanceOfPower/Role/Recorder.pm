@@ -411,10 +411,10 @@ sub load_mongo
     }
     else
     {
-        ($year, $turn) = split '/', $world_mongo->current_turn;
+        ($year, $turn) = split '/', $world_mongo->{current_year};
     }
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
-    my $world = $package->new( name => $game, mongo_save => 1, first_year => $world_mongo->{first_year}, log_active => 0, mongo_runtime_db => 'bop_' . $game . '_runtime' );
+    my $world = $package->new( name => $game, mongo_save => 1, first_year => $world_mongo->{first_year}, log_active => 0, mongo_runtime_db => 'bop_' . $game . '_runtime', current_year =>  $world_mongo->{current_year} );
 
     #nations
     $db = $mongo->get_database($db_dump_name);
