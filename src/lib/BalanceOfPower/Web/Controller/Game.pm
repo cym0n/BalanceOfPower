@@ -82,7 +82,6 @@ my $nation_codes = {
 sub home
 {
     my $c = shift;
-    my $alert = $c->param('alert');
     
     my $client = MongoDB->connect();
     my $db = $client->get_database("bop_games");
@@ -94,7 +93,6 @@ sub home
         $g->{player} = $player;
     }
     $c->stash(games => \@games);
-    $c->stash(alert => $alert);
     $c->render(template => 'bop/homepage');
 }
 

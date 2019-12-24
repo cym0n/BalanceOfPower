@@ -8,3 +8,8 @@
     Player added
 </div>
 [% END %]
+[% IF alert == 'bet_ok' %]
+<div class="alert alert-success" role="alert">
+    Bet added
+</div>
+[% END %]

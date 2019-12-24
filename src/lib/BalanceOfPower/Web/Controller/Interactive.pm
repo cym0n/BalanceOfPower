@@ -5,6 +5,7 @@ use v5.10;
 use Data::Dumper;
 use MongoDB;
 use BalanceOfPower::Constants ':all';
+use BalanceOfPower::World;
 
 sub add_player
 {
@@ -33,12 +34,13 @@ sub add_player
 sub add_bet
 {
     my $c = shift;
-    my $game = c->param('game');
-    my $nation = c->param('nation');
-    my $lasting = c->param('lasting');
-    my $side = c->param('side');
-    my $value = c->param('value');
+    my $game = $c->param('game');
+    my $nation = $c->param('nation');
+    my $lasting = $c->param('lasting');
+    my $side = $c->param('side');
+    my $value = $c->param('value');
 
+    say "Loading $game";
     my $world = BalanceOfPower::World->load_mongo($game); 
     my $nation_obj = $world->get_nation($nation);
     if(! $nation_obj)
@@ -53,11 +55,17 @@ sub add_bet
     {
         die "Bad value for side: $side";
     }
-
-
-
-
-
+    my $mongo = MongoDB->connect(); 
+    my $db = $mongo->get_database('bop_' . $game . '_interactions');
+    $db->get_collection('bets')->insert_one({
+                                                game => $game,
+                                                player => $c->stash('player'),
+                                                start_year => $world->current_year,
+                                                value => $value,
+                                                duration => $lasting,
+                                                side => $side
+                                            });
+    $c->redirect_to('/n/' . $game . '/' . $world->current_year . '/' . $nation_obj->code . '/view?alert=bet_ok');
 }
 
 1;

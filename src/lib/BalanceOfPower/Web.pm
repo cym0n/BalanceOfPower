@@ -22,6 +22,9 @@ sub startup {
     my $game = $c->param('game');
     my $year = $c->param('year');
     my $turn = $c->param('turn');
+    my $alert = $c->param('alert');
+
+    $c->stash(alert => $alert) if $alert;
 
     if($game)
     {
@@ -77,6 +80,7 @@ sub startup {
   $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
   $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
   $r->post('/interaction/api/add-player')->to('interactive#add_player');
+  $r->post('/interaction/api/add-bet')->to('interactive#add_bet');
 }
 
 1;
