@@ -398,12 +398,22 @@ sub load_mongo
     my $package = shift;
     my $game = shift;
     my $time = shift;
-    my ($year, $turn) = split '/', $time;
-    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
 
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database('bop_games');
     my ($world_mongo) = $db->get_collection('games')->find({ name => $game})->all();
+
+    my $year;
+    my $turn;
+    if($time)
+    {
+        ($year, $turn) = split '/', $time;
+    }
+    else
+    {
+        ($year, $turn) = split '/', $world_mongo->current_turn;
+    }
+    my $db_dump_name = join('_', 'bop', $game, $year, $turn);
     my $world = $package->new( name => $game, mongo_save => 1, first_year => $world_mongo->{first_year}, log_active => 0, mongo_runtime_db => 'bop_' . $game . '_runtime' );
 
     #nations
