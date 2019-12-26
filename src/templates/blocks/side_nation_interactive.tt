@@ -1,6 +1,13 @@
 <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar">
     <div class="well well-sm">
         <h3>[% player.name %] ([% player.funds %])</h3>
+        [% IF bet != undef %]
+        <p>Bet placed <strong>[% bet.side %]</strong> [% nation.name %]<br >
+        Value: [% bet.value %]<br />
+        Started: [% bet.start_year %]<br />
+        Ending: [% bet.end %]<br />
+        </p>
+        [% ELSE %]
         <p>Place a bet on [% nation.name %]</p>
         <form action="/api/interaction/add-bet" method="post">
             <input type="hidden" name="game" value="[% game %]" />
@@ -33,5 +40,6 @@
             </div>
             <button type="submit" class="btn btn-primary">Bet</button>
         </form>
+        [% END %]
     </div>
 </div>

@@ -124,6 +124,29 @@ sub compare_turns
         return -1;
     }
 }
+
+sub add_turns
+{
+    my $date = shift;
+    my $turns = shift;
+    my $t = $date;
+    if($turns > 0)
+    {
+        for(my $i = 0; $i < $turns; $i++)
+        {
+            $t = next_turn($t);
+        }
+    }
+    elsif($turns < 0)
+    {
+        for(my $i = 0; $i < ($turns * -1); $i++)
+        {
+            $t = prev_turn($t);
+        }
+    }
+    return $t;
+}
+
 sub evidence_text
 {
     my $text = shift;
@@ -212,6 +235,6 @@ sub br
     }
 }
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active', 'as_html_title', 'as_html_box', 'as_html_dangerous', 'as_html_evidenced', 'as_main_title', 'as_main_subtitle', 'br');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active', 'as_html_title', 'as_html_box', 'as_html_dangerous', 'as_html_evidenced', 'as_main_title', 'as_main_subtitle', 'br', 'add_turns');
 
 1;

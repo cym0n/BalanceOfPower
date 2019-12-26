@@ -1,6 +1,6 @@
 package BalanceOfPower::Web;
 use Mojo::Base 'Mojolicious';
-use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns );
+use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns add_turns );
 
 # This method will run once at server start
 sub startup {
@@ -87,6 +87,16 @@ sub startup {
                 $c->stash(prev_turn => $prev_turn) if(compare_turns($prev_turn, $data->{first_year}) > 0);
                 my $next_turn = next_turn("$year/$turn");
                 $c->stash(next_turn => $next_turn) if(compare_turns($next_turn, $data->{current_year}) < 0);
+            }
+            if($ncode)
+            {
+                my $dbp = $client->get_database('bop_' . $game . '_interactions');
+                my ( $bet ) = $dbp->get_collection('bets')->find({ nation => $ncode })->all;
+                if($bet)
+                {
+                    $bet->{end} = add_turns($bet->{start_year}, $bet->{duration});
+                    $c->stash('bet' => $bet);
+                }
             }
         }
     } 
