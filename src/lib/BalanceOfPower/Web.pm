@@ -19,41 +19,83 @@ sub startup {
   $self->hook(around_action => sub {
     my ($next, $c, $action, $last) = @_;
     local $_ = $c;
-    my $game = $c->param('game');
-    my $year = $c->param('year');
-    my $turn = $c->param('turn');
-    my $alert = $c->param('alert');
 
-    $c->stash(alert => $alert) if $alert;
+    my $game = undef;
 
+    my $client = MongoDB->connect();
+
+    if( $c->req->url->path->contains('/api/interaction') )
+    {
+        $game = $c->param('game');
+        if($game)
+        {
+            say "Looking for $game in bop_games";
+            my $db = $client->get_database("bop_games");
+            my ($data) = $db->get_collection('games')->find({ name => $game })->all;
+            if($data)
+            {
+                say "Game $game found";
+                $c->stash(game => $game);
+                $c->stash(first_year => $data->{first_year} . '/1');
+                $c->stash(current_year => $data->{current_year});
+                my $nation = $c->param('nation');
+                if($nation)
+                {
+                    my $db_date = $data->{current_year};
+                    $db_date =~ s/\//_/;
+                    my $db_nation_name = "bop_" . $game . "_" . $db_date;
+                    my $db_nation = $client->get_database($db_nation_name);
+                    say "Looking for $nation in $db_nation_name";
+                    my ($nation_data) = $db_nation->get_collection('nations')->find({ code => $nation })->all;
+                    if($nation_data)
+                    {
+                        say "Nation $nation found";
+                        $c->stash('nation_code' => $nation_data->{code});
+                        $c->stash('nation_name' => $nation_data->{name});
+                    }
+                }
+            }
+        }
+    }
+    elsif($c->req->url->path->contains('/g') || $c->req->url->path->contains('/n'))
+    {
+        $game = $c->param('game');
+        my $year = $c->param('year');
+        my $turn = $c->param('turn');
+        my $ncode = $c->param('nationcode');
+        my $alert = $c->param('alert');
+
+        $c->stash(alert => $alert) if $alert;
+
+        if($game)
+        {
+            my $db = $client->get_database("bop_games");
+            my ($data) = $db->get_collection('games')->find({ name => $game })->all;
+            $c->stash(first_year => $data->{first_year} . '/1');
+            $c->stash(current_year => $data->{current_year});
+            if($year && $turn)
+            {
+                if(compare_turns("$year/$turn", $data->{current_year}) <= 0 &&
+                   compare_turns("$year/$turn", $data->{first_year}) >= 0)
+                {
+                }
+                else
+                {
+                    return $c->reply->not_found
+                }
+                my $prev_turn = prev_turn("$year/$turn");
+                $c->stash(prev_turn => $prev_turn) if(compare_turns($prev_turn, $data->{first_year}) > 0);
+                my $next_turn = next_turn("$year/$turn");
+                $c->stash(next_turn => $next_turn) if(compare_turns($next_turn, $data->{current_year}) < 0);
+            }
+        }
+    } 
     if($game)
     {
-        my $client = MongoDB->connect();
-        my $db = $client->get_database("bop_games");
-        my ($data) = $db->get_collection('games')->find({ name => $game })->all;
-        $c->stash(first_year => $data->{first_year} . '/1');
-        $c->stash(current_year => $data->{current_year});
-        if($year && $turn)
-        {
-            if(compare_turns("$year/$turn", $data->{current_year}) <= 0 &&
-               compare_turns("$year/$turn", $data->{first_year}) >= 0)
-            {
-            }
-            else
-            {
-                return $c->reply->not_found
-            }
-            my $prev_turn = prev_turn("$year/$turn");
-            $c->stash(prev_turn => $prev_turn) if(compare_turns($prev_turn, $data->{first_year}) > 0);
-            my $next_turn = next_turn("$year/$turn");
-            $c->stash(next_turn => $next_turn) if(compare_turns($next_turn, $data->{current_year}) < 0);
-        }
         my $dbp = $client->get_database('bop_' . $game . '_interactions');
         my $player = $dbp->get_collection('players')->find()->next();
         $c->stash(player => $player);
     }
-
-
     return $next->();
   });
 
@@ -79,8 +121,8 @@ sub startup {
   $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#events');
   $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
   $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
-  $r->post('/interaction/api/add-player')->to('interactive#add_player');
-  $r->post('/interaction/api/add-bet')->to('interactive#add_bet');
+  $r->post('/api/interaction/add-player')->to('interactive#add_player');
+  $r->post('/api/interaction/add-bet')->to('interactive#add_bet');
 }
 
 1;
