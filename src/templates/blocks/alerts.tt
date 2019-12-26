@@ -13,3 +13,13 @@
     Bet added
 </div>
 [% END %]
+[% IF alert == 'bet_already' %]
+<div class="alert alert-danger" role="alert">
+    Bet already present on this nation
+</div>
+[% END %]
+[% IF alert == 'no_funds' %]
+<div class="alert alert-danger" role="alert">
+    No funds available
+</div>
+[% END %]
