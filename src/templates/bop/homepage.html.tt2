@@ -31,19 +31,7 @@
     </div>
     </div>
     [% IF ! g.player %]
-    <div class="row">
-    <div class="col-sm-12">
-    <form action="/interaction/api/add-player" method="post">
-        <input type="hidden" name="game" value="[% g.name %]" />
-        <input type="hidden" name="start_year" value="[% g.current_year %]" />
-        <div class="form-group">
-            <label for="player">Name</label>
-            <input type="text" id="player" name="player">
-        <button type="submit" class="btn btn-primary">Add player</button>
-        </div>
-    </form>
-    </div>
-    </div>
+    [% INCLUDE blocks/homepage_game_interactive.tt %]
     [% ELSE %]
     [% END %]
 </div>
