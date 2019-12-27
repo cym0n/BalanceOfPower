@@ -8,6 +8,7 @@ use MongoDB;
 use IO::Prompter;
 use Getopt::Long;
 use BalanceOfPower::World;
+use BalanceOfPower::Interactive;
 use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
 
 my $usage = "$0 COMMAND SCENARIO [STEPS]\n\nAvailable commands:\n  new\n  elaborate\n  delete\n  help\n";
@@ -79,6 +80,15 @@ elsif($command eq 'elaborate')
         $year = next_turn($year);
     }
 }
+elsif($command eq 'int-evaluate')
+{
+    my $turn = shift;
+    my $int = BalanceOfPower::Interactive->new( game => $scenario );
+    my $n = $int->elaborate_values($turn);
+    say Dumper($n);
+}
+
+
 elsif($command eq 'help')
 {
     say $usage;
