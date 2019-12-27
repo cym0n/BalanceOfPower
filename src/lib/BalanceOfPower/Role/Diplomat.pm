@@ -218,7 +218,7 @@ sub change_diplomacy
         {
             $reason = "";
         }
-        $self->broadcast_event({ code => "relchange",
+        $self->broadcast_event({ code => "relchange" . $trend,
                                  text => $event_text,
                                  involved => [$node1, $node2],
                                  values => [$trend, $present_status, $actual_status, $reason]},
@@ -231,11 +231,12 @@ sub change_diplomacy
     else
     {
         my $event_text;
-        if($dipl > 0)
+        my $trend = $dipl > 0 ? 'up' : 'down';
+        if($trend eq 'up')
         {
             $event_text = "RELATIONS BETWEEN $node1 AND $node2 ARE BETTER";
         }
-        else
+        elsif($trend eq 'down')
         {
             $event_text = "RELATIONS BETWEEN $node1 AND $node2 ARE WORSE";
         }
@@ -243,7 +244,7 @@ sub change_diplomacy
         {
             $event_text = $event_text . " (" . $reason . ")";
         }
-        $self->broadcast_event({ code => "relchange",
+        $self->broadcast_event({ code => "relchange" . $trend,
                                  text => $event_text,
                                  involved => [$node1, $node2],
                                  values => [$trend, $actual_status, $actual_status, $reason]},

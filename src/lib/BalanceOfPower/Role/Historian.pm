@@ -475,9 +475,9 @@ sub print_newspaper
     my $title = shift;
     my $mode = shift || 'print';
     return "" if(! exists $self->events->{$y});
-    my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchange', 'acquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate', 'nopartecipatewar', 
+    my @ignored = ('traderefused', 'tradelack', 'wargoon', 'pressure', 'crisisstart', 'crisisup', 'crisisdown', 'crisisend', 'supfailed', 'rebsupfailed', 'progress', 'hatetreaty', 'limittreaty', 'uselesstreaty', 'lowerdisorder', 'disorderchangeup', 'disorderchangedown', 'acquireprogress', 'occupy', 'domintate', 'control', 'crisisescalate', 'nopartecipatewar', 
  );
-    my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchange', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken', 'govwincivil', 'rebwincivil', 'civiloutbreak' );
+    my @managed = ('bestprogress', 'bestwealth', 'tradedeleted', 'tradeadded', 'relchangeup', 'relchangedown', 'militaryaid', 'insurgentsaid', 'economicaid', 'supincreased', 'supstarted', 'supstopped', 'supdestroyed', 'suprefused', 'rebsupincreased', 'rebsupstarted','rebsupstopped', 'comtreatynew', 'nagtreatynew', 'alliancetreatynew', 'comtreatybroken', 'nagtreatybroken', 'alltreatybroken', 'govwincivil', 'rebwincivil', 'civiloutbreak' );
     my @war_events = ('warstart', 'warlinkedstart', 'warend');
     my @generic = ();
     my %events = $self->by_tags(@{$self->events->{$y}});
@@ -534,6 +534,7 @@ sub print_newspaper
     }
     $events{'others'} = \@generic;
     $events{'wars'} = \%wars;
+    say "Relchangeup: " . scalar @{$events{'relchangeup'}};
     return BalanceOfPower::Printer::print($mode, $self, 'print_newspaper', 
                                    { title => $title,
                                      turn => $y,

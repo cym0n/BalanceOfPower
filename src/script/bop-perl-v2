@@ -55,6 +55,8 @@ elsif($command eq 'delete')
         }
         $client->get_database('bop_' . $scenario . '_runtime')->drop;
         say "Deleting bop_$scenario" . '_runtime';
+        $client->get_database('bop_' . $scenario . '_interactions')->drop;
+        say "Deleting bop_$scenario" . '_interactions';
         my $db = $client->get_database("bop_games");
         $db->get_collection('games')->delete_one({ name => $scenario });
         say "Scenario deleted\n";

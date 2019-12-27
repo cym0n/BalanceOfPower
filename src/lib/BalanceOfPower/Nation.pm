@@ -248,7 +248,8 @@ sub calculate_disorder
                    $prg;
 
     $disorder = int ($disorder * 100) / 100;
-    $self->register_event({code => "disorderchange", text => "DISORDER CHANGE: " . $disorder, involved =>[$self->name], values => [$disorder]});
+    my $tag = $disorder > 0 ? 'up' : 'down';
+    $self->register_event({code => "disorderchange" . $tag, text => "DISORDER CHANGE: " . $disorder, involved =>[$self->name], values => [$disorder]});
     $self->add_internal_disorder($disorder, $world);
 }
 
@@ -312,9 +313,10 @@ sub add_internal_disorder
         $self->internal_disorder(0);
     }
     my $new_disorder = $self->internal_disorder_status;
+    my $tag = $disorder > 0 ? 'up': 'down';
     if($actual_disorder ne $new_disorder)
     {
-        $world->broadcast_event({ code => 'disorderchange',
+        $world->broadcast_event({ code => 'disorderchange' . $tag,
                                   text => "INTERNAL DISORDER LEVEL FROM $actual_disorder TO $new_disorder IN " . $self->name,
                                   involved => [$self->name] }, $self->name);
         if($new_disorder eq "Civil war")
