@@ -13,6 +13,7 @@ use BalanceOfPower::Relations::TradeRoute;
 use BalanceOfPower::Relations::MilitarySupport;
 use BalanceOfPower::Nation;
 use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns );
+use BalanceOfPower::Interactive;
 
 my $nation_codes = {
 'Nicaragua' => 'NIC',
@@ -532,7 +533,7 @@ sub nation_graphs
     my $year = $c->param('year');
     my $turn = $c->param('turn');
     my $n_code = $c->param('nationcode');
-    my @entities = ( "production", "w/d", "internal disorder", "army" );
+    my @entities = ( "production", "w/d", "internal disorder", "army", "value" );
     my $data;
     my $client = MongoDB->connect();
     my $db_dump_name = join('_', 'bop', $game, $year, $turn);
@@ -541,6 +542,7 @@ sub nation_graphs
     my $nation =  BalanceOfPower::Nation->from_mongo($nation_mongo);
     my $depth = 10;
     my $when = "$year/$turn";
+    my $interactive = BalanceOfPower::Interactive->new( game => $game );
     for(my $step = 0; $step < $depth; $step++)
     {
         my ($y, $t) = split "/", $when;
@@ -551,7 +553,16 @@ sub nation_graphs
         {
             foreach my $e ( @entities )
             {
-                my $value = $stats->{$nation->name}->{$e};
+                my $value = undef;
+                if($e eq "value")
+                {
+                    my ($int_values, undef) = $interactive->elaborate_values($when);
+                    $value = $int_values->{$nation->name};
+                }
+                else
+                {
+                    $value = $stats->{$nation->name}->{$e};
+                }
                 $data->{$e} = $data->{$e} ? ", ['$when', $value]" . $data->{$e} : ", ['$when', $value]";
                 if(! $data->{min}->{$e} || $value < $data->{min}->{$e})
                 {
@@ -568,7 +579,8 @@ sub nation_graphs
     $c->stash(colors => { 'w/d' => '#00c87c',
                         'production' => '#0081c9',
                         'internal disorder' => '#d90d11',
-                        'army' => '#736f6e' });
+                        'army' => '#736f6e',
+                        'value' => '#00008b' });
     $c->stash(entities => \@entities);
     $c->stash(object => $nation->name);
     $c->stash(nation => $nation);

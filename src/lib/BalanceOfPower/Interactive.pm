@@ -31,24 +31,40 @@ sub elaborate_values
     my $mongo = MongoDB->connect(); 
     my $db = $mongo->get_database('bop_' . $self->game . '_runtime');
     my @events = $db->get_collection('events')->find({ time => $turn})->all();
-    my %nations = ();
+    my %values = ();
+    my %explanations = ();
+    my %already = ();
     foreach my $e (@events)
     {
-        my $i = 0;
-        for(@{$self->event_values->{$e->{code}}})
+        my $event_tag = $e->{code} . '-' . join('-', @{$e->{involved}});
+        if(! exists $already{$event_tag})
         {
-            my $v = $_;
-            if(exists $nations{$e->{involved}->[$i]} )
+            $already{$event_tag} = 1;
+            my $i = 0;
+            for(@{$self->event_values->{$e->{code}}})
             {
-                $nations{$e->{involved}->[$i]} += $v
-            }   
-            else
-            {
-                $nations{$e->{involved}->[$i]} = $v
+                my $v = $_;
+                if(exists $explanations{$e->{involved}->[$i]})
+                {
+                    push @{$explanations{$e->{involved}->[$i]}}, $e->{code} . ": " . $v;
+                }
+                else
+                {
+                    $explanations{$e->{involved}->[$i]} = [ $e->{code} . ": " . $v ];
+                }
+                if(exists $values{$e->{involved}->[$i]} )
+                {
+                    $values{$e->{involved}->[$i]} += $v
+                }   
+                else
+                {
+                    $values{$e->{involved}->[$i]} = $v
+                }
+                $i++;
             }
         }
     }
-    return \%nations;
+    return \%values, \%explanations;
 }
 
 1;

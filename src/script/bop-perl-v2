@@ -84,11 +84,59 @@ elsif($command eq 'int-evaluate')
 {
     my $turn = shift;
     my $int = BalanceOfPower::Interactive->new( game => $scenario );
-    my $n = $int->elaborate_values($turn);
+    my $n, undef = $int->elaborate_values($turn);
     say Dumper($n);
 }
-
-
+elsif($command eq 'int-evaluate-range')
+{
+    my $start = shift;
+    my $end = shift;
+    my $file = shift;
+    my $header = 0;
+    my $int, undef = BalanceOfPower::Interactive->new( game => $scenario );
+    open(my $fh, "> $file");
+    my $turn = $start;
+    do
+    {
+        my $n = $int->elaborate_values($turn);
+        if(! $header)
+        {
+            my $line = "";
+            for(sort keys %{$n})
+            {
+                $line .= $_ . ";"
+            }
+            $line .= "\n";
+            print {$fh} $line;
+            $header = 1;
+        }
+        my $line = "";
+        for(sort keys %{$n})
+        {
+            $line .= $n->{$_} . ";"
+        }
+        $line .= "\n";
+        print {$fh} $line;
+        $turn = next_turn($turn);
+    }
+    while($turn ne $end);
+    close($fh);
+}
+elsif($command eq 'int-evaluate-explain')
+{
+    my $turn = shift;
+    my $nation = shift;
+    my $int = BalanceOfPower::Interactive->new( game => $scenario );
+    my ($n, $e)  = $int->elaborate_values($turn);
+    print "\n";
+    say "VALUE FOR $nation: " . $n->{$nation};
+    say "----";
+    for(@{$e->{$nation}})
+    {
+        say $_
+    }
+    say "---\n";
+}
 elsif($command eq 'help')
 {
     say $usage;
