@@ -9,7 +9,7 @@ use IO::Prompter;
 use Getopt::Long;
 use BalanceOfPower::World;
 use BalanceOfPower::Interactive;
-use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn);
+use BalanceOfPower::Utils qw(get_year_turns compare_turns prev_turn next_turn add_turns);
 
 my $usage = "$0 COMMAND SCENARIO [STEPS]\n\nAvailable commands:\n  new\n  elaborate\n  delete\n  help\n";
 my $first_year = 1970;
@@ -93,12 +93,13 @@ elsif($command eq 'int-evaluate-range')
     my $end = shift;
     my $file = shift;
     my $header = 0;
-    my $int, undef = BalanceOfPower::Interactive->new( game => $scenario );
+    my $int = BalanceOfPower::Interactive->new( game => $scenario );
     open(my $fh, "> $file");
     my $turn = $start;
     do
     {
-        my $n = $int->elaborate_values($turn);
+        my ($n, undef) = $int->elaborate_values($turn);
+        my ($sum, $counter, $average) = $int->elaborate_average($turn);
         if(! $header)
         {
             my $line = "";
@@ -113,7 +114,9 @@ elsif($command eq 'int-evaluate-range')
         my $line = "";
         for(sort keys %{$n})
         {
-            $line .= $n->{$_} . ";"
+            my $v = $n->{$_} - $average;
+            $v = sprintf("%.2f", $v);
+            $line .= $v . ";"
         }
         $line .= "\n";
         print {$fh} $line;
@@ -137,6 +140,36 @@ elsif($command eq 'int-evaluate-explain')
     }
     say "---\n";
 }
+elsif($command eq 'game')
+{
+    my $game_data = get_scenario($scenario); 
+    my $player_data = get_player($scenario);
+    my $int = BalanceOfPower::Interactive->new( game => $scenario );
+    say "Player current turn: " . $player_data->{current_year};
+    say "Game current turn: " .  $game_data->{current_year};
+    if(compare_turns($player_data->{current_year}, $game_data->{current_year}) == -1)
+    {
+        my $to_elaborate = $player_data->{current_year};
+        while($to_elaborate ne $game_data->{current_year})
+        {
+            $to_elaborate = next_turn($player_data->{current_year});
+            my ($bets, $collected, $archived) = get_active_bets($scenario, $to_elaborate);
+            my $c = 0;
+            foreach my $b (@{$bets})
+            {
+                $c++;
+                my $n_value = $int->calculate_bet_return($to_elaborate, $b);
+                update_bet($scenario, $to_elaborate, $b->{nation}, $n_value);
+            }
+            update_player($scenario, $player_data->{name}, $to_elaborate, $player_data->{funds} + $collected);
+            say "Values for " . $player_data->{name} . " on $to_elaborate done. $c bets updated, $archived bets archived";
+        }
+    }
+    else
+    {
+        say "No turn to run";
+    } 
+}
 elsif($command eq 'help')
 {
     say $usage;
@@ -154,4 +187,59 @@ sub get_scenario
     my $db = $client->get_database("bop_games");
     my ($data) = $db->get_collection('games')->find({ name => $scenario })->all;
     return $data;
+}
+sub get_player
+{
+    my $scenario = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_' . $scenario . '_interactions');
+    my ($data) = $db->get_collection('players')->find()->all();
+    return $data;
+}
+sub get_active_bets
+{
+    my $scenario = shift;
+    my $turn = shift;;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_' . $scenario . '_interactions');
+    my @bets = $db->get_collection('bets')->find()->all();
+    my @ok = ();
+    my $collected = 0;
+    my $c = 0;
+    foreach my $b (@bets)
+    {
+        my $end = add_turns($b->{start_year}, $b->{duration});
+        if(compare_turns($turn, $end) <= 0)
+        {
+            push @ok, $b;
+        }
+        else
+        {
+            $c++;
+            $db->get_collection('bets')->delete_one({ nation => $b->{nation} });
+            $collected += $b->{value}; 
+            $db->get_collection('bets_archive')->insert_one($b)
+        }
+    }
+    return \@ok, $collected, $c;
+}
+sub update_bet
+{
+    my $scenario = shift;
+    my $turn = shift;
+    my $nation = shift;
+    my $value = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_' . $scenario . '_interactions');
+    $db->get_collection('bets')->update_one( { nation => $nation }, { '$set' => { value => $value}});
+}
+sub update_player
+{
+    my $scenario = shift;
+    my $player = shift;
+    my $turn = shift;
+    my $funds = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_' . $scenario . '_interactions');
+    $db->get_collection('players')->update_one( { name => $player }, { '$set' => { funds => $funds, current_year => $turn}});
 }

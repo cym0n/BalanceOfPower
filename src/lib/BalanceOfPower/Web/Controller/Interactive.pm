@@ -25,6 +25,7 @@ sub add_player
         $db->get_collection('players')->insert_one({
                                                     name => $player,
                                                     start_year => $start_year,
+                                                    current_year => $start_year,
                                                     funds => STARTING_FUNDS,
                                                     });
         $c->redirect_to('/?alert=player_ok');
@@ -61,7 +62,7 @@ sub add_bet
     }
     my $client = MongoDB->connect(); 
     my $db = $client->get_database('bop_' . $game . '_interactions');
-    my ($bet) = $db->get_collection('bets')->find({ game => $game, nation => $nation })->all;
+    my ($bet) = $db->get_collection('bets')->find({ nation => $nation })->all;
 
     if($bet)
     {
@@ -76,7 +77,6 @@ sub add_bet
         else
         {
             $db->get_collection('bets')->insert_one({
-                                                    game => $game,
                                                     player => $c->stash('player'),
                                                     start_year => $current_year,
                                                     value => $value,
