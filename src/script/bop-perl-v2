@@ -140,7 +140,18 @@ elsif($command eq 'int-evaluate-explain')
     }
     say "---\n";
 }
-elsif($command eq 'game')
+elsif($command eq 'int-average')
+{
+    my $turn = shift;
+    my $int = BalanceOfPower::Interactive->new( game => $scenario );
+    my ( $sum, $count, $av, $max, $min) = $int->elaborate_average($turn);
+    say "SUM: $sum";
+    say "COUNT: $count";
+    say "AVERAGE: $av";
+    say "MAX: $max";
+    say "MIN: $min";
+}
+elsif($command eq 'int-game')
 {
     my $game_data = get_scenario($scenario); 
     my $player_data = get_player($scenario);
@@ -159,6 +170,7 @@ elsif($command eq 'game')
             {
                 $c++;
                 my $n_value = $int->calculate_bet_return($to_elaborate, $b);
+                log_bet($to_elaborate, $b, $n_value);
                 update_bet($scenario, $to_elaborate, $b->{nation}, $n_value);
             }
             update_player($scenario, $player_data->{name}, $to_elaborate, $player_data->{funds} + $collected);
@@ -218,7 +230,8 @@ sub get_active_bets
             $c++;
             $db->get_collection('bets')->delete_one({ nation => $b->{nation} });
             $collected += $b->{value}; 
-            $db->get_collection('bets_archive')->insert_one($b)
+            $db->get_collection('bets_archive')->insert_one($b);
+            log_bet($turn, $b, undef);
         }
     }
     return \@ok, $collected, $c;
@@ -243,3 +256,31 @@ sub update_player
     my $db = $client->get_database('bop_' . $scenario . '_interactions');
     $db->get_collection('players')->update_one( { name => $player }, { '$set' => { funds => $funds, current_year => $turn}});
 }
+sub log_bet
+{
+    my $turn = shift;
+    my $bet = shift;
+    my $n_value = shift;
+    my $client = MongoDB->connect();
+    my $db = $client->get_database('bop_' . $scenario . '_interactions');
+    if($n_value)
+    {
+        $db->get_collection('log')->insert_one( {
+            turn => $turn,
+            bet => $bet,
+            text => "Value of the bet changed from " . $bet->{value} . " to $n_value"
+        });
+    }
+    else
+    {
+        $db->get_collection('log')->insert_one( {
+            turn => $turn,
+            bet => $bet,
+            text => "Bet archived. Value recollected " . $bet->{value}
+        });
+    }
+}
+    
+
+
+
