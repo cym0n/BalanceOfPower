@@ -15,71 +15,6 @@ use BalanceOfPower::Nation;
 use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns );
 use BalanceOfPower::Interactive;
 
-my $nation_codes = {
-'Nicaragua' => 'NIC',
-'Romania' => 'ROM',
-'Kenya' => 'KEN',
-'Iran' => 'IRI',
-'East Germany' => 'DDR',
-'South Korea' => 'KOR',
-'China' => 'CHN',
-'Australia' => 'AUS',
-'Canada' => 'CAN',
-'Tanzania' => 'TAN',
-'Syria' => 'SYR',
-'Zimbabwe' => 'ZIM',
-'West Germany' => 'BRD',
-'Burma' => 'BIR',
-'Japan' => 'JAP',
-'North Korea' => 'PRK',
-'Thailand' => 'THA',
-'USA' => 'USA',
-'Egypt' => 'EGY',
-'United Kingdom' => 'GBR',
-'Algeria' => 'ALG',
-'Poland' => 'POL',
-'Morocco' => 'MOR',
-'Turkey' => 'TUR',
-'USSR' => 'URS',
-'Mali' => 'MAL',
-'Brazil' => 'BRA',
-'Argentina' => 'ARG',
-'Cuba' => 'CUB',
-'Greece' => 'GRE',
-'Philippines' => 'PHI',
-'Mexico' => 'MEX',
-'Colombia' => 'COL',
-'Ethiopia' => 'ETH',
-'Libya' => 'LIB',
-'Sweden' => 'SWE',
-'Chile' => 'CHI',
-'Peru' => 'PER',
-'Tunisia' => 'TUN',
-'Spain' => 'SPA',
-'Israel' => 'ISR',
-'Venezuela' => 'VEN',
-'Honduras' => 'HON',
-'France' => 'FRA',
-'Indonesia' => 'INA',
-'Angola' => 'ANG',
-'Czechoslovakia' => 'CZE',
-'Taiwan' => 'TWN',
-'Zaire' => 'ZAI',
-'Afghanistan' => 'AFG',
-'Italy' => 'ITA',
-'Iraq' => 'IRQ',
-'Saudi Arabia' => 'KSA',
-'Pakistan' => 'PAK',
-'Panama' => 'PAN',
-'Sudan' => 'SUD',
-'Mozambique' => 'MOZ',
-'India' => 'IND',
-'Yugoslavia' => 'YUG',
-'Nigeria' => 'NIG',
-'Vietnam' => 'VIE',
-'South Africa' => 'RSA'
-};
-
 sub home
 {
     my $c = shift;
@@ -190,7 +125,6 @@ sub newspaper {
     }
     $c->stash( wars => \%wars );
 
-    $c->stash(nation_codes => $nation_codes);
 
     $c->render(template => 'bop/newspaper');
 }
@@ -262,7 +196,6 @@ sub hotspots {
     $c->stash(civil_wars => \@civil_wars);
 
 
-    $c->stash(nation_codes => $nation_codes);
 
     $c->render(template => 'bop/hotspots');
 }
@@ -281,7 +214,6 @@ sub alliances
     my $cursor;
     my @alls = $db->get_collection('relations')->find({ rel_type => 'treaty', type => 'alliance'})->all;
     $c->stash(treaties => \@alls);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/alliances');
 }
 
@@ -303,7 +235,6 @@ sub influences
     }
     @inf = sort { lc($a->node1) cmp lc($b->node1) } @inf;
     $c->stash(influences => \@inf);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/influences');
 }
 
@@ -323,7 +254,6 @@ sub supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'support'})->all;
     $c->stash(page_title => "MILITARY SUPPORTS");
     $c->stash(supports => \@sups);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
 }
 
@@ -341,7 +271,6 @@ sub rebel_supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all;
     $c->stash(page_title => "REBEL SUPPORTS");
     $c->stash(supports => \@sups);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/supports');
 }
 
@@ -404,7 +333,6 @@ sub nation
         $c->stash(second_row_height => scalar @wars);
     }
     $c->stash(latest_order => $stats->{$nation_obj->name}->{'order'});
-    $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->stash(attributes => $attributes_names);
 
@@ -445,7 +373,6 @@ sub borders
     $c->stash( nation => $world->get_nation($nation) );
     $c->stash( borders => \%data );
     $c->stash( nation => $world->get_nation($nation) );
-    $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/borders');
 }
@@ -469,7 +396,6 @@ sub diplomacy
     }
     $c->stash( nation => $nation );
     $c->stash( relationships => \@friendships );
-    $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/diplomacy');
 }
@@ -521,7 +447,6 @@ sub events
     #my @events = $db->get_collection($game)->find({ time => "$year/$turn", source => $nation->name})->all; 
     $c->stash( events => \%events );
     $c->stash( turns => \@turns );
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/events');
 }
 
@@ -615,7 +540,6 @@ sub near
     }
     $c->stash( nation => $world->get_nation($nation) );
     $c->stash( near => \@data );
-    $c->stash(nation_codes => $nation_codes);
     $c->stash(nation_menu => 1);
     $c->render(template => 'bop/nation/near');
 }
@@ -683,7 +607,6 @@ sub war_history
     $c->stash(war_names => \@war_names);
     $c->stash(events => \%events);
     $c->stash(clocks => \%clocks);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/war_history');
 }
 
@@ -738,7 +661,6 @@ sub civil_war_history
     $c->stash(civil_war_names => \@war_names);
     $c->stash(events => \%events);
     $c->stash(clocks => \%clocks);
-    $c->stash(nation_codes => $nation_codes);
     $c->render(template => 'bop/civil_war_history');
 }
 
@@ -757,6 +679,8 @@ sub statistics
     my $attributes = ["production", "wealth", "w/d", "growth", "internal disorder", "army", "progress", "prestige"];
     my $nationstats;
     my @nnames = ();
+
+    my $nation_codes = $c->stash('nation_codes');
     foreach my $n (keys %{$nation_codes})
     {
         push @nnames, $n;
@@ -771,7 +695,6 @@ sub statistics
     }
     $c->stash(statistics => $nationstats);
     $c->stash(attributes => $attributes_names);
-    $c->stash(nation_codes => $nation_codes);
     $c->stash(names => \@nnames );
     $c->stash(custom_js => 'blocks/alldata.tt' );
     $c->render(template => 'bop/statistics');

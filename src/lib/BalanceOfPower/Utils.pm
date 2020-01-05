@@ -8,6 +8,44 @@ use warnings;
 
 use base 'Exporter';
 
+sub load_nations_data
+{
+    my $file = shift;
+    open(my $nations_file, "<", $file) || die $!;
+    my $area;
+    my %nations_data;
+    for(<$nations_file>)
+    {
+        my $n = $_;
+        chomp $n;
+        if(! ($n =~ /^#/))
+        {
+            my ($name, $code, $size, $government) = split(',', $n);
+            if($government eq 'd')
+            {
+                $government = 'democracy';
+            }
+            elsif($government eq 'D')
+            {
+                $government = 'dictatorship';
+            }
+            $nations_data{$name} = { code => $code,
+                                     area => $area,
+                                     size => $size,
+                                     government => $government ,
+                                   }
+
+        }
+        else
+        {
+            $n =~ /^# (.*)$/;
+            $area = $1;
+        }
+    }
+    return %nations_data;
+}
+
+
 sub prev_turn
 {
     my $year = shift;
@@ -235,6 +273,6 @@ sub br
     }
 }
 
-our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active', 'as_html_title', 'as_html_box', 'as_html_dangerous', 'as_html_evidenced', 'as_main_title', 'as_main_subtitle', 'br', 'add_turns');
+our @EXPORT_OK = ('prev_turn', 'next_turn', 'random', 'random10', 'get_year_turns', 'as_title', 'from_to_turns', 'compare_turns', 'as_subtitle', 'evidence_text', 'as_evidenced', 'as_active', 'as_html_title', 'as_html_box', 'as_html_dangerous', 'as_html_evidenced', 'as_main_title', 'as_main_subtitle', 'br', 'add_turns', 'load_nations_data');
 
 1;

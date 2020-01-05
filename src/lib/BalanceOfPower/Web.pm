@@ -1,6 +1,9 @@
 package BalanceOfPower::Web;
 use Mojo::Base 'Mojolicious';
-use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns add_turns );
+use Cwd 'abs_path';
+use File::Path 'make_path';
+
+use BalanceOfPower::Utils qw( next_turn prev_turn compare_turns add_turns load_nations_data );
 
 # This method will run once at server start
 sub startup {
@@ -20,9 +23,22 @@ sub startup {
     my ($next, $c, $action, $last) = @_;
     local $_ = $c;
 
+    my $module_file_path = __FILE__;
+    my $root_path = abs_path($module_file_path);
+    $root_path =~ s/Web\.pm//;
+    my $data_directory = $root_path . "data";
+    my %nations_data = load_nations_data("$data_directory/nations-v2.txt");
+    my %nation_codes = ();
+    for(keys %nations_data)
+    {
+        $nation_codes{$_} = $nations_data{$_}->{code};
+    }
+    $c->stash(nation_codes => \%nation_codes);
+
     my $game = undef;
 
     my $client = MongoDB->connect();
+
 
     if( $c->req->url->path->contains('/api/interaction') )
     {

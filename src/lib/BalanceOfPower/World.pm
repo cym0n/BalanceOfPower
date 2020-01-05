@@ -9,7 +9,7 @@ use Cwd 'abs_path';
 use File::Path 'make_path';
 
 use BalanceOfPower::Constants ':all';
-use BalanceOfPower::Utils qw(prev_turn next_turn);
+use BalanceOfPower::Utils qw(prev_turn next_turn load_nations_data);
 use BalanceOfPower::Nation;
 use BalanceOfPower::Dice;
 
@@ -138,52 +138,13 @@ sub get_prev_year
     return prev_turn($self->current_year);
 }
 
-sub load_nations_data
-{
-    my $self = shift;
-    my $datafile = shift;
-    my $file = $self->data_directory . "/" . $datafile;
-    open(my $nations_file, "<", $file) || die $!;
-    my $area;
-    my %nations_data;
-    for(<$nations_file>)
-    {
-        my $n = $_;
-        chomp $n;
-        if(! ($n =~ /^#/))
-        {
-            my ($name, $code, $size, $government) = split(',', $n);
-            if($government eq 'd')
-            {
-                $government = 'democracy';
-            }
-            elsif($government eq 'D')
-            {
-                $government = 'dictatorship';
-            }
-            $nations_data{$name} = { code => $code,
-                                     area => $area,
-                                     size => $size,
-                                     government => $government ,
-                                   }
-
-        }
-        else
-        {
-            $n =~ /^# (.*)$/;
-            $area = $1;
-        }
-    }
-    return %nations_data;
-}
-
 #Initial values, randomly generated
 sub init_random
 {
     my $self = shift;
     my $datafile = shift;
     my $bordersfile = shift;
-    my %nations_data = $self->load_nations_data($datafile);
+    my %nations_data = load_nations_data($self->data_directory . "/$datafile");
     my $flags = shift;
 
     my $trades = 1;
