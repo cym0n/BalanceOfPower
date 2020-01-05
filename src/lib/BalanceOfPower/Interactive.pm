@@ -35,6 +35,10 @@ sub _build_nations_data {
     my %nations_data = load_nations_data("$data_directory/nations-v2.txt");
     return \%nations_data;
 }
+has verbose => (
+    is => 'rw',
+    default => 0
+);
 
 sub elaborate_values
 {
@@ -108,13 +112,16 @@ sub calculate_bet_return
     my ($sum, $count, $average, $max, $min) = $self->elaborate_average($turn);
     my $nation = $bet->{nation};
     my $add;
-    say "SUM: $sum";
-    say "COUNT: $count";
-    say "AVERAGE: $average";
-    say "MAX: $max";
-    say "MIN: $min";
-    say "Nation is $nation, side is " . $bet->{side} . ", actual value is " . $bet->{value};
-    say "Value is " . $values->{$nation};
+    if($self->verbose)
+    {
+        say "SUM: $sum";
+        say "COUNT: $count";
+        say "AVERAGE: $average";
+        say "MAX: $max";
+        say "MIN: $min";
+        say "Nation is $nation, side is " . $bet->{side} . ", actual value is " . $bet->{value};
+        say "Value is " . $values->{$nation};
+    }
     if($values->{$nation} >= $average)
     {
         my $perc = (($values->{$nation} - int($average)) * 100 ) / ($max - int($average));
@@ -128,7 +135,7 @@ sub calculate_bet_return
         $add = $add * (-1) if $bet->{side} eq 'for';
     }
     my $new_value = $bet->{value} + $add; 
-    say "New value ($add): $new_value";
+    say "New value ($add): $new_value" if($self->verbose);
     return sprintf("%.2f", $new_value);
     
 }
