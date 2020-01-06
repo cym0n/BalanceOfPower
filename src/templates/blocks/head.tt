@@ -6,8 +6,11 @@
         </div>
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
-
-
+    [% IF nation_code %]
+    [% endpoint = "/n/$nation_code/$page" %]
+    [% ELSE %]
+    [% endpoint = "/g/$page" %]
+    [% END %]
     <div class="container">
     <div class="page-header">
         <center><h2><a href="/world/[% game %]/g/years">[% game %]</a></h2></center>
@@ -16,18 +19,18 @@
             [% this_turn = "$year/$turn" %]
             [% IF year AND turn %]
             [% IF first_year != this_turn %]
-            <a href="/world/[% game %]/[% first_year %]/g/newspaper">[% first_year %]</a>
+            <a href="/world/[% game %]/[% first_year %][% endpoint %]">[% first_year %]</a>
             [% END %]
             [% IF prev_turn %]
-                <a href="/world/[% game %]/[% prev_turn %]/g/newspaper">&lt;</a>
+                <a href="/world/[% game %]/[% prev_turn %][% endpoint %]">&lt;</a>
             [% END %]
-                <a style="font-size:25px" href="/world/[% game %]/[% year %]/[% turn %]/g/newspaper"><b>[% this_turn %]</b></a>
+                <a style="font-size:25px" href="/world/[% game %]/[% year %]/[% turn %][% endpoint %]"><b>[% this_turn %]</b></a>
             [% IF next_turn %]
-                <a href="/world/[% game %]/[% next_turn %]/g/newspaper">&gt;</a>
+                <a href="/world/[% game %]/[% next_turn %][% endpoint %]">&gt;</a>
             [% END %]
             [% END %]
             [% IF current_year != this_turn %]
-                <a href="/world/[% game %]/[% current_year %]/g/newspaper">[% current_year %]</a>
+                <a href="/world/[% game %]/[% current_year %][% endpoint %]">[% current_year %]</a>
             [% END %]
             </center><p>
         [% END %]

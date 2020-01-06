@@ -106,6 +106,7 @@ sub startup {
             }
             if($ncode)
             {
+                $c->stash('nation_code' => $ncode);
                 my $dbp = $client->get_database('bop_' . $game . '_interactions');
                 my ( $bet ) = $dbp->get_collection('bets')->find({ nation => $ncode })->all;
                 if($bet)

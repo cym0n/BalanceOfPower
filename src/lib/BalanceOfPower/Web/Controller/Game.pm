@@ -124,7 +124,7 @@ sub newspaper {
         }
     }
     $c->stash( wars => \%wars );
-
+    $c->stash( page => 'newspaper' );
 
     $c->render(template => 'bop/newspaper');
 }
@@ -195,6 +195,7 @@ sub hotspots {
     }
     $c->stash(civil_wars => \@civil_wars);
 
+    $c->stash( page => 'hotspots' );
 
 
     $c->render(template => 'bop/hotspots');
@@ -214,6 +215,7 @@ sub alliances
     my $cursor;
     my @alls = $db->get_collection('relations')->find({ rel_type => 'treaty', type => 'alliance'})->all;
     $c->stash(treaties => \@alls);
+    $c->stash( page => 'alliances' );
     $c->render(template => 'bop/alliances');
 }
 
@@ -235,6 +237,7 @@ sub influences
     }
     @inf = sort { lc($a->node1) cmp lc($b->node1) } @inf;
     $c->stash(influences => \@inf);
+    $c->stash( page => 'influences' );
     $c->render(template => 'bop/influences');
 }
 
@@ -254,6 +257,7 @@ sub supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'support'})->all;
     $c->stash(page_title => "MILITARY SUPPORTS");
     $c->stash(supports => \@sups);
+    $c->stash( page => 'supports' );
     $c->render(template => 'bop/supports');
 }
 
@@ -271,6 +275,7 @@ sub rebel_supports
     my @sups = $db->get_collection('relations')->find({ rel_type => 'rebel_support'})->all;
     $c->stash(page_title => "REBEL SUPPORTS");
     $c->stash(supports => \@sups);
+    $c->stash( page => 'rebel_supports' );
     $c->render(template => 'bop/supports');
 }
 
@@ -334,6 +339,7 @@ sub nation
     }
     $c->stash(latest_order => $stats->{$nation_obj->name}->{'order'});
     $c->stash(nation_menu => 1);
+    $c->stash( page => 'view' );
     $c->stash(attributes => $attributes_names);
 
 
@@ -374,6 +380,7 @@ sub borders
     $c->stash( borders => \%data );
     $c->stash( nation => $world->get_nation($nation) );
     $c->stash(nation_menu => 1);
+    $c->stash( page => 'borders' );
     $c->render(template => 'bop/nation/borders');
 }
 
@@ -397,6 +404,7 @@ sub diplomacy
     $c->stash( nation => $nation );
     $c->stash( relationships => \@friendships );
     $c->stash(nation_menu => 1);
+    $c->stash( page => 'diplomacy' );
     $c->render(template => 'bop/nation/diplomacy');
 }
 
@@ -447,6 +455,7 @@ sub events
     #my @events = $db->get_collection($game)->find({ time => "$year/$turn", source => $nation->name})->all; 
     $c->stash( events => \%events );
     $c->stash( turns => \@turns );
+    $c->stash( page => 'events' );
     $c->render(template => 'bop/events');
 }
 
@@ -515,6 +524,7 @@ sub nation_graphs
     $c->stash(gdata => $data);
     $c->stash(army => $data->{army});
     $c->stash(nation_menu => 1);
+    $c->stash( page => 'graphs' );
     $c->render(template => 'bop/nation/graphs');
 }
 
@@ -541,6 +551,7 @@ sub near
     $c->stash( nation => $world->get_nation($nation) );
     $c->stash( near => \@data );
     $c->stash(nation_menu => 1);
+    $c->stash( page => 'near' );
     $c->render(template => 'bop/nation/near');
 }
 
@@ -607,6 +618,7 @@ sub war_history
     $c->stash(war_names => \@war_names);
     $c->stash(events => \%events);
     $c->stash(clocks => \%clocks);
+    $c->stash(page => 'warhistory');
     $c->render(template => 'bop/war_history');
 }
 
@@ -661,6 +673,7 @@ sub civil_war_history
     $c->stash(civil_war_names => \@war_names);
     $c->stash(events => \%events);
     $c->stash(clocks => \%clocks);
+    $c->stash(page => 'cwarhistory');
     $c->render(template => 'bop/civil_war_history');
 }
 
@@ -696,6 +709,7 @@ sub statistics
     $c->stash(statistics => $nationstats);
     $c->stash(attributes => $attributes_names);
     $c->stash(names => \@nnames );
+    $c->stash(page => 'statistics');
     $c->stash(custom_js => 'blocks/alldata.tt' );
     $c->render(template => 'bop/statistics');
 }
