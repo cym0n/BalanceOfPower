@@ -9,7 +9,7 @@
 [% FOREACH t IN y.turns %]
 <div class="col-sm-2">
     <div class="well">
-        <p><center><a href="/g/[% game %]/[% y.year %]/[% t %]/newspaper">[% y.year %]/[% t %]</a></center></p>
+        <p><center><a href="/world/[% game %]/[% y.year %]/[% t %]/g/newspaper">[% y.year %]/[% t %]</a></center></p>
     </div>
 </div>
 [% END %]

@@ -73,7 +73,7 @@ sub startup {
             }
         }
     }
-    elsif($c->req->url->path->contains('/g') || $c->req->url->path->contains('/n'))
+    elsif($c->req->url->path->contains('/world'))
     {
         $game = $c->param('game');
         my $year = $c->param('year');
@@ -130,23 +130,24 @@ sub startup {
 
   # Normal route to controller
   $r->get('/')->to('game#home');
-  $r->get('/g/:game/years')->to('game#years');
-  $r->get('/g/:game/:year/:turn/newspaper')->to('game#newspaper');
-  $r->get('/g/:game/:year/:turn/hotspots')->to('game#hotspots');
-  $r->get('/g/:game/:year/:turn/alliances')->to('game#alliances');
-  $r->get('/g/:game/:year/:turn/influences')->to('game#influences');
-  $r->get('/g/:game/:year/:turn/supports')->to('game#supports');
-  $r->get('/g/:game/:year/:turn/rsupports')->to('game#rebel_supports');
-  $r->get('/g/:game/:year/:turn/warhistory')->to('game#war_history');
-  $r->get('/g/:game/:year/:turn/cwarhistory')->to('game#civil_war_history');
-  $r->get('/g/:game/:year/:turn/events')->to('game#events');
-  $r->get('/g/:game/:year/:turn/statistics')->to('game#statistics');
-  $r->get('/n/:game/:year/:turn/:nationcode/view')->to('game#nation');
-  $r->get('/n/:game/:year/:turn/:nationcode/borders')->to('game#borders');
-  $r->get('/n/:game/:year/:turn/:nationcode/diplomacy')->to('game#diplomacy');
-  $r->get('/n/:game/:year/:turn/:nationcode/events')->to('game#events');
-  $r->get('/n/:game/:year/:turn/:nationcode/graphs')->to('game#nation_graphs');
-  $r->get('/n/:game/:year/:turn/:nationcode/near')->to('game#near');
+  $r->get('/world/:game/g/years')->to('game#years');
+  #/g/:game/:year/:turn/
+  $r->get('/world/:game/:year/:turn/g/newspaper')->to('game#newspaper');
+  $r->get('/world/:game/:year/:turn/g/hotspots')->to('game#hotspots');
+  $r->get('/world/:game/:year/:turn/g/alliances')->to('game#alliances');
+  $r->get('/world/:game/:year/:turn/g/influences')->to('game#influences');
+  $r->get('/world/:game/:year/:turn/g/supports')->to('game#supports');
+  $r->get('/world/:game/:year/:turn/g/rsupports')->to('game#rebel_supports');
+  $r->get('/world/:game/:year/:turn/g/warhistory')->to('game#war_history');
+  $r->get('/world/:game/:year/:turn/g/cwarhistory')->to('game#civil_war_history');
+  $r->get('/world/:game/:year/:turn/g/events')->to('game#events');
+  $r->get('/world/:game/:year/:turn/g/statistics')->to('game#statistics');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/view')->to('game#nation');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/borders')->to('game#borders');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/diplomacy')->to('game#diplomacy');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/events')->to('game#events');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/graphs')->to('game#nation_graphs');
+  $r->get('/world/:game/:year/:turn/n/:nationcode/near')->to('game#near');
   $r->post('/api/interaction/add-player')->to('interactive#add_player');
   $r->post('/api/interaction/add-bet')->to('interactive#add_bet');
 }

@@ -1,4 +1,3 @@
-[% IF title %]<h3>[% title %]</h3>[% END %]
 [% FOREACH t IN turns %]
 <h4>[% t %]</h4>
 [% IF events.$t.size != "" %]

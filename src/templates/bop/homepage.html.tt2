@@ -26,7 +26,7 @@
     <div class="col-sm-4">
         <p>
         <br />
-        <a class="btn btn-primary" href="/g/[% g.name %]/[% g.current_year %]/newspaper" role="button">GO</a>
+        <a class="btn btn-primary" href="/world/[% g.name %]/[% g.current_year %]/g/newspaper" role="button">GO</a>
         </p>
     </div>
     </div>

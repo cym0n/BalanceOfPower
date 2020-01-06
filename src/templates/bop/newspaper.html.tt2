@@ -3,7 +3,7 @@
 <h2>NEWSPAPER</h2>
 <p style="font-size:5px">&nbsp;</p>
 [% INCLUDE "data/newspaper.tt" %]
-<p class="text-muted">For a detailed log click <a href="/g/[% game %]/[% year %]/[% turn %]/events">here</a></p>
+<p class="text-muted">For a detailed log click <a href="/world/[% game %]/[% year %]/[% turn %]/g/events">here</a></p>
 </div><!--/.col-xs-12.col-sm-9-->
 
 [% INCLUDE blocks/side.tt %]
