@@ -482,9 +482,9 @@ sub nation_graphs
                 if($e eq "value")
                 {
                     my ($int_values, undef) = $interactive->elaborate_values($when);
-                    $value = $int_values->{$nation->name};
-                    my ($sum, $count, $average) = $interactive->elaborate_average($when);
-                    $value = $value -$average;
+                    $value = $int_values->{$n_code};
+                    my ($sum, $count, $average, $max, $min) = $interactive->elaborate_average($when);
+                    $value = $value - $average;
                     $value = sprintf("%.2f", $value);
                 }
                 else
